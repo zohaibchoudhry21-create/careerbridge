@@ -8,7 +8,6 @@ const navLinks = [
   { label: 'CV Upload', href: '/register' },
   { label: 'AI Suggestions', href: '/register' },
   { label: 'Resume Builder', href: '/register' },
-  { label: 'Auto Apply', href: '/register' },
 ];
 
 const linkClassName =

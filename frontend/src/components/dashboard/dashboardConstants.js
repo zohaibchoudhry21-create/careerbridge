@@ -4,7 +4,6 @@ export const DASHBOARD_NAV_ITEMS = [
   { id: 'resume-scanner', label: 'Resume Scanner', icon: 'document_scanner', href: '#' },
   { id: 'interview-prep', label: 'Interview Prep', icon: 'mic_external_on', href: '#' },
   { id: 'linkedin', label: 'LinkedIn Optimizer', icon: 'share_reviews', href: '#' },
-  { id: 'auto-apply', label: 'Auto Apply', icon: 'bolt', href: '#' },
 ];
 
 export const QUICK_ACTIONS = [

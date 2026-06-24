@@ -12,7 +12,6 @@ const footerLinks = {
     'AI-Proof Analysis',
     'Skill Gap Analysis',
     'Smart Job Matching',
-    'Auto Apply Agent',
   ],
   Resources: ['Career Blog', 'Interview Tips', 'Resume Guides', 'AI Career Trends', 'Help Center'],
 };
