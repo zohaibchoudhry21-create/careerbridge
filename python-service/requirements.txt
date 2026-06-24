@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pymupdf
+pdfplumber
+pdf2image
+pytesseract
+python-multipart
