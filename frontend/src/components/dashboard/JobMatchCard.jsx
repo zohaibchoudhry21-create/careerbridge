@@ -24,7 +24,6 @@ function JobMatchCard({ job }) {
             </p>
             <div className="mt-xs flex flex-wrap items-center gap-sm">
               <span className="flex items-center gap-1 text-[12px] text-secondary font-bold">
-                <span className="material-symbols-outlined text-[16px]">auto_awesome</span>
                 {job.matchPercentage}% Skill Match
               </span>
               {job.recommendedByAi ? (

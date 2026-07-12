@@ -5,7 +5,7 @@ const A4_WIDTH = 794;
 const A4_HEIGHT = 1123;
 
 const heroTypingPhrases = [
-  'Yes, really 🚀',
+  'Yes, really',
   'build ATS-optimized resumes.',
   'land interviews faster.',
   'download unlimited PDFs.',
@@ -102,7 +102,7 @@ export default function Hero() {
                 to="/register"
                 className="inline-flex w-full sm:w-auto items-center justify-center bg-primary-container text-on-primary text-lg rounded-xl px-8 py-4 hover:opacity-90 transition-opacity"
               >
-                Get started for free ✨
+                Get started for free
               </Link>
             </div>
 
@@ -162,9 +162,6 @@ export default function Hero() {
                   <p className="font-body-md text-body-md text-on-surface-variant text-sm leading-tight">
                     Product Manager
                   </p>
-                  <p className="text-amber-400 text-sm leading-none mt-1" aria-label="5 star rating">
-                    ★★★★★
-                  </p>
                 </div>
               </div>
 
@@ -175,7 +172,7 @@ export default function Hero() {
                       Powerful websites I wish I knew earlier:
                     </p>
                     <p className="font-label-md text-label-md text-on-surface text-sm mt-1 leading-snug">
-                      This one is a LIFESAVER 😩
+                      This one is a LIFESAVER
                     </p>
                   </div>
                   <TikTokIcon className="w-7 h-7 text-on-surface shrink-0" />
