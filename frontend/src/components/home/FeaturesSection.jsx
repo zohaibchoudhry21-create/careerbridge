@@ -14,7 +14,6 @@ const features = [
       'Too busy to type? Speak your experience aloud and let our AI structure it into professional bullet points.',
   },
   {
-    icon: 'flash_on',
     title: '1-Click Optimization',
     description:
       'Paste a job description. We rewrite your bullets to match keywords and highlight relevant experience instantly.',
@@ -68,9 +67,11 @@ export default function FeaturesSection() {
           >
             <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-2xl shadow-sm hover:shadow-[0_0_20px_rgba(33,112,228,0.2)] transition-all hover:border-secondary group relative overflow-hidden hover-lift h-full">
               <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/5 rounded-bl-full transition-transform group-hover:scale-110" />
-              <div className="w-12 h-12 bg-surface-container rounded-xl flex items-center justify-center text-secondary mb-4 relative z-10 group-hover:bg-secondary group-hover:text-white transition-colors">
-                <span className="material-symbols-outlined">{feature.icon}</span>
-              </div>
+              {feature.icon ? (
+                <div className="w-12 h-12 bg-surface-container rounded-xl flex items-center justify-center text-secondary mb-4 relative z-10 group-hover:bg-secondary group-hover:text-white transition-colors">
+                  <span className="material-symbols-outlined">{feature.icon}</span>
+                </div>
+              ) : null}
               <h3 className="font-label-md text-label-md text-on-surface mb-2 relative z-10">
                 {feature.title}
               </h3>

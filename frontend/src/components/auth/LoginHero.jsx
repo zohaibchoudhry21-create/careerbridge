@@ -27,9 +27,6 @@ export default function LoginHero() {
         className="relative z-10 w-full max-w-xl xl:max-w-2xl 2xl:max-w-3xl transition-transform duration-200"
       >
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 glass-panel rounded-full mb-lg border border-white/20">
-          <span className="material-symbols-outlined text-surface-bright text-sm filled">
-            auto_awesome
-          </span>
           <span className="font-label-sm text-label-sm text-surface-bright uppercase tracking-wider">
             AI-Powered Career OS
           </span>
