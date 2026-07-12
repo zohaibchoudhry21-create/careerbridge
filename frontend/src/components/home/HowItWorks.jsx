@@ -17,7 +17,6 @@ const steps = [
   },
   {
     number: 3,
-    icon: 'rocket_launch',
     title: 'Optimize & Apply',
     description:
       'Target specific roles. One click adjusts your CV keywords to beat ATS filters for that exact job description.',
@@ -40,20 +39,22 @@ function StepIcon({ icon, number }) {
         boxShadow: '0 4px 20px rgba(0, 0, 100, 0.10)',
       }}
     >
-      <span
-        className="material-symbols-outlined select-none"
-        style={{
-          fontSize: ICON_SIZE,
-          width: ICON_SIZE,
-          height: ICON_SIZE,
-          lineHeight: 1,
-          color: ICON_COLOR,
-          fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 32",
-        }}
-        aria-hidden="true"
-      >
-        {icon}
-      </span>
+      {icon ? (
+        <span
+          className="material-symbols-outlined select-none"
+          style={{
+            fontSize: ICON_SIZE,
+            width: ICON_SIZE,
+            height: ICON_SIZE,
+            lineHeight: 1,
+            color: ICON_COLOR,
+            fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 32",
+          }}
+          aria-hidden="true"
+        >
+          {icon}
+        </span>
+      ) : null}
       <span
         className="absolute flex items-center justify-center rounded-full font-bold text-white"
         style={{

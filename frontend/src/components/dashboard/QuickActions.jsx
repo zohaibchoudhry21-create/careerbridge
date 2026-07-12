@@ -18,7 +18,9 @@ function QuickActions() {
               featured ? 'dashboard-ai-glow' : 'dashboard-glass-card'
             }`}
           >
-            <span className="material-symbols-outlined text-secondary text-[28px] shrink-0">{icon}</span>
+            {icon ? (
+              <span className="material-symbols-outlined text-secondary text-[28px] shrink-0">{icon}</span>
+            ) : null}
             <span className={`font-label-md min-w-0 break-words ${featured ? 'text-secondary' : ''}`}>{label}</span>
           </button>
         ))}

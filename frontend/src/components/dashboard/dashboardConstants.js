@@ -8,7 +8,7 @@ export const DASHBOARD_NAV_ITEMS = [
 
 export const QUICK_ACTIONS = [
   { id: 'build-resume', label: 'Build ATS Resume', icon: 'description', featured: false, href: '/resume/templates' },
-  { id: 'optimize-resume', label: 'Optimize Resume', icon: 'magic_button', featured: false },
+  { id: 'optimize-resume', label: 'Optimize Resume', featured: false },
   { id: 'cover-letter', label: 'Create Cover Letter', icon: 'edit_note', featured: false },
 ];
 

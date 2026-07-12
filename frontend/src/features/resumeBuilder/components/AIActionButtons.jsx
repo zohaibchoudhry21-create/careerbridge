@@ -15,7 +15,6 @@ export default function AIActionButtons({
   content = '',
   context = '',
   onResult,
-  showRobotOn = ['improve', 'suggest'],
 }) {
   const [loadingAction, setLoadingAction] = useState(null);
 
@@ -62,7 +61,6 @@ export default function AIActionButtons({
           onClick={() => handleAction(action)}
           className="rounded-full border border-outline-variant px-sm py-1 font-label-sm text-on-surface-variant hover:border-secondary/40 hover:text-secondary disabled:opacity-60"
         >
-          {showRobotOn.includes(action) ? '🤖 ' : ''}
           {loadingAction === action ? 'Working...' : ACTION_LABELS[action] || action}
         </button>
       ))}
