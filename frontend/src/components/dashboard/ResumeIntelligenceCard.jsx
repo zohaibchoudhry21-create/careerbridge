@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import AppIcon from '../icons/AppIcon';
 
 function ResumeIntelligenceCard({ resumeIntelligence }) {
   if (!resumeIntelligence) return null;
@@ -8,7 +9,7 @@ function ResumeIntelligenceCard({ resumeIntelligence }) {
   return (
     <div className="col-span-1 lg:col-span-4 dashboard-glass-card dashboard-card-padding rounded-2xl flex flex-col min-w-0">
       <div className="flex items-center gap-2 mb-xs">
-        <span className="material-symbols-outlined text-secondary text-[20px]">analytics</span>
+        <AppIcon name="analytics" size="nav" className="text-secondary" />
         <h4 className="font-headline-section text-headline-section">Resume Intelligence</h4>
       </div>
       <p className="font-label-md mb-sm">

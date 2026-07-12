@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavbarScroll } from '../hooks/useAnimations';
 import BrandLogo from './brand/BrandLogo';
+import AppIcon from './icons/AppIcon';
 
 const navLinks = [
   { label: 'AI Resume Parsing', href: '/register' },
@@ -83,7 +84,7 @@ export default function Navbar() {
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
         >
-          <span className="material-symbols-outlined text-2xl">{menuOpen ? 'close' : 'menu'}</span>
+          <AppIcon name={menuOpen ? 'close' : 'menu'} size="dashboard" />
         </button>
       </div>
 

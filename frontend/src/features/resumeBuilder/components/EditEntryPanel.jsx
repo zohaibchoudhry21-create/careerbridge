@@ -1,3 +1,4 @@
+import AppIcon from '../../../components/icons/AppIcon';
 import RichTextEditor from './RichTextEditor';
 import AIActionButtons from './AIActionButtons';
 import { LANGUAGE_LEVELS } from '../data/resumeSectionTypes';
@@ -14,7 +15,7 @@ function TextInput({ label, value, onChange, link = false }) {
         />
         {link && (
           <button type="button" className="rounded-xl border border-outline-variant px-sm text-secondary">
-            <span className="material-symbols-outlined text-[18px]">link</span>
+            <AppIcon name="link" size="button" className="text-secondary" />
           </button>
         )}
       </div>

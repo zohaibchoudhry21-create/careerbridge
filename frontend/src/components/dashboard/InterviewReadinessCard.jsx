@@ -6,7 +6,7 @@ function InterviewReadinessCard({ interviewReadiness }) {
   const { score, weakAreas, strongArea } = interviewReadiness;
 
   return (
-    <div className="dashboard-glass-card dashboard-ai-glow dashboard-card-padding rounded-2xl min-w-0">
+    <div className="dashboard-glass-card dashboard-card-padding rounded-2xl min-w-0">
       <div className="flex justify-between mb-xs gap-2">
         <h4 className="font-headline-section text-headline-section">Interview Readiness</h4>
         <span className="text-secondary font-bold">{score}%</span>

@@ -1,3 +1,5 @@
+import AppIcon from '../../../components/icons/AppIcon';
+
 export default function ResumeModal({
   open,
   onClose,
@@ -45,7 +47,7 @@ export default function ResumeModal({
                 className="p-2 rounded-lg text-on-surface-variant hover:text-secondary hover:bg-surface-container transition-colors"
                 aria-label="Close"
               >
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <AppIcon name="close" size="nav" />
               </button>
             )}
           </div>

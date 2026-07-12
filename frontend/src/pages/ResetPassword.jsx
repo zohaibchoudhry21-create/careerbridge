@@ -7,6 +7,7 @@ import useAuth from '../hooks/useAuth';
 import { validatePassword } from '../utils/passwordValidator';
 import { AuthLayout } from '../components/layout';
 import PasswordRequirements from '../components/auth/PasswordRequirements';
+import AppIcon from '../components/icons/AppIcon';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -94,9 +95,7 @@ export default function ResetPassword() {
               onClick={() => setShowPassword((prev) => !prev)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-secondary"
             >
-              <span className="material-symbols-outlined text-xl">
-                {showPassword ? 'visibility_off' : 'visibility'}
-              </span>
+              <AppIcon name={showPassword ? 'visibility_off' : 'visibility'} size="h-5 w-5" />
             </button>
           </div>
           <PasswordRequirements password={password} />

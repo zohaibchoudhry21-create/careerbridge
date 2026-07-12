@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { verifyEmailOnce } from '../utils/verifyEmailOnce';
 import { AuthLayout } from '../components/layout';
+import AppIcon from '../components/icons/AppIcon';
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -58,13 +59,16 @@ export default function VerifyEmail() {
                 : 'bg-surface-container text-secondary'
           }`}
         >
-          <span className="material-symbols-outlined text-3xl">
-            {status === 'loading'
-              ? 'hourglass_top'
-              : status === 'success'
-                ? 'check_circle'
-                : 'error'}
-          </span>
+          <AppIcon
+            name={
+              status === 'loading'
+                ? 'hourglass_top'
+                : status === 'success'
+                  ? 'check_circle'
+                  : 'error'
+            }
+            size="h-8 w-8"
+          />
         </div>
 
         <h1 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-on-surface mb-xs">

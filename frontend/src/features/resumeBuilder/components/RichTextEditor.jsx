@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import AppIcon from '../../../components/icons/AppIcon';
 
 const TOOLBAR_BUTTONS = [
   { command: 'bold', icon: 'format_bold', label: 'Bold' },
@@ -102,7 +103,7 @@ export default function RichTextEditor({ value, onChange, placeholder = '' }) {
             aria-label={button.label}
             title={button.label}
           >
-            <span className="material-symbols-outlined text-[18px]">{button.icon}</span>
+            <AppIcon name={button.icon} size="button" className="text-on-surface-variant" />
           </button>
         ))}
       </div>

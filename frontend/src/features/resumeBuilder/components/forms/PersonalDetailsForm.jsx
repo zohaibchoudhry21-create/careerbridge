@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import AppIcon from '../../../../components/icons/AppIcon';
 import { toast } from 'react-toastify';
 import { PERSONAL_EXTRA_FIELD_OPTIONS } from '../../data/resumeSectionTypes';
 import { useResumeEditor } from '../../context/ResumeEditorContext';
@@ -54,14 +55,16 @@ function ProfilePhotoUpload({ photo, onPhotoChange }) {
           />
         ) : (
           <span className="flex h-full w-full items-center justify-center bg-surface-container-high">
-            <span className="material-symbols-outlined text-on-surface-variant text-[32px]">person</span>
+            <AppIcon name="person" size="h-8 w-8" className="text-on-surface-variant" />
           </span>
         )}
 
         <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/0 group-hover:bg-black/35 transition-colors">
-          <span className="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 transition-opacity text-[22px]">
-            photo_camera
-          </span>
+          <AppIcon
+            name="photo_camera"
+            size="h-[22px] w-[22px]"
+            className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
+          />
         </span>
       </button>
 
@@ -148,11 +151,11 @@ export default function PersonalDetailsForm({ onDone }) {
             />
             {field.link && (
               <button type="button" className="rounded-xl border border-outline-variant px-sm text-secondary">
-                <span className="material-symbols-outlined text-[18px]">link</span>
+                <AppIcon name="link" size="button" className="text-secondary" />
               </button>
             )}
             <button type="button" className="rounded-xl border border-outline-variant px-sm text-on-surface-variant">
-              <span className="material-symbols-outlined text-[18px]">swap_vert</span>
+              <AppIcon name="swap_vert" size="button" className="text-on-surface-variant" />
             </button>
           </div>
         </FieldRow>

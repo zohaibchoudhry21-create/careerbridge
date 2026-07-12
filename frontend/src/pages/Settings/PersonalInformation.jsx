@@ -1,0 +1,200 @@
+import { useState } from 'react';
+import { toast } from 'react-toastify';
+import AppIcon from '../../components/icons/AppIcon';
+import SettingsPageShell, { simulateSave } from '../../components/settings/SettingsPageShell';
+import SectionCard from '../../components/settings/SectionCard';
+import InputField, { TextAreaField } from '../../components/settings/InputField';
+import SelectField from '../../components/settings/SelectField';
+import {
+  COUNTRY_OPTIONS,
+  DUMMY_PROFILE,
+  GENDER_OPTIONS,
+  STATE_OPTIONS,
+} from '../../components/settings/settingsDummyData';
+
+function getInitials(firstName, lastName) {
+  return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() || 'U';
+}
+
+export default function PersonalInformation() {
+  const [form, setForm] = useState(DUMMY_PROFILE);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [saving, setSaving] = useState(false);
+
+  const updateField = (field) => (event) => {
+    setForm((current) => ({ ...current, [field]: event.target.value }));
+  };
+
+  const handleUploadPhoto = () => {
+    toast.info('Photo upload is a frontend placeholder — no file is sent.');
+  };
+
+  const handleRemovePhoto = () => {
+    setAvatarPreview(null);
+    toast.success('Profile photo removed.');
+  };
+
+  const handleSave = async () => {
+    if (!form.firstName.trim() || !form.lastName.trim()) {
+      toast.error('First name and last name are required.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await simulateSave();
+      toast.success('Personal information saved successfully.');
+    } catch {
+      toast.error('Unable to save changes. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setForm(DUMMY_PROFILE);
+    setAvatarPreview(null);
+    toast.info('Changes discarded.');
+  };
+
+  return (
+    <SettingsPageShell
+      title="Personal Information"
+      description="Update your profile details, contact information, and professional links."
+      onSave={handleSave}
+      onCancel={handleCancel}
+      saving={saving}
+    >
+      <SectionCard title="Profile Picture" description="Upload a professional photo for your account.">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-md">
+          <div className="h-20 w-20 rounded-full bg-secondary/10 text-secondary flex items-center justify-center font-bold text-xl shrink-0 overflow-hidden">
+            {avatarPreview ? (
+              <img src={avatarPreview} alt="" className="h-full w-full object-cover" />
+            ) : (
+              getInitials(form.firstName, form.lastName)
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={handleUploadPhoto}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-white font-label-md hover:opacity-90 transition-opacity min-h-[44px]"
+            >
+              <AppIcon name="photo_camera" size="button" />
+              Upload Photo
+            </button>
+            <button
+              type="button"
+              onClick={handleRemovePhoto}
+              className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px]"
+            >
+              Remove Photo
+            </button>
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Personal Details">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <InputField
+            id="firstName"
+            label="First Name"
+            value={form.firstName}
+            onChange={updateField('firstName')}
+            required
+          />
+          <InputField
+            id="lastName"
+            label="Last Name"
+            value={form.lastName}
+            onChange={updateField('lastName')}
+            required
+          />
+          <InputField
+            id="email"
+            label="Email"
+            value={form.email}
+            readOnly
+            className="sm:col-span-2"
+          />
+          <InputField
+            id="phone"
+            label="Phone Number"
+            value={form.phone}
+            onChange={updateField('phone')}
+            type="tel"
+          />
+          <InputField
+            id="dateOfBirth"
+            label="Date of Birth"
+            value={form.dateOfBirth}
+            onChange={updateField('dateOfBirth')}
+            type="date"
+          />
+          <SelectField
+            id="gender"
+            label="Gender"
+            value={form.gender}
+            onChange={updateField('gender')}
+            options={GENDER_OPTIONS}
+          />
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Location">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <SelectField
+            id="country"
+            label="Country"
+            value={form.country}
+            onChange={updateField('country')}
+            options={COUNTRY_OPTIONS}
+          />
+          <SelectField
+            id="state"
+            label="State"
+            value={form.state}
+            onChange={updateField('state')}
+            options={STATE_OPTIONS}
+          />
+          <InputField id="city" label="City" value={form.city} onChange={updateField('city')} />
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Professional">
+        <div className="grid grid-cols-1 gap-4">
+          <InputField
+            id="linkedin"
+            label="LinkedIn URL"
+            value={form.linkedin}
+            onChange={updateField('linkedin')}
+            type="url"
+          />
+          <InputField
+            id="portfolio"
+            label="Portfolio Website"
+            value={form.portfolio}
+            onChange={updateField('portfolio')}
+            type="url"
+          />
+          <InputField
+            id="headline"
+            label="Professional Headline"
+            value={form.headline}
+            onChange={updateField('headline')}
+          />
+        </div>
+      </SectionCard>
+
+      <SectionCard title="About">
+        <TextAreaField
+          id="bio"
+          label="Bio"
+          value={form.bio}
+          onChange={updateField('bio')}
+          placeholder="Tell recruiters and hiring managers about yourself..."
+        />
+      </SectionCard>
+    </SettingsPageShell>
+  );
+}

@@ -1,4 +1,4 @@
-#!C:\Users\My PC\Desktop\FYP\python-service\venv\Scripts\python.exe
+#!D:\projects\careerbridge\python-service\venv\Scripts\python.exe
 """Extract pdf structure in XML format"""
 
 import logging

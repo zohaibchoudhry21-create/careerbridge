@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import AppIcon from '../../../components/icons/AppIcon';
 import { getPersonalPhoto } from '../utils/personalDetailsPhoto';
 import { useResumeEditor } from '../context/ResumeEditorContext';
 import { SECTION_ICONS } from '../data/resumeSectionTypes';
@@ -26,13 +27,17 @@ function SectionAccordion({
         onClick={onToggleCollapse}
         className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-surface-container-low/40 transition-colors"
       >
-        <span className="material-symbols-outlined text-on-surface-variant text-[20px]">
-          {SECTION_ICONS[section.type] || 'article'}
-        </span>
+        <AppIcon
+          name={SECTION_ICONS[section.type] || 'article'}
+          size="nav"
+          className="text-on-surface-variant"
+        />
         <span className="flex-1 font-label-lg text-on-surface">{section.heading}</span>
-        <span className="material-symbols-outlined text-on-surface-variant text-[22px]">
-          {section.collapsed ? 'expand_more' : 'expand_less'}
-        </span>
+        <AppIcon
+          name={section.collapsed ? 'expand_more' : 'expand_less'}
+          size="h-[22px] w-[22px]"
+          className="text-on-surface-variant"
+        />
       </button>
 
       {!section.collapsed && (
@@ -80,7 +85,7 @@ function SectionAccordion({
               className="ml-auto text-on-surface-variant hover:text-error"
               aria-label="Delete section"
             >
-              <span className="material-symbols-outlined text-[18px]">delete</span>
+              <AppIcon name="delete" size="button" />
             </button>
           </div>
         </div>
@@ -130,7 +135,7 @@ export default function EditorLeftPanel({ personalDetailsTrigger = 0 }) {
             className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-on-secondary hover:bg-secondary-container transition-colors shadow-sm"
             aria-label="Edit personal details"
           >
-            <span className="material-symbols-outlined text-[18px]">edit</span>
+            <AppIcon name="edit" size="button" />
           </button>
 
           <p className="font-headline-section text-headline-section text-on-surface pr-12">
@@ -144,19 +149,19 @@ export default function EditorLeftPanel({ personalDetailsTrigger = 0 }) {
           <div className="mt-3 space-y-1 font-body-sm text-on-surface-variant">
             {state.personalDetails.email && (
               <p className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px]">mail</span>
+                <AppIcon name="mail" size="h-4 w-4" />
                 {state.personalDetails.email}
               </p>
             )}
             {state.personalDetails.phone && (
               <p className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px]">call</span>
+                <AppIcon name="call" size="h-4 w-4" />
                 {state.personalDetails.phone}
               </p>
             )}
             {state.personalDetails.location && (
               <p className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px]">location_on</span>
+                <AppIcon name="location_on" size="h-4 w-4" />
                 {state.personalDetails.location}
               </p>
             )}
@@ -170,7 +175,7 @@ export default function EditorLeftPanel({ personalDetailsTrigger = 0 }) {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <span className="material-symbols-outlined text-on-surface-variant">person</span>
+                <AppIcon name="person" size="dashboard" className="text-on-surface-variant" />
               )}
             </div>
           </div>

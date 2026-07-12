@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FRONTEND_ROOT = path.join(__dirname, '..');
-const OUT_DIR = path.join(FRONTEND_ROOT, 'public', 'images');
+const OUT_DIR = path.join(FRONTEND_ROOT, 'src', 'assets', 'images');
 const BASE_URL = process.env.VITE_DEV_URL || 'http://localhost:5173';
 const CAPTURE_URL = `${BASE_URL}/dev/hero-resume-capture`;
 

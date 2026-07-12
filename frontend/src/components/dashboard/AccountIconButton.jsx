@@ -2,10 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import useAuth from '../../hooks/useAuth';
+import AppIcon from '../icons/AppIcon';
 
 const MENU_ITEMS = [
-  { id: 'profile', label: 'Profile', icon: 'person', type: 'route', to: '/profile' },
-  { id: 'settings', label: 'Settings', icon: 'settings', type: 'route', to: '/profile' },
+  { id: 'settings', label: 'Settings', icon: 'settings', type: 'route', to: '/settings' },
   { id: 'help', label: 'Help', icon: 'help', type: 'placeholder', href: '#' },
   { id: 'privacy', label: 'Privacy Center', icon: 'shield', type: 'placeholder', href: '#' },
 ];
@@ -76,7 +76,7 @@ export default function AccountIconButton({ className = '' }) {
             : 'border-outline-variant/30 hover:border-secondary/40 hover:bg-white'
         }`}
       >
-        <span className="material-symbols-outlined text-[20px]">person</span>
+        <AppIcon name="person" size="nav" />
       </button>
 
       {open ? (
@@ -100,7 +100,7 @@ export default function AccountIconButton({ className = '' }) {
                     onClick={() => handleNavigate(item.to)}
                     className="flex w-full items-center gap-3 px-4 py-2.5 text-left font-label-md text-on-surface hover:bg-surface-container transition-colors"
                   >
-                    <span className="material-symbols-outlined text-[20px] text-on-surface-variant">{item.icon}</span>
+                    <AppIcon name={item.icon} size="nav" className="text-on-surface-variant" />
                     {item.label}
                   </button>
                 );
@@ -114,7 +114,7 @@ export default function AccountIconButton({ className = '' }) {
                   onClick={closeMenu}
                   className="flex w-full items-center gap-3 px-4 py-2.5 font-label-md text-on-surface hover:bg-surface-container transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[20px] text-on-surface-variant">{item.icon}</span>
+                  <AppIcon name={item.icon} size="nav" className="text-on-surface-variant" />
                   {item.label}
                 </a>
               );
@@ -128,7 +128,7 @@ export default function AccountIconButton({ className = '' }) {
               onClick={handleLogout}
               className="flex w-full items-center gap-3 px-4 py-2.5 text-left font-label-md text-on-surface hover:bg-surface-container transition-colors"
             >
-              <span className="material-symbols-outlined text-[20px] text-on-surface-variant">logout</span>
+              <AppIcon name="logout" size="nav" className="text-on-surface-variant" />
               Sign out
             </button>
           </div>

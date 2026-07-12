@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import AppIcon from '../../../components/icons/AppIcon';
 import ResumeModal from './ResumeModal';
 
 const ACCEPT = '.pdf,.docx';
@@ -71,9 +72,11 @@ export default function ImportResumeModal({
                 dragOver ? 'border-secondary bg-secondary/5' : 'border-outline-variant'
               }`}
             >
-              <span className="material-symbols-outlined text-[40px] text-on-surface-variant mb-sm">
-                upload_file
-              </span>
+              <AppIcon
+                name="upload_file"
+                size="h-10 w-10"
+                className="text-on-surface-variant mb-sm"
+              />
               <p className="font-body-md text-on-surface mb-xs">Choose a file or drag and drop it here</p>
               <p className="font-body-sm text-on-surface-variant mb-md">.pdf, .docx</p>
               <button

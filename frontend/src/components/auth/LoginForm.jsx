@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import useAuth from '../../hooks/useAuth';
 import SocialLoginButtons from './SocialLoginButtons';
+import AppIcon from '../icons/AppIcon';
 
 export default function LoginForm() {
   const { login } = useAuth();
@@ -103,9 +104,7 @@ export default function LoginForm() {
               className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-secondary"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              <span className="material-symbols-outlined text-xl">
-                {showPassword ? 'visibility_off' : 'visibility'}
-              </span>
+              <AppIcon name={showPassword ? 'visibility_off' : 'visibility'} size="h-5 w-5" />
             </button>
           </div>
           {errors.password && <p className="text-sm text-error">{errors.password.message}</p>}

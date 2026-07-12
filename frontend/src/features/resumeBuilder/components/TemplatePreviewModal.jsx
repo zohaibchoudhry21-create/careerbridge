@@ -1,3 +1,4 @@
+import AppIcon from '../../../components/icons/AppIcon';
 import ResumeModal from './ResumeModal';
 import { TemplateLargePreview } from './TemplateCard';
 
@@ -24,7 +25,7 @@ export default function TemplatePreviewModal({ open, template, onClose, onUseTem
           <ul className="space-y-2">
             {FEATURES.map((feature) => (
               <li key={feature} className="flex items-center gap-2 font-body-md text-on-surface">
-                <span className="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+                <AppIcon name="check_circle" size="button" className="text-secondary" />
                 {feature}
               </li>
             ))}

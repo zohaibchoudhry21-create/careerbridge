@@ -1,5 +1,6 @@
 import { IMAGES } from '../../config/images';
 import AnimatedContent from '../ui/AnimatedContent';
+import AppIcon from '../icons/AppIcon';
 
 const points = [
   {
@@ -45,7 +46,7 @@ export default function SolutionSection() {
             <ul className="space-y-4 pt-4">
               {points.map((point) => (
                 <li key={point.title} className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-secondary mt-1">check_circle</span>
+                  <AppIcon name="check_circle" size="h-5 w-5" className="text-secondary mt-1" />
                   <div>
                     <h4 className="font-label-md text-label-md text-on-surface">{point.title}</h4>
                     <p className="text-sm text-on-surface-variant">{point.description}</p>

@@ -7,6 +7,7 @@ import { validatePassword } from '../utils/passwordValidator';
 import { AuthLayout } from '../components/layout';
 import SocialLoginButtons from '../components/auth/SocialLoginButtons';
 import PasswordRequirements from '../components/auth/PasswordRequirements';
+import AppIcon from '../components/icons/AppIcon';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -116,9 +117,7 @@ export default function Register() {
               className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-secondary"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              <span className="material-symbols-outlined text-xl">
-                {showPassword ? 'visibility_off' : 'visibility'}
-              </span>
+              <AppIcon name={showPassword ? 'visibility_off' : 'visibility'} size="h-5 w-5" />
             </button>
           </div>
           <PasswordRequirements password={password} />

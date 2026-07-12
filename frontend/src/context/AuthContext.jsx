@@ -95,7 +95,11 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     if (sessionActive) {
-      await logoutUser();
+      try {
+        await logoutUser();
+      } catch {
+        // Session may already be invalid (e.g. after account deletion).
+      }
     }
 
     clearStoredToken();
@@ -103,6 +107,24 @@ export function AuthProvider({ children }) {
     setSessionActive(false);
     setUser(null);
   }, [sessionActive]);
+
+  const refreshUser = useCallback(async () => {
+    const generation = authGenerationRef.current;
+
+    try {
+      const { data } = await getMe();
+      if (generation !== authGenerationRef.current) return null;
+      setUser(data.user);
+      setSessionActive(true);
+      setLoading(false);
+      return data.user;
+    } catch {
+      if (generation !== authGenerationRef.current) return null;
+      setUser(null);
+      setSessionActive(false);
+      return null;
+    }
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -115,8 +137,9 @@ export function AuthProvider({ children }) {
       setSession: handleAuthSuccess,
       syncSession,
       updateUser,
+      refreshUser,
     }),
-    [user, sessionActive, loading, login, logout, handleAuthSuccess, syncSession, updateUser]
+    [user, sessionActive, loading, login, logout, handleAuthSuccess, syncSession, updateUser, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

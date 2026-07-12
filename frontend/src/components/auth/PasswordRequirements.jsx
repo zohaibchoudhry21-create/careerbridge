@@ -1,4 +1,5 @@
 import { validatePassword } from '../../utils/passwordValidator';
+import AppIcon from '../icons/AppIcon';
 
 export default function PasswordRequirements({ password = '' }) {
   const { rules } = validatePassword(password);
@@ -21,9 +22,11 @@ export default function PasswordRequirements({ password = '' }) {
             rule.passed ? 'text-emerald-600' : 'text-error'
           }`}
         >
-          <span className="material-symbols-outlined text-sm leading-none mt-0.5">
-            {rule.passed ? 'check_circle' : 'cancel'}
-          </span>
+          <AppIcon
+            name={rule.passed ? 'check_circle' : 'cancel'}
+            size="h-3.5 w-3.5"
+            className="mt-0.5"
+          />
           <span>{rule.message}</span>
         </li>
       ))}

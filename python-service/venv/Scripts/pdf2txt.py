@@ -1,4 +1,4 @@
-#!C:\Users\My PC\Desktop\FYP\python-service\venv\Scripts\python.exe
+#!D:\projects\careerbridge\python-service\venv\Scripts\python.exe
 """A command line tool for extracting text and images from PDF and
 output it to plain text, html, xml or tags.
 """
