@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import AppIcon from '../icons/AppIcon';
 
 const aiFeatures = [
   {
@@ -85,7 +86,7 @@ export default function AIPower() {
                   className={`flex items-start gap-4 hover:translate-x-2 transition-transform duration-300 ${feature.delay}`}
                 >
                   <div className="w-10 h-10 rounded-lg bg-surface-tint/30 flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-on-primary">{feature.icon}</span>
+                    <AppIcon name={feature.icon} size="h-5 w-5" className="text-on-primary" />
                   </div>
                   <div>
                     <h4 className="font-label-md text-label-md text-on-primary">{feature.title}</h4>

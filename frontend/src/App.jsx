@@ -8,8 +8,13 @@ import VerifyEmail from './pages/VerifyEmail';
 import VerifyEmailSent from './pages/VerifyEmailSent';
 import SocialAuthCallback from './pages/SocialAuthCallback';
 import Dashboard from './pages/Dashboard';
-import ProfileLayout from './pages/Profile/ProfileLayout';
-import ProfileOverview from './pages/Profile/ProfileOverview';
+import Settings from './pages/Settings/Settings';
+import PersonalInformation from './pages/Settings/PersonalInformation';
+import LoginSecurity from './pages/Settings/LoginSecurity';
+import PrivacySettings from './pages/Settings/PrivacySettings';
+import AppearanceSettings from './pages/Settings/AppearanceSettings';
+import NotificationsSettings from './pages/Settings/NotificationsSettings';
+import AccountManagement from './pages/Settings/AccountManagement';
 import TemplateSelectionPage from './pages/ResumeBuilder/TemplateSelectionPage';
 import ResumeEditorPage from './pages/ResumeBuilder/ResumeEditorPage';
 import HeroResumeCapture from './pages/dev/HeroResumeCapture';
@@ -95,15 +100,61 @@ function App() {
         }
       />
       <Route
-        path="/profile"
+        path="/settings"
         element={
           <ProtectedRoute>
-            <ProfileLayout />
+            <Settings />
           </ProtectedRoute>
         }
-      >
-        <Route index element={<ProfileOverview />} />
-      </Route>
+      />
+      <Route
+        path="/settings/personal-information"
+        element={
+          <ProtectedRoute>
+            <PersonalInformation />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/login-security"
+        element={
+          <ProtectedRoute>
+            <LoginSecurity />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/privacy"
+        element={
+          <ProtectedRoute>
+            <PrivacySettings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/appearance"
+        element={
+          <ProtectedRoute>
+            <AppearanceSettings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/notifications"
+        element={
+          <ProtectedRoute>
+            <NotificationsSettings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/account-management"
+        element={
+          <ProtectedRoute>
+            <AccountManagement />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

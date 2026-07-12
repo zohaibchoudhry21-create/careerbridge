@@ -1,3 +1,4 @@
+import AppIcon from '../../../components/icons/AppIcon';
 import { getTemplateById } from '../data/resumeTemplates';
 import { mergeCustomize } from '../data/resumeCustomizeDefaults';
 import { stripHtml } from '../utils/resumeEditorUtils';
@@ -23,7 +24,7 @@ function ContactLine({ icon, value }) {
 
   return (
     <div className="flex items-center gap-1.5 text-[11px] text-on-surface-variant">
-      <span className="material-symbols-outlined text-[14px]">{icon}</span>
+      <AppIcon name={icon} size="h-3.5 w-3.5" className="text-on-surface-variant" />
       <span>{value}</span>
     </div>
   );
@@ -192,7 +193,7 @@ export default function ResumePreview({ templateId, personalDetails, sections, c
           />
         ) : (
           <div className="h-14 w-14 rounded-full bg-surface-container flex items-center justify-center">
-            <span className="material-symbols-outlined text-on-surface-variant">person</span>
+            <AppIcon name="person" size="dashboard" className="text-on-surface-variant" />
           </div>
         )}
         <div>

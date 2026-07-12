@@ -1,3 +1,4 @@
+import AppIcon from '../../../components/icons/AppIcon';
 import { sectionStyle, resolveTemplateTheme } from '../utils/templateCustomizeStyles';
 import { stripHtml } from '../utils/resumeEditorUtils';
 import TemplatePageNumberFooter from '../components/TemplatePageNumberFooter';
@@ -195,13 +196,11 @@ function ContactItem({ icon, value }) {
 
   return (
     <span className="inline-flex items-center gap-[5px]">
-      <span
-        className="material-symbols-outlined"
-        style={{ fontSize: 13, color: MUTED_COLOR, lineHeight: 1 }}
-        aria-hidden
-      >
-        {icon}
-      </span>
+      <AppIcon
+        name={icon}
+        size="h-[13px] w-[13px]"
+        style={{ color: MUTED_COLOR }}
+      />
       <span>{value}</span>
     </span>
   );

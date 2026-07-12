@@ -1,3 +1,4 @@
+import AppIcon from '../../../components/icons/AppIcon';
 import { TEMPLATE_PROFILE_PHOTO_SIZE } from '../utils/personalDetailsPhoto';
 
 export default function TemplatePhoto({
@@ -41,13 +42,10 @@ export default function TemplatePhoto({
         justifyContent: 'center',
       }}
     >
-      <span
-        className="material-symbols-outlined"
-        style={{ color: theme.accentColor, fontSize: placeholderIconSize }}
-        aria-hidden
-      >
-        person
-      </span>
+      <AppIcon
+        name="person"
+        style={{ color: theme.accentColor, width: placeholderIconSize, height: placeholderIconSize }}
+      />
     </div>
   );
 }

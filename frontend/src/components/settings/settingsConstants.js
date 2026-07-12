@@ -1,0 +1,45 @@
+export const SETTINGS_DASHBOARD_CARDS = [
+  {
+    id: 'personal-information',
+    title: 'Personal Information',
+    description: 'Update your personal details and profile information.',
+    icon: 'person',
+    to: '/settings/personal-information',
+  },
+  {
+    id: 'login-security',
+    title: 'Login & Security',
+    description: 'Manage your password and secure your account.',
+    icon: 'shield_lock',
+    to: '/settings/login-security',
+  },
+  {
+    id: 'privacy',
+    title: 'Privacy Settings',
+    description: 'Control who can see your profile and how your data is used.',
+    icon: 'shield',
+    to: '/settings/privacy',
+  },
+  {
+    id: 'appearance',
+    title: 'Appearance & Language',
+    description: 'Customize theme, language, and display preferences.',
+    icon: 'palette',
+    to: '/settings/appearance',
+  },
+  {
+    id: 'notifications',
+    title: 'Notifications',
+    description: 'Manage your communication preferences.',
+    icon: 'notifications',
+    to: '/settings/notifications',
+  },
+  {
+    id: 'account-management',
+    title: 'Account Management',
+    description: 'Deactivate, delete, export data, or sign out.',
+    icon: 'manage_accounts',
+    to: '/settings/account-management',
+    accent: 'error',
+  },
+];

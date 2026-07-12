@@ -1,3 +1,5 @@
+import AppIcon from '../icons/AppIcon';
+
 const badges = [
   {
     icon: 'redeem',
@@ -26,9 +28,7 @@ export default function TrustBadges() {
               key={badge.title}
               className="flex items-center gap-4 justify-center bg-white rounded-xl shadow-sm p-6"
             >
-              <span className="material-symbols-outlined text-secondary text-3xl shrink-0">
-                {badge.icon}
-              </span>
+              <AppIcon name={badge.icon} size="h-8 w-8" className="text-secondary" />
               <div className="min-w-0">
                 <p className="font-label-md text-label-md text-on-surface">{badge.title}</p>
                 <p className="font-body-md text-body-md text-on-surface-variant text-sm">

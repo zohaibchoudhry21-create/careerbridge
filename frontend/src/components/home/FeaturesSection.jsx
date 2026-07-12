@@ -1,4 +1,5 @@
 import AnimatedContent from '../ui/AnimatedContent';
+import AppIcon from '../icons/AppIcon';
 
 const features = [
   {
@@ -69,7 +70,7 @@ export default function FeaturesSection() {
               <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/5 rounded-bl-full transition-transform group-hover:scale-110" />
               {feature.icon ? (
                 <div className="w-12 h-12 bg-surface-container rounded-xl flex items-center justify-center text-secondary mb-4 relative z-10 group-hover:bg-secondary group-hover:text-white transition-colors">
-                  <span className="material-symbols-outlined">{feature.icon}</span>
+                  <AppIcon name={feature.icon} size="h-6 w-6" />
                 </div>
               ) : null}
               <h3 className="font-label-md text-label-md text-on-surface mb-2 relative z-10">

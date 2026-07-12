@@ -1,3 +1,4 @@
+import AppIcon from '../../../components/icons/AppIcon';
 import { stripHtml } from '../utils/resumeEditorUtils';
 import {
   mapAdditionalSections,
@@ -210,13 +211,12 @@ function ContactItem({ icon, value }) {
 
   return (
     <span className="inline-flex items-center gap-[6px]" style={{ fontSize: 10.5, color: MUTED_COLOR, lineHeight: 1.4 }}>
-      <span
-        className="material-symbols-outlined shrink-0"
-        style={{ fontSize: 13, color: MUTED_COLOR, lineHeight: 1 }}
-        aria-hidden
-      >
-        {icon}
-      </span>
+      <AppIcon
+        name={icon}
+        size="h-[13px] w-[13px]"
+        className="shrink-0"
+        style={{ color: MUTED_COLOR }}
+      />
       <span>{value}</span>
     </span>
   );

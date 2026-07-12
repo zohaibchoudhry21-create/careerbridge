@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { IMAGES } from '../../config/images';
 import TextType from '../ui/TextType';
 
 const A4_WIDTH = 794;
@@ -134,7 +135,7 @@ export default function Hero() {
               <div className="flex items-start gap-6">
                 <div className="relative z-10 mt-0 -rotate-2">
                   <ScaledResumeImage
-                    src="/images/resume-atlantic-blue.png"
+                    src={IMAGES.resumeAtlanticBlue}
                     alt="Atlantic Blue resume preview"
                     width={LEFT_SCALED_WIDTH}
                     height={LEFT_SCALED_HEIGHT}
@@ -143,7 +144,7 @@ export default function Hero() {
 
                 <div className="relative z-[5] mt-16 rotate-2">
                   <ScaledResumeImage
-                    src="/images/resume-classic-clear.png"
+                    src={IMAGES.resumeClassicClear}
                     alt="Classic Clear resume preview"
                     width={RIGHT_SCALED_WIDTH}
                     height={RIGHT_SCALED_HEIGHT}

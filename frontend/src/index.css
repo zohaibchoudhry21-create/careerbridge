@@ -69,13 +69,6 @@
     @apply bg-white/90 backdrop-blur-sm border border-[#E2E8F0] rounded-2xl;
   }
 
-  .dashboard-ai-glow {
-    border: 1px solid transparent;
-    background:
-      linear-gradient(white, white) padding-box,
-      linear-gradient(to right, #0058be, #adc6ff) border-box;
-  }
-
   .dashboard-card-hover {
     @apply transition-all duration-200;
   }
@@ -94,7 +87,10 @@
   }
 
   .dashboard-main {
-    @apply flex-1 min-w-0 w-0 overflow-x-hidden p-3 lg:p-4 xl:p-5;
+    @apply flex-1 min-h-0 w-0 overflow-x-hidden overflow-y-auto;
+    @apply px-4 pb-6 pt-14;
+    @apply lg:px-8 lg:pt-8 lg:pb-8;
+    @apply xl:px-10 xl:pt-10;
   }
 
   .dashboard-content-grid {
@@ -377,14 +373,6 @@
 
 .nav-link-underline:hover::after {
   width: 100%;
-}
-
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
-
-.material-symbols-outlined.filled {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 .glass-panel {

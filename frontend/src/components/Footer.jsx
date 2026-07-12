@@ -1,3 +1,5 @@
+import AppIcon from './icons/AppIcon';
+
 const footerLinks = {
   'Quick Links': ['Home', 'Features', 'Career Tools', 'Templates', 'Pricing', 'Resources'],
   'AI Features': [
@@ -23,7 +25,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-md mb-xl">
           <div className="col-span-full sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <span className="material-symbols-outlined text-secondary filled">work</span>
+              <AppIcon name="work" size="h-4 w-4" className="text-secondary" />
               <span className="font-headline-md text-xl font-extrabold text-on-surface">
                 AI CareerBridge
               </span>
@@ -60,11 +62,11 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               <li className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-secondary text-base">mail</span>
+                <AppIcon name="mail" size="h-4 w-4" className="text-secondary" />
                 <span className="text-sm text-on-surface-variant">support@aicareerbridge.com</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-secondary text-base">location_on</span>
+                <AppIcon name="location_on" size="h-4 w-4" className="text-secondary" />
                 <span className="text-sm text-on-surface-variant">Remote • Worldwide</span>
               </li>
               <li className="flex gap-3 pt-2">
@@ -74,7 +76,7 @@ export default function Footer() {
                     className="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-secondary hover:text-on-secondary transition-all cursor-pointer"
                     href="#"
                   >
-                    <span className="material-symbols-outlined text-sm">{icon}</span>
+                    <AppIcon name={icon} size="h-3.5 w-3.5" />
                   </a>
                 ))}
               </li>

@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import JobMatchCard from './JobMatchCard';
+import AppIcon from '../icons/AppIcon';
 
 function JobMatchesSection({ matches = [] }) {
   return (
@@ -10,7 +11,7 @@ function JobMatchesSection({ matches = [] }) {
           type="button"
           className="text-secondary font-bold text-[14px] flex items-center gap-1 shrink-0"
         >
-          View All <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+          View All <AppIcon name="chevron_right" size="button" />
         </button>
       </div>
       <div className="space-y-sm">

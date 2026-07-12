@@ -1,3 +1,4 @@
+import AppIcon from '../../../components/icons/AppIcon';
 import { stripHtml } from '../utils/resumeEditorUtils';
 import { getPersonalPhoto, TEMPLATE_PREVIEW_ATLANTIC_PHOTO } from '../utils/personalDetailsPhoto';
 import {
@@ -297,13 +298,12 @@ function SidebarContactRow({ icon, value }) {
 
   return (
     <div className="flex items-start gap-[8px]" style={{ fontSize: 10, color: SIDEBAR_MUTED, lineHeight: 1.5 }}>
-      <span
-        className="material-symbols-outlined shrink-0"
-        style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 1 }}
-        aria-hidden
-      >
-        {icon}
-      </span>
+      <AppIcon
+        name={icon}
+        size="h-[13px] w-[13px]"
+        className="shrink-0"
+        style={{ color: 'rgba(255,255,255,0.85)' }}
+      />
       <span className="break-all">{value}</span>
     </div>
   );

@@ -1,3 +1,4 @@
+import AppIcon from '../../../../../components/icons/AppIcon';
 import { SECTION_ICONS } from '../../../data/resumeSectionTypes';
 import CustomizeSectionCard from '../CustomizeSectionCard';
 import { useCustomizeDispatch } from '../useCustomizeDispatch';
@@ -26,9 +27,11 @@ export default function SectionsSection() {
             key={section.id}
             className="flex items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-sm py-2"
           >
-            <span className="material-symbols-outlined text-on-surface-variant text-[20px]">
-              {SECTION_ICONS[section.type] || 'article'}
-            </span>
+            <AppIcon
+              name={SECTION_ICONS[section.type] || 'article'}
+              size="nav"
+              className="text-on-surface-variant"
+            />
             <span className="flex-1 text-on-surface font-label-sm truncate">{section.heading}</span>
             <div className="flex items-center gap-1 shrink-0">
               <button
@@ -38,7 +41,7 @@ export default function SectionsSection() {
                 className="p-1 rounded-md text-on-surface-variant hover:text-on-surface disabled:opacity-30"
                 aria-label="Move section up"
               >
-                <span className="material-symbols-outlined text-[18px]">arrow_upward</span>
+                <AppIcon name="arrow_upward" size="button" />
               </button>
               <button
                 type="button"
@@ -47,7 +50,7 @@ export default function SectionsSection() {
                 className="p-1 rounded-md text-on-surface-variant hover:text-on-surface disabled:opacity-30"
                 aria-label="Move section down"
               >
-                <span className="material-symbols-outlined text-[18px]">arrow_downward</span>
+                <AppIcon name="arrow_downward" size="button" />
               </button>
             </div>
             <button

@@ -1,3 +1,5 @@
+import AppIcon from '../icons/AppIcon';
+
 export default function AuthFooter() {
   return (
     <footer className="w-full bg-tertiary-container text-on-tertiary-container">
@@ -39,10 +41,16 @@ export default function AuthFooter() {
             © 2024 Career Bridge AI. All rights reserved.
           </p>
           <div className="flex gap-4">
-            <span className="material-symbols-outlined cursor-pointer hover:text-surface-bright">public</span>
-            <span className="material-symbols-outlined cursor-pointer hover:text-surface-bright">
-              alternate_email
-            </span>
+            <AppIcon
+              name="public"
+              size="nav"
+              className="cursor-pointer hover:text-surface-bright"
+            />
+            <AppIcon
+              name="alternate_email"
+              size="nav"
+              className="cursor-pointer hover:text-surface-bright"
+            />
           </div>
         </div>
       </div>

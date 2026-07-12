@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import AppIcon from '../../../components/icons/AppIcon';
 import { downloadResumePdf } from '../utils/pdfDownload';
 
 const TABS = ['Content', 'Customize', 'AI Tools'];
@@ -49,7 +50,7 @@ export default function EditorTopNav({
               className="flex items-center gap-1 rounded-lg border border-outline-variant px-sm py-1.5 font-label-md text-on-surface"
             >
               {resumeName}
-              <span className="material-symbols-outlined text-[18px]">expand_more</span>
+              <AppIcon name="expand_more" size="button" />
             </button>
             {nameOpen && (
               <div className="absolute right-0 mt-1 w-48 rounded-xl border border-outline-variant bg-white shadow-level-2 p-2 z-30">
@@ -85,7 +86,7 @@ export default function EditorTopNav({
               className="p-2 rounded-lg border border-outline-variant text-on-surface-variant hover:text-secondary"
               aria-label="More options"
             >
-              <span className="material-symbols-outlined">more_vert</span>
+              <AppIcon name="more_vert" size="button" />
             </button>
             {menuOpen && (
               <div className="absolute right-0 mt-1 w-40 rounded-xl border border-outline-variant bg-white shadow-level-2 p-2 z-30">

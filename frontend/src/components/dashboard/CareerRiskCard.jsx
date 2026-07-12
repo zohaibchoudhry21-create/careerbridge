@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import AppIcon from '../icons/AppIcon';
 
 const riskStyles = {
   LOW: 'bg-green-100 text-green-800',
@@ -30,7 +31,7 @@ function CareerRiskCard({ careerRisk }) {
           className="text-secondary font-bold text-[12px] flex items-center gap-1 mt-sm min-h-[44px]"
         >
           Browse AI Career Tracks{' '}
-          <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+          <AppIcon name="open_in_new" size="h-4 w-4" />
         </button>
       </div>
     </div>

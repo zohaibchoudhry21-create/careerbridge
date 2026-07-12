@@ -1,3 +1,5 @@
+import AppIcon from '../icons/AppIcon';
+
 const steps = [
   {
     number: 1,
@@ -25,8 +27,6 @@ const steps = [
 ];
 
 const ICON_CARD_SIZE = 72;
-const ICON_SIZE = 32;
-const ICON_COLOR = '#1E3A8A';
 const BADGE_COLOR = '#2563EB';
 
 function StepIcon({ icon, number }) {
@@ -39,22 +39,7 @@ function StepIcon({ icon, number }) {
         boxShadow: '0 4px 20px rgba(0, 0, 100, 0.10)',
       }}
     >
-      {icon ? (
-        <span
-          className="material-symbols-outlined select-none"
-          style={{
-            fontSize: ICON_SIZE,
-            width: ICON_SIZE,
-            height: ICON_SIZE,
-            lineHeight: 1,
-            color: ICON_COLOR,
-            fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 32",
-          }}
-          aria-hidden="true"
-        >
-          {icon}
-        </span>
-      ) : null}
+      {icon ? <AppIcon name={icon} size="h-8 w-8" className="text-[#1E3A8A] select-none" /> : null}
       <span
         className="absolute flex items-center justify-center rounded-full font-bold text-white"
         style={{

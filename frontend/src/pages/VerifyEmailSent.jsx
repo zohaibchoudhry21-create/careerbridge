@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { resendVerification } from '../services/authService';
 import { AuthLayout } from '../components/layout';
+import AppIcon from '../components/icons/AppIcon';
 
 export default function VerifyEmailSent() {
   const location = useLocation();
@@ -37,7 +38,7 @@ export default function VerifyEmailSent() {
     <AuthLayout navActive="register">
       <header className="mb-10 text-center lg:text-left">
         <div className="w-16 h-16 rounded-full bg-secondary/10 text-secondary flex items-center justify-center mb-6 mx-auto lg:mx-0">
-          <span className="material-symbols-outlined text-3xl">mark_email_unread</span>
+          <AppIcon name="mark_email_unread" size="h-8 w-8" />
         </div>
         <h1 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-on-surface mb-xs">
           Check Your Email

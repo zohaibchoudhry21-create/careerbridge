@@ -1,4 +1,5 @@
 import AnimatedContent from '../ui/AnimatedContent';
+import AppIcon from '../icons/AppIcon';
 
 const problems = [
   {
@@ -66,7 +67,7 @@ export default function ProblemSection() {
                 className={`w-16 h-16 rounded-full flex items-center justify-center mb-2 ${item.iconClass}`}
                 style={item.animationDelay ? { animationDelay: item.animationDelay } : undefined}
               >
-                <span className="material-symbols-outlined text-3xl">{item.icon}</span>
+                <AppIcon name={item.icon} size="h-8 w-8" />
               </div>
               <h3 className="font-headline-md text-headline-md text-on-surface">{item.title}</h3>
               <p className="font-body-md text-body-md text-on-surface-variant">{item.description}</p>

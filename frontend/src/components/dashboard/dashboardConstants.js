@@ -7,9 +7,9 @@ export const DASHBOARD_NAV_ITEMS = [
 ];
 
 export const QUICK_ACTIONS = [
-  { id: 'build-resume', label: 'Build ATS Resume', icon: 'description', featured: false, href: '/resume/templates' },
-  { id: 'optimize-resume', label: 'Optimize Resume', featured: false },
-  { id: 'cover-letter', label: 'Create Cover Letter', icon: 'edit_note', featured: false },
+  { id: 'build-resume', label: 'Build ATS Resume', icon: 'description', href: '/resume/templates' },
+  { id: 'optimize-resume', label: 'Optimize Resume' },
+  { id: 'cover-letter', label: 'Create Cover Letter', icon: 'edit_note' },
 ];
 
 export const DEFAULT_AVATAR =
