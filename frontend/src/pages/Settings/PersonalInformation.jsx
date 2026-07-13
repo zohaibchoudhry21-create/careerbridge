@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import SettingsPageShell, { simulateSave } from '../../components/settings/SettingsPageShell';
 import SectionCard from '../../components/settings/SectionCard';
-import InputField, { TextAreaField } from '../../components/settings/InputField';
+import InputField from '../../components/settings/InputField';
 import SelectField from '../../components/settings/SelectField';
 import {
   COUNTRY_OPTIONS,
@@ -139,16 +139,6 @@ export default function PersonalInformation() {
             onChange={updateField('headline')}
           />
         </div>
-      </SectionCard>
-
-      <SectionCard title="About">
-        <TextAreaField
-          id="bio"
-          label="Bio"
-          value={form.bio}
-          onChange={updateField('bio')}
-          placeholder="Tell recruiters and hiring managers about yourself..."
-        />
       </SectionCard>
     </SettingsPageShell>
   );
