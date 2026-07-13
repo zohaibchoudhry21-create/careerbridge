@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import AppIcon from '../../components/icons/AppIcon';
 import SettingsPageShell, { simulateSave } from '../../components/settings/SettingsPageShell';
 import SectionCard from '../../components/settings/SectionCard';
 import InputField, { TextAreaField } from '../../components/settings/InputField';
@@ -12,26 +11,12 @@ import {
   STATE_OPTIONS,
 } from '../../components/settings/settingsDummyData';
 
-function getInitials(firstName, lastName) {
-  return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() || 'U';
-}
-
 export default function PersonalInformation() {
   const [form, setForm] = useState(DUMMY_PROFILE);
-  const [avatarPreview, setAvatarPreview] = useState(null);
   const [saving, setSaving] = useState(false);
 
   const updateField = (field) => (event) => {
     setForm((current) => ({ ...current, [field]: event.target.value }));
-  };
-
-  const handleUploadPhoto = () => {
-    toast.info('Photo upload is a frontend placeholder — no file is sent.');
-  };
-
-  const handleRemovePhoto = () => {
-    setAvatarPreview(null);
-    toast.success('Profile photo removed.');
   };
 
   const handleSave = async () => {
@@ -53,7 +38,6 @@ export default function PersonalInformation() {
 
   const handleCancel = () => {
     setForm(DUMMY_PROFILE);
-    setAvatarPreview(null);
     toast.info('Changes discarded.');
   };
 
@@ -65,35 +49,6 @@ export default function PersonalInformation() {
       onCancel={handleCancel}
       saving={saving}
     >
-      <SectionCard title="Profile Picture" description="Upload a professional photo for your account.">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-md">
-          <div className="h-20 w-20 rounded-full bg-secondary/10 text-secondary flex items-center justify-center font-bold text-xl shrink-0 overflow-hidden">
-            {avatarPreview ? (
-              <img src={avatarPreview} alt="" className="h-full w-full object-cover" />
-            ) : (
-              getInitials(form.firstName, form.lastName)
-            )}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={handleUploadPhoto}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-white font-label-md hover:opacity-90 transition-opacity min-h-[44px]"
-            >
-              <AppIcon name="photo_camera" size="button" />
-              Upload Photo
-            </button>
-            <button
-              type="button"
-              onClick={handleRemovePhoto}
-              className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px]"
-            >
-              Remove Photo
-            </button>
-          </div>
-        </div>
-      </SectionCard>
-
       <SectionCard title="Personal Details">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <InputField
