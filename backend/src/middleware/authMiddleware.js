@@ -22,11 +22,19 @@ export const protect = async (req, res, next) => {
       throw new AppError('User no longer exists.', 401);
     }
 
+    const tokenVersion = Number(decoded.tokenVersion) || 0;
+    const currentVersion = Number(user.tokenVersion) || 0;
+
+    if (tokenVersion !== currentVersion) {
+      throw new AppError('Session expired. Please log in again.', 401);
+    }
+
     if (!user.isVerified || user.status !== 'active') {
       throw new AppError('Account is not active. Please verify your email or contact support.', 403);
     }
 
     req.user = user;
+    req.authTokenIssuedAt = typeof decoded.iat === 'number' ? decoded.iat : null;
     next();
   } catch (error) {
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {

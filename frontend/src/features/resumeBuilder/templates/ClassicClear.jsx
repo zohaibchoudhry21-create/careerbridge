@@ -1,6 +1,7 @@
 import AppIcon from '../../../components/icons/AppIcon';
 import { sectionStyle, resolveTemplateTheme } from '../utils/templateCustomizeStyles';
 import { stripHtml } from '../utils/resumeEditorUtils';
+import { sanitizeHtml } from '../../../utils/sanitizeHtml';
 import TemplatePageNumberFooter from '../components/TemplatePageNumberFooter';
 import {
   mapAdditionalSections,
@@ -372,7 +373,7 @@ export default function ClassicClear({ resumeData, className = '', customize }) 
             <SectionHeading theme={theme}>Summary</SectionHeading>
             <div
               style={{ fontSize: theme.bodyFontSize, lineHeight: theme.lineHeight, color: BODY_COLOR }}
-              dangerouslySetInnerHTML={{ __html: summary }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(summary) }}
             />
           </section>
         ) : null}

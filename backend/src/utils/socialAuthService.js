@@ -50,30 +50,22 @@ export const findOrCreateSocialUser = async ({
   const existingByEmail = await User.findOne({ email: normalizedEmail });
 
   if (existingByEmail) {
-    if (
-      existingByEmail.provider === 'local' &&
-      (!existingByEmail.isVerified || existingByEmail.status !== 'active')
-    ) {
+    // Never auto-link by email alone — prevents account takeover if an OAuth
+    // provider returns an email that already belongs to another account.
+    if (existingByEmail.provider === 'local') {
       throw new Error(
-        'An unverified account already exists with this email. Please verify your email or log in with your password.'
+        'An account with this email already exists. Please log in with your email and password.'
       );
     }
 
-    if (existingByEmail.provider !== 'local' && existingByEmail.provider !== provider) {
+    if (existingByEmail.provider !== provider) {
       throw new Error('This email is already linked to a different sign-in provider.');
     }
 
-    existingByEmail.provider = provider;
-    existingByEmail.providerId = providerId;
-
-    if (name) existingByEmail.name = name;
-    if (avatar) existingByEmail.avatar = avatar;
-
-    existingByEmail.isVerified = true;
-    existingByEmail.status = 'active';
-
-    await existingByEmail.save({ validateBeforeSave: false });
-    return { user: existingByEmail, isNewUser: false };
+    // Same provider but missing providerId match is unexpected; refuse rather than overwrite.
+    throw new Error(
+      'This email is already registered. Please use the original sign-in method for this account.'
+    );
   }
 
   user = await User.create({

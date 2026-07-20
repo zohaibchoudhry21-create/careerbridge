@@ -2,7 +2,12 @@ import User from '../models/User.js';
 import BuiltResume from '../models/BuiltResume.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
 import { assignVerificationToken } from './verifyEmailController.js';
-import { clearAuthCookie } from '../utils/authCookie.js';
+import { clearAuthCookie, setAuthCookie } from '../utils/authCookie.js';
+import generateToken from '../utils/generateToken.js';
+
+const ACCOUNT_DELETE_CONFIRMATION = 'DELETE MY ACCOUNT';
+/** OAuth destructive actions require a freshly issued session (minutes). */
+const OAUTH_REAUTH_WINDOW_MINUTES = 15;
 
 const loadUser = (userId) => User.findById(userId);
 
@@ -95,9 +100,14 @@ export const changePassword = async (req, res, next) => {
     }
 
     user.password = newPassword;
+    user.tokenVersion = (Number(user.tokenVersion) || 0) + 1;
     await user.save();
 
-    sendResponse(res, 200, true, 'Password updated successfully');
+    // Invalidate every previous JWT; keep this device signed in with a fresh token.
+    const token = generateToken(user._id, user.tokenVersion);
+    setAuthCookie(res, token, true);
+
+    sendResponse(res, 200, true, 'Password updated successfully. Other sessions have been signed out.');
   } catch (error) {
     next(error);
   }
@@ -111,7 +121,7 @@ export const deleteAccount = async (req, res, next) => {
       throw new AppError('User no longer exists.', 404);
     }
 
-    const { password, confirmEmail } = req.body;
+    const { password, confirmEmail, confirmPhrase } = req.body;
 
     if (user.provider === 'local') {
       if (!password) {
@@ -130,6 +140,28 @@ export const deleteAccount = async (req, res, next) => {
 
       if (!normalizedConfirmEmail || normalizedConfirmEmail !== user.email) {
         throw new AppError('Email confirmation does not match your account email.', 400);
+      }
+
+      const phrase = String(confirmPhrase || '').trim().toUpperCase();
+      if (phrase !== ACCOUNT_DELETE_CONFIRMATION) {
+        throw new AppError(
+          `Type "${ACCOUNT_DELETE_CONFIRMATION}" to confirm account deletion.`,
+          400
+        );
+      }
+
+      const issuedAt = req.authTokenIssuedAt;
+      const maxAgeSeconds = OAUTH_REAUTH_WINDOW_MINUTES * 60;
+      const nowSeconds = Math.floor(Date.now() / 1000);
+
+      if (
+        typeof issuedAt !== 'number' ||
+        nowSeconds - issuedAt > maxAgeSeconds
+      ) {
+        throw new AppError(
+          `For security, sign out and sign in again with ${user.provider}, then delete within ${OAUTH_REAUTH_WINDOW_MINUTES} minutes.`,
+          403
+        );
       }
     }
 

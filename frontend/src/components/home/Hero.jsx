@@ -1,6 +1,52 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { motion } from 'motion/react';
 import { IMAGES } from '../../config/images';
 import TextType from '../ui/TextType';
+import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
+import {
+  AvatarGroup,
+  AvatarGroupTooltip,
+} from '../animate-ui/components/animate/avatar-group';
+import { Sparkles } from '../animate-ui/icons/sparkles';
+
+function HeroCtaButton() {
+  const [hovering, setHovering] = useState(false);
+
+  return (
+    <Link
+      to="/login"
+      className="relative z-20 inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-primary-container text-on-primary text-lg rounded-xl px-8 py-4 hover:opacity-90 transition-opacity"
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      onFocus={() => setHovering(true)}
+      onBlur={() => setHovering(false)}
+    >
+      Get started for free
+      <motion.span
+        className="inline-flex shrink-0"
+        animate={{ x: hovering ? 8 : 0 }}
+        transition={{ type: 'spring', stiffness: 420, damping: 22 }}
+        aria-hidden
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width={20}
+          height={20}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
+        </svg>
+      </motion.span>
+    </Link>
+  );
+}
 
 const A4_WIDTH = 794;
 const A4_HEIGHT = 1123;
@@ -19,12 +65,32 @@ const LEFT_SCALED_HEIGHT = A4_HEIGHT * LEFT_RESUME_SCALE;
 const RIGHT_SCALED_WIDTH = A4_WIDTH * RIGHT_RESUME_SCALE;
 const RIGHT_SCALED_HEIGHT = A4_HEIGHT * RIGHT_RESUME_SCALE;
 
-const AVATAR_URLS = [
-  'https://randomuser.me/api/portraits/women/1.jpg',
-  'https://randomuser.me/api/portraits/men/2.jpg',
-  'https://randomuser.me/api/portraits/women/3.jpg',
-  'https://randomuser.me/api/portraits/men/4.jpg',
-  'https://randomuser.me/api/portraits/women/5.jpg',
+const AVATARS = [
+  {
+    src: 'https://randomuser.me/api/portraits/women/1.jpg',
+    fallback: 'A',
+    tooltip: 'Alex',
+  },
+  {
+    src: 'https://randomuser.me/api/portraits/men/2.jpg',
+    fallback: 'J',
+    tooltip: 'Jordan',
+  },
+  {
+    src: 'https://randomuser.me/api/portraits/women/3.jpg',
+    fallback: 'S',
+    tooltip: 'Sam',
+  },
+  {
+    src: 'https://randomuser.me/api/portraits/men/4.jpg',
+    fallback: 'R',
+    tooltip: 'Riley',
+  },
+  {
+    src: 'https://randomuser.me/api/portraits/women/5.jpg',
+    fallback: 'M',
+    tooltip: 'Morgan',
+  },
 ];
 
 function TikTokIcon({ className = '' }) {
@@ -65,7 +131,8 @@ export default function Hero() {
       <div className="page-container py-xl xl:py-20">
         <div className="grid grid-cols-1 xl:grid-cols-[55fr_45fr] gap-lg xl:gap-12 items-center">
           <div className="flex flex-col gap-6 max-w-xl">
-            <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">
+            <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest inline-flex items-center gap-2">
+              <Sparkles size={16} className="text-secondary" animateOnHover />
               FREE ONLINE RESUME BUILDER
             </p>
 
@@ -99,25 +166,19 @@ export default function Hero() {
             </div>
 
             <div>
-              <Link
-                to="/register"
-                className="inline-flex w-full sm:w-auto items-center justify-center bg-primary-container text-on-primary text-lg rounded-xl px-8 py-4 hover:opacity-90 transition-opacity"
-              >
-                Get started for free
-              </Link>
+              <HeroCtaButton />
             </div>
 
-            <div className="flex items-center gap-3 pt-2">
-              <div className="flex">
-                {AVATAR_URLS.map((url, index) => (
-                  <img
-                    key={url}
-                    src={url}
-                    alt=""
-                    className={`w-10 h-10 rounded-full border-2 border-white object-cover ${index > 0 ? '-ml-3' : ''}`}
-                  />
+            <div className="flex items-center gap-3 mt-8 pt-2">
+              <AvatarGroup>
+                {AVATARS.map((avatar, index) => (
+                  <Avatar key={index}>
+                    <AvatarImage src={avatar.src} />
+                    <AvatarFallback>{avatar.fallback}</AvatarFallback>
+                    <AvatarGroupTooltip>{avatar.tooltip}</AvatarGroupTooltip>
+                  </Avatar>
                 ))}
-              </div>
+              </AvatarGroup>
               <p className="font-body-md text-body-md text-on-surface-variant">
                 Trusted by <span className="font-semibold">5.3 million</span> users
               </p>

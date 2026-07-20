@@ -83,13 +83,12 @@ export const login = async (req, res, next) => {
       );
     }
 
-    const token = generateToken(user._id);
+    const token = generateToken(user._id, user.tokenVersion);
     const remember = req.body.remember !== false;
     setAuthCookie(res, token, remember);
 
     sendResponse(res, 200, true, 'Login successful', {
       user: user.toPublicJSON(),
-      token,
     });
   } catch (error) {
     next(error);
@@ -173,14 +172,14 @@ export const resetPassword = async (req, res, next) => {
     user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
+    user.tokenVersion = (Number(user.tokenVersion) || 0) + 1;
     await user.save();
 
-    const authToken = generateToken(user._id);
+    const authToken = generateToken(user._id, user.tokenVersion);
     setAuthCookie(res, authToken, true);
 
     sendResponse(res, 200, true, 'Password reset successful', {
       user: user.toPublicJSON(),
-      token: authToken,
     });
   } catch (error) {
     next(error);
@@ -207,12 +206,11 @@ export const exchangeSocialCode = async (req, res, next) => {
       throw new AppError('Account is not active.', 403);
     }
 
-    const token = generateToken(user._id);
+    const token = generateToken(user._id, user.tokenVersion);
     setAuthCookie(res, token, true);
 
     sendResponse(res, 200, true, 'Login successful', {
       user: user.toPublicJSON(),
-      token,
     });
 
     void sendWelcomeEmailIfNeeded(user, { isNewUser });

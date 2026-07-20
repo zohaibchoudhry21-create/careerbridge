@@ -4,7 +4,8 @@ import BrandLogo from '../brand/BrandLogo';
 import usePersistedSidebarCollapse from '../../hooks/usePersistedSidebarCollapse';
 import AppIcon from '../icons/AppIcon';
 
-const SIDEBAR_TRANSITION = 'transition-[width,padding] duration-[325ms] ease-in-out';
+const SIDEBAR_TRANSITION =
+  'transition-[width,padding] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]';
 
 export default function DashboardLayout({ children, user }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -15,10 +16,10 @@ export default function DashboardLayout({ children, user }) {
 
   return (
     <div className="dashboard-shell h-screen overflow-hidden">
-      <header className="lg:hidden fixed top-0 inset-x-0 z-50 flex items-center gap-3 h-14 px-4 bg-background border-b border-outline-variant">
+      <header className="lg:hidden fixed top-0 inset-x-0 z-50 flex items-center gap-3 h-14 px-4 bg-background/80 backdrop-blur-xl border-b border-outline-variant/50">
         <button
           type="button"
-          className="relative z-[60] flex items-center justify-center w-10 h-10 rounded-xl text-on-surface hover:bg-surface-container transition-colors shrink-0"
+          className="relative z-[60] flex items-center justify-center w-10 h-10 rounded-2xl text-on-surface hover:bg-secondary/10 hover:scale-105 active:scale-95 transition-all duration-300 shrink-0"
           onClick={toggleMobileSidebar}
           aria-label={mobileOpen ? 'Close sidebar' : 'Open sidebar'}
           aria-expanded={mobileOpen}
@@ -31,7 +32,7 @@ export default function DashboardLayout({ children, user }) {
       {mobileOpen && (
         <button
           type="button"
-          className="lg:hidden fixed inset-0 z-40 bg-black/50 transition-opacity duration-[325ms] ease-in-out"
+          className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
           onClick={closeMobileSidebar}
           aria-label="Close sidebar"
         />
@@ -39,9 +40,10 @@ export default function DashboardLayout({ children, user }) {
 
       <aside
         className={[
-          'lg:hidden fixed top-0 left-0 z-50 h-full max-w-[85vw] w-[15rem]',
-          'flex flex-col shrink-0 bg-background border-r border-outline-variant py-sm px-sm overflow-hidden',
-          'transition-transform duration-[325ms] ease-in-out',
+          'lg:hidden fixed top-0 left-0 z-50 h-full max-w-[85vw] w-[280px]',
+          'flex flex-col shrink-0 bg-background/90 backdrop-blur-xl border-r border-outline-variant/50',
+          'shadow-2xl py-sm px-sm overflow-hidden',
+          'transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
           mobileOpen ? 'translate-x-0' : '-translate-x-full',
         ].join(' ')}
       >
@@ -55,16 +57,17 @@ export default function DashboardLayout({ children, user }) {
       <aside
         className={[
           'hidden lg:flex shrink-0 h-full flex-col',
-          'bg-background border-r border-outline-variant py-sm overflow-hidden',
+          'bg-background/80 backdrop-blur-xl border-r border-outline-variant/50',
+          'shadow-[8px_0_30px_rgba(0,0,0,0.04)] py-sm overflow-hidden',
           SIDEBAR_TRANSITION,
-          collapsed ? 'w-20 px-2' : 'w-[15rem] px-sm',
+          collapsed ? 'w-[76px] px-2' : 'w-[280px] px-sm',
         ].join(' ')}
         aria-expanded={!collapsed}
       >
         <Sidebar collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
       </aside>
 
-      <main className="dashboard-main transition-[margin,padding] duration-[325ms] ease-in-out">
+      <main className="dashboard-main transition-[margin,padding] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
         <div className="max-w-[1280px] mx-auto w-full">{children}</div>
       </main>
     </div>

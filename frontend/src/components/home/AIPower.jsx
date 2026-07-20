@@ -24,46 +24,61 @@ const aiFeatures = [
 
 export default function AIPower() {
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
 
-    import('particles.js').then(() => {
-      if (typeof window.particlesJS === 'undefined') return;
+    let cancelled = false;
 
-      window.particlesJS('particles-js', {
-        particles: {
-          number: { value: 40, density: { enable: true, value_area: 800 } },
-          color: { value: '#ffffff' },
-          shape: { type: 'circle' },
-          opacity: { value: 0.1, random: false },
-          size: { value: 3, random: true },
-          line_linked: {
-            enable: true,
-            distance: 150,
-            color: '#ffffff',
-            opacity: 0.1,
-            width: 1,
-          },
-          move: {
-            enable: true,
-            speed: 1,
-            direction: 'none',
-            random: false,
-            straight: false,
-            out_mode: 'out',
-            bounce: false,
-          },
-        },
-        interactivity: {
-          detect_on: 'canvas',
-          events: {
-            onhover: { enable: false },
-            onclick: { enable: false },
-            resize: true,
-          },
-        },
-        retina_detect: true,
-      });
-    });
+    import('particles.js')
+      .then(() => {
+        if (cancelled || typeof window.particlesJS === 'undefined') return;
+        // particles.js deepExtend touches arguments.callee (throws in strict mode).
+        // Guard so an uncaught error cannot interrupt React Router transitions.
+        try {
+          window.particlesJS('particles-js', {
+            particles: {
+              number: { value: 40, density: { enable: true, value_area: 800 } },
+              color: { value: '#ffffff' },
+              shape: { type: 'circle' },
+              opacity: { value: 0.1, random: false },
+              size: { value: 3, random: true },
+              line_linked: {
+                enable: true,
+                distance: 150,
+                color: '#ffffff',
+                opacity: 0.1,
+                width: 1,
+              },
+              move: {
+                enable: true,
+                speed: 1,
+                direction: 'none',
+                random: false,
+                straight: false,
+                out_mode: 'out',
+                bounce: false,
+              },
+            },
+            interactivity: {
+              detect_on: 'canvas',
+              events: {
+                onhover: { enable: false },
+                onclick: { enable: false },
+                resize: true,
+              },
+            },
+            retina_detect: true,
+          });
+        } catch {
+          // Decorative only — safe to skip if the library fails.
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+      const el = document.getElementById('particles-js');
+      if (el) el.innerHTML = '';
+    };
   }, []);
 
   return (
