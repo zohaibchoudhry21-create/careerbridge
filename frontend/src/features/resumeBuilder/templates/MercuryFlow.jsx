@@ -1,5 +1,6 @@
 import AppIcon from '../../../components/icons/AppIcon';
 import { stripHtml } from '../utils/resumeEditorUtils';
+import { sanitizeHtml } from '../../../utils/sanitizeHtml';
 import {
   mapAdditionalSections,
   mapCoursesSection,
@@ -415,7 +416,7 @@ export default function MercuryFlow({ resumeData, className = '', customize }) {
             <SectionBar theme={theme}>Summary</SectionBar>
             <div
               style={{ fontSize: theme.bodyFontSize, lineHeight: theme.lineHeight, color: BODY_COLOR, margin: 0 }}
-              dangerouslySetInnerHTML={{ __html: summary }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(summary) }}
             />
           </section>
         ) : null}

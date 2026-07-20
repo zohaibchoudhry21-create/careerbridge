@@ -42,5 +42,14 @@ export const changePasswordValidation = [
 
 export const deleteAccountValidation = [
   body('password').optional({ nullable: true }),
-  body('confirmEmail').optional({ nullable: true }).trim().isEmail().withMessage('Valid email is required'),
+  body('confirmEmail')
+    .optional({ nullable: true })
+    .trim()
+    .isEmail()
+    .withMessage('Valid email is required'),
+  body('confirmPhrase')
+    .optional({ nullable: true })
+    .trim()
+    .isLength({ max: 64 })
+    .withMessage('Confirmation phrase is too long'),
 ];

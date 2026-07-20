@@ -1,4 +1,7 @@
 import AppIcon from '../icons/AppIcon';
+import { Sparkles } from '../animate-ui/icons/sparkles';
+import { CircleCheck } from '../animate-ui/icons/circle-check';
+import { ArrowRight } from '../animate-ui/icons/arrow-right';
 
 const steps = [
   {
@@ -11,7 +14,7 @@ const steps = [
   },
   {
     number: 2,
-    icon: 'model_training',
+    AnimatedIcon: Sparkles,
     title: 'Generate Profile',
     description:
       'AI structures your data into a master profile and generates an ATS-ready resume.',
@@ -19,6 +22,7 @@ const steps = [
   },
   {
     number: 3,
+    AnimatedIcon: CircleCheck,
     title: 'Optimize & Apply',
     description:
       'Target specific roles. One click adjusts your CV keywords to beat ATS filters for that exact job description.',
@@ -29,7 +33,7 @@ const steps = [
 const ICON_CARD_SIZE = 72;
 const BADGE_COLOR = '#2563EB';
 
-function StepIcon({ icon, number }) {
+function StepIcon({ icon, AnimatedIcon, number }) {
   return (
     <div
       className="relative z-[1] mb-6 flex shrink-0 items-center justify-center rounded-2xl bg-white"
@@ -39,7 +43,11 @@ function StepIcon({ icon, number }) {
         boxShadow: '0 4px 20px rgba(0, 0, 100, 0.10)',
       }}
     >
-      {icon ? <AppIcon name={icon} size="h-8 w-8" className="text-[#1E3A8A] select-none" /> : null}
+      {AnimatedIcon ? (
+        <AnimatedIcon size={32} animateOnHover className="text-[#1E3A8A]" />
+      ) : icon ? (
+        <AppIcon name={icon} size="h-8 w-8" className="text-[#1E3A8A] select-none" />
+      ) : null}
       <span
         className="absolute flex items-center justify-center rounded-full font-bold text-white"
         style={{
@@ -62,8 +70,9 @@ export default function HowItWorks() {
     <section className="bg-surface-container-highest py-xl">
       <div className="page-container">
         <div className="text-center mb-lg reveal is-visible">
-          <h2 className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface">
+          <h2 className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface inline-flex items-center justify-center gap-2 flex-wrap">
             How It Works
+            <ArrowRight size={28} className="text-secondary hidden sm:inline" animateOnHover />
           </h2>
           <p className="font-body-md text-body-md text-on-surface-variant mt-2">
             From raw data to interview ready in minutes.
@@ -95,7 +104,11 @@ export default function HowItWorks() {
               key={step.number}
               className={`relative flex max-w-xs flex-col items-center text-center reveal ${step.delay} is-visible`}
             >
-              <StepIcon icon={step.icon} number={step.number} />
+              <StepIcon
+                icon={step.icon}
+                AnimatedIcon={step.AnimatedIcon}
+                number={step.number}
+              />
               <h3 className="font-headline-md text-headline-md text-on-surface mb-2">{step.title}</h3>
               <p className="text-sm text-on-surface-variant px-4">{step.description}</p>
             </div>

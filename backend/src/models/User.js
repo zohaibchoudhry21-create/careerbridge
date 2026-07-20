@@ -73,6 +73,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    /** Incremented on password change/reset so older JWTs fail in `protect`. */
+    tokenVersion: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

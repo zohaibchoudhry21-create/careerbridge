@@ -37,7 +37,9 @@ export default function LoginForm() {
       navigate(redirectTo, { replace: true });
     } catch (error) {
       const message =
-        error.response?.data?.message || 'Login failed. Please check your credentials.';
+        error.code === 'ECONNABORTED'
+          ? 'Server is taking too long. Please try again.'
+          : error.response?.data?.message || 'Login failed. Please check your credentials.';
       toast.error(message);
 
       if (error.response?.status === 403) {

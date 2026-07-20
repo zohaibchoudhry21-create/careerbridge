@@ -79,7 +79,20 @@ export default function RichTextEditor({ value, onChange, placeholder = '' }) {
     if (command === 'createLink') {
       const url = window.prompt('Enter URL');
       if (!url) return;
-      document.execCommand(command, false, url);
+      const trimmed = url.trim();
+      const lower = trimmed.toLowerCase();
+      if (
+        lower.startsWith('javascript:') ||
+        lower.startsWith('data:') ||
+        lower.startsWith('vbscript:')
+      ) {
+        return;
+      }
+      const safeUrl =
+        /^https?:\/\//i.test(trimmed) || trimmed.startsWith('mailto:')
+          ? trimmed
+          : `https://${trimmed}`;
+      document.execCommand(command, false, safeUrl);
     } else {
       document.execCommand(command, false, null);
     }

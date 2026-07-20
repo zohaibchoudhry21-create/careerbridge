@@ -1,5 +1,6 @@
 import AppIcon from '../../../components/icons/AppIcon';
 import { stripHtml } from '../utils/resumeEditorUtils';
+import { sanitizeHtml } from '../../../utils/sanitizeHtml';
 import { getPersonalPhoto, TEMPLATE_PREVIEW_ATLANTIC_PHOTO } from '../utils/personalDetailsPhoto';
 import {
   mapAdditionalSections,
@@ -552,7 +553,7 @@ export default function AtlanticBlue({ resumeData, className = '', customize }) 
             <RightHeading theme={theme}>Profile</RightHeading>
             <div
               style={{ fontSize: theme.bodyFontSize, lineHeight: theme.lineHeight, color: BODY_COLOR }}
-              dangerouslySetInnerHTML={{ __html: profile }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(profile) }}
             />
           </section>
         ) : null}

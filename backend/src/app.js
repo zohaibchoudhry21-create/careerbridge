@@ -99,6 +99,17 @@ const socialOAuthLimiter = rateLimit({
   },
 });
 
+const sensitiveAccountLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: {
+    success: false,
+    message: 'Too many account security attempts. Please try again later.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(cookieParser());
@@ -111,7 +122,7 @@ app.get('/', (_req, res) => {
 
 app.use('/api', apiRoutes);
 app.use('/api', dashboardRoutes);
-app.use('/api', userRoutes);
+app.use('/api', sensitiveAccountLimiter, userRoutes);
 app.use('/api', resumeBuilderRoutes);
 app.use('/api', verifyRoutes);
 app.use('/api/auth', authLimiter, authRoutes);

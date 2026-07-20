@@ -38,9 +38,8 @@ export function AuthProvider({ children }) {
       setUser(null);
       setSessionActive(false);
     } finally {
-      if (generation === authGenerationRef.current) {
-        setLoading(false);
-      }
+      // Always clear loading so routes never hang on a stalled /auth/me call.
+      setLoading(false);
     }
   }, []);
 
@@ -71,12 +70,8 @@ export function AuthProvider({ children }) {
   const handleAuthSuccess = useCallback((data) => {
     authGenerationRef.current += 1;
     clearStoredToken();
-
-    if (data?.token) {
-      setAuthToken(data.token);
-    } else {
-      setAuthToken(null);
-    }
+    // Prefer httpOnly cookie session — do not keep JWTs from API JSON responses.
+    setAuthToken(null);
 
     setUser(data?.user ?? null);
     setSessionActive(Boolean(data?.user));

@@ -2,6 +2,7 @@ import AppIcon from '../../../components/icons/AppIcon';
 import { getTemplateById } from '../data/resumeTemplates';
 import { mergeCustomize } from '../data/resumeCustomizeDefaults';
 import { stripHtml } from '../utils/resumeEditorUtils';
+import { sanitizeHtml } from '../../../utils/sanitizeHtml';
 import ClassicClear, { mapResumeToClassicClearData } from '../templates/ClassicClear';
 import AtlanticBlue, { mapResumeToAtlanticBlueData } from '../templates/AtlanticBlue';
 import MercuryFlow, { mapResumeToMercuryFlowData } from '../templates/MercuryFlow';
@@ -53,7 +54,7 @@ function renderSectionContent(section) {
         <div
           key={entry.id}
           className="text-[11px] leading-relaxed text-on-surface whitespace-pre-wrap"
-          dangerouslySetInnerHTML={{ __html: entry.fields.content || '' }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(entry.fields.content || '') }}
         />
       ));
     case 'experience':
@@ -80,7 +81,7 @@ function renderSectionContent(section) {
           {entry.fields.description && (
             <div
               className="mt-1 text-[11px] text-on-surface whitespace-pre-wrap"
-              dangerouslySetInnerHTML={{ __html: entry.fields.description }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(entry.fields.description) }}
             />
           )}
         </div>
@@ -113,7 +114,7 @@ function renderSectionContent(section) {
             <div
               className="text-on-surface-variant whitespace-pre-wrap"
               dangerouslySetInnerHTML={{
-                __html: entry.fields.description || entry.fields.content || '',
+                __html: sanitizeHtml(entry.fields.description || entry.fields.content || ''),
               }}
             />
           )}

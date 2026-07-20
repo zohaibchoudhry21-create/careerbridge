@@ -3,7 +3,8 @@ import { DASHBOARD_NAV_ITEMS } from './dashboardConstants';
 import BrandLogo from '../brand/BrandLogo';
 import AppIcon from '../icons/AppIcon';
 
-const SIDEBAR_ANIMATION = 'transition-all duration-[325ms] ease-in-out';
+const SIDEBAR_ANIMATION =
+  'transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]';
 
 function SidebarBrand() {
   return (
@@ -27,35 +28,46 @@ function NavTooltip({ label, children }) {
   );
 }
 
-function NavItem({ item, collapsed, onNavigate }) {
+function NavItem({ item, index = 0, collapsed, onNavigate }) {
   const { id, label, icon, href } = item;
   const isRouterLink = href.startsWith('/');
+
+  const staggerStyle = {
+    transitionDelay: collapsed ? '0ms' : `${index * 40}ms`,
+  };
 
   const getLinkClassName = ({ isActive } = {}) => {
     const active = typeof isActive === 'boolean' ? isActive : false;
     const base = [
       'group/nav-item flex items-center h-12 rounded-xl font-label-md',
       SIDEBAR_ANIMATION,
-      collapsed ? 'w-12 mx-auto justify-center px-0' : 'mx-1 w-[calc(100%-8px)] justify-start gap-2.5 px-3',
+      collapsed
+        ? 'w-12 mx-auto justify-center px-0'
+        : 'mx-1 w-[calc(100%-8px)] justify-start gap-2.5 px-3',
     ].join(' ');
 
     if (active) {
-      return `${base} text-secondary font-bold bg-surface-container`;
+      return `${base} text-secondary font-bold bg-secondary/10 shadow-sm relative before:absolute before:content-[''] before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-7 before:bg-secondary before:rounded-full`;
     }
 
-    return `${base} text-on-surface-variant hover:text-secondary hover:bg-surface-container`;
+    return `${base} text-on-surface-variant hover:text-secondary hover:bg-surface-container/80`;
   };
 
   const content = (
     <>
-      <AppIcon name={icon} size="sidebar" className={SIDEBAR_ANIMATION} />
+      <AppIcon
+        name={icon}
+        size="sidebar"
+        className={[SIDEBAR_ANIMATION, 'group-hover/nav-item:scale-110'].join(' ')}
+      />
       <span
         className={[
           'block min-w-0 overflow-hidden whitespace-nowrap origin-left',
           SIDEBAR_ANIMATION,
+          'group-hover/nav-item:translate-x-0.5',
           collapsed
-            ? 'w-0 max-w-0 opacity-0 scale-95 -translate-x-2'
-            : 'w-auto max-w-[11rem] opacity-100 scale-100 translate-x-0',
+            ? 'w-0 max-w-0 opacity-0 scale-90 -translate-x-3 blur-sm'
+            : 'w-auto max-w-[11rem] opacity-100 scale-100 translate-x-0 blur-0',
         ].join(' ')}
         aria-hidden={collapsed}
       >
@@ -73,6 +85,7 @@ function NavItem({ item, collapsed, onNavigate }) {
       onClick={onNavigate}
       title={collapsed ? label : undefined}
       aria-label={collapsed ? label : undefined}
+      style={staggerStyle}
     >
       {content}
     </NavLink>
@@ -84,6 +97,7 @@ function NavItem({ item, collapsed, onNavigate }) {
       onClick={onNavigate}
       title={collapsed ? label : undefined}
       aria-label={collapsed ? label : undefined}
+      style={staggerStyle}
     >
       {content}
     </a>
@@ -110,11 +124,26 @@ function SidebarContent({ collapsed, onToggleCollapse, onNavigate, showCollapseT
           <button
             type="button"
             onClick={onToggleCollapse}
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-on-surface hover:bg-surface-container ${SIDEBAR_ANIMATION}`}
+            className={[
+              'relative flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl',
+              'text-on-surface',
+              'transition-all duration-300',
+              'hover:bg-secondary/10',
+              'hover:scale-105',
+              'active:scale-95',
+              'overflow-hidden',
+            ].join(' ')}
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             aria-expanded={!collapsed}
           >
-            <AppIcon name="menu" size="dashboard" />
+            <AppIcon
+              name="menu"
+              size="dashboard"
+              className={[
+                'transition-transform duration-300',
+                collapsed ? 'rotate-180' : '',
+              ].join(' ')}
+            />
           </button>
         ) : null}
         <div
@@ -122,18 +151,26 @@ function SidebarContent({ collapsed, onToggleCollapse, onNavigate, showCollapseT
             'min-w-0 overflow-hidden origin-left',
             SIDEBAR_ANIMATION,
             collapsed
-              ? 'w-0 max-w-0 flex-[0] opacity-0 scale-95 -translate-x-4'
-              : 'w-auto max-w-[180px] flex-1 opacity-100 scale-100 translate-x-0',
+              ? 'w-0 max-w-0 flex-[0] opacity-0 scale-90 -translate-x-3 blur-sm'
+              : 'w-auto max-w-[180px] flex-1 opacity-100 scale-100 translate-x-0 blur-0',
           ].join(' ')}
           aria-hidden={collapsed}
         >
-          <SidebarBrand />
+          <div className="rounded-2xl p-2 transition-all duration-300 hover:bg-surface-container">
+            <SidebarBrand />
+          </div>
         </div>
       </div>
 
       <nav className="flex-1 min-h-0 space-y-1 overflow-y-auto overflow-x-hidden">
-        {DASHBOARD_NAV_ITEMS.map((item) => (
-          <NavItem key={item.id} item={item} collapsed={collapsed} onNavigate={onNavigate} />
+        {DASHBOARD_NAV_ITEMS.map((item, index) => (
+          <NavItem
+            key={item.id}
+            item={item}
+            index={index}
+            collapsed={collapsed}
+            onNavigate={onNavigate}
+          />
         ))}
       </nav>
     </>
