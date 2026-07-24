@@ -33,17 +33,27 @@ export function AuthProvider({ children }) {
       if (generation !== authGenerationRef.current) return;
       setUser(data.user);
       setSessionActive(true);
-    } catch {
+    } catch (error) {
       if (generation !== authGenerationRef.current) return;
+      const status = error?.response?.status;
+      if (status === 429) {
+        setLoading(false);
+        return;
+      }
       setUser(null);
       setSessionActive(false);
     } finally {
-      // Always clear loading so routes never hang on a stalled /auth/me call.
-      setLoading(false);
+      if (generation === authGenerationRef.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
+  const restoreStartedRef = useRef(false);
+
   useEffect(() => {
+    if (restoreStartedRef.current) return;
+    restoreStartedRef.current = true;
     restoreSession();
   }, [restoreSession]);
 

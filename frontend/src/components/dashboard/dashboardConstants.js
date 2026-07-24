@@ -2,7 +2,7 @@ export const DASHBOARD_NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: 'dashboard', href: '/dashboard' },
   { id: 'resume-builder', label: 'Resume Builder', icon: 'description', href: '/resume/templates' },
   { id: 'resume-scanner', label: 'Resume Scanner', icon: 'document_scanner', href: '#' },
-  { id: 'interview-prep', label: 'Interview Prep', icon: 'mic_external_on', href: '#' },
+  { id: 'interview-prep', label: 'Interview Prep', icon: 'mic_external_on', href: '/interview-prep' },
   { id: 'linkedin', label: 'LinkedIn Optimizer', icon: 'share_reviews', href: '#' },
 ];
 

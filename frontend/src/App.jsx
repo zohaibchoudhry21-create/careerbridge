@@ -15,6 +15,12 @@ import PrivacySettings from './pages/Settings/PrivacySettings';
 import AppearanceSettings from './pages/Settings/AppearanceSettings';
 import NotificationsSettings from './pages/Settings/NotificationsSettings';
 import AccountManagement from './pages/Settings/AccountManagement';
+import InterviewPrepPage from './pages/InterviewPrep/InterviewPrepPage';
+import SkillAssessmentSetupPage from './pages/InterviewPrep/SkillAssessmentSetupPage';
+import MockInterviewLayout from './pages/InterviewPrep/MockInterviewLayout';
+import MockInterviewSetupPage from './pages/InterviewPrep/MockInterviewSetupPage';
+import MockInterviewSessionPage from './pages/InterviewPrep/MockInterviewSessionPage';
+import SkillAssessmentQuizPage from './pages/InterviewPrep/SkillAssessmentQuizPage';
 import TemplateSelectionPage from './pages/ResumeBuilder/TemplateSelectionPage';
 import ResumeEditorPage from './pages/ResumeBuilder/ResumeEditorPage';
 import HeroResumeCapture from './pages/dev/HeroResumeCapture';
@@ -80,6 +86,41 @@ function App() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/interview-prep"
+        element={
+          <ProtectedRoute>
+            <InterviewPrepPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/interview-prep/skills"
+        element={
+          <ProtectedRoute>
+            <SkillAssessmentSetupPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/interview-prep/mock"
+        element={
+          <ProtectedRoute>
+            <MockInterviewLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<MockInterviewSetupPage />} />
+        <Route path=":sessionId" element={<MockInterviewSessionPage />} />
+      </Route>
+      <Route
+        path="/interview-prep/skills/:quizId"
+        element={
+          <ProtectedRoute>
+            <SkillAssessmentQuizPage />
           </ProtectedRoute>
         }
       />
