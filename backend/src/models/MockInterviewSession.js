@@ -136,6 +136,11 @@ const mockInterviewSessionSchema = new mongoose.Schema(
       default: 'setup',
       index: true,
     },
+    durationMinutes: {
+      type: Number,
+      enum: [10, 15, 20],
+      default: 15,
+    },
     targetQuestionCount: {
       type: Number,
       min: 5,
@@ -165,6 +170,52 @@ const mockInterviewSessionSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'InterviewReport',
       default: null,
+    },
+    resumeText: {
+      type: String,
+      trim: true,
+      maxlength: 15000,
+      default: undefined,
+    },
+    experience: {
+      type: String,
+      trim: true,
+      maxlength: 120,
+      default: undefined,
+    },
+    resumeSkills: {
+      type: [String],
+      default: undefined,
+    },
+    resumeProjects: {
+      type: [String],
+      default: undefined,
+    },
+    jobDescriptionText: {
+      type: String,
+      trim: true,
+      maxlength: 15000,
+      default: undefined,
+    },
+    targetCompany: {
+      type: String,
+      trim: true,
+      maxlength: 120,
+      default: undefined,
+    },
+    focusAreas: {
+      type: [String],
+      default: undefined,
+    },
+    interviewMode: {
+      type: String,
+      enum: ['video_voice', 'voice_only', 'text_only'],
+      default: 'video_voice',
+    },
+    interviewerPersona: {
+      type: String,
+      enum: ['friendly', 'neutral', 'strict', 'panel'],
+      default: 'neutral',
     },
   },
   { timestamps: true }

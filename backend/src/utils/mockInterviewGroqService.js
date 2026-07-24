@@ -37,14 +37,52 @@ const callGroqJson = async (prompt) => {
   }
 };
 
-export const generateOpeningQuestion = async ({ roleLabel, difficulty }) => {
+const buildCandidateContext = ({ experience, resumeSkills, resumeProjects, targetCompany } = {}) => {
+  const lines = [];
+
+  const exp = String(experience || '').trim();
+  if (exp) lines.push(`Candidate experience: ${exp}`);
+
+  const company = String(targetCompany || '').trim();
+  if (company) lines.push(`Target company: ${company}`);
+
+  const skills = (Array.isArray(resumeSkills) ? resumeSkills : [])
+    .map((s) => String(s || '').trim())
+    .filter(Boolean)
+    .slice(0, 14);
+  if (skills.length) lines.push(`Candidate skills: ${skills.join(', ')}`);
+
+  const projects = (Array.isArray(resumeProjects) ? resumeProjects : [])
+    .map((p) => String(p || '').trim())
+    .filter(Boolean)
+    .slice(0, 6);
+  if (projects.length) lines.push(`Candidate projects: ${projects.join('; ')}`);
+
+  return lines.join('\n');
+};
+
+export const generateOpeningQuestion = async ({
+  roleLabel,
+  difficulty,
+  experience,
+  resumeSkills,
+  resumeProjects,
+  targetCompany,
+} = {}) => {
   if (!isGroqConfigured()) {
     throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
   }
 
+  const candidateContext = buildCandidateContext({
+    experience,
+    resumeSkills,
+    resumeProjects,
+    targetCompany,
+  });
+
   const parsed = await callGroqJson(`
 You are a professional interviewer conducting a ${difficulty} difficulty interview for a ${roleLabel} role.
-
+${candidateContext ? `\nCandidate background (use it to make the opener relevant, but keep it a natural opening question):\n${candidateContext}\n` : ''}
 Generate ONE opening interview question (warm-up / tell-me-about-yourself style or role-specific opener).
 
 Return JSON only:

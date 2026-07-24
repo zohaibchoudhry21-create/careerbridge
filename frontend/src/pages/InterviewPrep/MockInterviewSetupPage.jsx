@@ -25,7 +25,7 @@ export default function MockInterviewSetupPage() {
           className="inline-flex items-center gap-1 font-label-md text-secondary hover:underline"
         >
           <AppIcon name="arrow_back" size="sm" />
-          Interview Prep
+          Interview prep
         </Link>
         <MockInterviewSetup />
       </div>

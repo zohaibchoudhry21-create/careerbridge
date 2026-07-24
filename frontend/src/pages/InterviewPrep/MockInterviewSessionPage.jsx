@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import useAuth from '../../hooks/useAuth';
 import AppIcon from '../../components/icons/AppIcon';
-import InterviewReportCard from '../../features/interviewPrep/components/InterviewReportCard';
-import LiveInterviewAgent from '../../features/interviewPrep/components/LiveInterviewAgent';
-import PermissionGate from '../../features/interviewPrep/components/PermissionGate';
+import LiveInterviewReportView from '../../features/interviewPrep/components/LiveInterviewReportView';
 import { preloadInterviewFaceModels } from '../../features/interviewPrep/hooks/useFaceVideoAnalysis';
 import { useInterviewMedia } from '../../features/interviewPrep/context/InterviewMediaContext';
 import {
@@ -13,13 +12,24 @@ import {
   useMockInterviewSession,
   useSubmitLiveInterview,
 } from '../../features/interviewPrep/hooks/useMockInterview';
+import {
+  DEFAULT_INTERVIEWER_PERSONA,
+} from '../../features/interviewPrep/constants/interviewPrepConstants';
 import { getApiErrorMessage } from '../../features/interviewPrep/utils/apiErrorUtils';
+import {
+  getMediaPermissionIssue,
+  PERMISSION_ISSUE_COPY,
+} from '../../features/interviewPrep/utils/mediaPermissionUtils';
+
+const LiveInterviewAgent = lazy(
+  () => import('../../features/interviewPrep/components/LiveInterviewAgent')
+);
 
 export default function MockInterviewSessionPage() {
   const { sessionId } = useParams();
   const location = useLocation();
   const { user, loading: authLoading } = useAuth();
-  const { status, error, permissionIssue, stream, requestAccess } = useInterviewMedia();
+  const { status, stream, requestAccess } = useInterviewMedia();
   const submitLiveInterview = useSubmitLiveInterview();
   const generateReport = useGenerateMockInterviewReport();
   const submittedRef = useRef(false);
@@ -46,6 +56,25 @@ export default function MockInterviewSessionPage() {
     }
     return [];
   }, [location.state?.questions, sessionFromApi]);
+
+  const interviewMeta = useMemo(
+    () => ({
+      roleLabel:
+        location.state?.roleLabel ||
+        sessionFromApi?.roleLabel ||
+        sessionFromApi?.role ||
+        'this role',
+      difficulty: location.state?.difficulty || sessionFromApi?.difficulty || 'medium',
+      durationMinutes:
+        location.state?.durationMinutes || sessionFromApi?.durationMinutes || 15,
+      interviewerPersona:
+        location.state?.interviewerPersona ||
+        location.state?.customization?.interviewerPersona ||
+        sessionFromApi?.interviewerPersona ||
+        DEFAULT_INTERVIEWER_PERSONA,
+    }),
+    [location.state, sessionFromApi]
+  );
 
   const userName =
     user?.name ||
@@ -84,7 +113,10 @@ export default function MockInterviewSessionPage() {
     const hasLiveStream = stream?.getTracks?.().some((track) => track.readyState === 'live');
     if (hasLiveStream || isCompletePhase) return;
     if (status === 'requesting') return;
-    requestAccessRef.current().catch(() => {});
+    requestAccessRef.current().catch((err) => {
+      const issue = getMediaPermissionIssue(err) || 'unknown';
+      toast.error(PERMISSION_ISSUE_COPY[issue]);
+    });
   }, [stream, status, isCompletePhase]);
 
   const handleFinished = useCallback(
@@ -179,7 +211,9 @@ export default function MockInterviewSessionPage() {
               </div>
             ) : null}
 
-            {interviewReport ? <InterviewReportCard report={interviewReport} /> : null}
+            {interviewReport ? (
+              <LiveInterviewReportView report={interviewReport} sessionId={sessionId} />
+            ) : null}
 
             <Link
               to="/interview-prep"
@@ -219,25 +253,28 @@ export default function MockInterviewSessionPage() {
               </div>
             ) : null}
 
-            {questions.length > 0 && status !== 'granted' && !stream ? (
-              <PermissionGate
-                status={status}
-                error={error}
-                permissionIssue={permissionIssue}
-                onRequest={requestAccess}
-              />
-            ) : null}
-
             {questions.length > 0 ? (
-              <LiveInterviewAgent
-                userName={userName}
-                sessionId={sessionId}
-                questions={questions}
-                stream={stream}
-                onFinished={handleFinished}
-                submitError={submitError}
-                isSubmitting={submitLiveInterview.isPending}
-              />
+              <Suspense
+                fallback={
+                  <div className="flex justify-center py-2xl">
+                    <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
+                  </div>
+                }
+              >
+                <LiveInterviewAgent
+                  userName={userName}
+                  sessionId={sessionId}
+                  questions={questions}
+                  roleLabel={interviewMeta.roleLabel}
+                  difficulty={interviewMeta.difficulty}
+                  durationMinutes={interviewMeta.durationMinutes}
+                  interviewerPersona={interviewMeta.interviewerPersona}
+                  stream={stream}
+                  onFinished={handleFinished}
+                  submitError={submitError}
+                  isSubmitting={submitLiveInterview.isPending}
+                />
+              </Suspense>
             ) : null}
 
             {submitLiveInterview.isPending ? (

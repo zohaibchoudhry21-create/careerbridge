@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { getVapiClient } from '../lib/vapi.sdk';
+import { getVapiClient, formatVapiError, getInterviewStartTarget } from '../lib/vapi.sdk';
 import { interviewerAssistant } from '../constants/voiceCallAssistant';
 import { useLiveAudioMonitor } from '../hooks/useLiveAudioMonitor';
 import { useFaceVideoAnalysis } from '../hooks/useFaceVideoAnalysis';
@@ -7,6 +7,8 @@ import AIInterviewerAvatar from './AIInterviewerAvatar';
 import AppIcon from '../../../components/icons/AppIcon';
 import LiveVideoIndicator from './LiveVideoIndicator';
 import { cn } from '../../../lib/utils';
+import { releaseStreamAudioTracks } from '../utils/mediaPermissionUtils';
+import { getInterviewerPersonaPrompt } from '../utils/interviewerPersona';
 
 const CallStatus = {
   INACTIVE: 'INACTIVE',
@@ -42,6 +44,10 @@ export default function LiveInterviewAgent({
   userName,
   sessionId,
   questions,
+  roleLabel,
+  difficulty,
+  durationMinutes,
+  interviewerPersona = 'neutral',
   stream,
   onFinished,
   submitError,
@@ -182,7 +188,7 @@ export default function LiveInterviewAgent({
     const onSpeechEnd = () => setIsSpeaking(false);
     const onError = (error) => {
       console.error('Vapi error:', error);
-      setCallError(error?.message || 'Voice call error.');
+      setCallError(formatVapiError(error));
       setCallStatus(CallStatus.INACTIVE);
     };
 
@@ -242,6 +248,8 @@ export default function LiveInterviewAgent({
     try {
       if (callStatus === CallStatus.ACTIVE) {
         getVapiClient().setMuted(!nextMicOn);
+        setIsMicOn(nextMicOn);
+        return;
       }
     } catch {
       // Vapi may not be ready before call starts
@@ -264,11 +272,7 @@ export default function LiveInterviewAgent({
     setIsCameraOn(nextCameraOn);
   };
 
-  const canStartCall =
-    Boolean(stream) &&
-    faceModelsReady &&
-    videoReady &&
-    !faceModelsError;
+  const canStartCall = Boolean(stream) && videoReady;
 
   const handleCall = async () => {
     if (!canStartCall) return;
@@ -283,19 +287,30 @@ export default function LiveInterviewAgent({
     try {
       const vapi = getVapiClient();
       const formattedQuestions = (questions || []).map((q) => `- ${q}`).join('\n');
+      const variableValues = {
+        questions: formattedQuestions,
+        username: userName,
+        roleLabel: roleLabel || 'this role',
+        difficulty: difficulty || 'medium',
+        durationMinutes: String(durationMinutes || 15),
+        interviewerPersona: getInterviewerPersonaPrompt(interviewerPersona),
+      };
 
-      await vapi.start(interviewerAssistant, {
-        variableValues: {
-          questions: formattedQuestions,
-          username: userName,
-        },
-      });
+      // Release our mic capture so Vapi can open its own WebRTC audio stream.
+      releaseStreamAudioTracks(stream);
+
+      const assistantId = getInterviewStartTarget();
+      if (assistantId) {
+        await vapi.start(assistantId, { variableValues });
+      } else {
+        await vapi.start(interviewerAssistant, { variableValues });
+      }
 
       if (!isMicOn) {
         vapi.setMuted(true);
       }
     } catch (error) {
-      setCallError(error?.message || 'Could not start live interview.');
+      setCallError(formatVapiError(error));
       setCallStatus(CallStatus.INACTIVE);
     }
   };
@@ -464,13 +479,11 @@ export default function LiveInterviewAgent({
           >
             {callStatus === CallStatus.CONNECTING
               ? 'Connecting…'
-              : !faceModelsReady
-                ? 'Preparing analysis…'
-                : !videoReady || !stream
-                  ? 'Waiting for camera…'
-                  : isCallInactiveOrFinished
-                    ? 'Start interview'
-                    : '…'}
+              : !videoReady || !stream
+                ? 'Waiting for camera…'
+                : isCallInactiveOrFinished
+                  ? 'Start interview'
+                  : '…'}
           </button>
         ) : (
           <button
