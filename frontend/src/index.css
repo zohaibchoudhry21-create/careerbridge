@@ -385,3 +385,37 @@
 .kinetic-gradient {
   background: radial-gradient(circle at 0% 0%, #131b2e 0%, #0058be 100%);
 }
+
+@keyframes avatar-blink {
+  0%,
+  42%,
+  100% {
+    transform: scaleY(1);
+  }
+  46% {
+    transform: scaleY(0.12);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes avatar-mouth {
+  0%,
+  100% {
+    transform: scaleY(0.55);
+  }
+  50% {
+    transform: scaleY(1.15);
+  }
+}
+
+@keyframes avatar-listen {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}

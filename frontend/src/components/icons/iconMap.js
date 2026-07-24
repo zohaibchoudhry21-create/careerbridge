@@ -56,6 +56,7 @@ import {
   Medal,
   Menu,
   Mic,
+  MicOff,
   MoreVertical,
   Newspaper,
   NotebookPen,
@@ -80,6 +81,8 @@ import {
   UserCircle,
   UserCog,
   Users,
+  Video,
+  VideoOff,
   X,
 } from 'lucide-react';
 
@@ -109,6 +112,9 @@ export const ICON_MAP = {
   upload_file: Upload,
   model_training: Brain,
   mic: Mic,
+  mic_off: MicOff,
+  videocam: Video,
+  videocam_off: VideoOff,
   picture_as_pdf: FileType,
   payments: CreditCard,
   analytics: BarChart3,
