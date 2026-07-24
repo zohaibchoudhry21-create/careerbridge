@@ -22,9 +22,11 @@ export default function RoleAutocompleteInput({
   const [highlightIndex, setHighlightIndex] = useState(-1);
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
 
   const query = value.trim();
-  const showDropdown = isOpen && query.length > 0 && (isLoading || suggestions.length > 0);
+  const showDropdown =
+    isOpen && query.length > 0 && (isLoading || fetchError || suggestions.length > 0);
 
   const selectSuggestion = useCallback(
     (role) => {
@@ -41,6 +43,7 @@ export default function RoleAutocompleteInput({
     if (!query) {
       setSuggestions([]);
       setIsLoading(false);
+      setFetchError(null);
       return undefined;
     }
 
@@ -49,6 +52,8 @@ export default function RoleAutocompleteInput({
 
     const timer = window.setTimeout(async () => {
       setIsLoading(true);
+      setFetchError(null);
+      setIsOpen(true);
 
       try {
         const result = await fetchRoleSuggestions(query, controller.signal);
@@ -59,15 +64,21 @@ export default function RoleAutocompleteInput({
           : [];
 
         setSuggestions(list);
+        setIsOpen(list.length > 0);
         if (!list.length) {
-          setIsOpen(false);
+          setFetchError('No role suggestions found. Try a different keyword.');
         }
       } catch (error) {
         if (cancelled || error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError') {
           return;
         }
         setSuggestions([]);
-        setIsOpen(false);
+        setFetchError(
+          error?.response?.data?.message ||
+            error?.message ||
+            'Could not load role suggestions. Check backend/Groq connection.'
+        );
+        setIsOpen(true);
       } finally {
         if (!cancelled) {
           setIsLoading(false);
@@ -171,13 +182,15 @@ export default function RoleAutocompleteInput({
         <div
           id={listboxId}
           role="listbox"
-          className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-lowest shadow-level-1"
+          className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-lowest shadow-level-2"
         >
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 px-4 py-3">
               <AppIcon name="progress_activity" size="sm" spin className="text-secondary" />
               <span className="font-label-sm text-on-surface-variant">Finding roles…</span>
             </div>
+          ) : fetchError ? (
+            <div className="px-4 py-3 font-label-sm text-error">{fetchError}</div>
           ) : (
             <ul>
               {suggestions.map((role, index) => (

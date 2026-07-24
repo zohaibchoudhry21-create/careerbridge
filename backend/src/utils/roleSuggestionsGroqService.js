@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk';
 import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
+import { AppError } from './sendResponse.js';
 import { extractJsonFromText } from './resumeAiPrompts.js';
 
 const ROLE_SUGGESTIONS_CACHE = new Map();
@@ -56,11 +57,15 @@ const callGroqForRoleSuggestions = async (query) => {
     messages: [
       {
         role: 'user',
-        content: `Suggest 5 real job or profession titles that start with, contain, or closely relate to: '${query}'. Return ONLY a valid JSON array of strings, no explanation, no markdown formatting.`,
+        content: `Suggest 5 real job or profession titles that start with, contain, or closely relate to: '${query}'.
+
+Return JSON only in this shape:
+{ "suggestions": ["title 1", "title 2", "title 3", "title 4", "title 5"] }`,
       },
     ],
     temperature: 0.3,
     max_tokens: 200,
+    response_format: { type: 'json_object' },
   });
 
   const content = completion.choices?.[0]?.message?.content?.trim();
@@ -74,7 +79,7 @@ const trimCache = () => {
 };
 
 /**
- * Returns up to 6 role title suggestions for autocomplete. Never throws.
+ * Returns up to 6 role title suggestions for autocomplete.
  * @param {string} query
  * @returns {Promise<string[]>}
  */
@@ -88,7 +93,7 @@ export const fetchRoleSuggestionsWithGroq = async (query) => {
   }
 
   if (!isGroqConfigured()) {
-    return [];
+    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
   }
 
   try {
@@ -96,7 +101,12 @@ export const fetchRoleSuggestionsWithGroq = async (query) => {
     ROLE_SUGGESTIONS_CACHE.set(cacheKey, suggestions);
     trimCache();
     return suggestions;
-  } catch {
-    return [];
+  } catch (error) {
+    const message =
+      error?.error?.message ||
+      error?.message ||
+      'Failed to fetch role suggestions from Groq.';
+
+    throw new AppError(message, error?.status || 502);
   }
 };

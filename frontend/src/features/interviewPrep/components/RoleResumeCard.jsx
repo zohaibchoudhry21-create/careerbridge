@@ -131,7 +131,7 @@ export default function RoleResumeCard({
       />
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="space-y-1 sm:col-span-2">
+        <div className="space-y-1 sm:col-span-2 relative overflow-visible">
           <label htmlFor="mock-role-input" className="sr-only">
             Interview role
           </label>
