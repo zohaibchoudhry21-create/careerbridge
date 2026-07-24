@@ -12,6 +12,26 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/face-api.js')) {
+            return 'face-api';
+          }
+          if (
+            id.includes('node_modules/three') ||
+            id.includes('node_modules/@react-three')
+          ) {
+            return 'three';
+          }
+          if (id.includes('node_modules/@vapi-ai')) {
+            return 'vapi';
+          }
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     proxy: {

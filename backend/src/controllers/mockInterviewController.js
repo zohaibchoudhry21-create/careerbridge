@@ -1,8 +1,11 @@
 import MockInterviewSession from '../models/MockInterviewSession.js';
 import InterviewReport from '../models/InterviewReport.js';
 import {
+  DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES,
   DEFAULT_MOCK_QUESTION_COUNT,
+  INTERVIEWER_PERSONAS,
   MOCK_INTERVIEW_ROLES,
+  durationMinutesToQuestionCount,
 } from '../constants/interviewPrepConstants.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
 import { transcribeAudioWithGroq } from '../utils/groqWhisperService.js';
@@ -22,8 +25,82 @@ import {
   generateOpeningQuestion,
   generateVoiceCallQuestionSet,
 } from '../utils/mockInterviewGroqService.js';
+import { fetchRoleSuggestionsWithGroq } from '../utils/roleSuggestionsGroqService.js';
+import { analyzeResumeForInterview } from '../utils/interviewResumeAnalysisGroqService.js';
+import { extractResumeTextFromFile } from '../utils/resumeFileExtractor.js';
 
 const findRoleMeta = (roleId) => MOCK_INTERVIEW_ROLES.find((r) => r.id === roleId);
+
+const resolveRoleInput = (roleInput) => {
+  const trimmed = String(roleInput || '').trim();
+  if (!trimmed) return null;
+
+  const byId = findRoleMeta(trimmed);
+  if (byId) {
+    return { role: byId.id, roleLabel: byId.label };
+  }
+
+  const byLabel = MOCK_INTERVIEW_ROLES.find(
+    (entry) => entry.label.toLowerCase() === trimmed.toLowerCase()
+  );
+  if (byLabel) {
+    return { role: byLabel.id, roleLabel: byLabel.label };
+  }
+
+  return { role: trimmed.slice(0, 120), roleLabel: trimmed.slice(0, 120) };
+};
+
+const resolveDurationMinutes = (value) => {
+  const minutes = Number(value);
+  return [10, 15, 20].includes(minutes)
+    ? minutes
+    : DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES;
+};
+
+const parseOptionalCustomization = (body) => {
+  const customization = {};
+
+  const resumeText = String(body.resumeText || '').trim();
+  const jobDescriptionText = String(body.jobDescriptionText || '').trim();
+  const targetCompany = String(body.targetCompany || '').trim();
+  const experience = String(body.experience || '').trim();
+
+  if (resumeText) customization.resumeText = resumeText.slice(0, 15000);
+  if (jobDescriptionText) customization.jobDescriptionText = jobDescriptionText.slice(0, 15000);
+  if (targetCompany) customization.targetCompany = targetCompany.slice(0, 120);
+  if (experience) customization.experience = experience.slice(0, 120);
+
+  if (Array.isArray(body.resumeSkills) && body.resumeSkills.length) {
+    customization.resumeSkills = body.resumeSkills
+      .map((item) => String(item || '').trim())
+      .filter(Boolean)
+      .slice(0, 20);
+  }
+
+  if (Array.isArray(body.resumeProjects) && body.resumeProjects.length) {
+    customization.resumeProjects = body.resumeProjects
+      .map((item) => String(item || '').trim())
+      .filter(Boolean)
+      .slice(0, 10);
+  }
+
+  if (Array.isArray(body.focusAreas) && body.focusAreas.length) {
+    customization.focusAreas = body.focusAreas
+      .map((item) => String(item || '').trim())
+      .filter(Boolean);
+  }
+
+  if (body.interviewMode) {
+    customization.interviewMode = body.interviewMode;
+  }
+
+  const persona = String(body.interviewerPersona || '').trim();
+  if (persona && INTERVIEWER_PERSONAS.includes(persona)) {
+    customization.interviewerPersona = persona;
+  }
+
+  return customization;
+};
 
 const loadSessionForUser = async (sessionId, userId) => {
   const session = await MockInterviewSession.findOne({ _id: sessionId, userId });
@@ -450,47 +527,57 @@ export const generateMockInterviewReport = async (req, res, next) => {
 
 export const startLiveInterview = async (req, res, next) => {
   try {
-    const role = req.body.role;
-    const meta = findRoleMeta(role);
+    const resolvedRole = resolveRoleInput(req.body.role);
 
-    if (!meta) {
-      throw new AppError('Invalid role.', 400);
+    if (!resolvedRole) {
+      throw new AppError('Role is required.', 400);
     }
 
     const difficulty = req.body.difficulty || 'medium';
-    const targetQuestionCount =
-      Number(req.body.targetQuestionCount) || DEFAULT_MOCK_QUESTION_COUNT;
+    const durationMinutes = resolveDurationMinutes(req.body.durationMinutes);
+    const targetQuestionCount = durationMinutesToQuestionCount(durationMinutes);
+    const customization = parseOptionalCustomization(req.body);
 
-    const questionTexts = await generateVoiceCallQuestionSet({
-      roleLabel: meta.label,
+    const openingText = await generateOpeningQuestion({
+      roleLabel: resolvedRole.roleLabel,
       difficulty,
-      targetQuestionCount,
+      experience: customization.experience,
+      resumeSkills: customization.resumeSkills,
+      resumeProjects: customization.resumeProjects,
+      targetCompany: customization.targetCompany,
     });
 
-    const questions = questionTexts.map((text, order) => ({
-      questionId: `q${order + 1}`,
-      text,
-      order,
-    }));
+    const questions = [
+      {
+        questionId: 'q1',
+        text: openingText,
+        order: 0,
+      },
+    ];
 
     const session = await MockInterviewSession.create({
       userId: req.user._id,
-      role,
-      roleLabel: meta.label,
+      role: resolvedRole.role,
+      roleLabel: resolvedRole.roleLabel,
       difficulty,
       mode: 'live',
-      targetQuestionCount: questions.length,
+      durationMinutes,
+      targetQuestionCount,
       answerTimeLimitSeconds: Number(req.body.answerTimeLimitSeconds) || 180,
       status: 'active',
       currentQuestionIndex: 0,
       questions,
       answers: [],
+      ...customization,
     });
 
     sendResponse(res, 201, true, 'Live interview started.', {
       sessionId: String(session._id),
-      questions: questionTexts,
+      questions: [openingText],
       mode: 'live',
+      durationMinutes,
+      roleLabel: resolvedRole.roleLabel,
+      difficulty,
     });
   } catch (error) {
     next(error);
@@ -672,7 +759,17 @@ export const getMockInterviewSession = async (req, res, next) => {
         difficulty: session.difficulty,
         mode: session.mode || 'standard',
         status: session.status,
+        durationMinutes: session.durationMinutes,
         targetQuestionCount: session.targetQuestionCount,
+        resumeText: session.resumeText,
+        jobDescriptionText: session.jobDescriptionText,
+        targetCompany: session.targetCompany,
+        experience: session.experience,
+        resumeSkills: session.resumeSkills,
+        resumeProjects: session.resumeProjects,
+        focusAreas: session.focusAreas,
+        interviewMode: session.interviewMode,
+        interviewerPersona: session.interviewerPersona || 'neutral',
         answerTimeLimitSeconds: session.answerTimeLimitSeconds,
         currentQuestionIndex: session.currentQuestionIndex,
         questions: session.questions.map((q) => ({
@@ -690,6 +787,96 @@ export const getMockInterviewSession = async (req, res, next) => {
           submittedAt: a.submittedAt,
         })),
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getInterviewReportHistory = async (req, res, next) => {
+  try {
+    const limit = Math.min(Math.max(Number(req.query.limit) || 12, 1), 24);
+
+    const reports = await InterviewReport.find({
+      userId: req.user._id,
+      sourceType: 'mock_interview',
+    })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .select('overallScore sections createdAt sourceId')
+      .lean();
+
+    const history = reports
+      .map((report) => ({
+        sessionId: String(report.sourceId),
+        overallScore: report.overallScore,
+        eyeContactPercent: report.sections?.videoAnalysis?.eyeContactPercent ?? null,
+        wpm: report.sections?.voiceAnalysis?.wpm ?? null,
+        fillerWords: report.sections?.voiceAnalysis?.fillerWords ?? null,
+        createdAt: report.createdAt,
+      }))
+      .reverse();
+
+    sendResponse(res, 200, true, 'Interview report history.', { history });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getRoleSuggestions = async (req, res, next) => {
+  try {
+    const query = String(req.body.query || '').trim();
+
+    if (!query) {
+      sendResponse(res, 200, true, 'Role suggestions.', { suggestions: [] });
+      return;
+    }
+
+    const suggestions = await fetchRoleSuggestionsWithGroq(query);
+
+    sendResponse(res, 200, true, 'Role suggestions.', { suggestions });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const extractInterviewContextText = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      throw new AppError('Document file is required.', 400);
+    }
+
+    const text = await extractResumeTextFromFile(req.file);
+
+    sendResponse(res, 200, true, 'Document text extracted.', {
+      text: String(text || '').slice(0, 15000),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const analyzeInterviewResume = async (req, res, next) => {
+  try {
+    let text = String(req.body?.text || '').trim();
+
+    if (!text && req.file) {
+      text = await extractResumeTextFromFile(req.file);
+    }
+
+    text = String(text || '').slice(0, 15000).trim();
+
+    if (!text) {
+      throw new AppError('Upload a resume file or provide resume text.', 400);
+    }
+
+    const analysis = await analyzeResumeForInterview(text);
+
+    sendResponse(res, 200, true, 'Resume analyzed.', {
+      text,
+      skills: analysis.skills,
+      projects: analysis.projects,
+      summary: analysis.summary,
     });
   } catch (error) {
     next(error);

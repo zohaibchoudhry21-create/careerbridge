@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import * as faceapi from 'face-api.js';
 import {
   LIVE_VIDEO_SAMPLE_INTERVAL_MS,
   LIVE_VIDEO_SAMPLE_INTERVAL_SLOW_MS,
@@ -9,14 +8,19 @@ import { aggregateVideoFrameSamples } from '../utils/videoAnalysisMetrics.js';
 const MODEL_URL = '/models';
 
 let modelsLoadPromise = null;
+let faceApiModule = null;
 
-const loadModels = () => {
+const loadModels = async () => {
   if (!modelsLoadPromise) {
-    modelsLoadPromise = Promise.all([
-      faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-      faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-      faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
-    ]);
+    modelsLoadPromise = (async () => {
+      faceApiModule = await import('face-api.js');
+      await Promise.all([
+        faceApiModule.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceApiModule.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+        faceApiModule.nets.faceExpressionNet.loadFromUri(MODEL_URL),
+      ]);
+      return faceApiModule;
+    })();
   }
   return modelsLoadPromise;
 };
@@ -69,6 +73,7 @@ export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
   const samplesRef = useRef([]);
   const intervalRef = useRef(null);
   const detectingRef = useRef(false);
+  const faceApiRef = useRef(null);
 
   const pushSample = useCallback((sample) => {
     samplesRef.current.push(sample);
@@ -80,8 +85,11 @@ export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
     let cancelled = false;
 
     loadModels()
-      .then(() => {
-        if (!cancelled) setModelsReady(true);
+      .then((faceapi) => {
+        if (!cancelled) {
+          faceApiRef.current = faceapi;
+          setModelsReady(true);
+        }
       })
       .catch((error) => {
         if (!cancelled) {
@@ -116,6 +124,9 @@ export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
     }
 
     const video = videoRef.current;
+    const faceapi = faceApiRef.current;
+    if (!faceapi) return undefined;
+
     const detectorOptions = new faceapi.TinyFaceDetectorOptions({
       inputSize: 224,
       scoreThreshold: 0.5,

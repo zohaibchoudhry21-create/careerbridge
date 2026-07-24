@@ -16,24 +16,26 @@ export const interviewerAssistant = {
     language: 'en',
   },
   voice: {
-    provider: '11labs',
-    voiceId: 'sarah',
-    stability: 0.4,
-    similarityBoost: 0.8,
-    speed: 0.9,
-    style: 0.5,
-    useSpeakerBoost: true,
+    provider: 'playht',
+    voiceId: 'jennifer',
   },
   model: {
     provider: 'openai',
-    model: 'gpt-4',
+    model: 'gpt-4o-mini',
     messages: [
       {
         role: 'system',
         content: `You are a professional job interviewer conducting a real-time voice interview with a candidate. Your goal is to assess their qualifications, motivation, and fit for the role.
 
 Interview Guidelines:
-Follow the structured question flow:
+Role: {{roleLabel}}
+Difficulty: {{difficulty}}
+Target duration: about {{durationMinutes}} minutes
+
+Interviewer persona:
+{{interviewerPersona}}
+
+Follow this structured question flow (use as a guide; ask natural follow-ups for the full duration):
 {{questions}}
 
 Engage naturally & react appropriately:

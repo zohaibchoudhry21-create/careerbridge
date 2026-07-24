@@ -28,6 +28,55 @@ export const DEFAULT_MOCK_QUESTION_COUNT = 6;
 export const MIN_MOCK_QUESTIONS = 5;
 export const MAX_MOCK_QUESTIONS = 8;
 
+/** Live interview duration options (minutes). */
+export const MOCK_INTERVIEW_DURATION_OPTIONS = [10, 15, 20];
+export const DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES = 15;
+
+/** Maps interview duration to Groq question-set size. */
+export const durationMinutesToQuestionCount = (durationMinutes) => {
+  const minutes = Number(durationMinutes);
+  if (minutes <= 10) return 5;
+  if (minutes >= 20) return 8;
+  return 6;
+};
+
+/** Optional focus areas for advanced interview setup. */
+export const INTERVIEW_FOCUS_AREAS = [
+  'System design',
+  'Behavioral',
+  'Coding',
+  'Case study',
+  'Leadership',
+  'Communication',
+];
+
+export const INTERVIEW_SETUP_MODE_OPTIONS = [
+  { value: 'video_voice', label: 'Video and voice' },
+  { value: 'voice_only', label: 'Voice only' },
+  { value: 'text_only', label: 'Text only', disabled: true, hint: 'Coming soon' },
+];
+
+export const DEFAULT_INTERVIEW_SETUP_MODE = 'video_voice';
+
+export const INTERVIEWER_PERSONA_OPTIONS = [
+  { value: 'friendly', label: 'Friendly', description: 'Warm and encouraging' },
+  { value: 'neutral', label: 'Neutral', description: 'Professional and balanced' },
+  { value: 'strict', label: 'Strict', description: 'Formal and demanding' },
+  { value: 'panel', label: 'Panel of 3', description: 'Multi-interviewer simulation' },
+];
+
+export const DEFAULT_INTERVIEWER_PERSONA = 'neutral';
+
+export const MAX_INTERVIEW_CONTEXT_TEXT_LENGTH = 15000;
+
+/** Quick-select chips on the setup screen (diverse fields). */
+export const MOCK_INTERVIEW_ROLE_QUICK_CHIPS = [
+  'Software engineer',
+  'Doctor',
+  'Teacher',
+  'Sales executive',
+];
+
 export const DEFAULT_SKILL_QUIZ_QUESTION_COUNT = 12;
 
 export const MIN_SKILL_QUIZ_QUESTIONS = 10;

@@ -64,6 +64,7 @@ export default function AIInterviewerAvatar({
 
   const want3D =
     use3DAvatar &&
+    !tile &&
     (prefer3D === true || (prefer3D !== false && webglOk && !shouldPrefer2DAvatar()));
 
   const twoDFallback = (
@@ -91,16 +92,7 @@ export default function AIInterviewerAvatar({
             </Suspense>
           </Avatar3DErrorBoundary>
         ) : want3D && tile ? (
-          <Avatar3DErrorBoundary fallback={twoDFallback}>
-            <Suspense fallback={<CanvasFallback compact />}>
-              <InterviewerAvatar3DScene
-                height={72}
-                state={state}
-                mouthOpenLevel={mouthOpenLevel}
-                presenceLevel={clampedPresence}
-              />
-            </Suspense>
-          </Avatar3DErrorBoundary>
+          twoDFallback
         ) : webglOk === null && use3DAvatar && prefer3D !== false && !tile ? (
           <CanvasFallback compact={compact} />
         ) : (

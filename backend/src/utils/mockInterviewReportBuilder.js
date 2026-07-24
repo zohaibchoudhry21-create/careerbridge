@@ -44,6 +44,7 @@ const buildTranscriptBasedSnapshot = (session, mode) => {
     mode,
     role: session.roleLabel || session.role,
     difficulty: session.difficulty,
+    durationMinutes: session.durationMinutes,
     targetQuestionCount: session.targetQuestionCount,
     summary,
     qa,
@@ -87,6 +88,7 @@ export const buildMockInterviewSnapshot = (session) => {
   return {
     role: session.roleLabel || session.role,
     difficulty: session.difficulty,
+    durationMinutes: session.durationMinutes,
     targetQuestionCount: session.targetQuestionCount,
     summary,
     qa,

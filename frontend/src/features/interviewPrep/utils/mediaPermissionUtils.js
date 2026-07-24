@@ -1,3 +1,11 @@
+export function releaseStreamAudioTracks(stream) {
+  if (!stream?.getAudioTracks) return;
+  stream.getAudioTracks().forEach((track) => {
+    track.stop();
+    stream.removeTrack(track);
+  });
+}
+
 /**
  * Maps getUserMedia errors to user-facing permission issue types.
  * Returns null for non-media errors (e.g. Axios / API failures).

@@ -9,7 +9,7 @@ export default function RadioGroup({ name, value, onChange, options = [] }) {
         return (
           <label
             key={optionValue}
-            className={`flex items-start gap-3 rounded-xl border p-4 cursor-pointer transition-all duration-200 hover:border-secondary/30 ${
+            className={`flex items-start gap-3 rounded-xl border p-4 cursor-pointer transition-all duration-150 hover:border-secondary/30 ${
               value === optionValue
                 ? 'border-secondary bg-secondary/5'
                 : 'border-outline-variant/40 bg-surface-container-lowest'
