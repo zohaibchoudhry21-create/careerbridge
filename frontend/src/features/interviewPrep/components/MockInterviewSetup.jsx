@@ -7,12 +7,11 @@ import RoleResumeCard from './RoleResumeCard';
 import {
   CARD_CLASS,
   FocusAreasSection,
-  ICON_TINTS,
   InterviewModeSection,
-  SectionHeader,
   SELECTED_OPTION_CLASS,
   UNSELECTED_OPTION_CLASS,
 } from './InterviewSetupAdvanced';
+import SectionHeading from '../../../components/ui/SectionHeading';
 import {
   DEFAULT_INTERVIEWER_PERSONA,
   DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES,
@@ -224,9 +223,9 @@ export default function MockInterviewSetup() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <section className={CARD_CLASS}>
-          <SectionHeader
+          <SectionHeading
+            color="difficulty"
             icon="tune"
-            iconClassName={ICON_TINTS.difficulty}
             title="Difficulty"
             description="Match your experience level."
           />
@@ -244,9 +243,9 @@ export default function MockInterviewSetup() {
         </section>
 
         <section className={CARD_CLASS}>
-          <SectionHeader
+          <SectionHeading
+            color="time"
             icon="hourglass_top"
-            iconClassName={ICON_TINTS.time}
             title="Time"
             description="How long the session runs."
           />

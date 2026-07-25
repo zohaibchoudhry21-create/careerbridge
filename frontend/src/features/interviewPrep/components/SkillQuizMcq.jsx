@@ -1,4 +1,9 @@
 import AppIcon from '../../../components/icons/AppIcon';
+import { cn } from '../../../lib/utils';
+import {
+  selectedOptionClass,
+  unselectedOptionClass,
+} from '../../../components/ui/colorAccentTokens';
 
 export default function SkillQuizMcq({
   question,
@@ -35,13 +40,20 @@ export default function SkillQuizMcq({
               type="button"
               disabled={disabled}
               onClick={() => onSelect(index)}
-              className={`w-full text-left rounded-xl border p-4 transition-all min-h-[44px] ${
-                selected
-                  ? 'border-secondary bg-secondary/5'
-                  : 'border-outline-variant/40 bg-surface-container-lowest hover:border-secondary/30'
-              } disabled:opacity-60`}
+              className={cn(
+                'w-full min-h-[44px] rounded-xl border-2 p-4 text-left transition-all duration-150',
+                selected ? selectedOptionClass : unselectedOptionClass,
+                disabled && 'opacity-60'
+              )}
             >
-              <span className="font-label-md text-on-surface">{option}</span>
+              <span
+                className={cn(
+                  'font-label-md',
+                  selected ? 'text-secondary' : 'text-on-surface'
+                )}
+              >
+                {option}
+              </span>
             </button>
           );
         })}

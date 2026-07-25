@@ -2,7 +2,8 @@ import { useRef, useState } from 'react';
 import AppIcon from '../../../components/icons/AppIcon';
 import { authInputClassName } from '../../../components/auth/authUi';
 import RoleAutocompleteInput from './RoleAutocompleteInput';
-import { CARD_CLASS, ICON_TINTS, SectionHeader } from './InterviewSetupAdvanced';
+import { CARD_CLASS, SELECTED_OPTION_CLASS, UNSELECTED_OPTION_CLASS } from './InterviewSetupAdvanced';
+import SectionHeading from '../../../components/ui/SectionHeading';
 import { analyzeInterviewResume } from '../services/mockInterviewService';
 import { getApiErrorMessage } from '../utils/apiErrorUtils';
 import { cn } from '../../../lib/utils';
@@ -123,9 +124,9 @@ export default function RoleResumeCard({
 
   return (
     <section className={CARD_CLASS}>
-      <SectionHeader
+      <SectionHeading
+        color="role"
         icon="person"
-        iconClassName={ICON_TINTS.role}
         title="Role & background"
         description="Tell us the role and give context so questions match you."
       />

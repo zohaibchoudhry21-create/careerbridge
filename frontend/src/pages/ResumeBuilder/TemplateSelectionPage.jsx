@@ -13,6 +13,11 @@ import {
   useCreateBuiltResume,
   useImportBuiltResume,
 } from '../../features/resumeBuilder/hooks/useResumeBuilder';
+import { cn } from '../../lib/utils';
+import {
+  selectedOptionClass,
+  unselectedOptionClass,
+} from '../../components/ui/colorAccentTokens';
 
 export default function TemplateSelectionPage() {
   const { user } = useAuth();
@@ -113,11 +118,10 @@ export default function TemplateSelectionPage() {
               key={item.id}
               type="button"
               onClick={() => setCategory(item.id)}
-              className={`rounded-full px-md py-sm font-label-md transition-colors ${
-                category === item.id
-                  ? 'bg-secondary text-white'
-                  : 'bg-surface-container text-on-surface-variant hover:text-on-surface'
-              }`}
+              className={cn(
+                'rounded-full border-2 px-md py-sm font-label-md transition-all duration-150',
+                category === item.id ? selectedOptionClass : unselectedOptionClass
+              )}
             >
               {item.label}
             </button>

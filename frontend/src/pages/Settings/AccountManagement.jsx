@@ -73,6 +73,8 @@ export default function AccountManagement() {
       <SectionCard
         title="Deactivate Account"
         description="Temporarily disable your account. Your data will be preserved and you can reactivate anytime."
+        icon="pause_circle"
+        color="warning"
       >
         <button
           type="button"
@@ -94,6 +96,8 @@ export default function AccountManagement() {
       <SectionCard
         title="Delete Account"
         description="Permanently remove your account and all associated data."
+        icon="delete_forever"
+        color="danger"
         className="border-error/20"
       >
         <div className="rounded-xl border border-error/30 bg-error-container/20 p-4 space-y-4">
@@ -133,6 +137,8 @@ export default function AccountManagement() {
       <SectionCard
         title="Export Data"
         description="Download a copy of your profile, resumes, and account activity."
+        icon="download"
+        color="resume"
       >
         <button
           type="button"
@@ -154,7 +160,12 @@ export default function AccountManagement() {
         </button>
       </SectionCard>
 
-      <SectionCard title="Logout" description="Sign out of your account on this device.">
+      <SectionCard
+        title="Logout"
+        description="Sign out of your account on this device."
+        icon="logout"
+        color="settings"
+      >
         <button
           type="button"
           onClick={handleLogout}
