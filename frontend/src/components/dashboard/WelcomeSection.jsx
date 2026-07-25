@@ -6,11 +6,11 @@ function WelcomeSection({ welcome }) {
   if (!welcome) return null;
 
   return (
-    <header className="flex flex-col md:flex-row md:items-start justify-between mb-md gap-sm min-w-0">
+    <header className="flex flex-col md:flex-row md:items-start justify-between gap-sm min-w-0">
       <div className="min-w-0 flex-1">
-        <h2 className="font-headline-dashboard text-headline-dashboard text-on-surface">
+        <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
           Welcome back, {welcome.firstName}
-        </h2>
+        </h1>
         <p className="font-body-md text-on-surface-variant mt-base">
           Your career is evolving faster than you think. Let&apos;s make today count.
         </p>

@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom';
-import DashboardLayout from '../../components/layout/DashboardLayout';
+import { DashboardLayout, PageContainer, PageHeader } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
 import AppIcon from '../../components/icons/AppIcon';
 import InterviewPrepHub from '../../features/interviewPrep/components/InterviewPrepHub';
@@ -10,7 +9,7 @@ export default function InterviewPrepPage() {
   if (loading || !user) {
     return (
       <DashboardLayout user={user}>
-        <div className="flex items-center justify-center py-2xl pt-16 md:pt-20 lg:pt-24">
+        <div className="flex items-center justify-center py-xl">
           <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
         </div>
       </DashboardLayout>
@@ -19,17 +18,13 @@ export default function InterviewPrepPage() {
 
   return (
     <DashboardLayout user={user}>
-      <div className="min-w-0 space-y-md pt-8 md:pt-10 lg:pt-12">
-        <header className="min-w-0">
-          <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
-            Interview Prep
-          </h1>
-          <p className="font-body-md text-on-surface-variant mt-base">
-            Practice interviews and test your skills with AI-powered assessments.
-          </p>
-        </header>
+      <PageContainer>
+        <PageHeader
+          title="Interview Prep"
+          description="Practice interviews and test your skills with AI-powered assessments."
+        />
         <InterviewPrepHub />
-      </div>
+      </PageContainer>
     </DashboardLayout>
   );
 }

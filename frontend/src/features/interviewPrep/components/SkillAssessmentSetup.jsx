@@ -74,7 +74,7 @@ export default function SkillAssessmentSetup() {
 
   if (topicsLoading) {
     return (
-      <div className="flex justify-center py-2xl">
+      <div className="flex justify-center py-xl">
         <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
       </div>
     );
@@ -83,7 +83,7 @@ export default function SkillAssessmentSetup() {
   const topicOptions = topics.map((t) => ({ value: t.id, label: t.label }));
 
   return (
-    <div className="max-w-2xl min-w-0 space-y-md">
+    <div className="min-w-0 space-y-md">
       <header className="min-w-0">
         <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
           Skill Assessment

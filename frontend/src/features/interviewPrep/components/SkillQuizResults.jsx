@@ -82,7 +82,7 @@ export default function SkillQuizResults({ result }) {
 
 export function SkillQuizResultsLoading() {
   return (
-    <div className="flex justify-center py-2xl">
+    <div className="flex justify-center py-xl">
       <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
     </div>
   );
