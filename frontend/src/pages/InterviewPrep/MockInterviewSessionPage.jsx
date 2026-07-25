@@ -14,6 +14,7 @@ import {
 } from '../../features/interviewPrep/hooks/useMockInterview';
 import {
   DEFAULT_INTERVIEWER_PERSONA,
+  DEFAULT_INTERVIEW_SETUP_MODE,
 } from '../../features/interviewPrep/constants/interviewPrepConstants';
 import { getApiErrorMessage } from '../../features/interviewPrep/utils/apiErrorUtils';
 import {
@@ -72,6 +73,12 @@ export default function MockInterviewSessionPage() {
         location.state?.customization?.interviewerPersona ||
         sessionFromApi?.interviewerPersona ||
         DEFAULT_INTERVIEWER_PERSONA,
+      interviewMode:
+        location.state?.customization?.interviewMode ||
+        sessionFromApi?.interviewMode ||
+        DEFAULT_INTERVIEW_SETUP_MODE,
+      focusAreas:
+        location.state?.customization?.focusAreas || sessionFromApi?.focusAreas || [],
     }),
     [location.state, sessionFromApi]
   );
@@ -184,17 +191,16 @@ export default function MockInterviewSessionPage() {
 
   return (
     <DashboardLayout user={user}>
-      <div className="min-w-0 space-y-md pt-8 md:pt-10 lg:pt-12">
-        <Link
-          to="/interview-prep/mock"
-          className="inline-flex items-center gap-1 font-label-md text-secondary hover:underline"
-        >
-          <AppIcon name="arrow_back" size="sm" />
-          Exit
-        </Link>
-
+      <div className="min-w-0 pt-8 md:pt-10 lg:pt-12">
         {isCompletePhase ? (
           <div className="space-y-md max-w-4xl mx-auto">
+            <Link
+              to="/interview-prep/mock"
+              className="inline-flex items-center gap-1 font-label-md text-secondary hover:underline mb-md"
+            >
+              <AppIcon name="arrow_back" size="sm" />
+              Exit
+            </Link>
             <header className="text-center">
               <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
                 Interview complete
@@ -224,15 +230,6 @@ export default function MockInterviewSessionPage() {
           </div>
         ) : (
           <>
-            <header className="text-center max-w-2xl mx-auto">
-              <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
-                Live interview
-              </h1>
-              <p className="font-body-md text-on-surface-variant mt-base">
-                Speak with the AI interviewer in real time. Camera and mic stay on for feedback.
-              </p>
-            </header>
-
             {sessionLoading && !questions.length ? (
               <div className="flex justify-center py-2xl">
                 <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
@@ -269,6 +266,8 @@ export default function MockInterviewSessionPage() {
                   difficulty={interviewMeta.difficulty}
                   durationMinutes={interviewMeta.durationMinutes}
                   interviewerPersona={interviewMeta.interviewerPersona}
+                  interviewMode={interviewMeta.interviewMode}
+                  focusAreas={interviewMeta.focusAreas}
                   stream={stream}
                   onFinished={handleFinished}
                   submitError={submitError}

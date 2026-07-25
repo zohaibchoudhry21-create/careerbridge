@@ -3,17 +3,11 @@ import express from 'express';
 import {
   generateMockInterviewReport,
   analyzeInterviewResume,
-  extractInterviewContextText,
   getInterviewReportHistory,
   getMockInterviewSession,
   getRoleSuggestions,
-  nextMockInterviewQuestion,
   startLiveInterview,
-  startMockInterview,
-  startVoiceCallInterview,
   submitLiveInterview,
-  submitMockInterviewAnswer,
-  submitVoiceCallTranscript,
 } from '../controllers/mockInterviewController.js';
 
 import {
@@ -23,32 +17,19 @@ import {
 
 import { protect } from '../middleware/authMiddleware.js';
 
-import { handleMockInterviewAudioUpload } from '../middleware/mockInterviewUploadMiddleware.js';
 import { handleInterviewContextUpload } from '../middleware/interviewContextUploadMiddleware.js';
 
 import { validateRequest } from '../middleware/validateRequest.js';
 
 import {
-  nextMockQuestionValidation,
   roleSuggestionsValidation,
   sessionIdBodyValidation,
+  sessionIdParamValidation,
   startLiveInterviewValidation,
-  startMockInterviewValidation,
   submitLiveInterviewValidation,
-  submitMockAnswerValidation,
-  submitVoiceCallTranscriptValidation,
 } from '../validators/mockInterviewValidator.js';
 
 const router = express.Router();
-
-router.post(
-  '/interview/start',
-  protect,
-  interviewFlowLimiter,
-  startMockInterviewValidation,
-  validateRequest,
-  startMockInterview
-);
 
 router.post(
   '/interview/live/start',
@@ -69,51 +50,6 @@ router.post(
 );
 
 router.post(
-  '/interview/voice-call/start',
-  protect,
-  interviewFlowLimiter,
-  startMockInterviewValidation,
-  validateRequest,
-  startVoiceCallInterview
-);
-
-router.post(
-  '/interview/submit-answer',
-  protect,
-  interviewFlowLimiter,
-  handleMockInterviewAudioUpload,
-  submitMockAnswerValidation,
-  validateRequest,
-  submitMockInterviewAnswer
-);
-
-router.post(
-  '/interview/voice-call/submit-transcript',
-  protect,
-  interviewHeavyLimiter,
-  submitVoiceCallTranscriptValidation,
-  validateRequest,
-  submitVoiceCallTranscript
-);
-
-router.post(
-  '/interview/next-question',
-  protect,
-  interviewFlowLimiter,
-  nextMockQuestionValidation,
-  validateRequest,
-  nextMockInterviewQuestion
-);
-
-router.post(
-  '/interview/context/extract-text',
-  protect,
-  interviewFlowLimiter,
-  handleInterviewContextUpload,
-  extractInterviewContextText
-);
-
-router.post(
   '/interview/resume/analyze',
   protect,
   interviewHeavyLimiter,
@@ -130,7 +66,14 @@ router.post(
   getRoleSuggestions
 );
 
-router.get('/interview/session/:sessionId', protect, getMockInterviewSession);
+router.get(
+  '/interview/session/:sessionId',
+  protect,
+  interviewFlowLimiter,
+  sessionIdParamValidation,
+  validateRequest,
+  getMockInterviewSession
+);
 
 router.get('/interview/reports/history', protect, interviewFlowLimiter, getInterviewReportHistory);
 

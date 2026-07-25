@@ -1,14 +1,20 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { getVapiClient, formatVapiError, getInterviewStartTarget } from '../lib/vapi.sdk';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  getVapiClient,
+  formatVapiError,
+  getInterviewStartTarget,
+  isNonFatalVapiError,
+  getCallEndedReason,
+  logVapiDiagnostic,
+} from '../lib/vapi.sdk';
 import { interviewerAssistant } from '../constants/voiceCallAssistant';
 import { useLiveAudioMonitor } from '../hooks/useLiveAudioMonitor';
 import { useFaceVideoAnalysis } from '../hooks/useFaceVideoAnalysis';
-import AIInterviewerAvatar from './AIInterviewerAvatar';
-import AppIcon from '../../../components/icons/AppIcon';
+import { useLiveInterview } from '../hooks/useLiveInterview';
+import LiveInterview from './LiveInterview';
 import LiveVideoIndicator from './LiveVideoIndicator';
-import { cn } from '../../../lib/utils';
-import { releaseStreamAudioTracks } from '../utils/mediaPermissionUtils';
 import { getInterviewerPersonaPrompt } from '../utils/interviewerPersona';
+import { DEFAULT_INTERVIEW_SETUP_MODE } from '../constants/interviewPrepConstants';
 
 const CallStatus = {
   INACTIVE: 'INACTIVE',
@@ -17,37 +23,24 @@ const CallStatus = {
   FINISHED: 'FINISHED',
 };
 
-function MetricBadge({ active, labelOn, labelPaused }) {
-  const isOn = active;
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-label-sm transition-all duration-200',
-        isOn
-          ? 'bg-tertiary-container text-on-tertiary-container'
-          : 'bg-error-container text-on-error-container'
-      )}
-    >
-      <span
-        className={cn(
-          'w-2 h-2 rounded-full shrink-0',
-          isOn ? 'bg-secondary' : 'border border-dashed border-on-error-container bg-transparent'
-        )}
-        aria-hidden
-      />
-      {isOn ? labelOn : labelPaused}
-    </span>
-  );
-}
+const UI_STATUS_BY_CALL_STATUS = {
+  [CallStatus.INACTIVE]: 'idle',
+  [CallStatus.CONNECTING]: 'connecting',
+  [CallStatus.ACTIVE]: 'active',
+  [CallStatus.FINISHED]: 'ended',
+};
 
 export default function LiveInterviewAgent({
   userName,
+  aiName = 'AI Interviewer',
   sessionId,
   questions,
   roleLabel,
   difficulty,
   durationMinutes,
   interviewerPersona = 'neutral',
+  interviewMode = DEFAULT_INTERVIEW_SETUP_MODE,
+  focusAreas,
   stream,
   onFinished,
   submitError,
@@ -55,9 +48,7 @@ export default function LiveInterviewAgent({
 }) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [callStatus, setCallStatus] = useState(CallStatus.INACTIVE);
-  const [messages, setMessages] = useState([]);
   const [callError, setCallError] = useState(null);
-  const [mouthPulse, setMouthPulse] = useState(0);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [videoReady, setVideoReady] = useState(false);
@@ -69,9 +60,15 @@ export default function LiveInterviewAgent({
   const finalMetricsRef = useRef(null);
   const getAudioSnapshotRef = useRef(() => ({}));
   const getVideoMetricsRef = useRef(() => null);
+  const startInFlightRef = useRef(false);
+  const endedReasonRef = useRef(null);
 
+  const { transcript, addTurn } = useLiveInterview();
+
+  const isVoiceOnly = interviewMode === 'voice_only';
   const metricsActive = callStatus === CallStatus.ACTIVE;
-  const faceSamplingEnabled = metricsActive && isCameraOn && videoReady;
+  const faceSamplingEnabled =
+    !isVoiceOnly && metricsActive && isCameraOn && videoReady;
 
   const { getSnapshot: getAudioSnapshot } = useLiveAudioMonitor(
     stream,
@@ -90,14 +87,6 @@ export default function LiveInterviewAgent({
 
   getAudioSnapshotRef.current = getAudioSnapshot;
   getVideoMetricsRef.current = getVideoMetrics;
-
-  const avatarState = useMemo(() => {
-    if (isSubmitting) return 'thinking';
-    if (callStatus === CallStatus.CONNECTING) return 'thinking';
-    if (isSpeaking) return 'speaking';
-    if (callStatus === CallStatus.ACTIVE) return 'listening';
-    return 'idle';
-  }, [callStatus, isSpeaking, isSubmitting]);
 
   const captureFinalMetrics = useCallback(() => {
     const audioHints = getAudioSnapshotRef.current?.() || {};
@@ -118,7 +107,7 @@ export default function LiveInterviewAgent({
 
   useEffect(() => {
     const video = candidateVideoRef.current;
-    if (!video || !stream) return undefined;
+    if (!video || !stream || isVoiceOnly) return undefined;
 
     video.srcObject = stream;
 
@@ -136,22 +125,13 @@ export default function LiveInterviewAgent({
       video.removeEventListener('loadedmetadata', markReady);
       video.removeEventListener('canplay', markReady);
     };
-  }, [stream]);
+  }, [stream, isVoiceOnly]);
 
   useEffect(() => {
-    if (!isSpeaking) {
-      setMouthPulse(0);
-      return undefined;
+    if (isVoiceOnly && stream?.getAudioTracks?.().length) {
+      setVideoReady(true);
     }
-
-    let raf = 0;
-    const tick = () => {
-      setMouthPulse(0.35 + 0.45 * Math.abs(Math.sin(performance.now() / 120)));
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [isSpeaking]);
+  }, [isVoiceOnly, stream]);
 
   useEffect(() => {
     let vapi;
@@ -159,35 +139,51 @@ export default function LiveInterviewAgent({
     try {
       vapi = getVapiClient();
     } catch (error) {
-      setCallError(error.message);
+      setCallError(formatVapiError(error));
       return undefined;
     }
 
     const onCallStart = () => {
+      logVapiDiagnostic('call-start', null);
+      startInFlightRef.current = false;
       resetFaceSamples();
       callStartedAtRef.current = Date.now();
       setCallStatus(CallStatus.ACTIVE);
     };
 
-    const onCallEnd = () => {
+    const onCallEnd = (payload) => {
+      logVapiDiagnostic('call-end', payload);
+      endedReasonRef.current = getCallEndedReason(payload);
+      startInFlightRef.current = false;
       captureFinalMetrics();
       setCallStatus(CallStatus.FINISHED);
     };
 
+    const onCallStartProgress = (payload) => logVapiDiagnostic('call-start-progress', payload);
+    const onCallStartFailed = (payload) => logVapiDiagnostic('call-start-failed', payload);
+
     const onMessage = (message) => {
       if (message.type === 'transcript' && message.transcriptType === 'final') {
-        setMessages((prev) => {
-          const next = [...prev, { role: message.role, content: message.transcript }];
-          messagesRef.current = next;
-          return next;
-        });
+        messagesRef.current = [
+          ...messagesRef.current,
+          { role: message.role, content: message.transcript },
+        ];
+        addTurn(message.role === 'user' ? 'user' : 'ai', message.transcript);
       }
     };
 
     const onSpeechStart = () => setIsSpeaking(true);
     const onSpeechEnd = () => setIsSpeaking(false);
     const onError = (error) => {
+      logVapiDiagnostic('error', error);
+
+      if (isNonFatalVapiError(error)) {
+        console.warn('Vapi non-fatal audio processor error (ignored):', error);
+        return;
+      }
+
       console.error('Vapi error:', error);
+      startInFlightRef.current = false;
       setCallError(formatVapiError(error));
       setCallStatus(CallStatus.INACTIVE);
     };
@@ -198,6 +194,8 @@ export default function LiveInterviewAgent({
     vapi.on('speech-start', onSpeechStart);
     vapi.on('speech-end', onSpeechEnd);
     vapi.on('error', onError);
+    vapi.on('call-start-progress', onCallStartProgress);
+    vapi.on('call-start-failed', onCallStartFailed);
 
     return () => {
       vapi.off('call-start', onCallStart);
@@ -206,8 +204,22 @@ export default function LiveInterviewAgent({
       vapi.off('speech-start', onSpeechStart);
       vapi.off('speech-end', onSpeechEnd);
       vapi.off('error', onError);
+      vapi.off('call-start-progress', onCallStartProgress);
+      vapi.off('call-start-failed', onCallStartFailed);
     };
-  }, [captureFinalMetrics, resetFaceSamples]);
+  }, [addTurn, captureFinalMetrics, resetFaceSamples]);
+
+  // A call left running after unmount keeps billing and holds the mic.
+  useEffect(
+    () => () => {
+      try {
+        getVapiClient().stop();
+      } catch {
+        // client was never created / already stopped
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     if (callStatus !== CallStatus.FINISHED || isSubmitting || finishedNotifiedRef.current) {
@@ -218,6 +230,19 @@ export default function LiveInterviewAgent({
 
     if (!finalMetricsRef.current) {
       captureFinalMetrics();
+    }
+
+    // An ejected/failed call produces no turns; submitting would just 400.
+    if (!messagesRef.current.length) {
+      const reason = endedReasonRef.current;
+      setCallError(
+        reason
+          ? `The interview ended before any conversation was recorded (${reason}). Please start it again.`
+          : 'The interview ended before any conversation was recorded. Please start it again.'
+      );
+      setCallStatus(CallStatus.INACTIVE);
+      finishedNotifiedRef.current = false;
+      return;
     }
 
     const { liveAudioHints, liveVideoMetrics } = finalMetricsRef.current || {};
@@ -272,15 +297,18 @@ export default function LiveInterviewAgent({
     setIsCameraOn(nextCameraOn);
   };
 
-  const canStartCall = Boolean(stream) && videoReady;
+  const hasAudioStream = Boolean(stream?.getAudioTracks?.().length);
+  const canStartCall = hasAudioStream && (isVoiceOnly || videoReady);
 
   const handleCall = async () => {
-    if (!canStartCall) return;
+    if (!canStartCall || startInFlightRef.current) return;
 
+    startInFlightRef.current = true;
     setCallError(null);
     finishedNotifiedRef.current = false;
     finalMetricsRef.current = null;
     callStartedAtRef.current = null;
+    endedReasonRef.current = null;
     resetFaceSamples();
     setCallStatus(CallStatus.CONNECTING);
 
@@ -294,11 +322,12 @@ export default function LiveInterviewAgent({
         difficulty: difficulty || 'medium',
         durationMinutes: String(durationMinutes || 15),
         interviewerPersona: getInterviewerPersonaPrompt(interviewerPersona),
+        focusAreas: (Array.isArray(focusAreas) ? focusAreas : []).join(', ') || 'General',
       };
 
-      // Release our mic capture so Vapi can open its own WebRTC audio stream.
-      releaseStreamAudioTracks(stream);
-
+      // Do NOT stop our mic track here. Vapi/Daily opens its own capture of the
+      // same device; killing the track leaves the call with no customer audio,
+      // which Vapi then ejects as "Meeting has ended".
       const assistantId = getInterviewStartTarget();
       if (assistantId) {
         await vapi.start(assistantId, { variableValues });
@@ -310,6 +339,8 @@ export default function LiveInterviewAgent({
         vapi.setMuted(true);
       }
     } catch (error) {
+      logVapiDiagnostic('start-threw', error);
+      startInFlightRef.current = false;
       setCallError(formatVapiError(error));
       setCallStatus(CallStatus.INACTIVE);
     }
@@ -325,176 +356,67 @@ export default function LiveInterviewAgent({
     setCallStatus(CallStatus.FINISHED);
   };
 
-  const latestMessage = messages[messages.length - 1]?.content;
-  const isCallInactiveOrFinished =
-    callStatus === CallStatus.INACTIVE || callStatus === CallStatus.FINISHED;
-
-  const videoMetricsOn = isCameraOn && metricsActive && faceModelsReady;
+  const videoMetricsOn = !isVoiceOnly && isCameraOn && metricsActive && faceModelsReady;
   const voiceMetricsOn = isMicOn && metricsActive;
 
+  // While Vapi reports assistant speech the AI is talking; otherwise an active
+  // call means we are waiting on the candidate.
+  let activeSpeaker = null;
+  if (isSpeaking) activeSpeaker = 'ai';
+  else if (callStatus === CallStatus.ACTIVE) activeSpeaker = 'user';
+
+  let startLabel = 'Start interview';
+  if (callStatus === CallStatus.CONNECTING) startLabel = 'Connecting…';
+  else if (!hasAudioStream) startLabel = isVoiceOnly ? 'Waiting for microphone…' : 'Waiting for camera…';
+  else if (!isVoiceOnly && !videoReady) startLabel = 'Waiting for camera…';
+
+  const notice =
+    !isVoiceOnly && !faceModelsReady && !faceModelsError ? (
+      <p className="font-label-sm text-on-surface-variant text-center">
+        Loading face analysis models…
+      </p>
+    ) : !isVoiceOnly && faceModelsError ? (
+      <p className="font-label-sm text-error text-center">
+        Face analysis models could not load. Eye-contact metrics may be unavailable.
+      </p>
+    ) : null;
+
+  const videoOverlay =
+    !isVoiceOnly && metricsActive && isCameraOn && liveAggregated ? (
+      <LiveVideoIndicator
+        isRecording={faceSamplingEnabled}
+        modelsReady={faceModelsReady}
+        metrics={{ eyeContactPercent: liveAggregated?.eyeContactPercent ?? 0 }}
+        compact
+      />
+    ) : null;
+
   return (
-    <div className="flex flex-col items-center gap-lg p-base md:p-lg w-full max-w-4xl mx-auto">
-      <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
-        <MetricBadge
-          active={videoMetricsOn}
-          labelOn="Video metrics on"
-          labelPaused="Video metrics paused"
-        />
-        <MetricBadge
-          active={voiceMetricsOn}
-          labelOn="Voice metrics on"
-          labelPaused="Voice metrics paused"
-        />
-      </div>
-
-      {!faceModelsReady && !faceModelsError ? (
-        <p className="font-label-sm text-on-surface-variant text-center">
-          Loading face analysis models…
-        </p>
-      ) : null}
-
-      {faceModelsError ? (
-        <p className="font-label-sm text-error text-center">
-          Face analysis models could not load. Eye-contact metrics may be unavailable.
-        </p>
-      ) : null}
-
-      <div className="w-full flex flex-col md:flex-row gap-sm md:gap-md">
-        <div className="dashboard-glass-card shadow-level-1 flex-1 min-w-0 rounded-2xl aspect-video bg-surface-container-low flex flex-col items-center justify-center gap-2 p-6">
-          <div className="relative shrink-0 mb-1">
-            <div className="w-[72px] h-[72px] rounded-full bg-surface flex items-center justify-center ring-[3px] ring-secondary/40 overflow-hidden">
-              <AIInterviewerAvatar
-                embedded
-                tile
-                hideStatusLabel
-                state={avatarState}
-                mouthOpenLevel={isSpeaking ? mouthPulse : 0}
-                compact
-              />
-            </div>
-            <span
-              className={cn(
-                'absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-surface',
-                callStatus === CallStatus.ACTIVE ? 'bg-emerald-500' : 'bg-outline'
-              )}
-              aria-hidden
-            />
-          </div>
-          <h3 className="text-sm font-bold text-on-surface">AI Interviewer</h3>
-          <p className="text-xs text-on-surface-variant">
-            {callStatus === CallStatus.INACTIVE
-              ? 'Ready'
-              : isSpeaking
-                ? 'Speaking'
-                : 'Listening'}
-          </p>
-        </div>
-
-        <div className="dashboard-glass-card shadow-level-1 flex-1 relative overflow-hidden rounded-2xl aspect-video transition-all duration-200 min-w-0 bg-on-surface">
-          <video
-            ref={candidateVideoRef}
-            autoPlay
-            muted
-            playsInline
-            className={cn(
-              'w-full h-full object-cover rounded-2xl [transform:scaleX(-1)] transition-all duration-200',
-              !isCameraOn && 'opacity-30 grayscale'
-            )}
-          />
-
-          {!stream ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-on-surface rounded-2xl">
-              <AppIcon name="person" size="dashboard" className="text-secondary" />
-            </div>
-          ) : null}
-
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 to-transparent rounded-b-2xl pointer-events-none" />
-
-          <div className="absolute bottom-2 left-0 right-0 flex flex-col items-center gap-1 z-10">
-            <h3 className="text-sm font-semibold text-white">{userName}</h3>
-            <p className="text-[11px] text-white/80">{isCameraOn ? 'Camera on' : 'Camera off'}</p>
-
-            <div className="flex gap-2 mt-1">
-              <button
-                type="button"
-                onClick={toggleMic}
-                aria-label={isMicOn ? 'Mute microphone' : 'Unmute microphone'}
-                className={cn(
-                  'w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-200 min-h-[36px] min-w-[36px]',
-                  isMicOn ? 'bg-white/20 text-white' : 'bg-error text-on-error'
-                )}
-              >
-                <AppIcon name={isMicOn ? 'mic' : 'mic_off'} size="sm" />
-              </button>
-              <button
-                type="button"
-                onClick={toggleCamera}
-                aria-label={isCameraOn ? 'Turn off camera' : 'Turn on camera'}
-                className={cn(
-                  'w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-200 min-h-[36px] min-w-[36px]',
-                  isCameraOn ? 'bg-white/20 text-white' : 'bg-error text-on-error'
-                )}
-              >
-                <AppIcon name={isCameraOn ? 'videocam' : 'videocam_off'} size="sm" />
-              </button>
-            </div>
-
-            {metricsActive && isCameraOn && liveAggregated ? (
-              <div className="w-full max-w-[200px] px-2 mt-1 pointer-events-none">
-                <LiveVideoIndicator
-                  isRecording={faceSamplingEnabled}
-                  modelsReady={faceModelsReady}
-                  metrics={{
-                    eyeContactPercent: liveAggregated?.eyeContactPercent ?? 0,
-                  }}
-                />
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </div>
-
-      {messages.length > 0 ? (
-        <div className="w-full dashboard-glass-card dashboard-card-padding rounded-2xl shadow-level-1 transition-all duration-200">
-          <p className="font-label-sm text-on-surface-variant mb-1">Live transcript</p>
-          <p className="font-body-md text-on-surface transition-opacity duration-500">{latestMessage}</p>
-        </div>
-      ) : null}
-
-      {(callError || submitError) && (
-        <p className="font-body-md text-error max-w-xl text-center">{callError || submitError}</p>
-      )}
-
-      <div className="w-full flex justify-center">
-        {callStatus !== CallStatus.ACTIVE ? (
-          <button
-            type="button"
-            onClick={handleCall}
-            disabled={
-              callStatus === CallStatus.CONNECTING ||
-              isSubmitting ||
-              !canStartCall
-            }
-            className="bg-secondary text-on-secondary rounded-xl px-8 py-3 font-label-md min-h-[44px] disabled:opacity-60 dashboard-btn-glow transition-all duration-200"
-          >
-            {callStatus === CallStatus.CONNECTING
-              ? 'Connecting…'
-              : !videoReady || !stream
-                ? 'Waiting for camera…'
-                : isCallInactiveOrFinished
-                  ? 'Start interview'
-                  : '…'}
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={handleDisconnect}
-            className="bg-error text-on-error rounded-xl px-8 py-3 font-label-md min-h-[44px] transition-all duration-200"
-          >
-            End interview
-          </button>
-        )}
-      </div>
-    </div>
+    <LiveInterview
+      userName={userName}
+      aiName={aiName}
+      status={UI_STATUS_BY_CALL_STATUS[callStatus] || 'idle'}
+      activeSpeaker={activeSpeaker}
+      transcript={transcript}
+      interviewMode={interviewMode}
+      roleLabel={roleLabel}
+      difficulty={difficulty}
+      durationMinutes={durationMinutes}
+      videoMetricsOn={videoMetricsOn}
+      voiceMetricsOn={voiceMetricsOn}
+      cameraOn={isCameraOn}
+      micOn={isMicOn}
+      hasStream={Boolean(stream)}
+      notice={notice}
+      errorMessage={callError || submitError}
+      startDisabled={callStatus === CallStatus.CONNECTING || isSubmitting || !canStartCall}
+      startLabel={startLabel}
+      onStart={handleCall}
+      onEnd={handleDisconnect}
+      onToggleMic={toggleMic}
+      onToggleCamera={toggleCamera}
+      videoRef={candidateVideoRef}
+      videoOverlay={videoOverlay}
+    />
   );
 }

@@ -37,7 +37,13 @@ const callGroqJson = async (prompt) => {
   }
 };
 
-const buildCandidateContext = ({ experience, resumeSkills, resumeProjects, targetCompany } = {}) => {
+const buildCandidateContext = ({
+  experience,
+  resumeSkills,
+  resumeProjects,
+  targetCompany,
+  focusAreas,
+} = {}) => {
   const lines = [];
 
   const exp = String(experience || '').trim();
@@ -45,6 +51,12 @@ const buildCandidateContext = ({ experience, resumeSkills, resumeProjects, targe
 
   const company = String(targetCompany || '').trim();
   if (company) lines.push(`Target company: ${company}`);
+
+  const focus = (Array.isArray(focusAreas) ? focusAreas : [])
+    .map((f) => String(f || '').trim())
+    .filter(Boolean)
+    .slice(0, 6);
+  if (focus.length) lines.push(`Interview focus areas: ${focus.join(', ')}`);
 
   const skills = (Array.isArray(resumeSkills) ? resumeSkills : [])
     .map((s) => String(s || '').trim())
@@ -68,6 +80,7 @@ export const generateOpeningQuestion = async ({
   resumeSkills,
   resumeProjects,
   targetCompany,
+  focusAreas,
 } = {}) => {
   if (!isGroqConfigured()) {
     throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
@@ -78,6 +91,7 @@ export const generateOpeningQuestion = async ({
     resumeSkills,
     resumeProjects,
     targetCompany,
+    focusAreas,
   });
 
   const parsed = await callGroqJson(`
@@ -98,75 +112,3 @@ Return JSON only:
   return text;
 };
 
-export const generateFollowUpQuestion = async ({
-  roleLabel,
-  difficulty,
-  questionNumber,
-  totalQuestions,
-  priorQa,
-}) => {
-  if (!isGroqConfigured()) {
-    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
-  }
-
-  const historyText = priorQa
-    .map(
-      (item, index) =>
-        `Q${index + 1}: ${item.question}\nA${index + 1}: ${item.answer || '(no answer)'}`
-    )
-    .join('\n\n');
-
-  const parsed = await callGroqJson(`
-You are a professional interviewer for a ${difficulty} ${roleLabel} interview.
-This is question ${questionNumber} of ${totalQuestions} (adaptive follow-up).
-
-Prior conversation:
-${historyText}
-
-Ask ONE new follow-up question that builds on the candidate's last answer. Be specific, realistic, and appropriate for ${difficulty} level.
-
-Return JSON only:
-{ "question": "string" }
-`);
-
-  const text = String(parsed.question || '').trim();
-
-  if (!text) {
-    throw new AppError('Failed to generate follow-up question.', 502);
-  }
-
-  return text;
-};
-
-export const generateVoiceCallQuestionSet = async ({
-  roleLabel,
-  difficulty,
-  targetQuestionCount,
-}) => {
-  if (!isGroqConfigured()) {
-    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
-  }
-
-  const count = Math.min(8, Math.max(5, Number(targetQuestionCount) || 6));
-
-  const parsed = await callGroqJson(`
-You are a professional interviewer preparing a ${difficulty} difficulty interview for a ${roleLabel} role.
-
-Generate exactly ${count} distinct interview questions for a live voice interview.
-- Question 1: warm opening / tell-me-about-yourself or role opener.
-- Questions 2-${count}: mix behavioral and role-specific topics; do not repeat themes.
-
-Return JSON only:
-{ "questions": ["question 1 text", "question 2 text", ...] }
-`);
-
-  const list = Array.isArray(parsed.questions)
-    ? parsed.questions.map((q) => String(q || '').trim()).filter(Boolean)
-    : [];
-
-  if (list.length < count) {
-    throw new AppError('Failed to generate enough interview questions.', 502);
-  }
-
-  return list.slice(0, count);
-};
