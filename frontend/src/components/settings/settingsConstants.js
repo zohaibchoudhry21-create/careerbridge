@@ -20,7 +20,7 @@ export const SETTINGS_DASHBOARD_CARDS = [
     title: 'Privacy Settings',
     description: 'Control who can see your profile and how your data is used.',
     icon: 'shield',
-    color: 'settings',
+    color: 'focus',
     to: '/settings/privacy',
   },
   {
@@ -28,7 +28,7 @@ export const SETTINGS_DASHBOARD_CARDS = [
     title: 'Appearance & Language',
     description: 'Customize theme, language, and display preferences.',
     icon: 'palette',
-    color: 'settings',
+    color: 'mode',
     to: '/settings/appearance',
   },
   {
@@ -36,7 +36,7 @@ export const SETTINGS_DASHBOARD_CARDS = [
     title: 'Notifications',
     description: 'Manage your communication preferences.',
     icon: 'notifications',
-    color: 'settings',
+    color: 'warning',
     to: '/settings/notifications',
   },
   {

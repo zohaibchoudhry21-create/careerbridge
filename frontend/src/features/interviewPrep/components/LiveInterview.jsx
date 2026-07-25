@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import AppIcon from '../../../components/icons/AppIcon';
 import { cn } from '../../../lib/utils';
+import Button from '../../../components/ui/Button';
 import { toDisplayErrorMessage } from '../lib/vapi.sdk';
 import { DEFAULT_INTERVIEW_SETUP_MODE } from '../constants/interviewPrepConstants';
 
@@ -362,25 +363,27 @@ export default function LiveInterview({
 
       <div className="flex justify-center pt-2">
         {isActive ? (
-          <button
+          <Button
             type="button"
+            variant="destructive"
             onClick={onEnd}
-            className="flex items-center gap-2 rounded-full bg-gradient-to-r from-error to-[#e11d48] px-7 py-3.5 font-label-md text-on-error shadow-lg shadow-red-500/20 transition-all hover:shadow-xl active:scale-[0.97]"
+            className="gap-2 rounded-full px-7 py-3.5"
           >
             End interview
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             type="button"
+            variant="primary"
             onClick={onStart}
             disabled={startDisabled}
-            className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-secondary to-secondary-container px-7 py-3.5 font-label-md text-on-secondary shadow-lg shadow-secondary/25 transition-all hover:shadow-xl hover:shadow-secondary/30 active:scale-[0.97] disabled:opacity-60 disabled:shadow-none"
+            className="group gap-2 rounded-full px-7 py-3.5 disabled:shadow-none"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
               <path d="M8 5v14l11-7z" />
             </svg>
             {startLabel}
-          </button>
+          </Button>
         )}
       </div>
     </div>

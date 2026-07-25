@@ -12,7 +12,7 @@ function InterviewReadinessCard({ interviewReadiness }) {
     <div className="min-w-0 rounded-2xl dashboard-glass-card dashboard-card-padding">
       <div className="mb-xs flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2.5">
-          <SectionIcon color="interview" icon="mic_external_on" />
+          <SectionIcon color="mode" icon="mic_external_on" />
           <h4 className="font-headline-section text-headline-section">Interview Readiness</h4>
         </div>
         <span className="font-bold text-secondary">{score}%</span>

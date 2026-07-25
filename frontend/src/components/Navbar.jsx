@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useNavbarScroll } from '../hooks/useAnimations';
 import BrandLogo from './brand/BrandLogo';
 import AppIcon from './icons/AppIcon';
+import { buttonPrimaryClass, buttonSecondaryClass } from './ui/buttonTokens';
+import { cn } from '../lib/utils';
 
 const navLinks = [
   { label: 'AI Resume Parsing', href: '/register' },
@@ -65,13 +67,16 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-2 sm:gap-3 shrink-0">
           <Link
             to="/login"
-            className="font-label-md text-label-md text-secondary border border-secondary rounded-xl px-3.5 py-1.5 hover:bg-secondary/10 transition-colors"
+            className={cn(buttonSecondaryClass, 'px-3.5 py-1.5 text-label-md')}
           >
             Login
           </Link>
           <Link
             to="/register"
-            className="bg-secondary text-on-secondary font-label-md text-label-md rounded-xl px-4 py-1.5 hover:bg-secondary-container transition-colors shadow-level-1 hover:-translate-y-1 transform whitespace-nowrap"
+            className={cn(
+              buttonPrimaryClass,
+              'transform whitespace-nowrap px-4 py-1.5 text-label-md shadow-level-1 hover:-translate-y-1'
+            )}
           >
             Upload CV
           </Link>
@@ -117,14 +122,17 @@ export default function Navbar() {
           <div className="mt-4 pt-4 border-t border-outline-variant/30 flex flex-col gap-3">
             <Link
               to="/login"
-              className="text-center font-label-md text-label-md text-secondary border border-secondary rounded-2xl px-4 py-3 hover:bg-secondary/10 transition-colors"
+              className={cn(buttonSecondaryClass, 'w-full justify-center px-4 py-3 text-label-md rounded-2xl')}
               onClick={closeMenu}
             >
               Login
             </Link>
             <Link
               to="/register"
-              className="text-center w-full bg-secondary text-on-secondary font-label-md text-label-md rounded-2xl px-6 py-3 hover:bg-secondary-container transition-colors shadow-level-1"
+              className={cn(
+                buttonPrimaryClass,
+                'w-full justify-center px-6 py-3 text-label-md rounded-2xl shadow-level-1'
+              )}
               onClick={closeMenu}
             >
               Upload CV

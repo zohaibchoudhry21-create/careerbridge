@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import RadioGroup from '../../../components/settings/RadioGroup';
 import SectionHeading from '../../../components/ui/SectionHeading';
+import Button from '../../../components/ui/Button';
 import { accentCardClass } from '../../../components/ui/colorAccentTokens';
 import {
   DEFAULT_SKILL_QUIZ_QUESTION_COUNT,
@@ -141,11 +142,12 @@ export default function SkillAssessmentSetup() {
         />
       </section>
 
-      <button
+      <Button
         type="button"
+        variant="primary"
         onClick={handleStart}
         disabled={generateQuiz.isPending}
-        className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-secondary px-6 py-3 font-label-md text-white hover:opacity-90 disabled:opacity-60 sm:w-auto"
+        className="min-h-[44px] w-full gap-2 px-6 py-3 sm:w-auto"
       >
         {generateQuiz.isPending ? (
           <>
@@ -155,7 +157,7 @@ export default function SkillAssessmentSetup() {
         ) : (
           'Generate & start quiz'
         )}
-      </button>
+      </Button>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { buttonPrimaryClass } from '../../components/ui/buttonTokens';
+import { cn } from '../../lib/utils';
 import { DashboardLayout, PageContainer, PageHeader, BackLink } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
 import AppIcon from '../../components/icons/AppIcon';
@@ -184,7 +186,7 @@ export default function MockInterviewSessionPage() {
           <p className="font-body-md text-on-surface-variant">Session not found.</p>
           <Link
             to="/interview-prep/mock"
-            className="inline-flex px-6 py-2.5 rounded-xl bg-secondary text-white font-label-md"
+            className={cn(buttonPrimaryClass, 'px-6 py-2.5')}
           >
             Back to setup
           </Link>
@@ -218,7 +220,7 @@ export default function MockInterviewSessionPage() {
 
             <Link
               to="/interview-prep"
-              className="inline-flex px-6 py-2.5 rounded-xl bg-secondary text-white font-label-md"
+              className={cn(buttonPrimaryClass, 'px-6 py-2.5')}
             >
               Back to Interview Prep
             </Link>
@@ -239,7 +241,7 @@ export default function MockInterviewSessionPage() {
                 </p>
                 <Link
                   to="/interview-prep/mock"
-                  className="inline-flex px-6 py-2.5 rounded-xl bg-secondary text-white font-label-md"
+                  className={cn(buttonPrimaryClass, 'px-6 py-2.5')}
                 >
                   Back to setup
                 </Link>

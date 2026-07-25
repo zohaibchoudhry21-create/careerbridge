@@ -18,6 +18,7 @@ import {
   selectedOptionClass,
   unselectedOptionClass,
 } from '../../components/ui/colorAccentTokens';
+import { buttonSecondaryClass } from '../../components/ui/buttonTokens';
 
 export default function TemplateSelectionPage() {
   const { user } = useAuth();
@@ -105,7 +106,7 @@ export default function TemplateSelectionPage() {
                 }
                 setImportOpen(true);
               }}
-              className="rounded-xl border border-outline-variant px-md py-sm font-label-md text-on-surface hover:border-secondary/40 hover:text-secondary transition-colors"
+              className={cn(buttonSecondaryClass, 'px-md py-sm')}
             >
               Import existing resume
             </button>

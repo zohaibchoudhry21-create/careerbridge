@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import AppIcon from '../../../components/icons/AppIcon';
 import SectionHeading from '../../../components/ui/SectionHeading';
 import { accentCardClass } from '../../../components/ui/colorAccentTokens';
+import { buttonPrimaryClass, buttonSecondaryClass } from '../../../components/ui/buttonTokens';
+import { cn } from '../../../lib/utils';
 
 export default function SkillQuizResults({ result }) {
   if (!result) return null;
@@ -74,13 +76,13 @@ export default function SkillQuizResults({ result }) {
       <div className="flex flex-col gap-2 sm:flex-row">
         <Link
           to="/interview-prep/skills"
-          className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-secondary px-6 py-2.5 text-center font-label-md text-white"
+          className={cn(buttonPrimaryClass, 'min-h-[44px] px-6 py-2.5 text-center')}
         >
           Take another quiz
         </Link>
         <Link
           to="/interview-prep"
-          className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-outline-variant px-6 py-2.5 text-center font-label-md"
+          className={cn(buttonSecondaryClass, 'min-h-[44px] px-6 py-2.5 text-center')}
         >
           Back to Interview Prep
         </Link>
