@@ -23,18 +23,6 @@ const formDataTransform = [
   },
 ];
 
-export const extractInterviewContextText = (file) => {
-  const formData = new FormData();
-  formData.append('document', file);
-
-  return api
-    .post('/interview/context/extract-text', formData, {
-      timeout: 60000,
-      transformRequest: formDataTransform,
-    })
-    .then(unwrap);
-};
-
 export const analyzeInterviewResume = (file) => {
   const formData = new FormData();
   formData.append('document', file);

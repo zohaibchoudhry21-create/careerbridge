@@ -1,23 +1,19 @@
-export const FEEDBACK_CATEGORIES = [
-  'Communication Skills',
-  'Technical Knowledge',
-  'Problem Solving',
-  'Cultural Fit',
-  'Confidence and Clarity',
-];
-
 export const interviewerAssistant = {
   name: 'Interviewer',
   firstMessage:
     "Hello! Thank you for taking the time to speak with me today. I'm excited to learn more about you and your experience.",
+  // Default is 15s, which ejects the call on slower networks / permission prompts.
+  customerJoinTimeoutSeconds: 60,
   transcriber: {
     provider: 'deepgram',
     model: 'nova-2',
     language: 'en',
   },
+  // Vapi's own voices need no extra provider integration on the account.
   voice: {
-    provider: 'playht',
-    voiceId: 'jennifer',
+    provider: 'vapi',
+    voiceId: 'Elliot',
+    version: 2,
   },
   model: {
     provider: 'openai',
@@ -31,6 +27,7 @@ Interview Guidelines:
 Role: {{roleLabel}}
 Difficulty: {{difficulty}}
 Target duration: about {{durationMinutes}} minutes
+Emphasize these focus areas throughout your questions: {{focusAreas}}
 
 Interviewer persona:
 {{interviewerPersona}}

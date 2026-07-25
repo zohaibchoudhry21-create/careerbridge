@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './context/AuthContext';
+import AppErrorBoundary from './components/AppErrorBoundary';
 import App from './App';
 import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
@@ -27,18 +28,20 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         useTransitions={false} applies location updates synchronously.
       */}
       <BrowserRouter useTransitions={false}>
-        <AuthProvider>
-          <App />
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick
-            pauseOnHover
-            theme="colored"
-          />
-        </AuthProvider>
+        <AppErrorBoundary>
+          <AuthProvider>
+            <App />
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop
+              closeOnClick
+              pauseOnHover
+              theme="colored"
+            />
+          </AuthProvider>
+        </AppErrorBoundary>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>
