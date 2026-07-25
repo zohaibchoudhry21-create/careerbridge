@@ -33,7 +33,7 @@ export default function Settings() {
               description={section.description}
               icon={section.icon}
               to={section.to}
-              accent={section.accent}
+              color={section.color}
             />
           ))}
         </div>

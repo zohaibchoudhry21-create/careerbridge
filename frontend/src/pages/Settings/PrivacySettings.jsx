@@ -48,7 +48,7 @@ export default function PrivacySettings() {
       onCancel={handleCancel}
       saving={saving}
     >
-      <SectionCard title="Profile Visibility">
+      <SectionCard title="Profile Visibility" icon="visibility" color="role">
         <RadioGroup
           name="profile-visibility"
           value={profileVisibility}
@@ -57,7 +57,7 @@ export default function PrivacySettings() {
         />
       </SectionCard>
 
-      <SectionCard title="Privacy Options">
+      <SectionCard title="Privacy Options" icon="tune" color="settings">
         <ToggleSwitch
           id="show-search"
           label="Show profile in search"
@@ -97,7 +97,7 @@ export default function PrivacySettings() {
         />
       </SectionCard>
 
-      <SectionCard title="Resume Visibility">
+      <SectionCard title="Resume Visibility" icon="description" color="resume">
         <SelectField
           id="resume-visibility"
           label="Who can view your resume"

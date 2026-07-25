@@ -65,7 +65,7 @@ export default function AppearanceSettings() {
       cancelLabel="Reset to Default"
       saving={saving}
     >
-      <SectionCard title="Theme">
+      <SectionCard title="Theme" icon="palette" color="settings">
         <RadioGroup
           name="theme"
           value={settings.theme}
@@ -74,7 +74,7 @@ export default function AppearanceSettings() {
         />
       </SectionCard>
 
-      <SectionCard title="Language & Region">
+      <SectionCard title="Language & Region" icon="language" color="settings">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <SelectField
             id="language"
@@ -107,7 +107,7 @@ export default function AppearanceSettings() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Accessibility">
+      <SectionCard title="Accessibility" icon="accessibility_new" color="settings">
         <ToggleSwitch
           id="large-text"
           label="Large Text"
