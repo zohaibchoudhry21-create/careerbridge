@@ -67,16 +67,6 @@ export const INTERVIEWER_PERSONA_OPTIONS = [
 
 export const DEFAULT_INTERVIEWER_PERSONA = 'neutral';
 
-export const MAX_INTERVIEW_CONTEXT_TEXT_LENGTH = 15000;
-
-/** Quick-select chips on the setup screen (diverse fields). */
-export const MOCK_INTERVIEW_ROLE_QUICK_CHIPS = [
-  'Software engineer',
-  'Doctor',
-  'Teacher',
-  'Sales executive',
-];
-
 export const DEFAULT_SKILL_QUIZ_QUESTION_COUNT = 12;
 
 export const MIN_SKILL_QUIZ_QUESTIONS = 10;
@@ -93,18 +83,8 @@ export const SKILL_ASSESSMENT_TOPICS = [
   { id: 'html-css', label: 'HTML & CSS' },
 ];
 
-export const MOCK_INTERVIEW_ROLES = [
-  { id: 'frontend-developer', label: 'Frontend Developer' },
-  { id: 'backend-developer', label: 'Backend Developer' },
-  { id: 'fullstack-developer', label: 'Full Stack Developer' },
-  { id: 'data-analyst', label: 'Data Analyst' },
-  { id: 'product-manager', label: 'Product Manager' },
-  { id: 'hr-general', label: 'HR / Behavioral Round' },
-];
-
 /** Live analysis during answer recording (face-api + Web Audio heuristics). */
 export const LIVE_VIDEO_SAMPLE_INTERVAL_MS = 400;
 export const LIVE_AUDIO_SAMPLE_INTERVAL_MS = 250;
 /** Fallback when user disables live indicators or on slower devices. */
 export const LIVE_VIDEO_SAMPLE_INTERVAL_SLOW_MS = 700;
-export const LIVE_ANALYSIS_PREFERENCE_KEY = 'interviewPrep.liveAnalysisEnabled';
