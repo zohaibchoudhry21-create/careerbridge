@@ -23,6 +23,31 @@ export const errorHandler = (err, _req, res, _next) => {
     });
   }
 
+  // A malformed :id in the URL would otherwise surface as a bare 500.
+  if (err.name === 'CastError') {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid ${err.path || 'identifier'}.`,
+    });
+  }
+
+  if (err.name === 'MulterError') {
+    return res.status(400).json({
+      success: false,
+      message:
+        err.code === 'LIMIT_FILE_SIZE'
+          ? 'File is too large. Upload a document under 10 MB.'
+          : 'File upload failed. Please check the file and try again.',
+    });
+  }
+
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({
+      success: false,
+      message: 'Request payload is too large.',
+    });
+  }
+
   res.status(statusCode).json({
     success: false,
     message,

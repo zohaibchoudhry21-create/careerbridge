@@ -1,23 +1,16 @@
-import { useRef, useState } from 'react';
 import AppIcon from '../../../components/icons/AppIcon';
-import { authInputClassName } from '../../../components/auth/authUi';
 import {
   DEFAULT_INTERVIEW_SETUP_MODE,
   INTERVIEW_FOCUS_AREAS,
   INTERVIEW_SETUP_MODE_OPTIONS,
-  MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
 } from '../constants/interviewPrepConstants';
-import { extractInterviewContextText } from '../services/mockInterviewService';
 import { cn } from '../../../lib/utils';
-
-const ACCEPT = '.pdf,.doc,.docx';
 
 export const CARD_CLASS =
   'rounded-2xl border border-[#E7EBF0] bg-white p-5 space-y-3.5 min-w-0 transition-all duration-150 hover:border-[#D4DAE2]';
 
 /** Soft per-section icon tints (background + darker icon shade). */
 export const ICON_TINTS = {
-  resume: 'bg-violet-50 text-violet-600',
   role: 'bg-blue-50 text-blue-600',
   difficulty: 'bg-orange-50 text-orange-600',
   time: 'bg-teal-50 text-teal-600',
@@ -62,150 +55,6 @@ export function SectionHeader({ icon, iconClassName, title, description, optiona
         <p className="font-body-md text-on-surface-variant text-sm pl-[42px]">{description}</p>
       ) : null}
     </div>
-  );
-}
-
-export function ResumeContextSection({ resumeText, onResumeTextChange, jobDescriptionText, onJobDescriptionTextChange }) {
-  const [extracting, setExtracting] = useState(false);
-  const [showPaste, setShowPaste] = useState(false);
-  const [pasteTab, setPasteTab] = useState('resume');
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef(null);
-
-  const hasUploadedContext = Boolean(resumeText.trim() || jobDescriptionText.trim());
-
-  const handleFileUpload = async (file) => {
-    if (!file) return;
-
-    setExtracting(true);
-    try {
-      const result = await extractInterviewContextText(file);
-      const text = String(result?.text || '').slice(0, MAX_INTERVIEW_CONTEXT_TEXT_LENGTH);
-      onResumeTextChange(text);
-    } catch {
-      // Silent — user can still paste text manually
-    } finally {
-      setExtracting(false);
-    }
-  };
-
-  const onDrop = (event) => {
-    event.preventDefault();
-    setIsDragging(false);
-    handleFileUpload(event.dataTransfer.files?.[0]);
-  };
-
-  const activePasteText = pasteTab === 'job' ? jobDescriptionText : resumeText;
-  const onActivePasteChange =
-    pasteTab === 'job' ? onJobDescriptionTextChange : onResumeTextChange;
-
-  return (
-    <section className={CARD_CLASS}>
-      <SectionHeader
-        icon="description"
-        iconClassName={ICON_TINTS.resume}
-        title="Resume or job description"
-        description="Upload a resume or paste a job description so questions match your background."
-        optional
-      />
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={ACCEPT}
-        className="hidden"
-        onChange={(event) => {
-          handleFileUpload(event.target.files?.[0]);
-          event.target.value = '';
-        }}
-      />
-
-      <button
-        type="button"
-        disabled={extracting}
-        onClick={() => fileInputRef.current?.click()}
-        onDragOver={(event) => {
-          event.preventDefault();
-          setIsDragging(true);
-        }}
-        onDragLeave={() => setIsDragging(false)}
-        onDrop={onDrop}
-        className={cn(
-          'w-full rounded-xl border-2 border-dashed px-4 py-12 text-center transition-all duration-150',
-          isDragging
-            ? 'border-secondary bg-secondary/[0.04]'
-            : 'border-[#DCE2EA] bg-[#FAFBFC] hover:border-[#B9C2CE] hover:bg-[#F5F7FA]',
-          extracting && 'opacity-60 cursor-not-allowed'
-        )}
-      >
-        {extracting ? (
-          <span className="inline-flex items-center gap-2 font-label-md text-on-surface-variant">
-            <AppIcon name="progress_activity" size="sm" spin className="text-secondary" />
-            Extracting text…
-          </span>
-        ) : (
-          <>
-            <span className="mx-auto mb-2.5 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-secondary/10">
-              <AppIcon name="upload_file" size="md" className="text-secondary" />
-            </span>
-            <span className="font-label-md text-on-surface block">
-              Drop a PDF here, or click to browse
-            </span>
-            {hasUploadedContext ? (
-              <span className="font-body-md text-secondary text-sm mt-1 block">
-                Document text added — ready for targeted questions
-              </span>
-            ) : null}
-          </>
-        )}
-      </button>
-
-      <button
-        type="button"
-        onClick={() => setShowPaste((value) => !value)}
-        className="font-label-sm text-secondary hover:underline"
-      >
-        {showPaste ? 'Hide paste area' : 'Or paste text instead'}
-      </button>
-
-      {showPaste ? (
-        <div className="space-y-2">
-          <div className="flex flex-wrap gap-2">
-            {[
-              { id: 'resume', label: 'Resume' },
-              { id: 'job', label: 'Job description' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setPasteTab(tab.id)}
-                className={cn(
-                  'rounded-full border px-3 py-1 font-label-sm transition-all duration-150',
-                  pasteTab === tab.id
-                    ? SELECTED_OPTION_CLASS
-                    : UNSELECTED_OPTION_CLASS
-                )}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          <textarea
-            value={activePasteText}
-            onChange={(event) =>
-              onActivePasteChange(event.target.value.slice(0, MAX_INTERVIEW_CONTEXT_TEXT_LENGTH))
-            }
-            rows={4}
-            placeholder={
-              pasteTab === 'job'
-                ? 'Paste the job description or key requirements…'
-                : 'Paste resume highlights, experience, or skills…'
-            }
-            className={cn(authInputClassName, 'resize-y min-h-[100px]')}
-          />
-        </div>
-      ) : null}
-    </section>
   );
 }
 
@@ -292,18 +141,5 @@ export function InterviewModeSection({ interviewMode, onInterviewModeChange }) {
         })}
       </div>
     </section>
-  );
-}
-
-export default function InterviewSetupAdvanced(props) {
-  return (
-    <>
-      <ResumeContextSection {...props} />
-      <FocusAreasSection focusAreas={props.focusAreas} onFocusAreasChange={props.onFocusAreasChange} />
-      <InterviewModeSection
-        interviewMode={props.interviewMode}
-        onInterviewModeChange={props.onInterviewModeChange}
-      />
-    </>
   );
 }
