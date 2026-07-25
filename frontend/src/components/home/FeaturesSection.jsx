@@ -1,21 +1,24 @@
 import AnimatedContent from '../ui/AnimatedContent';
-import AppIcon from '../icons/AppIcon';
+import SectionIcon from '../ui/SectionIcon';
 import { Sparkles } from '../animate-ui/icons/sparkles';
 
 const features = [
   {
     icon: 'document_scanner',
+    color: 'scanner',
     title: 'OCR CV Builder',
     description:
       'Upload any PDF or image. Our OCR instantly converts it into a structured, editable digital profile.',
   },
   {
     icon: 'mic',
+    color: 'mode',
     title: 'Voice Profile Input',
     description:
       'Too busy to type? Speak your experience aloud and let our AI structure it into professional bullet points.',
   },
   {
+    color: 'focus',
     AnimatedIcon: Sparkles,
     title: '1-Click Optimization',
     description:
@@ -23,18 +26,21 @@ const features = [
   },
   {
     icon: 'picture_as_pdf',
+    color: 'resume',
     title: 'Resume PDF Generator',
     description:
       'Export to beautifully designed, ATS-friendly PDF templates that look premium and pass screening.',
   },
   {
     icon: 'work',
+    color: 'role',
     title: 'Smart Job Matching',
     description:
       'Get AI-ranked job matches based on your skills, experience, and career goals.',
   },
   {
     icon: 'payments',
+    color: 'time',
     title: 'Salary Intelligence',
     description:
       'Get real-time market data on what you should be earning based on your skills, location, and experience level.',
@@ -49,14 +55,14 @@ export default function FeaturesSection() {
         duration={0.9}
         ease="power3.out"
         threshold={0.15}
-        className="text-center mb-lg"
+        className="mb-lg text-center"
       >
-        <h2 className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface">
+        <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface md:font-headline-lg md:text-headline-lg">
           Powerful Tools for Career Growth
         </h2>
       </AnimatedContent>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {features.map((feature, index) => {
           const FeatureIcon = feature.AnimatedIcon;
           return (
@@ -70,21 +76,23 @@ export default function FeaturesSection() {
               scale={0.96}
               className="h-full"
             >
-              <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-2xl shadow-sm hover:shadow-[0_0_20px_rgba(33,112,228,0.2)] transition-all hover:border-secondary group relative overflow-hidden hover-lift h-full">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/5 rounded-bl-full transition-transform group-hover:scale-110" />
+              <div className="hover-lift group relative h-full overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm transition-all hover:border-secondary hover:shadow-[0_0_20px_rgba(33,112,228,0.2)]">
+                <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-secondary/5 transition-transform group-hover:scale-110" />
                 {FeatureIcon || feature.icon ? (
-                  <div className="w-12 h-12 bg-surface-container rounded-xl flex items-center justify-center text-secondary mb-4 relative z-10 group-hover:bg-secondary group-hover:text-white transition-colors">
+                  <div className="relative z-10 mb-4">
                     {FeatureIcon ? (
-                      <FeatureIcon size={24} animateOnHover />
+                      <SectionIcon color={feature.color} size="md">
+                        <FeatureIcon size={20} animateOnHover />
+                      </SectionIcon>
                     ) : (
-                      <AppIcon name={feature.icon} size="h-6 w-6" />
+                      <SectionIcon color={feature.color} icon={feature.icon} size="md" />
                     )}
                   </div>
                 ) : null}
-                <h3 className="font-label-md text-label-md text-on-surface mb-2 relative z-10">
+                <h3 className="relative z-10 mb-2 font-label-md text-label-md text-on-surface">
                   {feature.title}
                 </h3>
-                <p className="text-sm text-on-surface-variant relative z-10">{feature.description}</p>
+                <p className="relative z-10 text-sm text-on-surface-variant">{feature.description}</p>
               </div>
             </AnimatedContent>
           );

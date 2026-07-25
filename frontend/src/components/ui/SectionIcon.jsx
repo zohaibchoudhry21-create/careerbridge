@@ -15,6 +15,7 @@ export default function SectionIcon({
   size = 'sm',
   className = '',
   iconClassName = '',
+  children = null,
 }) {
   const tintClass = ACCENT_COLORS[color] ?? ACCENT_COLORS.role;
   const sizeClass = SECTION_ICON_SIZES[size] ?? SECTION_ICON_SIZES.sm;
@@ -29,7 +30,7 @@ export default function SectionIcon({
       )}
       aria-hidden
     >
-      <AppIcon name={icon} size="sm" className={iconClassName} />
+      {children ?? <AppIcon name={icon} size="sm" className={iconClassName} />}
     </span>
   );
 }

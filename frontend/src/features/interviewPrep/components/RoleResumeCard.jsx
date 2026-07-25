@@ -4,6 +4,7 @@ import { authInputClassName } from '../../../components/auth/authUi';
 import RoleAutocompleteInput from './RoleAutocompleteInput';
 import { CARD_CLASS, SELECTED_OPTION_CLASS, UNSELECTED_OPTION_CLASS } from './InterviewSetupAdvanced';
 import SectionHeading from '../../../components/ui/SectionHeading';
+import Button from '../../../components/ui/Button';
 import { analyzeInterviewResume } from '../services/mockInterviewService';
 import { getApiErrorMessage } from '../utils/apiErrorUtils';
 import { cn } from '../../../lib/utils';
@@ -220,21 +221,22 @@ export default function RoleResumeCard({
                 Ready to analyze
               </span>
               <div className="mt-3 flex items-center justify-center gap-2">
-                <button
+                <Button
                   type="button"
+                  variant="primary"
                   onClick={handleAnalyze}
                   disabled={analyzing}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-on-surface text-surface px-4 py-2 font-label-md transition-all duration-150 hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="gap-2 rounded-lg px-4 py-2"
                 >
                   {analyzing ? (
                     <>
-                      <AppIcon name="progress_activity" size="sm" spin className="text-surface" />
+                      <AppIcon name="progress_activity" size="sm" spin className="text-on-secondary" />
                       Analyzing…
                     </>
                   ) : (
                     'Analyze Resume'
                   )}
-                </button>
+                </Button>
                 <button
                   type="button"
                   onClick={handleClear}

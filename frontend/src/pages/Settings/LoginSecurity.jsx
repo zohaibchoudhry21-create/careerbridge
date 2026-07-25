@@ -114,7 +114,7 @@ export default function LoginSecurity() {
         title="Security"
         description="Additional protections for your account."
         icon="shield"
-        color="security"
+        color="focus"
       >
         <ToggleSwitch
           id="two-factor"
@@ -143,7 +143,7 @@ export default function LoginSecurity() {
         title="Active Sessions"
         description="Devices currently signed in to your account."
         icon="devices"
-        color="settings"
+        color="role"
       >
         <div className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest p-4 space-y-3">
           <div>

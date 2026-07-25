@@ -12,6 +12,7 @@ import {
   UNSELECTED_OPTION_CLASS,
 } from './InterviewSetupAdvanced';
 import SectionHeading from '../../../components/ui/SectionHeading';
+import Button from '../../../components/ui/Button';
 import {
   DEFAULT_INTERVIEWER_PERSONA,
   DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES,
@@ -278,17 +279,18 @@ export default function MockInterviewSetup() {
         <p className="font-body-md text-on-surface-variant text-sm text-center sm:text-right">
           {selectionSummary}
         </p>
-        <button
+        <Button
           type="button"
+          variant="primary"
           onClick={handleStart}
           disabled={!canStart}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-on-surface text-surface font-label-md min-h-[48px] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 hover:opacity-90 shrink-0"
+          className="min-h-[48px] shrink-0 gap-2 px-6 py-3"
         >
           {startLiveInterview.isPending ? 'Starting…' : 'Start live interview'}
           {!startLiveInterview.isPending ? (
-            <AppIcon name="chevron_right" size="sm" className="text-surface" />
+            <AppIcon name="chevron_right" size="sm" className="text-on-secondary" />
           ) : null}
-        </button>
+        </Button>
       </div>
     </div>
   );
