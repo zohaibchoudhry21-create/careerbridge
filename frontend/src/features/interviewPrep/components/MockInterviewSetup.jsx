@@ -197,12 +197,12 @@ export default function MockInterviewSetup() {
   };
 
   return (
-    <div className="max-w-5xl min-w-0 space-y-4">
-      <header className="min-w-0 space-y-1 mb-1">
+    <div className="min-w-0 space-y-md">
+      <header className="min-w-0">
         <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
           Customize your interview
         </h1>
-        <p className="font-body-md text-on-surface-variant">
+        <p className="font-body-md text-on-surface-variant mt-base">
           The more context you give, the more targeted your questions will be.
         </p>
       </header>

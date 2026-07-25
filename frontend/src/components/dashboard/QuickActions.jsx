@@ -7,7 +7,7 @@ function QuickActions() {
   const navigate = useNavigate();
 
   return (
-    <section className="mb-md min-w-0">
+    <section className="min-w-0">
       <h3 className="font-headline-section text-headline-section mb-sm">Accelerated Tools</h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-xs sm:gap-sm min-w-0 w-full">
         {QUICK_ACTIONS.map(({ id, label, icon, href }) => (

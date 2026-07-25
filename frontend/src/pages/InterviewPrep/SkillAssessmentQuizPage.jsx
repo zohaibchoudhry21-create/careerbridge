@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import DashboardLayout from '../../components/layout/DashboardLayout';
+import { DashboardLayout, PageContainer, BackLink } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
 import AppIcon from '../../components/icons/AppIcon';
 import SkillQuizMcq, {
@@ -84,7 +84,7 @@ export default function SkillAssessmentQuizPage() {
   if (authLoading || !user) {
     return (
       <DashboardLayout user={user}>
-        <div className="flex items-center justify-center py-2xl pt-16 md:pt-20 lg:pt-24">
+        <div className="flex items-center justify-center py-xl">
           <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
         </div>
       </DashboardLayout>
@@ -93,17 +93,11 @@ export default function SkillAssessmentQuizPage() {
 
   return (
     <DashboardLayout user={user}>
-      <div className="min-w-0 space-y-md pt-8 md:pt-10 lg:pt-12 max-w-3xl">
-        <Link
-          to="/interview-prep/skills"
-          className="inline-flex items-center gap-1 font-label-md text-secondary hover:underline"
-        >
-          <AppIcon name="arrow_back" size="sm" />
-          New quiz
-        </Link>
+      <PageContainer width="narrow">
+        <BackLink to="/interview-prep/skills">New quiz</BackLink>
 
         {isLoading ? (
-          <div className="flex justify-center py-2xl">
+          <div className="flex justify-center py-xl">
             <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
           </div>
         ) : null}
@@ -147,7 +141,7 @@ export default function SkillAssessmentQuizPage() {
             />
           </>
         ) : null}
-      </div>
+      </PageContainer>
     </DashboardLayout>
   );
 }

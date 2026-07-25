@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
-import { DashboardLayout } from '../layout';
+import { DashboardLayout, PageContainer, PageHeader, BackLink } from '../layout';
 import AppIcon from '../icons/AppIcon';
 import SaveButtons from './SaveButtons';
 
@@ -32,7 +32,7 @@ export default function SettingsPageShell({
   if (loading || !user) {
     return (
       <DashboardLayout user={user}>
-        <div className="flex items-center justify-center py-2xl">
+        <div className="flex items-center justify-center py-xl">
           <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
         </div>
       </DashboardLayout>
@@ -41,22 +41,10 @@ export default function SettingsPageShell({
 
   return (
     <DashboardLayout user={user}>
-      <div className="min-w-0 max-w-4xl">
-        <button
-          type="button"
-          onClick={handleBack}
-          className="inline-flex items-center gap-2 font-label-md text-on-surface-variant hover:text-secondary transition-colors mb-md"
-        >
-          <AppIcon name="arrow_back" size="button" />
-          Back to Settings
-        </button>
+      <PageContainer width="standard">
+        <BackLink onClick={handleBack}>Back to Settings</BackLink>
 
-        <header className="min-w-0 mb-md">
-          <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">{title}</h1>
-          {description ? (
-            <p className="font-body-md text-on-surface-variant mt-base">{description}</p>
-          ) : null}
-        </header>
+        <PageHeader title={title} description={description} />
 
         <div className="space-y-md">{children}</div>
 
@@ -72,7 +60,7 @@ export default function SettingsPageShell({
         ) : null}
 
         {footer}
-      </div>
+      </PageContainer>
     </DashboardLayout>
   );
 }
