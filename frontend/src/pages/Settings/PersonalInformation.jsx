@@ -1,21 +1,35 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
-import SettingsPageShell, { simulateSave } from '../../components/settings/SettingsPageShell';
+import SettingsPageShell from '../../components/settings/SettingsPageShell';
 import SectionCard from '../../components/settings/SectionCard';
 import InputField from '../../components/settings/InputField';
 import SelectField from '../../components/settings/SelectField';
 import ProfileAvatar from '../../components/settings/ProfileAvatar';
 import { getDisplayName } from '../../components/settings/profileUtils';
 import {
+  personalInformationFormToPayload,
+  userToPersonalInformationForm,
+} from '../../components/settings/personalInformationForm';
+import {
   COUNTRY_OPTIONS,
-  DUMMY_PROFILE,
   GENDER_OPTIONS,
   STATE_OPTIONS,
 } from '../../components/settings/settingsDummyData';
+import useAuth from '../../hooks/useAuth';
+import { useUpdateAccount } from '../../hooks/useSettings';
+import { getApiErrorMessage } from '../../features/interviewPrep/utils/apiErrorUtils';
+
+const withEmptyOption = (options) => ['', ...options];
 
 export default function PersonalInformation() {
-  const [form, setForm] = useState(DUMMY_PROFILE);
-  const [saving, setSaving] = useState(false);
+  const { user } = useAuth();
+  const updateAccount = useUpdateAccount();
+  const baselineForm = useMemo(() => userToPersonalInformationForm(user), [user]);
+  const [form, setForm] = useState(baselineForm);
+
+  useEffect(() => {
+    setForm(baselineForm);
+  }, [baselineForm]);
 
   const updateField = (field) => (event) => {
     setForm((current) => ({ ...current, [field]: event.target.value }));
@@ -27,19 +41,18 @@ export default function PersonalInformation() {
       return;
     }
 
-    setSaving(true);
     try {
-      await simulateSave();
-      toast.success('Personal information saved successfully.');
-    } catch {
-      toast.error('Unable to save changes. Please try again.');
-    } finally {
-      setSaving(false);
+      const result = await updateAccount.mutateAsync(personalInformationFormToPayload(form));
+      toast.success(result?.message || 'Personal information saved successfully.');
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(error, 'Unable to save changes. Please try again.')
+      );
     }
   };
 
   const handleCancel = () => {
-    setForm(DUMMY_PROFILE);
+    setForm(baselineForm);
     toast.info('Changes discarded.');
   };
 
@@ -49,14 +62,14 @@ export default function PersonalInformation() {
       description="Update your profile details, contact information, and professional links."
       onSave={handleSave}
       onCancel={handleCancel}
-      saving={saving}
+      saving={updateAccount.isPending}
     >
       <SectionCard title="Profile photo" icon="person" color="role">
         <div className="flex items-center gap-4 min-w-0">
-          <ProfileAvatar profile={form} className="w-16 h-16 text-lg" />
+          <ProfileAvatar profile={form} fallbackUser={user} className="w-16 h-16 text-lg" />
           <div className="min-w-0">
             <p className="font-headline-section text-headline-section text-on-surface truncate">
-              {getDisplayName(form)}
+              {getDisplayName(form, user)}
             </p>
             <p className="font-body-md text-on-surface-variant truncate mt-1">{form.email}</p>
           </div>
@@ -105,7 +118,7 @@ export default function PersonalInformation() {
             label="Gender"
             value={form.gender}
             onChange={updateField('gender')}
-            options={GENDER_OPTIONS}
+            options={withEmptyOption(GENDER_OPTIONS)}
           />
         </div>
       </SectionCard>
@@ -117,14 +130,14 @@ export default function PersonalInformation() {
             label="Country"
             value={form.country}
             onChange={updateField('country')}
-            options={COUNTRY_OPTIONS}
+            options={withEmptyOption(COUNTRY_OPTIONS)}
           />
           <SelectField
             id="state"
             label="State"
             value={form.state}
             onChange={updateField('state')}
-            options={STATE_OPTIONS}
+            options={withEmptyOption(STATE_OPTIONS)}
           />
           <InputField id="city" label="City" value={form.city} onChange={updateField('city')} />
         </div>
