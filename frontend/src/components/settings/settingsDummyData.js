@@ -28,4 +28,3 @@ export const GENDER_OPTIONS = ['Male', 'Female', 'Non-binary', 'Prefer not to sa
 export const LANGUAGE_OPTIONS = ['English (US)', 'English (UK)', 'Spanish', 'French', 'German'];
 export const TIMEZONE_OPTIONS = ['Pacific Time (PT)', 'Eastern Time (ET)', 'Central Time (CT)', 'UTC', 'GMT'];
 export const DATE_FORMAT_OPTIONS = ['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD'];
-export const RESUME_VISIBILITY_OPTIONS = ['Private', 'Recruiters Only', 'Public'];

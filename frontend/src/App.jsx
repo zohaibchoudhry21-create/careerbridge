@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -11,9 +11,7 @@ import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings/Settings';
 import PersonalInformation from './pages/Settings/PersonalInformation';
 import LoginSecurity from './pages/Settings/LoginSecurity';
-import PrivacySettings from './pages/Settings/PrivacySettings';
 import AppearanceSettings from './pages/Settings/AppearanceSettings';
-import NotificationsSettings from './pages/Settings/NotificationsSettings';
 import AccountManagement from './pages/Settings/AccountManagement';
 import InterviewPrepPage from './pages/InterviewPrep/InterviewPrepPage';
 import SkillAssessmentSetupPage from './pages/InterviewPrep/SkillAssessmentSetupPage';
@@ -168,7 +166,7 @@ function App() {
         path="/settings/privacy"
         element={
           <ProtectedRoute>
-            <PrivacySettings />
+            <Navigate to="/settings" replace />
           </ProtectedRoute>
         }
       />
@@ -184,7 +182,7 @@ function App() {
         path="/settings/notifications"
         element={
           <ProtectedRoute>
-            <NotificationsSettings />
+            <Navigate to="/settings" replace />
           </ProtectedRoute>
         }
       />

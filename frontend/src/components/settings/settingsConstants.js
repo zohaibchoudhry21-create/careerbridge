@@ -16,28 +16,12 @@ export const SETTINGS_DASHBOARD_CARDS = [
     to: '/settings/login-security',
   },
   {
-    id: 'privacy',
-    title: 'Privacy Settings',
-    description: 'Control who can see your profile and how your data is used.',
-    icon: 'shield',
-    color: 'focus',
-    to: '/settings/privacy',
-  },
-  {
     id: 'appearance',
     title: 'Appearance & Language',
     description: 'Customize theme, language, and display preferences.',
     icon: 'palette',
     color: 'mode',
     to: '/settings/appearance',
-  },
-  {
-    id: 'notifications',
-    title: 'Notifications',
-    description: 'Manage your communication preferences.',
-    icon: 'notifications',
-    color: 'warning',
-    to: '/settings/notifications',
   },
   {
     id: 'account-management',
