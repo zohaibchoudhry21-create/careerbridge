@@ -11,6 +11,33 @@ const OAUTH_REAUTH_WINDOW_MINUTES = 15;
 
 const loadUser = (userId) => User.findById(userId);
 
+const OPTIONAL_STRING_FIELDS = [
+  'firstName',
+  'lastName',
+  'phone',
+  'gender',
+  'country',
+  'state',
+  'city',
+  'linkedin',
+  'portfolio',
+  'headline',
+];
+
+const applyOptionalStringField = (user, field, value) => {
+  if (value === undefined) return;
+  user[field] = value === null ? '' : String(value).trim();
+};
+
+const syncDisplayNameFromParts = (user) => {
+  const first = String(user.firstName || '').trim();
+  const last = String(user.lastName || '').trim();
+  const combined = [first, last].filter(Boolean).join(' ').trim();
+  if (combined) {
+    user.name = combined.slice(0, 100);
+  }
+};
+
 export const updateAccount = async (req, res, next) => {
   try {
     const user = await loadUser(req.user._id);
@@ -19,8 +46,10 @@ export const updateAccount = async (req, res, next) => {
       throw new AppError('User no longer exists.', 404);
     }
 
-    const { name, email } = req.body;
+    const { name, email, dateOfBirth } = req.body;
     let emailChanged = false;
+    const namePartsTouched =
+      req.body.firstName !== undefined || req.body.lastName !== undefined;
 
     if (name !== undefined) {
       const trimmedName = String(name).trim();
@@ -28,6 +57,23 @@ export const updateAccount = async (req, res, next) => {
         throw new AppError('Name cannot be empty.', 400);
       }
       user.name = trimmedName;
+    }
+
+    for (const field of OPTIONAL_STRING_FIELDS) {
+      applyOptionalStringField(user, field, req.body[field]);
+    }
+
+    if (dateOfBirth !== undefined) {
+      if (dateOfBirth === null || dateOfBirth === '') {
+        user.dateOfBirth = null;
+      } else {
+        user.dateOfBirth = new Date(`${String(dateOfBirth).trim()}T00:00:00.000Z`);
+      }
+    }
+
+    // Keep legacy `name` in sync when the Personal Information form sends name parts.
+    if (namePartsTouched && name === undefined) {
+      syncDisplayNameFromParts(user);
     }
 
     if (email !== undefined) {
