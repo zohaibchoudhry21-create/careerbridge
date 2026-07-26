@@ -1,5 +1,15 @@
 {
   "appName": "CareerBridge",
+  "nav": {
+    "aiResumeParsing": "اے آئی ریزیومے پارسنگ",
+    "cvUpload": "سی وی اپ لوڈ",
+    "aiSuggestions": "اے آئی تجاویز",
+    "resumeBuilder": "ریزیومے بنائیں",
+    "login": "لاگ اِن",
+    "uploadCv": "سی وی اپ لوڈ کریں",
+    "openMenu": "مینو کھولیں",
+    "closeMenu": "مینو بند کریں"
+  },
   "sidebar": {
     "dashboard": "ڈیش بورڈ",
     "resumeBuilder": "ریزیومے بنائیں",
@@ -10,6 +20,30 @@
     "collapseSidebar": "سائڈبار بند کریں",
     "openSidebar": "سائڈبار کھولیں",
     "closeSidebar": "سائڈبار بند کریں"
+  },
+  "accountMenu": {
+    "label": "اکاؤنٹ مینو",
+    "account": "اکاؤنٹ",
+    "settings": "ترتیبات",
+    "help": "مدد",
+    "privacyCenter": "رازداری مرکز",
+    "signOut": "سائن آؤٹ",
+    "logoutSuccess": "کامیابی سے سائن آؤٹ ہو گئے",
+    "logoutFailed": "سائن آؤٹ نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
+  },
+  "buttons": {
+    "saveChanges": "تبدیلیاں محفوظ کریں",
+    "cancel": "منسوخ",
+    "saving": "محفوظ ہو رہا ہے...",
+    "confirm": "تصدیق",
+    "tryAgain": "دوبارہ کوشش کریں",
+    "closeDialog": "ڈائیلاگ بند کریں"
+  },
+  "back": {
+    "toSettings": "ترتیبات پر واپس"
+  },
+  "errors": {
+    "somethingWentWrong": "کچھ غلط ہو گیا۔"
   },
   "languageSelector": {
     "label": "زبان",

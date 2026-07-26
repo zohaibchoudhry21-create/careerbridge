@@ -3,10 +3,6 @@
     "title": "Account",
     "description": "Manage your account information, security, and preferences.",
     "manage": "Manage",
-    "rtlPreview": {
-      "label": "Language (RTL preview)",
-      "note": "Temporary: moves to navbar in Phase B6"
-    },
     "cards": {
       "personal-information": {
         "title": "Personal Information",
