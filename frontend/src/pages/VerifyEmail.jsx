@@ -1,20 +1,26 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { verifyEmailOnce } from '../utils/verifyEmailOnce';
 import { AuthLayout } from '../components/layout';
 import AppIcon from '../components/icons/AppIcon';
 
 export default function VerifyEmail() {
+  const { t } = useTranslation('auth');
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const [status, setStatus] = useState('loading');
-  const [message, setMessage] = useState('Verifying your email...');
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    setMessage(t('verifyEmail.loadingMessage'));
+  }, [t]);
 
   useEffect(() => {
     if (!token) {
       setStatus('error');
-      setMessage('Verification token is missing.');
+      setMessage(t('verifyEmail.tokenMissing'));
       return undefined;
     }
 
@@ -23,33 +29,34 @@ export default function VerifyEmail() {
     verifyEmailOnce(token)
       .then(({ data }) => {
         if (!isActive) return;
-        const successMessage = data.message || 'Email verified successfully.';
+        const successMessage = data.message || t('verifyEmail.successFallback');
         setStatus('success');
         setMessage(successMessage);
         toast.success(successMessage);
       })
       .catch((error) => {
         if (!isActive) return;
-        const errorMessage =
-          error.response?.data?.message || 'Invalid or expired token';
+        const errorMessage = error.response?.data?.message || t('verifyEmail.errorFallback');
         setStatus((prev) => {
           if (prev === 'success') return prev;
           toast.error(errorMessage);
           return 'error';
         });
-        setMessage((prev) =>
-          prev.includes('successfully') || prev.includes('verified') ? prev : errorMessage
-        );
+        setMessage((prev) => {
+          const successMarkers = [t('verifyEmail.successFallback'), 'verified', 'successfully'];
+          if (successMarkers.some((marker) => prev.includes(marker))) return prev;
+          return errorMessage;
+        });
       });
 
     return () => {
       isActive = false;
     };
-  }, [token]);
+  }, [token, t]);
 
   return (
     <AuthLayout navActive="login">
-      <div className="text-center lg:text-left">
+      <div className="text-center lg:text-start">
         <div
           className={`w-16 h-16 rounded-full flex items-center justify-center mb-6 mx-auto lg:mx-0 ${
             status === 'success'
@@ -72,9 +79,9 @@ export default function VerifyEmail() {
         </div>
 
         <h1 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-on-surface mb-xs">
-          {status === 'loading' && 'Verifying Email'}
-          {status === 'success' && 'Email Verified'}
-          {status === 'error' && 'Verification Failed'}
+          {status === 'loading' && t('verifyEmail.verifying')}
+          {status === 'success' && t('verifyEmail.verified')}
+          {status === 'error' && t('verifyEmail.failed')}
         </h1>
 
         <p className="font-body-md text-body-md text-on-surface-variant mb-8">{message}</p>
@@ -90,23 +97,23 @@ export default function VerifyEmail() {
             to="/login"
             className="inline-flex bg-secondary text-on-secondary font-label-md text-label-md py-4 px-8 rounded-2xl hover:opacity-95 transition-all"
           >
-            Continue to Login
+            {t('verifyEmail.continueToLogin')}
           </Link>
         )}
 
         {status === 'error' && (
-          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start rtl:sm:flex-row-reverse">
             <Link
               to="/verify-email-sent"
               className="inline-flex justify-center bg-secondary text-on-secondary font-label-md text-label-md py-4 px-8 rounded-2xl hover:opacity-95 transition-all"
             >
-              Resend Verification
+              {t('verifyEmail.resendVerification')}
             </Link>
             <Link
               to="/login"
               className="inline-flex justify-center border border-secondary text-secondary font-label-md text-label-md py-4 px-8 rounded-2xl hover:bg-surface-container transition-all"
             >
-              Back to Login
+              {t('verifyEmail.backToLogin')}
             </Link>
           </div>
         )}

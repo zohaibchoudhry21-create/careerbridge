@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IMAGES } from '../../config/images';
 
 export default function LoginHero() {
+  const { t } = useTranslation('auth');
   const heroContentRef = useRef(null);
 
   useEffect(() => {
@@ -28,18 +30,15 @@ export default function LoginHero() {
       >
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 glass-panel rounded-full mb-lg border border-white/20">
           <span className="font-label-sm text-label-sm text-surface-bright uppercase tracking-wider">
-            AI-Powered Career OS
+            {t('hero.badge')}
           </span>
         </div>
 
         <div className="glass-panel p-lg rounded-2xl space-y-md">
           <h2 className="font-display-lg-mobile text-display-lg-mobile xl:font-display-lg xl:text-display-lg text-surface-bright leading-tight">
-            &ldquo;Your next career breakthrough starts here.&rdquo;
+            &ldquo;{t('hero.quote')}&rdquo;
           </h2>
-          <p className="font-body-lg text-body-lg text-surface-bright/80">
-            Build resumes, optimize your profile, practice interviews, and grow your career with
-            AI-powered tools designed for the modern professional.
-          </p>
+          <p className="font-body-lg text-body-lg text-surface-bright/80">{t('hero.description')}</p>
         </div>
 
         <div className="mt-xl grid grid-cols-2 gap-md opacity-40">
@@ -55,7 +54,7 @@ export default function LoginHero() {
       <div className="absolute inset-0 opacity-20 pointer-events-none">
         <img
           className="w-full h-full object-cover mix-blend-overlay"
-          alt="Abstract AI network background"
+          alt={t('hero.imageAlt')}
           src={IMAGES.loginHero}
         />
       </div>

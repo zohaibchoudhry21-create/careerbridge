@@ -1,15 +1,22 @@
+import { useTranslation } from 'react-i18next';
 import { validatePassword } from '../../utils/passwordValidator';
 import AppIcon from '../icons/AppIcon';
 
 export default function PasswordRequirements({ password = '' }) {
+  const { t } = useTranslation('auth');
   const { rules } = validatePassword(password);
   const showRules = password.length > 0;
 
+  const getRuleLabel = (rule) => {
+    if (rule.id === 'tooCommon') {
+      return t('validation.rules.tooCommon');
+    }
+    return t(`validation.rules.${rule.id}`, { defaultValue: rule.message });
+  };
+
   if (!showRules) {
     return (
-      <p className="text-xs text-on-surface-variant mt-2">
-        Use 8+ characters with uppercase, lowercase, number, and special character.
-      </p>
+      <p className="text-xs text-on-surface-variant mt-2">{t('validation.passwordHint')}</p>
     );
   }
 
@@ -27,7 +34,7 @@ export default function PasswordRequirements({ password = '' }) {
             size="h-3.5 w-3.5"
             className="mt-0.5"
           />
-          <span>{rule.message}</span>
+          <span>{getRuleLabel(rule)}</span>
         </li>
       ))}
     </ul>

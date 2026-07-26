@@ -1,39 +1,34 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import useAuth from '../../hooks/useAuth';
 import SocialLoginButtons from './SocialLoginButtons';
 import AppIcon from '../icons/AppIcon';
 
-const RECOVERY_HINT =
-  'Lost your authenticator and backup codes? Contact support from your registered email for manual recovery.';
-
 function ReactivationStep({ onConfirm, onCancel, submitting }) {
+  const { t } = useTranslation('auth');
+
   return (
     <div className="space-y-md">
-      <header className="mb-6 text-center lg:text-left">
-        <h2 className="font-display-md text-on-surface mb-2">Account deactivated</h2>
-        <p className="font-body-md text-on-surface-variant">
-          Your credentials are valid, but this account is currently deactivated. Reactivate now to
-          continue signing in.
-        </p>
+      <header className="mb-6 text-center lg:text-start">
+        <h2 className="font-display-md text-on-surface mb-2">{t('reactivation.title')}</h2>
+        <p className="font-body-md text-on-surface-variant">{t('reactivation.description')}</p>
       </header>
 
       <div className="rounded-2xl border border-warning/30 bg-warning/5 px-4 py-4">
-        <p className="font-body-md text-sm text-on-surface-variant">
-          If you did not intend to sign in, choose Cancel to keep the account deactivated.
-        </p>
+        <p className="font-body-md text-sm text-on-surface-variant">{t('reactivation.warning')}</p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-3 rtl:sm:flex-row-reverse">
         <button
           type="button"
           onClick={onCancel}
           disabled={submitting}
           className="w-full sm:w-auto px-4 py-4 rounded-2xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors disabled:opacity-70"
         >
-          Cancel
+          {t('reactivation.cancel')}
         </button>
         <button
           type="button"
@@ -44,10 +39,10 @@ function ReactivationStep({ onConfirm, onCancel, submitting }) {
           {submitting ? (
             <>
               <span className="w-5 h-5 border-2 border-on-secondary border-t-transparent rounded-full animate-spin" />
-              Reactivating...
+              {t('reactivation.submitting')}
             </>
           ) : (
-            'Reactivate account'
+            t('reactivation.submit')
           )}
         </button>
       </div>
@@ -56,6 +51,7 @@ function ReactivationStep({ onConfirm, onCancel, submitting }) {
 }
 
 function TwoFactorStep({ onSubmit, submitting, useBackupCode, onToggleBackup }) {
+  const { t } = useTranslation('auth');
   const [code, setCode] = useState('');
   const [backupCode, setBackupCode] = useState('');
 
@@ -69,12 +65,10 @@ function TwoFactorStep({ onSubmit, submitting, useBackupCode, onToggleBackup }) 
 
   return (
     <form className="space-y-md" onSubmit={handleSubmit} noValidate>
-      <header className="mb-6 text-center lg:text-left">
-        <h2 className="font-display-md text-on-surface mb-2">Two-factor authentication</h2>
+      <header className="mb-6 text-center lg:text-start">
+        <h2 className="font-display-md text-on-surface mb-2">{t('twoFactor.title')}</h2>
         <p className="font-body-md text-on-surface-variant">
-          {useBackupCode
-            ? 'Enter one of your backup codes to finish signing in.'
-            : 'Enter the 6-digit code from your authenticator app.'}
+          {useBackupCode ? t('twoFactor.backupHint') : t('twoFactor.authenticatorHint')}
         </p>
       </header>
 
@@ -83,8 +77,8 @@ function TwoFactorStep({ onSubmit, submitting, useBackupCode, onToggleBackup }) 
           type="text"
           value={backupCode}
           onChange={(event) => setBackupCode(event.target.value)}
-          placeholder="XXXX-XXXX"
-          className="w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none uppercase"
+          placeholder={t('twoFactor.placeholderBackup')}
+          className="w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none uppercase text-start"
         />
       ) : (
         <input
@@ -93,8 +87,8 @@ function TwoFactorStep({ onSubmit, submitting, useBackupCode, onToggleBackup }) 
           autoComplete="one-time-code"
           value={code}
           onChange={(event) => setCode(event.target.value)}
-          placeholder="123456"
-          className="w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none"
+          placeholder={t('twoFactor.placeholderCode')}
+          className="w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none text-start"
         />
       )}
 
@@ -103,10 +97,10 @@ function TwoFactorStep({ onSubmit, submitting, useBackupCode, onToggleBackup }) 
         onClick={onToggleBackup}
         className="text-secondary font-label-md hover:underline"
       >
-        {useBackupCode ? 'Use authenticator code instead' : 'Use a backup code instead'}
+        {useBackupCode ? t('twoFactor.useAuthenticator') : t('twoFactor.useBackup')}
       </button>
 
-      <p className="font-body-md text-on-surface-variant text-sm">{RECOVERY_HINT}</p>
+      <p className="font-body-md text-on-surface-variant text-sm">{t('twoFactor.recoveryHint')}</p>
 
       <button
         type="submit"
@@ -116,10 +110,10 @@ function TwoFactorStep({ onSubmit, submitting, useBackupCode, onToggleBackup }) 
         {submitting ? (
           <>
             <span className="w-5 h-5 border-2 border-on-secondary border-t-transparent rounded-full animate-spin" />
-            Verifying...
+            {t('twoFactor.submitting')}
           </>
         ) : (
-          'Verify and continue'
+          t('twoFactor.submit')
         )}
       </button>
     </form>
@@ -127,6 +121,7 @@ function TwoFactorStep({ onSubmit, submitting, useBackupCode, onToggleBackup }) 
 }
 
 export default function LoginForm() {
+  const { t } = useTranslation('auth');
   const { login, verifyTwoFactor, confirmReactivation, cancelReactivation } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -143,10 +138,10 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (location.state?.accountDeactivated) {
-      toast.info('Your account is deactivated. Sign in and confirm reactivation to restore access.');
+      toast.info(t('toasts.accountDeactivated'));
       navigate(`${location.pathname}${location.search}`, { replace: true, state: {} });
     }
-  }, [location.pathname, location.search, location.state, navigate]);
+  }, [location.pathname, location.search, location.state, navigate, t]);
 
   const {
     register,
@@ -175,7 +170,7 @@ export default function LoginForm() {
 
       if (result?.requires2FA) {
         setStep('2fa');
-        toast.info('Enter your authenticator code to continue.');
+        toast.info(t('social.enterAuthenticator'));
         return;
       }
 
@@ -184,14 +179,14 @@ export default function LoginForm() {
         return;
       }
 
-      toast.success('Login successful! Welcome back.');
+      toast.success(t('toasts.loginSuccess'));
       const redirectTo = location.state?.from?.pathname || '/dashboard';
       navigate(redirectTo, { replace: true });
     } catch (error) {
       const message =
         error.code === 'ECONNABORTED'
-          ? 'Server is taking too long. Please try again.'
-          : error.response?.data?.message || 'Login failed. Please check your credentials.';
+          ? t('toasts.serverTimeout')
+          : error.response?.data?.message || t('toasts.loginFailed');
       toast.error(message);
 
       if (error.response?.status === 403) {
@@ -206,12 +201,11 @@ export default function LoginForm() {
     setIsSubmitting(true);
     try {
       await verifyTwoFactor({ code, backupCode });
-      toast.success('Login successful! Welcome back.');
+      toast.success(t('toasts.loginSuccess'));
       const redirectTo = location.state?.from?.pathname || '/dashboard';
       navigate(redirectTo, { replace: true });
     } catch (error) {
-      const message =
-        error.response?.data?.message || 'Invalid code. Please try again.';
+      const message = error.response?.data?.message || t('toasts.invalidCode');
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -224,16 +218,15 @@ export default function LoginForm() {
       const result = await confirmReactivation();
       if (result?.requires2FA) {
         setStep('2fa');
-        toast.info('Enter your authenticator code to continue.');
+        toast.info(t('social.enterAuthenticator'));
         return;
       }
 
-      toast.success('Account reactivated. Welcome back!');
+      toast.success(t('toasts.reactivated'));
       const redirectTo = location.state?.from?.pathname || '/dashboard';
       navigate(redirectTo, { replace: true });
     } catch (error) {
-      const message =
-        error.response?.data?.message || 'Unable to reactivate account. Please sign in again.';
+      const message = error.response?.data?.message || t('toasts.reactivateFailed');
       toast.error(message);
       setStep('credentials');
     } finally {
@@ -245,7 +238,7 @@ export default function LoginForm() {
     setIsSubmitting(true);
     try {
       await cancelReactivation();
-      toast.info('Sign-in cancelled. Your account remains deactivated.');
+      toast.info(t('toasts.signInCancelled'));
       setStep('credentials');
     } finally {
       setIsSubmitting(false);
@@ -253,7 +246,7 @@ export default function LoginForm() {
   };
 
   const inputClassName =
-    'w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none';
+    'w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none text-start';
 
   if (step === '2fa') {
     return (
@@ -278,30 +271,28 @@ export default function LoginForm() {
 
   return (
     <>
-      <header className="mb-10 text-center lg:text-left">
+      <header className="mb-10 text-center lg:text-start">
         <h1 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-on-surface mb-xs">
-          Welcome Back
+          {t('login.title')}
         </h1>
-        <p className="font-body-md text-body-md text-on-surface-variant">
-          Sign in to continue to your AI-powered career dashboard
-        </p>
+        <p className="font-body-md text-body-md text-on-surface-variant">{t('login.subtitle')}</p>
       </header>
 
       <form className="space-y-md" onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="space-y-xs">
           <label className="font-label-md text-label-md text-on-surface" htmlFor="email">
-            Email Address
+            {t('fields.email')}
           </label>
           <input
             id="email"
             type="email"
-            placeholder="Enter your email"
+            placeholder={t('fields.placeholders.email')}
             className={inputClassName}
             {...register('email', {
-              required: 'Email is required',
+              required: t('validation.emailRequired'),
               pattern: {
                 value: /^\S+@\S+\.\S+$/,
-                message: 'Enter a valid email address',
+                message: t('validation.emailInvalidLong'),
               },
             })}
           />
@@ -310,24 +301,24 @@ export default function LoginForm() {
 
         <div className="space-y-xs">
           <label className="font-label-md text-label-md text-on-surface" htmlFor="password">
-            Password
+            {t('fields.password')}
           </label>
           <div className="relative">
             <input
               id="password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Enter your password"
+              placeholder={t('fields.placeholders.password')}
               className={`${inputClassName} pe-12`}
               {...register('password', {
-                required: 'Password is required',
-                minLength: { value: 6, message: 'Password must be at least 6 characters' },
+                required: t('validation.passwordRequired'),
+                minLength: { value: 6, message: t('validation.passwordMinLength') },
               })}
             />
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
               className="absolute end-4 top-1/2 -translate-y-1/2 text-outline hover:text-secondary"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? t('fields.hidePassword') : t('fields.showPassword')}
             >
               <AppIcon name={showPassword ? 'visibility_off' : 'visibility'} size="h-5 w-5" />
             </button>
@@ -342,10 +333,10 @@ export default function LoginForm() {
               className="w-4 h-4 rounded border-outline text-secondary focus:ring-secondary"
               {...register('remember')}
             />
-            <span className="text-on-surface-variant">Remember me</span>
+            <span className="text-on-surface-variant">{t('login.rememberMe')}</span>
           </label>
           <Link to="/forgot-password" className="text-secondary hover:underline">
-            Forgot Password?
+            {t('login.forgotPassword')}
           </Link>
         </div>
 
@@ -356,10 +347,8 @@ export default function LoginForm() {
             {...register('trustDevice')}
           />
           <span className="text-on-surface-variant">
-            Trust this device
-            <span className="block text-sm text-on-surface-variant/80">
-              Requires Remember Devices to be enabled in your account settings.
-            </span>
+            {t('login.trustDevice')}
+            <span className="block text-sm text-on-surface-variant/80">{t('login.trustDeviceHint')}</span>
           </span>
         </label>
 
@@ -371,10 +360,10 @@ export default function LoginForm() {
           {isSubmitting ? (
             <>
               <span className="w-5 h-5 border-2 border-on-secondary border-t-transparent rounded-full animate-spin" />
-              Logging in...
+              {t('login.submitting')}
             </>
           ) : (
-            'Log In'
+            t('login.submit')
           )}
         </button>
       </form>
@@ -385,9 +374,9 @@ export default function LoginForm() {
 
       <div className="mt-xl text-center">
         <p className="font-body-md text-body-md text-on-surface-variant">
-          Don&apos;t have an account?{' '}
+          {t('login.noAccount')}{' '}
           <Link to="/register" className="text-secondary font-bold hover:underline">
-            Create Account
+            {t('login.createAccount')}
           </Link>
         </p>
       </div>
