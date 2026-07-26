@@ -14,6 +14,7 @@ import {
   useRevokeOtherSessions,
   useRevokeSession,
   useSessions,
+  useUpdateAccount,
 } from '../../hooks/useSettings';
 import { getApiErrorMessage } from '../../features/interviewPrep/utils/apiErrorUtils';
 
@@ -160,7 +161,9 @@ function ActiveSessionsSection() {
 export default function LoginSecurity() {
   const { user } = useAuth();
   const changePassword = useChangePassword();
+  const updateAccount = useUpdateAccount();
   const isLocalAccount = (user?.provider || user?.authProvider || 'local') === 'local';
+  const loginAlertsEnabled = user?.loginAlertsEnabled !== false;
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -211,6 +214,15 @@ export default function LoginSecurity() {
     setNewPassword('');
     setConfirmPassword('');
     toast.info('Changes discarded.');
+  };
+
+  const handleLoginAlertsChange = async (checked) => {
+    try {
+      await updateAccount.mutateAsync({ loginAlertsEnabled: checked });
+      toast.success(checked ? 'Login alerts enabled.' : 'Login alerts disabled.');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Unable to update login alerts.'));
+    }
   };
 
   return (
@@ -281,8 +293,7 @@ export default function LoginSecurity() {
         color="focus"
       >
         <ComingSoonNote>
-          Two-factor authentication, login alerts, and trusted devices are coming in the next
-          phases. Session tracking is live below.
+          Two-factor authentication and trusted devices are coming in later phases.
         </ComingSoonNote>
         <ToggleSwitch
           id="two-factor"
@@ -295,10 +306,10 @@ export default function LoginSecurity() {
         <ToggleSwitch
           id="login-alerts"
           label="Login Alerts"
-          description="Get notified when someone signs in to your account."
-          checked={false}
-          onChange={() => {}}
-          disabled
+          description="Get notified when someone signs in from an unfamiliar device or IP address."
+          checked={loginAlertsEnabled}
+          onChange={handleLoginAlertsChange}
+          disabled={updateAccount.isPending}
         />
         <ToggleSwitch
           id="remember-devices"
