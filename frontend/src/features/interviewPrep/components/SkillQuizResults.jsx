@@ -16,11 +16,11 @@ export default function SkillQuizResults({ result }) {
   return (
     <div className="min-w-0 space-y-md">
       <header className="dashboard-glass-card dashboard-card-padding rounded-2xl text-center">
-        <p className="font-label-md text-on-surface-variant">{t('quiz.yourScore')}</p>
+        <p className="font-label-md app-muted">{t('quiz.yourScore')}</p>
         <p className="mt-1 font-headline-dashboard text-headline-dashboard text-secondary">
           {percentage}%
         </p>
-        <p className="mt-1 font-body-md text-on-surface-variant">
+        <p className="mt-1 font-body-md app-muted">
           {t('quiz.scoreSummary', { score, total })}
         </p>
       </header>

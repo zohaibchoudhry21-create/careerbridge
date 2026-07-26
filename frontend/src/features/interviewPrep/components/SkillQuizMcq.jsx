@@ -22,7 +22,7 @@ export default function SkillQuizMcq({
   return (
     <article className="dashboard-glass-card dashboard-card-padding rounded-2xl min-w-0 space-y-md">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="font-label-sm text-on-surface-variant">
+        <span className="font-label-sm app-muted">
           {t('quiz.questionOf', { current: questionIndex + 1, total: totalQuestions })}
         </span>
         {question.subtopic ? (
@@ -32,7 +32,7 @@ export default function SkillQuizMcq({
         ) : null}
       </div>
 
-      <h2 className="font-headline-section text-headline-section text-on-surface">{question.question}</h2>
+      <h2 className="font-headline-section text-headline-section app-heading">{question.question}</h2>
 
       <div className="space-y-2">
         {question.options.map((option, index) => {
@@ -72,7 +72,7 @@ export function SkillQuizProgress({ current, total }) {
 
   return (
     <div className="min-w-0 space-y-1">
-      <div className="flex justify-between font-label-sm text-on-surface-variant">
+      <div className="flex justify-between font-label-sm app-muted">
         <span>{t('quiz.progress', { current: current + 1, total })}</span>
         <span>{percent}%</span>
       </div>
