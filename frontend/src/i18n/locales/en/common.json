@@ -45,6 +45,11 @@
   "errors": {
     "somethingWentWrong": "Something went wrong."
   },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "The app hit an unexpected error. You can reload and try again.",
+    "reload": "Reload app"
+  },
   "languageSelector": {
     "label": "Language",
     "saveError": "Unable to save language preference.",

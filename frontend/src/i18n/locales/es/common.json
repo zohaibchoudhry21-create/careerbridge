@@ -45,6 +45,11 @@
   "errors": {
     "somethingWentWrong": "Algo salió mal."
   },
+  "errorBoundary": {
+    "title": "Algo salió mal",
+    "description": "La aplicación encontró un error inesperado. Puedes recargar e intentarlo de nuevo.",
+    "reload": "Recargar aplicación"
+  },
   "languageSelector": {
     "label": "Idioma",
     "saveError": "No se pudo guardar la preferencia de idioma.",

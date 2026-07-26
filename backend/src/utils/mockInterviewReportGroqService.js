@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk';
 import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { extractJsonFromText } from './resumeAiPrompts.js';
 
@@ -7,7 +8,7 @@ const getClient = () => {
   const { apiKey } = getGroqConfig();
 
   if (!apiKey) {
-    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.GROQ_NOT_CONFIGURED, 503);
   }
 
   return new Groq({ apiKey });
@@ -15,7 +16,7 @@ const getClient = () => {
 
 export const generateMockInterviewReportWithGroq = async (snapshot) => {
   if (!isGroqConfigured()) {
-    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.GROQ_NOT_CONFIGURED, 503);
   }
 
   const { model } = getGroqConfig();
@@ -79,7 +80,7 @@ Use the measured metrics for numeric fields where applicable. Judge answer subst
   const content = completion.choices?.[0]?.message?.content?.trim();
 
   if (!content) {
-    throw new AppError('Groq returned an empty interview report.', 502);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.EMPTY_INTERVIEW_REPORT, 502);
   }
 
   let parsed;

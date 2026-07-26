@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk';
 import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { extractJsonFromText } from './resumeAiPrompts.js';
 
@@ -7,7 +8,7 @@ const getClient = () => {
   const { apiKey } = getGroqConfig();
 
   if (!apiKey) {
-    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.GROQ_NOT_CONFIGURED, 503);
   }
 
   return new Groq({ apiKey });
@@ -27,7 +28,7 @@ const callGroqJson = async (prompt) => {
   const content = completion.choices?.[0]?.message?.content?.trim();
 
   if (!content) {
-    throw new AppError('Groq returned an empty interview question.', 502);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.EMPTY_INTERVIEW_QUESTION, 502);
   }
 
   try {
@@ -83,7 +84,7 @@ export const generateOpeningQuestion = async ({
   focusAreas,
 } = {}) => {
   if (!isGroqConfigured()) {
-    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.GROQ_NOT_CONFIGURED, 503);
   }
 
   const candidateContext = buildCandidateContext({
@@ -106,7 +107,7 @@ Return JSON only:
   const text = String(parsed.question || '').trim();
 
   if (!text) {
-    throw new AppError('Failed to generate opening question.', 502);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.OPENING_QUESTION_FAILED, 502);
   }
 
   return text;

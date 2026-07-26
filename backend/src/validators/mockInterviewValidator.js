@@ -7,105 +7,123 @@ import {
   MOCK_INTERVIEW_DURATION_OPTIONS,
   MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
 } from '../constants/interviewPrepConstants.js';
+import { ERROR_CODES, formatValidationCode } from '../constants/apiErrorCodes.js';
 
 export const startLiveInterviewValidation = [
   body('role')
     .trim()
     .notEmpty()
-    .withMessage('Role is required')
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.ROLE_REQUIRED)
     .isLength({ min: 2, max: 120 })
-    .withMessage('Role must be between 2 and 120 characters'),
+    .withMessage(
+      formatValidationCode(ERROR_CODES.INTERVIEW_PREP.ROLE_LENGTH, { min: 2, max: 120 })
+    ),
   body('difficulty')
     .optional()
     .isIn(MOCK_INTERVIEW_DIFFICULTIES)
-    .withMessage('Difficulty must be easy, medium, or hard'),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.DIFFICULTY_INVALID),
   body('durationMinutes')
     .optional()
     .isIn(MOCK_INTERVIEW_DURATION_OPTIONS)
     .withMessage(
-      `Duration must be one of: ${MOCK_INTERVIEW_DURATION_OPTIONS.join(', ')} minutes`
+      formatValidationCode(ERROR_CODES.INTERVIEW_PREP.DURATION_INVALID, {
+        options: MOCK_INTERVIEW_DURATION_OPTIONS.join(', '),
+      })
     ),
   body('answerTimeLimitSeconds')
     .optional()
     .isInt({ min: 30, max: 600 })
-    .withMessage('Answer time limit must be between 30 and 600 seconds'),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.ANSWER_TIME_LIMIT_INVALID),
   body('resumeText')
     .optional()
     .isString()
     .isLength({ max: MAX_INTERVIEW_CONTEXT_TEXT_LENGTH })
-    .withMessage(`Resume text must be at most ${MAX_INTERVIEW_CONTEXT_TEXT_LENGTH} characters`),
+    .withMessage(
+      formatValidationCode(ERROR_CODES.INTERVIEW_PREP.RESUME_TEXT_TOO_LONG, {
+        max: MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
+      })
+    ),
   body('jobDescriptionText')
     .optional()
     .isString()
     .isLength({ max: MAX_INTERVIEW_CONTEXT_TEXT_LENGTH })
-    .withMessage(`Job description must be at most ${MAX_INTERVIEW_CONTEXT_TEXT_LENGTH} characters`),
+    .withMessage(
+      formatValidationCode(ERROR_CODES.INTERVIEW_PREP.JOB_DESCRIPTION_TOO_LONG, {
+        max: MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
+      })
+    ),
   body('targetCompany')
     .optional()
     .isString()
     .trim()
     .isLength({ max: 120 })
-    .withMessage('Target company must be at most 120 characters'),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.TARGET_COMPANY_TOO_LONG),
   body('experience')
     .optional()
     .isString()
     .trim()
     .isLength({ max: 120 })
-    .withMessage('Experience must be at most 120 characters'),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.EXPERIENCE_TOO_LONG),
   body('resumeSkills')
     .optional()
     .isArray({ max: 20 })
-    .withMessage('Resume skills must be an array'),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.RESUME_SKILLS_ARRAY),
   body('resumeSkills.*').optional().isString().trim().isLength({ max: 80 }),
   body('resumeProjects')
     .optional()
     .isArray({ max: 10 })
-    .withMessage('Resume projects must be an array'),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.RESUME_PROJECTS_ARRAY),
   body('resumeProjects.*').optional().isString().trim().isLength({ max: 300 }),
   body('focusAreas')
     .optional()
     .isArray({ max: 6 })
-    .withMessage('Focus areas must be an array'),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.FOCUS_AREAS_ARRAY),
   body('focusAreas.*')
     .optional()
     .isIn(INTERVIEW_FOCUS_AREAS)
-    .withMessage('Invalid focus area'),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.FOCUS_AREA_INVALID),
   body('interviewMode')
     .optional()
     .isIn(INTERVIEW_SETUP_MODES)
-    .withMessage('Invalid interview mode'),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.INTERVIEW_MODE_INVALID),
   body('interviewerPersona')
     .optional()
     .isIn(INTERVIEWER_PERSONAS)
-    .withMessage('Invalid interviewer persona'),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.INTERVIEWER_PERSONA_INVALID),
 ];
 
 export const sessionIdBodyValidation = [
-  body('sessionId').isMongoId().withMessage('Valid session id is required'),
+  body('sessionId').isMongoId().withMessage(ERROR_CODES.VALIDATION.SESSION_ID_INVALID),
 ];
 
 export const sessionIdParamValidation = [
-  param('sessionId').isMongoId().withMessage('Valid session id is required'),
+  param('sessionId').isMongoId().withMessage(ERROR_CODES.VALIDATION.SESSION_ID_INVALID),
 ];
+
 export const roleSuggestionsValidation = [
   body('query')
     .trim()
     .notEmpty()
-    .withMessage('Query is required')
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.QUERY_REQUIRED)
     .isLength({ min: 1, max: 80 })
-    .withMessage('Query must be between 1 and 80 characters'),
+    .withMessage(
+      formatValidationCode(ERROR_CODES.INTERVIEW_PREP.QUERY_LENGTH, { min: 1, max: 80 })
+    ),
 ];
 
 export const submitLiveInterviewValidation = [
-  body('sessionId').isMongoId().withMessage('Valid session id is required'),
+  body('sessionId').isMongoId().withMessage(ERROR_CODES.VALIDATION.SESSION_ID_INVALID),
   body('transcript')
     .isArray({ min: 1 })
-    .withMessage('Transcript must be a non-empty array'),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_ARRAY),
   body('transcript.*.role').optional().isString(),
-  body('transcript.*.content').isString().withMessage('Each transcript entry needs content'),
+  body('transcript.*.content')
+    .isString()
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_CONTENT_REQUIRED),
   body('liveAudioHints').optional().isObject(),
   body('liveVideoMetrics').optional(),
   body('durationMs')
     .optional()
     .isInt({ min: 0, max: 3600000 })
-    .withMessage('Invalid call duration'),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.CALL_DURATION_INVALID),
 ];

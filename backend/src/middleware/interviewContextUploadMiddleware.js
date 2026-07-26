@@ -1,4 +1,5 @@
 import multer from 'multer';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from '../utils/sendResponse.js';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -18,7 +19,7 @@ const upload = multer({
       return;
     }
 
-    cb(new AppError('Unsupported file type. Use .pdf or .docx.', 400));
+    cb(new AppError(ERROR_CODES.INTERVIEW_PREP.UNSUPPORTED_FILE_TYPE, 400));
   },
 });
 

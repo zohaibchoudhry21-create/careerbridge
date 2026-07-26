@@ -1,4 +1,5 @@
 import multer from 'multer';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from '../utils/sendResponse.js';
 
 const MAX_AUDIO_BYTES = 25 * 1024 * 1024;
@@ -21,7 +22,7 @@ const upload = multer({
       cb(null, true);
       return;
     }
-    cb(new AppError('Unsupported audio format. Record again using your browser microphone.', 400));
+    cb(new AppError(ERROR_CODES.INTERVIEW_PREP.UNSUPPORTED_AUDIO_FORMAT, 400));
   },
 });
 

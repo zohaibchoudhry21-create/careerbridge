@@ -45,6 +45,11 @@
   "errors": {
     "somethingWentWrong": "کچھ غلط ہو گیا۔"
   },
+  "errorBoundary": {
+    "title": "کچھ غلط ہو گیا",
+    "description": "ایپ میں غیر متوقع خرابی آئی۔ آپ دوبارہ لوڈ کر کے کوشش کر سکتے ہیں۔",
+    "reload": "ایپ دوبارہ لوڈ کریں"
+  },
   "languageSelector": {
     "label": "زبان",
     "saveError": "زبان کی ترجیح محفوظ نہیں ہو سکی۔",

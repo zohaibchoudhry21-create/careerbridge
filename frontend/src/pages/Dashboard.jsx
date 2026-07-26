@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { resolveApiError } from '../utils/apiError';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/useAuth';
 import { useDashboardOverview, useJobMatches } from '../hooks/useDashboard';
@@ -36,9 +37,7 @@ export default function Dashboard() {
     return (
       <DashboardLayout user={user}>
         <DashboardError
-          message={
-            error?.response?.data?.message || error?.message || t('errors.somethingWentWrong')
-          }
+          message={resolveApiError(error, t('errors.somethingWentWrong'))}
           onRetry={refetch}
         />
       </DashboardLayout>

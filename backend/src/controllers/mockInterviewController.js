@@ -6,6 +6,7 @@ import {
   MOCK_INTERVIEW_ROLES,
   durationMinutesToQuestionCount,
 } from '../constants/interviewPrepConstants.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
 import { analyzeVoiceFromTranscription } from '../utils/voiceAnalysisService.js';
 import {
@@ -100,7 +101,7 @@ const loadSessionForUser = async (sessionId, userId) => {
   const session = await MockInterviewSession.findOne({ _id: sessionId, userId });
 
   if (!session) {
-    throw new AppError('Interview session not found.', 404);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.SESSION_NOT_FOUND, 404);
   }
 
   return session;
@@ -213,7 +214,7 @@ export const generateMockInterviewReport = async (req, res, next) => {
     const answeredEnough = session.answers.length >= session.targetQuestionCount;
 
     if (!voiceCallReady && !answeredEnough && session.status !== 'completed') {
-      throw new AppError('Complete the interview before generating a report.', 400);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.REPORT_INCOMPLETE, 400);
     }
 
     if (session.reportId) {
@@ -267,7 +268,7 @@ export const startLiveInterview = async (req, res, next) => {
     const resolvedRole = resolveRoleInput(req.body.role);
 
     if (!resolvedRole) {
-      throw new AppError('Role is required.', 400);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.ROLE_REQUIRED, 400);
     }
 
     const difficulty = req.body.difficulty || 'medium';
@@ -328,17 +329,17 @@ export const submitLiveInterview = async (req, res, next) => {
     const session = await loadSessionForUser(sessionId, req.user._id);
 
     if (session.mode !== 'live') {
-      throw new AppError('This session is not a live interview.', 400);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.NOT_LIVE_SESSION, 400);
     }
 
     if (!Array.isArray(transcript) || transcript.length === 0) {
-      throw new AppError('Transcript is required.', 400);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_REQUIRED, 400);
     }
 
     const normalized = normalizeTranscriptTurns(transcript);
 
     if (!normalized.length) {
-      throw new AppError('Transcript has no usable content.', 400);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_EMPTY, 400);
     }
 
     const liveAudioHints = parseJsonBodyField(req.body.liveAudioHints);
@@ -506,7 +507,7 @@ export const analyzeInterviewResume = async (req, res, next) => {
     text = String(text || '').slice(0, 15000).trim();
 
     if (!text) {
-      throw new AppError('Upload a resume file or provide resume text.', 400);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.RESUME_INPUT_REQUIRED, 400);
     }
 
     const analysis = await analyzeResumeForInterview(text);

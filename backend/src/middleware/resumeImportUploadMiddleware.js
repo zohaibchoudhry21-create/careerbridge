@@ -1,4 +1,5 @@
 import multer from 'multer';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from '../utils/sendResponse.js';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -20,7 +21,7 @@ const upload = multer({
       return;
     }
 
-    cb(new AppError('Unsupported file type. Use .pdf or .docx.', 400));
+    cb(new AppError(ERROR_CODES.RESUME_BUILDER.UNSUPPORTED_FILE_TYPE, 400));
   },
 });
 
@@ -32,7 +33,7 @@ export const handleResumeImportUpload = (req, res, next) => {
   return upload.single('resume')(req, res, (error) => {
     if (error instanceof multer.MulterError) {
       if (error.code === 'LIMIT_FILE_SIZE') {
-        return next(new AppError('Resume file must be 10MB or smaller.', 400));
+        return next(new AppError(ERROR_CODES.RESUME_BUILDER.FILE_TOO_LARGE, 400));
       }
       return next(new AppError(error.message, 400));
     }

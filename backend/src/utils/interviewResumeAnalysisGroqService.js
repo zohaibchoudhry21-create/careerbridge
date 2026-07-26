@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk';
 import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { extractJsonFromText } from './resumeAiPrompts.js';
 
@@ -10,7 +11,7 @@ const getClient = () => {
   const { apiKey } = getGroqConfig();
 
   if (!apiKey) {
-    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.GROQ_NOT_CONFIGURED, 503);
   }
 
   return new Groq({ apiKey });
@@ -29,13 +30,13 @@ const cleanList = (value, max) =>
  */
 export const analyzeResumeForInterview = async (rawText) => {
   if (!isGroqConfigured()) {
-    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.GROQ_NOT_CONFIGURED, 503);
   }
 
   const text = String(rawText || '').trim().slice(0, 12000);
 
   if (!text) {
-    throw new AppError('Resume text is empty.', 400);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.RESUME_TEXT_EMPTY, 400);
   }
 
   const { model } = getGroqConfig();
@@ -74,7 +75,7 @@ Rules:
   const content = completion.choices?.[0]?.message?.content?.trim();
 
   if (!content) {
-    throw new AppError('Groq returned an empty resume analysis.', 502);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.EMPTY_RESUME_ANALYSIS, 502);
   }
 
   let parsed;

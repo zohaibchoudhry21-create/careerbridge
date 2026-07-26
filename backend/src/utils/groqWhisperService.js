@@ -1,12 +1,13 @@
 import Groq from 'groq-sdk';
 import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 
 const getClient = () => {
   const { apiKey } = getGroqConfig();
 
   if (!apiKey) {
-    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.GROQ_NOT_CONFIGURED, 503);
   }
 
   return new Groq({ apiKey });
@@ -19,11 +20,11 @@ const getClient = () => {
  */
 export const transcribeAudioWithGroq = async (buffer, filename = 'answer.webm', mimeType = 'audio/webm') => {
   if (!isGroqConfigured()) {
-    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.GROQ_NOT_CONFIGURED, 503);
   }
 
   if (!buffer?.length) {
-    throw new AppError('Audio recording is empty.', 400);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.AUDIO_EMPTY, 400);
   }
 
   const { whisperModel } = getGroqConfig();
@@ -41,7 +42,7 @@ export const transcribeAudioWithGroq = async (buffer, filename = 'answer.webm', 
   const text = typeof transcription === 'string' ? transcription : transcription.text?.trim() || '';
 
   if (!text) {
-    throw new AppError('Could not transcribe your answer. Please try again.', 422);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPTION_FAILED, 422);
   }
 
   return {
