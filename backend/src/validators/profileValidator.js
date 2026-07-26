@@ -25,6 +25,7 @@ const PROFILE_UPDATE_FIELDS = [
   'headline',
   'loginAlertsEnabled',
   'rememberDevicesEnabled',
+  'languagePreference',
 ];
 
 const optionalTrimmedString = (field, { max, allowEmpty = true } = {}) => {
@@ -132,6 +133,10 @@ export const updateProfileValidation = [
     .optional()
     .isBoolean()
     .withMessage('rememberDevicesEnabled must be a boolean'),
+  body('languagePreference')
+    .optional()
+    .isIn(['en-US', 'en-GB', 'es'])
+    .withMessage('languagePreference must be a supported language code'),
   body().custom((_value, { req }) => {
     const hasField = PROFILE_UPDATE_FIELDS.some((field) => req.body[field] !== undefined);
     if (!hasField) {

@@ -109,6 +109,10 @@ export const updateAccount = async (req, res, next) => {
       user.rememberDevicesEnabled = Boolean(req.body.rememberDevicesEnabled);
     }
 
+    if (req.body.languagePreference !== undefined) {
+      user.languagePreference = String(req.body.languagePreference);
+    }
+
     if (emailChanged) {
       const { verificationUrl, emailResult } = await assignVerificationToken(user, {
         name: user.name,
