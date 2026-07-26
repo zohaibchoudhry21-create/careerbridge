@@ -1,15 +1,17 @@
+import { useTranslation } from 'react-i18next';
+
 export default function LiveVideoIndicator({ metrics, isRecording, modelsReady, compact = false }) {
+  const { t } = useTranslation('interviewPrep');
+
   if (!isRecording) return null;
 
   if (!modelsReady) {
-    return (
-      <p className="font-label-sm text-white/90 drop-shadow-sm">Analyzing camera…</p>
-    );
+    return <p className="font-label-sm text-white/90 drop-shadow-sm">{t('live.analyzingCamera')}</p>;
   }
 
   const eye = metrics?.eyeContactPercent ?? 0;
   const attentive = eye >= 55;
-  const label = attentive ? 'Eye contact: good' : 'Eye contact: low';
+  const label = attentive ? t('live.eyeContactGood') : t('live.eyeContactLow');
 
   return (
     <p

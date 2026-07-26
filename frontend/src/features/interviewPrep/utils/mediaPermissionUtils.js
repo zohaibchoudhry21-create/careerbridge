@@ -1,3 +1,5 @@
+import i18n from '../../../i18n';
+
 /**
  * Maps getUserMedia errors to user-facing permission issue types.
  * Returns null for non-media errors (e.g. Axios / API failures).
@@ -42,6 +44,7 @@ export function getMediaPermissionIssue(error) {
   return null;
 }
 
+/** @deprecated Use getPermissionIssueMessage */
 export const PERMISSION_ISSUE_COPY = {
   denied:
     'Camera or microphone access was blocked. Allow both in your browser site settings, then try again.',
@@ -52,3 +55,11 @@ export const PERMISSION_ISSUE_COPY = {
   unknown:
     'We could not access your camera or microphone. Check your device and browser permissions, then try again.',
 };
+
+export function getPermissionIssueMessage(issue) {
+  const key = issue || 'unknown';
+  return i18n.t(`permissions.${key}`, {
+    ns: 'interviewPrep',
+    defaultValue: PERMISSION_ISSUE_COPY[key] || PERMISSION_ISSUE_COPY.unknown,
+  });
+}

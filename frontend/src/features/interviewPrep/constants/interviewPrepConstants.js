@@ -50,6 +50,16 @@ export const INTERVIEW_FOCUS_AREAS = [
   'Communication',
 ];
 
+/** Maps API focus-area values to interviewPrep i18n keys. */
+export const FOCUS_AREA_I18N_KEYS = {
+  'System design': 'systemDesign',
+  Behavioral: 'behavioral',
+  Coding: 'coding',
+  'Case study': 'caseStudy',
+  Leadership: 'leadership',
+  Communication: 'communication',
+};
+
 export const INTERVIEW_SETUP_MODE_OPTIONS = [
   { value: 'video_voice', label: 'Video and voice' },
   { value: 'voice_only', label: 'Voice only' },

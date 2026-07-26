@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { authInputClassName, getAuthFieldClassName } from '../../../components/auth/authUi';
 import AppIcon from '../../../components/icons/AppIcon';
 import { fetchRoleSuggestions } from '../services/mockInterviewService';
@@ -12,8 +13,10 @@ export default function RoleAutocompleteInput({
   onChange,
   onBlur,
   hasError = false,
-  placeholder = 'e.g. Product manager',
+  placeholder,
 }) {
+  const { t } = useTranslation('interviewPrep');
+  const resolvedPlaceholder = placeholder ?? t('roleAutocomplete.placeholder');
   const listboxId = useId();
   const containerRef = useRef(null);
   const inputRef = useRef(null);
@@ -66,7 +69,7 @@ export default function RoleAutocompleteInput({
         setSuggestions(list);
         setIsOpen(list.length > 0);
         if (!list.length) {
-          setFetchError('No role suggestions found. Try a different keyword.');
+          setFetchError(t('roleAutocomplete.noSuggestions'));
         }
       } catch (error) {
         if (cancelled || error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError') {
@@ -76,7 +79,7 @@ export default function RoleAutocompleteInput({
         setFetchError(
           error?.response?.data?.message ||
             error?.message ||
-            'Could not load role suggestions. Check backend/Groq connection.'
+            t('roleAutocomplete.loadFailed')
         );
         setIsOpen(true);
       } finally {
@@ -173,7 +176,7 @@ export default function RoleAutocompleteInput({
           }, 120);
         }}
         onKeyDown={handleKeyDown}
-        placeholder={placeholder}
+        placeholder={resolvedPlaceholder}
         className={getAuthFieldClassName(authInputClassName, hasError)}
         autoComplete="off"
       />
@@ -187,7 +190,7 @@ export default function RoleAutocompleteInput({
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 px-4 py-3">
               <AppIcon name="progress_activity" size="sm" spin className="text-secondary" />
-              <span className="font-label-sm text-on-surface-variant">Finding roles…</span>
+              <span className="font-label-sm text-on-surface-variant">{t('roleAutocomplete.findingRoles')}</span>
             </div>
           ) : fetchError ? (
             <div className="px-4 py-3 font-label-sm text-error">{fetchError}</div>

@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import InterviewProgressChart from './InterviewProgressChart';
 import { fetchInterviewReportHistory } from '../services/mockInterviewService';
 import SectionHeading from '../../../components/ui/SectionHeading';
 import { accentCardClass } from '../../../components/ui/colorAccentTokens';
 
-function ScoreRing({ score = 0, size = 160 }) {
+function ScoreRing({ score = 0, size = 160, overallLabel }) {
   const radius = (size - 16) / 2;
   const circumference = 2 * Math.PI * radius;
   const clamped = Math.min(100, Math.max(0, Number(score) || 0));
@@ -37,7 +38,7 @@ function ScoreRing({ score = 0, size = 160 }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="font-headline-dashboard text-headline-dashboard text-on-surface">{clamped}</span>
-        <span className="font-label-sm text-on-surface-variant">Overall</span>
+        <span className="font-label-sm text-on-surface-variant">{overallLabel}</span>
       </div>
     </div>
   );
@@ -86,6 +87,7 @@ function ReportSectionCard({ title, score, color, icon, children }) {
 }
 
 export default function LiveInterviewReportView({ report, sessionId }) {
+  const { t } = useTranslation('interviewPrep');
   const { data: historyData } = useQuery({
     queryKey: ['interview-report-history'],
     queryFn: fetchInterviewReportHistory,
@@ -106,20 +108,18 @@ export default function LiveInterviewReportView({ report, sessionId }) {
     <div className="min-w-0 space-y-md">
       <header className="flex flex-col items-center gap-sm rounded-2xl text-center dashboard-glass-card dashboard-card-padding">
         <h2 className="font-headline-dashboard text-headline-dashboard text-on-surface">
-          Interview report
+          {t('report.title')}
         </h2>
-        <p className="max-w-lg font-body-md text-on-surface-variant">
-          AI summary based on your answers, voice delivery, and on-camera presence.
-        </p>
-        <ScoreRing score={overallScore} />
+        <p className="max-w-lg font-body-md text-on-surface-variant">{t('report.description')}</p>
+        <ScoreRing score={overallScore} overallLabel={t('report.overall')} />
       </header>
 
       <div className="grid grid-cols-2 gap-sm md:grid-cols-4">
-        <MetricTile label="Eye contact" value={eyeContact} suffix="%" />
-        <MetricTile label="Speaking pace" value={wpm} suffix=" WPM" />
-        <MetricTile label="Filler words" value={fillerWords} />
+        <MetricTile label={t('report.eyeContact')} value={eyeContact} suffix="%" />
+        <MetricTile label={t('report.speakingPace')} value={wpm} suffix={t('report.wpmSuffix')} />
+        <MetricTile label={t('report.fillerWords')} value={fillerWords} />
         <MetricTile
-          label="Engagement"
+          label={t('report.engagement')}
           value={sections.videoAnalysis?.engagementScore}
           suffix="%"
         />
@@ -128,47 +128,52 @@ export default function LiveInterviewReportView({ report, sessionId }) {
       <InterviewProgressChart history={history} currentSessionId={sessionId} />
 
       <div className="grid grid-cols-1 gap-sm md:grid-cols-2">
-        <BulletList title="Strengths" items={strengths} color="success" icon="thumb_up" />
-        <BulletList title="Areas to improve" items={improvementAreas} color="warning" icon="trending_up" />
+        <BulletList title={t('report.strengths')} items={strengths} color="success" icon="thumb_up" />
+        <BulletList
+          title={t('report.areasToImprove')}
+          items={improvementAreas}
+          color="warning"
+          icon="trending_up"
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-sm md:grid-cols-2">
         <ReportSectionCard
-          title="Content quality"
+          title={t('report.contentQuality')}
           score={sections.contentQuality?.score}
           color="skills"
           icon="article"
         >
           <p className="font-body-md text-sm text-on-surface-variant">
-            {sections.contentQuality?.feedback || 'No feedback available.'}
+            {sections.contentQuality?.feedback || t('report.noFeedback')}
           </p>
         </ReportSectionCard>
 
         <ReportSectionCard
-          title="Voice analysis"
+          title={t('report.voiceAnalysis')}
           score={sections.voiceAnalysis?.confidenceScore}
           color="mode"
           icon="mic"
         >
           <p className="font-body-md text-sm text-on-surface-variant">
-            {sections.voiceAnalysis?.feedback || 'No voice feedback available.'}
+            {sections.voiceAnalysis?.feedback || t('report.noVoiceFeedback')}
           </p>
         </ReportSectionCard>
 
         <ReportSectionCard
-          title="Video presence"
+          title={t('report.videoPresence')}
           score={sections.videoAnalysis?.engagementScore}
           color="interview"
           icon="videocam"
         >
           <p className="font-body-md text-sm text-on-surface-variant">
-            {sections.videoAnalysis?.feedback || 'No video feedback available.'}
+            {sections.videoAnalysis?.feedback || t('report.noVideoFeedback')}
           </p>
         </ReportSectionCard>
       </div>
 
       <BulletList
-        title="Recommended next steps"
+        title={t('report.recommendedNextSteps')}
         items={recommendedNextSteps}
         color="focus"
         icon="checklist"

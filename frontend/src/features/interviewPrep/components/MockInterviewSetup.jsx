@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import AppIcon from '../../../components/icons/AppIcon';
 import RetryErrorPanel from './RetryErrorPanel';
@@ -22,24 +23,12 @@ import {
 import { useInterviewMedia } from '../context/InterviewMediaContext';
 import { useStartLiveInterview } from '../hooks/useMockInterview';
 import { isVapiConfigured } from '../lib/vapi.sdk';
-import {
-  getMediaPermissionIssue,
-  PERMISSION_ISSUE_COPY,
-} from '../utils/mediaPermissionUtils';
+import { getMediaPermissionIssue, getPermissionIssueMessage } from '../utils/mediaPermissionUtils';
 import { getApiErrorMessage } from '../utils/apiErrorUtils';
 import { preloadInterviewFaceModels } from '../hooks/useFaceVideoAnalysis';
 import { cn } from '../../../lib/utils';
 
-const DIFFICULTY_OPTIONS = [
-  { value: 'easy', label: 'Entry level' },
-  { value: 'medium', label: 'Mid level' },
-  { value: 'hard', label: 'Senior / leadership' },
-];
-
-const TIME_OPTIONS = MOCK_INTERVIEW_DURATION_OPTIONS.map((minutes) => ({
-  value: String(minutes),
-  label: `${minutes} minutes`,
-}));
+const DIFFICULTY_VALUES = ['easy', 'medium', 'hard'];
 
 function OptionButton({ selected, onClick, children }) {
   return (
@@ -57,6 +46,7 @@ function OptionButton({ selected, onClick, children }) {
 }
 
 export default function MockInterviewSetup() {
+  const { t } = useTranslation('interviewPrep');
   const navigate = useNavigate();
   const { stream, requestAccess } = useInterviewMedia();
   const startLiveInterview = useStartLiveInterview();
@@ -93,15 +83,15 @@ export default function MockInterviewSetup() {
   const canStart = Boolean(roleTrimmed) && !startLiveInterview.isPending;
 
   const selectionSummary = useMemo(() => {
-    const difficultyLabel = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-    const timeLabel = `${durationMinutes} min`;
+    const difficultyLabel = t(`difficulty.${difficulty}`);
+    const timeLabel = t('live.minutesShort', { count: durationMinutes });
     const parts = [];
 
     if (roleTrimmed) parts.push(roleTrimmed);
     parts.push(difficultyLabel, timeLabel);
 
     return parts.join(' · ');
-  }, [roleTrimmed, difficulty, durationMinutes]);
+  }, [roleTrimmed, difficulty, durationMinutes, t]);
 
   useEffect(() => {
     preloadInterviewFaceModels().catch(() => {});
@@ -114,12 +104,12 @@ export default function MockInterviewSetup() {
     setRoleTouched(true);
 
     if (!roleTrimmed) {
-      toast.error('Please enter a role.');
+      toast.error(t('mockSetup.enterRole'));
       return;
     }
 
     if (!isVapiConfigured()) {
-      toast.error('Live interview is not configured. Add VITE_VAPI_WEB_TOKEN to frontend .env');
+      toast.error(t('mockSetup.vapiNotConfigured'));
       return;
     }
 
@@ -132,7 +122,7 @@ export default function MockInterviewSetup() {
         activeStream = await requestAccess();
       } catch (mediaErr) {
         const issue = getMediaPermissionIssue(mediaErr) || 'unknown';
-        toast.error(PERMISSION_ISSUE_COPY[issue]);
+        toast.error(getPermissionIssueMessage(issue));
         return;
       }
     }
@@ -154,7 +144,7 @@ export default function MockInterviewSetup() {
       const result = await startLiveInterview.mutateAsync(payload);
 
       if (result?.success === false) {
-        const message = result?.message || 'Could not start live interview.';
+        const message = result?.message || t('mockSetup.startFailed');
         setStartError(message);
         toast.error(message);
         return;
@@ -164,7 +154,7 @@ export default function MockInterviewSetup() {
       const questions = Array.isArray(result?.questions) ? result?.questions : [];
 
       if (!sessionId || !questions.length) {
-        const message = result?.message || 'Could not start live interview.';
+        const message = result?.message || t('mockSetup.startFailed');
         setStartError(message);
         toast.error(message);
         return;
@@ -190,7 +180,7 @@ export default function MockInterviewSetup() {
         },
       });
     } catch (err) {
-      const message = getApiErrorMessage(err, 'Could not start live interview.');
+      const message = getApiErrorMessage(err, t('mockSetup.startFailed'));
       setStartError(message);
       toast.error(message);
     }
@@ -200,11 +190,9 @@ export default function MockInterviewSetup() {
     <div className="min-w-0 space-y-md">
       <header className="min-w-0">
         <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
-          Customize your interview
+          {t('mockSetup.title')}
         </h1>
-        <p className="font-body-md text-on-surface-variant mt-base">
-          The more context you give, the more targeted your questions will be.
-        </p>
+        <p className="font-body-md text-on-surface-variant mt-base">{t('mockSetup.description')}</p>
       </header>
 
       <RoleResumeCard
@@ -227,17 +215,17 @@ export default function MockInterviewSetup() {
           <SectionHeading
             color="difficulty"
             icon="tune"
-            title="Difficulty"
-            description="Match your experience level."
+            title={t('mockSetup.difficulty.title')}
+            description={t('mockSetup.difficulty.description')}
           />
           <div className="space-y-2">
-            {DIFFICULTY_OPTIONS.map((option) => (
+            {DIFFICULTY_VALUES.map((value) => (
               <OptionButton
-                key={option.value}
-                selected={difficulty === option.value}
-                onClick={() => setDifficulty(option.value)}
+                key={value}
+                selected={difficulty === value}
+                onClick={() => setDifficulty(value)}
               >
-                {option.label}
+                {t(`mockSetup.difficulty.${value}`)}
               </OptionButton>
             ))}
           </div>
@@ -247,17 +235,17 @@ export default function MockInterviewSetup() {
           <SectionHeading
             color="time"
             icon="hourglass_top"
-            title="Time"
-            description="How long the session runs."
+            title={t('mockSetup.time.title')}
+            description={t('mockSetup.time.description')}
           />
           <div className="space-y-2">
-            {TIME_OPTIONS.map((option) => (
+            {MOCK_INTERVIEW_DURATION_OPTIONS.map((minutes) => (
               <OptionButton
-                key={option.value}
-                selected={durationMinutes === option.value}
-                onClick={() => setDurationMinutes(option.value)}
+                key={minutes}
+                selected={durationMinutes === String(minutes)}
+                onClick={() => setDurationMinutes(String(minutes))}
               >
-                {option.label}
+                {t('mockSetup.time.minutes', { count: minutes })}
               </OptionButton>
             ))}
           </div>
@@ -269,9 +257,9 @@ export default function MockInterviewSetup() {
       <InterviewModeSection interviewMode={interviewMode} onInterviewModeChange={setInterviewMode} />
 
       <RetryErrorPanel
-        title="Could not start interview"
+        title={t('mockSetup.startErrorTitle')}
         message={startError}
-        retryLabel="Try again"
+        retryLabel={t('retry.tryAgain')}
         onRetry={startError ? handleStart : undefined}
       />
 
@@ -286,7 +274,7 @@ export default function MockInterviewSetup() {
           disabled={!canStart}
           className="min-h-[48px] shrink-0 gap-2 px-6 py-3"
         >
-          {startLiveInterview.isPending ? 'Starting…' : 'Start live interview'}
+          {startLiveInterview.isPending ? t('mockSetup.starting') : t('mockSetup.startLive')}
           {!startLiveInterview.isPending ? (
             <AppIcon name="chevron_right" size="sm" className="text-on-secondary" />
           ) : null}

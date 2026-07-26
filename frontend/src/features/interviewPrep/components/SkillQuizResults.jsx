@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import AppIcon from '../../../components/icons/AppIcon';
 import SectionHeading from '../../../components/ui/SectionHeading';
 import { accentCardClass } from '../../../components/ui/colorAccentTokens';
@@ -6,6 +7,8 @@ import { buttonPrimaryClass, buttonSecondaryClass } from '../../../components/ui
 import { cn } from '../../../lib/utils';
 
 export default function SkillQuizResults({ result }) {
+  const { t } = useTranslation('interviewPrep');
+
   if (!result) return null;
 
   const { percentage, score, total, weakAreas = [], reviewList = [] } = result;
@@ -13,12 +16,12 @@ export default function SkillQuizResults({ result }) {
   return (
     <div className="min-w-0 space-y-md">
       <header className="dashboard-glass-card dashboard-card-padding rounded-2xl text-center">
-        <p className="font-label-md text-on-surface-variant">Your score</p>
+        <p className="font-label-md text-on-surface-variant">{t('quiz.yourScore')}</p>
         <p className="mt-1 font-headline-dashboard text-headline-dashboard text-secondary">
           {percentage}%
         </p>
         <p className="mt-1 font-body-md text-on-surface-variant">
-          {score} of {total} correct
+          {t('quiz.scoreSummary', { score, total })}
         </p>
       </header>
 
@@ -27,8 +30,8 @@ export default function SkillQuizResults({ result }) {
           <SectionHeading
             color="warning"
             icon="trending_down"
-            title="Weak areas"
-            description="Subtopics where you missed the most questions — focus here next."
+            title={t('quiz.weakAreas.title')}
+            description={t('quiz.weakAreas.description')}
           />
           <ul className="space-y-2">
             {weakAreas.map((area) => (
@@ -51,18 +54,23 @@ export default function SkillQuizResults({ result }) {
           <SectionHeading
             color="danger"
             icon="rate_review"
-            title="Review mistakes"
-            description="See what you missed and the correct answers."
+            title={t('quiz.reviewMistakes.title')}
+            description={t('quiz.reviewMistakes.description')}
           />
           <ul className="space-y-md">
             {reviewList.map((item) => (
               <li key={item.questionId} className="border-b border-outline-variant/30 pb-md last:border-0">
                 <p className="font-label-md text-on-surface">{item.question}</p>
                 <p className="mt-1 font-body-md text-sm text-error">
-                  Your answer: {item.selectedIndex != null ? item.options?.[item.selectedIndex] : '—'}
+                  {t('quiz.reviewMistakes.yourAnswer', {
+                    answer:
+                      item.selectedIndex != null ? item.options?.[item.selectedIndex] : '—',
+                  })}
                 </p>
                 <p className="mt-0.5 font-body-md text-sm text-secondary">
-                  Correct: {item.options?.[item.correctIndex]}
+                  {t('quiz.reviewMistakes.correct', {
+                    answer: item.options?.[item.correctIndex],
+                  })}
                 </p>
                 {item.explanation ? (
                   <p className="mt-2 font-body-md text-sm text-on-surface-variant">{item.explanation}</p>
@@ -78,13 +86,13 @@ export default function SkillQuizResults({ result }) {
           to="/interview-prep/skills"
           className={cn(buttonPrimaryClass, 'min-h-[44px] px-6 py-2.5 text-center')}
         >
-          Take another quiz
+          {t('quiz.takeAnother')}
         </Link>
         <Link
           to="/interview-prep"
           className={cn(buttonSecondaryClass, 'min-h-[44px] px-6 py-2.5 text-center')}
         >
-          Back to Interview Prep
+          {t('backLinks.backToInterviewPrep')}
         </Link>
       </div>
     </div>

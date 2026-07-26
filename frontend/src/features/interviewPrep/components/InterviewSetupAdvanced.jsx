@@ -1,5 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import {
   DEFAULT_INTERVIEW_SETUP_MODE,
+  FOCUS_AREA_I18N_KEYS,
   INTERVIEW_FOCUS_AREAS,
   INTERVIEW_SETUP_MODE_OPTIONS,
 } from '../constants/interviewPrepConstants';
@@ -22,6 +24,12 @@ const MODE_ICONS = {
   video_voice: 'videocam',
   voice_only: 'mic',
   text_only: 'edit_note',
+};
+
+const MODE_LABEL_KEYS = {
+  video_voice: 'mockSetup.mode.videoVoice',
+  voice_only: 'mockSetup.mode.voiceOnly',
+  text_only: 'mockSetup.mode.textOnly',
 };
 
 /** @deprecated Use SectionHeading from components/ui instead. */
@@ -48,6 +56,8 @@ export function SectionHeader({ icon, iconClassName, title, description, optiona
 }
 
 export function FocusAreasSection({ focusAreas, onFocusAreasChange }) {
+  const { t } = useTranslation('interviewPrep');
+
   const toggleFocusArea = (area) => {
     if (focusAreas.includes(area)) {
       onFocusAreasChange(focusAreas.filter((item) => item !== area));
@@ -61,12 +71,13 @@ export function FocusAreasSection({ focusAreas, onFocusAreasChange }) {
       <SectionHeading
         color="focus"
         icon="target"
-        title="Focus areas"
-        description="Pick what the interview should emphasize."
+        title={t('mockSetup.focusAreas.title')}
+        description={t('mockSetup.focusAreas.description')}
       />
       <div className="flex flex-wrap gap-2">
         {INTERVIEW_FOCUS_AREAS.map((area) => {
           const selected = focusAreas.includes(area);
+          const i18nKey = FOCUS_AREA_I18N_KEYS[area];
           return (
             <button
               key={area}
@@ -77,7 +88,7 @@ export function FocusAreasSection({ focusAreas, onFocusAreasChange }) {
                 selected ? selectedOptionClass : unselectedOptionClass
               )}
             >
-              {area}
+              {i18nKey ? t(`focusAreas.${i18nKey}`) : area}
             </button>
           );
         })}
@@ -87,18 +98,21 @@ export function FocusAreasSection({ focusAreas, onFocusAreasChange }) {
 }
 
 export function InterviewModeSection({ interviewMode, onInterviewModeChange }) {
+  const { t } = useTranslation('interviewPrep');
+
   return (
     <section className={accentCardClass}>
       <SectionHeading
         color="mode"
         icon="mic"
-        title="Interview mode"
-        description="Choose how you want to respond."
+        title={t('mockSetup.mode.title')}
+        description={t('mockSetup.mode.description')}
       />
       <div className="grid gap-2.5 sm:grid-cols-3">
         {INTERVIEW_SETUP_MODE_OPTIONS.map((option) => {
           const selected = (interviewMode || DEFAULT_INTERVIEW_SETUP_MODE) === option.value;
           const disabled = Boolean(option.disabled);
+          const labelKey = MODE_LABEL_KEYS[option.value];
 
           return (
             <button
@@ -120,7 +134,8 @@ export function InterviewModeSection({ interviewMode, onInterviewModeChange }) {
               <span
                 className={cn('font-label-md', selected ? 'text-secondary' : 'text-on-surface')}
               >
-                {option.label}
+                {labelKey ? t(labelKey) : option.label}
+                {disabled && option.hint ? ` (${t('mockSetup.mode.comingSoon')})` : ''}
               </span>
             </button>
           );

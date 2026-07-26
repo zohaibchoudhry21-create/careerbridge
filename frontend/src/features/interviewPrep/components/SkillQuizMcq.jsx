@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import AppIcon from '../../../components/icons/AppIcon';
 import Button from '../../../components/ui/Button';
 import { cn } from '../../../lib/utils';
@@ -14,13 +15,15 @@ export default function SkillQuizMcq({
   onSelect,
   disabled = false,
 }) {
+  const { t } = useTranslation('interviewPrep');
+
   if (!question) return null;
 
   return (
     <article className="dashboard-glass-card dashboard-card-padding rounded-2xl min-w-0 space-y-md">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="font-label-sm text-on-surface-variant">
-          Question {questionIndex + 1} of {totalQuestions}
+          {t('quiz.questionOf', { current: questionIndex + 1, total: totalQuestions })}
         </span>
         {question.subtopic ? (
           <span className="font-label-sm text-secondary bg-secondary/10 px-2 py-0.5 rounded-full">
@@ -64,14 +67,13 @@ export default function SkillQuizMcq({
 }
 
 export function SkillQuizProgress({ current, total }) {
+  const { t } = useTranslation('interviewPrep');
   const percent = total > 0 ? Math.round(((current + 1) / total) * 100) : 0;
 
   return (
     <div className="min-w-0 space-y-1">
       <div className="flex justify-between font-label-sm text-on-surface-variant">
-        <span>
-          Progress {current + 1}/{total}
-        </span>
+        <span>{t('quiz.progress', { current: current + 1, total })}</span>
         <span>{percent}%</span>
       </div>
       <div className="h-2 rounded-full bg-surface-container-high overflow-hidden">
@@ -85,6 +87,8 @@ export function SkillQuizProgress({ current, total }) {
 }
 
 export function SkillQuizNavButtons({ onPrev, onNext, canPrev, canNext, isLast, onSubmit, submitting }) {
+  const { t } = useTranslation('interviewPrep');
+
   return (
     <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-2 pt-sm">
       <Button
@@ -94,7 +98,7 @@ export function SkillQuizNavButtons({ onPrev, onNext, canPrev, canNext, isLast, 
         disabled={!canPrev || submitting}
         className="min-h-[44px] px-4 py-2.5 disabled:opacity-50"
       >
-        Previous
+        {t('quiz.previous')}
       </Button>
 
       {isLast ? (
@@ -108,10 +112,10 @@ export function SkillQuizNavButtons({ onPrev, onNext, canPrev, canNext, isLast, 
           {submitting ? (
             <>
               <AppIcon name="progress_activity" size="sm" spin />
-              Submitting…
+              {t('quiz.submitting')}
             </>
           ) : (
-            'Submit quiz'
+            t('quiz.submit')
           )}
         </Button>
       ) : (
@@ -122,7 +126,7 @@ export function SkillQuizNavButtons({ onPrev, onNext, canPrev, canNext, isLast, 
           disabled={!canNext || submitting}
           className="min-h-[44px] px-6 py-2.5"
         >
-          Next
+          {t('quiz.next')}
         </Button>
       )}
     </div>
