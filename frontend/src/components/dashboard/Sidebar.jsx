@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useDashboardNavItems } from '../../hooks/useDashboardNav';
 import BrandLogo from '../brand/BrandLogo';
 import AppIcon from '../icons/AppIcon';
+import ThemeToggle from '../../theme/components/ThemeToggle';
 
 const SIDEBAR_ANIMATION =
   'transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]';
@@ -177,6 +178,16 @@ function SidebarContent({ collapsed, onToggleCollapse, onNavigate, showCollapseT
           />
         ))}
       </nav>
+
+      <div
+        className={[
+          'shrink-0 mt-auto pt-2 border-t border-outline-variant/30',
+          SIDEBAR_ANIMATION,
+          collapsed ? 'flex justify-center py-2' : 'flex items-center px-1 py-2',
+        ].join(' ')}
+      >
+        <ThemeToggle />
+      </div>
     </>
   );
 }
