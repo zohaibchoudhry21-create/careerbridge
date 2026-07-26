@@ -7,8 +7,8 @@ function DashboardError({ message, onRetry }) {
   return (
     <div className="dashboard-glass-card dashboard-card-padding rounded-2xl text-center max-w-lg mx-auto my-md">
       <AppIcon name="error" size="h-8 w-8" className="text-error mb-sm mx-auto" />
-      <p className="font-headline-section text-headline-section mb-xs">{t('dashboard:error.title')}</p>
-      <p className="font-body-md text-on-surface-variant mb-md">{message}</p>
+      <p className="dashboard-section-title mb-xs">{t('dashboard:error.title')}</p>
+      <p className="font-body-md dashboard-muted mb-md">{message}</p>
       <button
         type="button"
         onClick={onRetry}

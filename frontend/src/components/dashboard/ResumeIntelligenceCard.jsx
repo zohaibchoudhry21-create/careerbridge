@@ -13,31 +13,31 @@ function ResumeIntelligenceCard({ resumeIntelligence }) {
     <div className="col-span-1 flex min-w-0 flex-col rounded-2xl dashboard-glass-card dashboard-card-padding lg:col-span-4">
       <div className="mb-xs flex items-center gap-2.5">
         <SectionIcon color="resume" icon="analytics" />
-        <h4 className="font-headline-section text-headline-section">{t('resumeIntelligence.title')}</h4>
+        <h4 className="dashboard-section-title">{t('resumeIntelligence.title')}</h4>
       </div>
       <p className="mb-sm font-label-md">
         {t('resumeIntelligence.atsStatus')}{' '}
-        <span className="font-bold text-green-600">{atsOptimizationStatus}</span>
+        <span className="font-bold text-green-600 dark:text-green-400">{atsOptimizationStatus}</span>
       </p>
       <div className="flex-1 space-y-sm">
         <div>
-          <p className="mb-xs text-[12px] uppercase tracking-wider text-on-surface-variant">
+          <p className="mb-xs text-[12px] uppercase tracking-wider dashboard-muted">
             {t('resumeIntelligence.keywordGaps')}
           </p>
           <div className="flex flex-wrap gap-xs">
             {keywordGaps?.map((keyword) => (
               <span
                 key={keyword}
-                className="rounded-lg border border-outline-variant px-2 py-1 text-[12px] font-medium"
+                className="rounded-lg border border-outline-variant px-2 py-1 text-[12px] font-medium dark:border-[#475569] dark:text-[#dce8f8]"
               >
                 {keyword}
               </span>
             ))}
           </div>
         </div>
-        <div className="rounded-xl border-l-4 border-secondary bg-surface-container-high p-sm">
-          <p className="text-[12px] font-bold text-secondary">{t('resumeIntelligence.aiInsight')}</p>
-          <p className="text-[14px]">
+        <div className="rounded-xl border-l-4 border-secondary dashboard-inner-surface-high p-sm">
+          <p className="text-[12px] font-bold text-secondary dark:text-[#93c5fd]">{t('resumeIntelligence.aiInsight')}</p>
+          <p className="text-[14px] text-on-surface dark:text-[#dce8f8]">
             <Trans
               i18nKey="resumeIntelligence.improvementPotential"
               ns="dashboard"

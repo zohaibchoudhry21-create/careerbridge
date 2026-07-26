@@ -13,7 +13,7 @@ function QuickActions() {
     <section className="min-w-0">
       <div className="mb-sm flex items-center gap-2.5">
         <SectionIcon color="settings" icon="bolt" />
-        <h3 className="font-headline-section text-headline-section">{t('quickActions.sectionTitle')}</h3>
+        <h3 className="dashboard-section-title">{t('quickActions.sectionTitle')}</h3>
       </div>
       <div className="grid w-full min-w-0 grid-cols-2 gap-xs sm:grid-cols-3 sm:gap-sm lg:grid-cols-3 xl:grid-cols-5">
         {quickActions.map(({ id, label, icon, href, color = 'resume' }) => (
@@ -24,7 +24,7 @@ function QuickActions() {
             className="dashboard-card-hover flex min-h-[96px] min-w-0 flex-col items-center justify-center gap-xs rounded-2xl text-center transition-all dashboard-glass-card dashboard-card-padding"
           >
             {icon ? <SectionIcon color={color} icon={icon} size="sm" /> : null}
-            <span className="min-w-0 break-words font-label-md">{label}</span>
+            <span className="min-w-0 break-words font-label-md text-on-surface dark:text-[#eaf1ff]">{label}</span>
           </button>
         ))}
       </div>
