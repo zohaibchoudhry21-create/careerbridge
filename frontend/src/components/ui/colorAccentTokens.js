@@ -54,7 +54,7 @@ export const ACCENT_HEX = {
 
 /** Selected option: project secondary blue border + ~6% tint (matches Customize Interview). */
 export const selectedOptionClass =
-  'border-secondary bg-secondary/[0.06] text-secondary';
+  'border-secondary bg-secondary/[0.06] text-secondary dark:border-secondary/70 dark:bg-secondary/20 dark:text-[#93c5fd]';
 
 /** Unselected option: neutral grey border, white fill, muted label. */
 export const unselectedOptionClass =

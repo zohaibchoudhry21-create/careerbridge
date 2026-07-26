@@ -12,11 +12,11 @@ function JobMatchesSection({ matches = [] }) {
       <div className="mb-sm flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2.5">
           <SectionIcon color="skills" icon="work" />
-          <h4 className="font-headline-section text-headline-section">{t('jobMatches.title')}</h4>
+          <h4 className="dashboard-section-title">{t('jobMatches.title')}</h4>
         </div>
         <button
           type="button"
-          className="flex shrink-0 items-center gap-1 text-[14px] font-bold text-secondary"
+          className="flex shrink-0 items-center gap-1 text-[14px] font-bold text-secondary dark:text-[#93c5fd]"
         >
           {t('jobMatches.viewAll')} <AppIcon name="chevron_right" size="button" />
         </button>
