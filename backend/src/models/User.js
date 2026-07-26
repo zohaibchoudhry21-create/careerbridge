@@ -153,10 +153,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    /** UI language preference (i18n). Partial rollout: en-US, en-GB, es. */
+    /** UI language preference (i18n). Supports en-US, en-GB, es, ur. */
     languagePreference: {
       type: String,
-      enum: ['en-US', 'en-GB', 'es'],
+      enum: ['en-US', 'en-GB', 'es', 'ur'],
       default: 'en-US',
     },
     twoFactorEnabled: {

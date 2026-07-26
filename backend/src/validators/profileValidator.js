@@ -135,7 +135,7 @@ export const updateProfileValidation = [
     .withMessage('rememberDevicesEnabled must be a boolean'),
   body('languagePreference')
     .optional()
-    .isIn(['en-US', 'en-GB', 'es'])
+    .isIn(['en-US', 'en-GB', 'es', 'ur'])
     .withMessage('languagePreference must be a supported language code'),
   body().custom((_value, { req }) => {
     const hasField = PROFILE_UPDATE_FIELDS.some((field) => req.body[field] !== undefined);

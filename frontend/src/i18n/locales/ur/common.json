@@ -1,0 +1,14 @@
+{
+  "appName": "CareerBridge",
+  "sidebar": {
+    "dashboard": "ڈیش بورڈ",
+    "resumeBuilder": "ریزیومے بنائیں",
+    "resumeScanner": "ریزیومے اسکینر",
+    "interviewPrep": "انٹرویو کی تیاری",
+    "linkedinOptimizer": "لنکڈ اِن آپٹیمائزر",
+    "expandSidebar": "سائڈبار کھولیں",
+    "collapseSidebar": "سائڈبار بند کریں",
+    "openSidebar": "سائڈبار کھولیں",
+    "closeSidebar": "سائڈبار بند کریں"
+  }
+}

@@ -42,11 +42,11 @@ export default function DashboardLayout({ children, user }) {
 
       <aside
         className={[
-          'lg:hidden fixed top-0 left-0 z-50 h-full max-w-[85vw] w-[280px]',
-          'flex flex-col shrink-0 bg-background/90 backdrop-blur-xl border-r border-outline-variant/50',
+          'lg:hidden fixed top-0 start-0 z-50 h-full max-w-[85vw] w-[280px]',
+          'flex flex-col shrink-0 bg-background/90 backdrop-blur-xl border-e border-outline-variant/50',
           'shadow-2xl py-sm px-sm overflow-hidden',
           'transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
-          mobileOpen ? 'translate-x-0' : '-translate-x-full',
+          mobileOpen ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full',
         ].join(' ')}
       >
         <Sidebar
@@ -59,7 +59,7 @@ export default function DashboardLayout({ children, user }) {
       <aside
         className={[
           'hidden lg:flex shrink-0 h-full flex-col',
-          'bg-background/80 backdrop-blur-xl border-r border-outline-variant/50',
+          'bg-background/80 backdrop-blur-xl border-e border-outline-variant/50',
           'shadow-[8px_0_30px_rgba(0,0,0,0.04)] py-sm overflow-hidden',
           SIDEBAR_TRANSITION,
           collapsed ? 'w-[76px] px-2' : 'w-[280px] px-sm',

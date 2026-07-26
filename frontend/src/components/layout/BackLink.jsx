@@ -12,7 +12,7 @@ const BACK_LINK_CLASS =
 export default function BackLink({ to, onClick, children }) {
   const content = (
     <>
-      <AppIcon name="arrow_back" size="sm" />
+      <AppIcon name="arrow_back" size="sm" className="rtl:rotate-180" />
       {children}
     </>
   );
