@@ -2,6 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { DEFAULT_I18N_LANGUAGE, I18N_LANGUAGE_CODES } from './languagePreference.js';
 import { applyDocumentDirection } from './documentDirection.js';
+import { readGuestLanguage } from './guestLanguageStorage.js';
 import enCommon from './locales/en/common.json';
 import enSettings from './locales/en/settings.json';
 import enDashboard from './locales/en/dashboard.json';
@@ -46,6 +47,11 @@ i18n.use(initReactI18next).init({
   returnNull: false,
   returnEmptyString: false,
 });
+
+const guestLanguage = readGuestLanguage();
+if (guestLanguage) {
+  i18n.changeLanguage(guestLanguage);
+}
 
 applyDocumentDirection(i18n.language);
 

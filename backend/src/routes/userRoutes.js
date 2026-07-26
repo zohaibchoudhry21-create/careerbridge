@@ -1,5 +1,5 @@
 import express from 'express';
-import { updateAccount, changePassword, deleteAccount, deactivateAccount, exportUserData } from '../controllers/settingsController.js';
+import { updateAccount, changePassword, deleteAccount, deactivateAccount, exportUserData, updateLanguagePreference } from '../controllers/settingsController.js';
 import {
   listSessions,
   revokeOtherSessionsHandler,
@@ -10,6 +10,7 @@ import { protect } from '../middleware/authMiddleware.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import {
   updateProfileValidation,
+  updateLanguagePreferenceValidation,
   changePasswordValidation,
   deleteAccountValidation,
 } from '../validators/profileValidator.js';
@@ -17,6 +18,14 @@ import { updateSessionTrustValidation } from '../validators/sessionValidator.js'
 
 const router = express.Router();
 
+// Language preference route (registered before generic profile PATCH).
+router.patch(
+  '/users/me/language-preference',
+  protect,
+  updateLanguagePreferenceValidation,
+  validateRequest,
+  updateLanguagePreference
+);
 router.patch('/users/me', protect, updateProfileValidation, validateRequest, updateAccount);
 router.patch('/users/me/password', protect, changePasswordValidation, validateRequest, changePassword);
 router.post('/users/me/deactivate', protect, deactivateAccount);
