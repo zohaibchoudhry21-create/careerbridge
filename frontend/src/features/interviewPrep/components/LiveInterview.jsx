@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppIcon from '../../../components/icons/AppIcon';
 import { cn } from '../../../lib/utils';
 import Button from '../../../components/ui/Button';
@@ -84,10 +85,11 @@ function SessionMetaChip({ children }) {
 
 /**
  * Premium live-interview shell. Vapi/Groq wiring stays in LiveInterviewAgent.
+ * Video grid stays LTR in Urdu mode so camera/mic controls remain usable.
  */
 export default function LiveInterview({
   userName,
-  aiName = 'AI Interviewer',
+  aiName,
   status = 'idle',
   activeSpeaker = null,
   transcript = [],
@@ -103,7 +105,7 @@ export default function LiveInterview({
   notice = null,
   errorMessage = null,
   startDisabled = false,
-  startLabel = 'Start interview',
+  startLabel,
   onStart,
   onEnd,
   onToggleMic,
@@ -111,9 +113,11 @@ export default function LiveInterview({
   videoRef,
   videoOverlay = null,
 }) {
+  const { t } = useTranslation('interviewPrep');
   const transcriptEndRef = useRef(null);
   const isVoiceOnly = interviewMode === 'voice_only';
   const isVideoVoice = !isVoiceOnly;
+  const resolvedAiName = aiName || t('live.aiName');
 
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -124,21 +128,20 @@ export default function LiveInterview({
   const userSpeaking = activeSpeaker === 'user' && isActive;
   const lastTurnId = transcript.length ? transcript[transcript.length - 1].id : null;
   const displayError = errorMessage
-    ? toDisplayErrorMessage(errorMessage, 'Something went wrong.')
+    ? toDisplayErrorMessage(errorMessage, t('live.genericError'))
     : null;
 
-  let aiStatusLabel = 'Ready';
-  if (status === 'connecting') aiStatusLabel = 'Connecting…';
-  else if (isActive) aiStatusLabel = aiSpeaking ? 'Speaking' : 'Listening';
-  else if (status === 'ended') aiStatusLabel = 'Call ended';
+  let aiStatusLabel = t('live.statusReady');
+  if (status === 'connecting') aiStatusLabel = t('live.statusConnecting');
+  else if (isActive) aiStatusLabel = aiSpeaking ? t('live.statusSpeaking') : t('live.statusListening');
+  else if (status === 'ended') aiStatusLabel = t('live.statusEnded');
 
-  const difficultyLabel = difficulty
-    ? difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
-    : null;
+  const difficultyLabel = difficulty ? t(`difficulty.${difficulty}`, { defaultValue: difficulty }) : null;
 
-  const subtitle = isVoiceOnly
-    ? `Speak with ${aiName.toLowerCase()} in real time. Microphone stays on for feedback.`
-    : `Speak with ${aiName.toLowerCase()} in real time. Camera and mic stay on for feedback.`;
+  const subtitleKey = isVoiceOnly ? 'live.subtitleVoice' : 'live.subtitleVideo';
+  const subtitle = t(subtitleKey, { name: resolvedAiName.toLowerCase() });
+
+  const resolvedStartLabel = startLabel ?? t('live.startInterview');
 
   return (
     <div className="w-full space-y-md">
@@ -149,14 +152,14 @@ export default function LiveInterview({
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
-            Live
+            {t('live.liveBadge')}
           </span>
         </div>
       ) : null}
 
       <header className="space-y-2 text-center">
         <h1 className="bg-gradient-to-r from-on-surface to-secondary bg-clip-text font-headline-dashboard text-headline-dashboard text-transparent">
-          Live interview
+          {t('live.title')}
         </h1>
         <p className="mx-auto max-w-md font-body-md text-sm text-on-surface-variant">{subtitle}</p>
       </header>
@@ -165,8 +168,12 @@ export default function LiveInterview({
         <div className="flex flex-wrap items-center justify-center gap-2">
           {roleLabel ? <SessionMetaChip>{roleLabel}</SessionMetaChip> : null}
           {difficultyLabel ? <SessionMetaChip>{difficultyLabel}</SessionMetaChip> : null}
-          {durationMinutes ? <SessionMetaChip>{durationMinutes} min</SessionMetaChip> : null}
-          <SessionMetaChip>{isVoiceOnly ? 'Voice only' : 'Video and voice'}</SessionMetaChip>
+          {durationMinutes ? (
+            <SessionMetaChip>{t('live.minutesShort', { count: durationMinutes })}</SessionMetaChip>
+          ) : null}
+          <SessionMetaChip>
+            {isVoiceOnly ? t('live.voiceOnly') : t('live.videoVoice')}
+          </SessionMetaChip>
         </div>
       )}
 
@@ -174,21 +181,20 @@ export default function LiveInterview({
         {isVideoVoice ? (
           <MetricPill
             active={videoMetricsOn}
-            labelOn="Video metrics on"
-            labelPaused="Video metrics paused"
+            labelOn={t('live.videoMetricsOn')}
+            labelPaused={t('live.videoMetricsPaused')}
           />
         ) : null}
         <MetricPill
           active={voiceMetricsOn}
-          labelOn="Voice metrics on"
-          labelPaused="Voice metrics paused"
+          labelOn={t('live.voiceMetricsOn')}
+          labelPaused={t('live.voiceMetricsPaused')}
         />
       </div>
 
       {notice}
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        {/* AI interviewer — left */}
+      <div dir="ltr" className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div className="relative flex aspect-video flex-col items-center justify-center overflow-hidden rounded-3xl border border-secondary/15 bg-white p-6 shadow-[0_8px_30px_rgba(0,88,190,0.08)]">
           <div
             className="pointer-events-none absolute inset-0 bg-gradient-to-br from-secondary/[0.07] via-transparent to-secondary-container/[0.12]"
@@ -226,11 +232,10 @@ export default function LiveInterview({
             </div>
           </div>
 
-          <p className="relative mt-5 text-base font-semibold text-on-surface">{aiName}</p>
+          <p className="relative mt-5 text-base font-semibold text-on-surface">{resolvedAiName}</p>
           <p className="relative mt-0.5 font-label-sm text-on-surface-variant">{aiStatusLabel}</p>
         </div>
 
-        {/* Candidate — right */}
         <div className="relative aspect-video overflow-hidden rounded-3xl border border-outline-variant/40 bg-on-surface shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
           {isVideoVoice ? (
             <>
@@ -264,7 +269,7 @@ export default function LiveInterview({
                 {(userName || 'C').charAt(0).toUpperCase()}
               </div>
               <VoiceWaveform active={userSpeaking && micOn} />
-              <p className="font-label-sm text-white/70">Voice only mode</p>
+              <p className="font-label-sm text-white/70">{t('live.voiceOnlyMode')}</p>
             </div>
           )}
 
@@ -284,7 +289,11 @@ export default function LiveInterview({
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-white">{userName}</p>
               <p className="font-label-sm text-white/75">
-                {isVoiceOnly ? 'Microphone on' : cameraOn ? 'Camera on' : 'Camera off'}
+                {isVoiceOnly
+                  ? t('live.micOn')
+                  : cameraOn
+                    ? t('live.cameraOn')
+                    : t('live.cameraOff')}
               </p>
               {isVideoVoice && videoOverlay ? (
                 <div className="mt-1 pointer-events-none">{videoOverlay}</div>
@@ -295,7 +304,7 @@ export default function LiveInterview({
               <button
                 type="button"
                 onClick={onToggleMic}
-                aria-label={micOn ? 'Mute microphone' : 'Unmute microphone'}
+                aria-label={micOn ? t('live.muteMic') : t('live.unmuteMic')}
                 className={cn(
                   'flex h-9 w-9 min-h-[36px] min-w-[36px] items-center justify-center rounded-full backdrop-blur transition-colors',
                   micOn ? 'bg-white/15 text-white ring-1 ring-white/20 hover:bg-white/25' : 'bg-error text-on-error'
@@ -307,7 +316,7 @@ export default function LiveInterview({
                 <button
                   type="button"
                   onClick={onToggleCamera}
-                  aria-label={cameraOn ? 'Turn off camera' : 'Turn on camera'}
+                  aria-label={cameraOn ? t('live.turnOffCamera') : t('live.turnOnCamera')}
                   className={cn(
                     'flex h-9 w-9 min-h-[36px] min-w-[36px] items-center justify-center rounded-full backdrop-blur transition-colors',
                     cameraOn
@@ -326,9 +335,10 @@ export default function LiveInterview({
       {transcript.length > 0 ? (
         <div className="max-h-72 space-y-4 overflow-y-auto rounded-3xl border border-outline-variant/40 bg-white/80 p-5 shadow-sm backdrop-blur">
           <div className="flex items-center justify-between">
-            <p className="font-label-sm text-on-surface-variant">Live transcript</p>
+            <p className="font-label-sm text-on-surface-variant">{t('live.transcriptTitle')}</p>
             <p className="font-label-sm text-on-surface-variant">
-              {transcript.length} {transcript.length === 1 ? 'turn' : 'turns'}
+              {transcript.length}{' '}
+              {transcript.length === 1 ? t('live.turn') : t('live.turns')}
             </p>
           </div>
 
@@ -338,7 +348,7 @@ export default function LiveInterview({
 
             return (
               <div key={turn.id} className={cn('flex flex-col', isAi ? 'items-start' : 'items-end')}>
-                <SpeakerBadge name={isAi ? aiName : userName} active={isLiveTurn} />
+                <SpeakerBadge name={isAi ? resolvedAiName : userName} active={isLiveTurn} />
                 <p
                   className={cn(
                     'mt-1.5 max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm transition-shadow duration-200',
@@ -369,7 +379,7 @@ export default function LiveInterview({
             onClick={onEnd}
             className="gap-2 rounded-full px-7 py-3.5"
           >
-            End interview
+            {t('live.endInterview')}
           </Button>
         ) : (
           <Button
@@ -382,7 +392,7 @@ export default function LiveInterview({
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
               <path d="M8 5v14l11-7z" />
             </svg>
-            {startLabel}
+            {resolvedStartLabel}
           </Button>
         )}
       </div>

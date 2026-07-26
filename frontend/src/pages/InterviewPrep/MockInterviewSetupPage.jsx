@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { DashboardLayout, PageContainer, BackLink } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
 import AppIcon from '../../components/icons/AppIcon';
 import MockInterviewSetup from '../../features/interviewPrep/components/MockInterviewSetup';
 
 export default function MockInterviewSetupPage() {
+  const { t } = useTranslation('interviewPrep');
   const { user, loading } = useAuth();
 
   if (loading || !user) {
@@ -19,7 +21,7 @@ export default function MockInterviewSetupPage() {
   return (
     <DashboardLayout user={user}>
       <PageContainer width="standard">
-        <BackLink to="/interview-prep">Interview Prep</BackLink>
+        <BackLink to="/interview-prep">{t('backLinks.interviewPrep')}</BackLink>
         <MockInterviewSetup />
       </PageContainer>
     </DashboardLayout>

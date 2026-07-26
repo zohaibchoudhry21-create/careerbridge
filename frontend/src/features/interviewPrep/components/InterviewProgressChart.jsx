@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -19,6 +20,8 @@ function formatChartLabel(createdAt) {
 }
 
 export default function InterviewProgressChart({ history = [], currentSessionId }) {
+  const { t } = useTranslation('interviewPrep');
+
   if (!Array.isArray(history) || history.length < 2) {
     return null;
   }
@@ -36,7 +39,7 @@ export default function InterviewProgressChart({ history = [], currentSessionId 
     labels,
     datasets: [
       {
-        label: 'Overall score',
+        label: t('report.chartLabel'),
         data: scores,
         borderColor: '#6750A4',
         backgroundColor: 'rgba(103, 80, 164, 0.12)',
@@ -59,7 +62,7 @@ export default function InterviewProgressChart({ history = [], currentSessionId 
       },
       tooltip: {
         callbacks: {
-          label: (context) => `Score: ${context.parsed.y}`,
+          label: (context) => t('report.chartTooltip', { score: context.parsed.y }),
         },
       },
     },
@@ -85,9 +88,11 @@ export default function InterviewProgressChart({ history = [], currentSessionId 
   return (
     <section className="dashboard-glass-card dashboard-card-padding rounded-2xl space-y-sm min-w-0">
       <div>
-        <h3 className="font-headline-section text-headline-section text-on-surface">Your progress</h3>
+        <h3 className="font-headline-section text-headline-section text-on-surface">
+          {t('report.progressTitle')}
+        </h3>
         <p className="font-body-md text-on-surface-variant text-sm mt-1">
-          Overall score trend across your recent mock interviews.
+          {t('report.progressDescription')}
         </p>
       </div>
       <div className="h-56 w-full min-w-0">

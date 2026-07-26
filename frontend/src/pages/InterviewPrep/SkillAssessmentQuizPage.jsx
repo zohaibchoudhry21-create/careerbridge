@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { DashboardLayout, PageContainer, BackLink } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
@@ -14,6 +15,7 @@ import { getApiErrorMessage } from '../../features/interviewPrep/utils/apiErrorU
 import { useSkillQuiz, useSubmitSkillQuiz } from '../../features/interviewPrep/hooks/useSkillAssessment';
 
 export default function SkillAssessmentQuizPage() {
+  const { t } = useTranslation('interviewPrep');
   const { quizId } = useParams();
   const { user, loading: authLoading } = useAuth();
   const { data: quiz, isLoading, isError, error, refetch } = useSkillQuiz(quizId);
@@ -55,7 +57,7 @@ export default function SkillAssessmentQuizPage() {
 
   const handleSubmit = async () => {
     if (!allAnswered) {
-      toast.error('Please answer every question.');
+      toast.error(t('quiz.answerAll'));
       return;
     }
 
@@ -72,12 +74,7 @@ export default function SkillAssessmentQuizPage() {
       const data = await submitQuiz.mutateAsync(payload);
       setResult(data);
     } catch (err) {
-      setSubmitError(
-        getApiErrorMessage(
-          err,
-          'Could not submit quiz. Your answers are still here — try again.'
-        )
-      );
+      setSubmitError(getApiErrorMessage(err, t('quiz.submitFailedMessage')));
     }
   };
 
@@ -94,7 +91,7 @@ export default function SkillAssessmentQuizPage() {
   return (
     <DashboardLayout user={user}>
       <PageContainer width="narrow">
-        <BackLink to="/interview-prep/skills">New quiz</BackLink>
+        <BackLink to="/interview-prep/skills">{t('backLinks.newQuiz')}</BackLink>
 
         {isLoading ? (
           <div className="flex justify-center py-xl">
@@ -104,10 +101,10 @@ export default function SkillAssessmentQuizPage() {
 
         {isError ? (
           <RetryErrorPanel
-            title="Quiz unavailable"
-            message={getApiErrorMessage(error, 'Could not load this quiz.')}
+            title={t('quiz.unavailable')}
+            message={getApiErrorMessage(error, t('quiz.loadFailed'))}
             onRetry={() => refetch()}
-            retryLabel="Reload quiz"
+            retryLabel={t('quiz.reload')}
           />
         ) : null}
 
@@ -134,10 +131,10 @@ export default function SkillAssessmentQuizPage() {
               submitting={submitQuiz.isPending}
             />
             <RetryErrorPanel
-              title="Submit failed"
+              title={t('quiz.submitFailed')}
               message={submitError}
               onRetry={handleSubmit}
-              retryLabel="Retry submit"
+              retryLabel={t('quiz.retrySubmit')}
             />
           </>
         ) : null}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   getVapiClient,
   formatVapiError,
@@ -46,6 +47,7 @@ export default function LiveInterviewAgent({
   submitError,
   isSubmitting,
 }) {
+  const { t } = useTranslation('interviewPrep');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [callStatus, setCallStatus] = useState(CallStatus.INACTIVE);
   const [callError, setCallError] = useState(null);
@@ -237,8 +239,8 @@ export default function LiveInterviewAgent({
       const reason = endedReasonRef.current;
       setCallError(
         reason
-          ? `The interview ended before any conversation was recorded (${reason}). Please start it again.`
-          : 'The interview ended before any conversation was recorded. Please start it again.'
+          ? t('live.endedNoConversationWithReason', { reason })
+          : t('live.endedNoConversation')
       );
       setCallStatus(CallStatus.INACTIVE);
       finishedNotifiedRef.current = false;
@@ -365,20 +367,18 @@ export default function LiveInterviewAgent({
   if (isSpeaking) activeSpeaker = 'ai';
   else if (callStatus === CallStatus.ACTIVE) activeSpeaker = 'user';
 
-  let startLabel = 'Start interview';
-  if (callStatus === CallStatus.CONNECTING) startLabel = 'Connecting…';
-  else if (!hasAudioStream) startLabel = isVoiceOnly ? 'Waiting for microphone…' : 'Waiting for camera…';
-  else if (!isVoiceOnly && !videoReady) startLabel = 'Waiting for camera…';
+  let startLabel = t('live.startInterview');
+  if (callStatus === CallStatus.CONNECTING) startLabel = t('live.statusConnecting');
+  else if (!hasAudioStream) startLabel = isVoiceOnly ? t('live.waitingMic') : t('live.waitingCamera');
+  else if (!isVoiceOnly && !videoReady) startLabel = t('live.waitingCamera');
 
   const notice =
     !isVoiceOnly && !faceModelsReady && !faceModelsError ? (
       <p className="font-label-sm text-on-surface-variant text-center">
-        Loading face analysis models…
+        {t('live.loadingFaceModels')}
       </p>
     ) : !isVoiceOnly && faceModelsError ? (
-      <p className="font-label-sm text-error text-center">
-        Face analysis models could not load. Eye-contact metrics may be unavailable.
-      </p>
+      <p className="font-label-sm text-error text-center">{t('live.faceModelsFailed')}</p>
     ) : null;
 
   const videoOverlay =
@@ -394,7 +394,7 @@ export default function LiveInterviewAgent({
   return (
     <LiveInterview
       userName={userName}
-      aiName={aiName}
+      aiName={aiName || t('live.aiName')}
       status={UI_STATUS_BY_CALL_STATUS[callStatus] || 'idle'}
       activeSpeaker={activeSpeaker}
       transcript={transcript}

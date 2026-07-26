@@ -9,18 +9,21 @@ import enDashboard from './locales/en/dashboard.json';
 import enAuth from './locales/en/auth.json';
 import enErrors from './locales/en/errors.json';
 import enMarketing from './locales/en/marketing.json';
+import enInterviewPrep from './locales/en/interviewPrep.json';
 import esCommon from './locales/es/common.json';
 import esSettings from './locales/es/settings.json';
 import esDashboard from './locales/es/dashboard.json';
 import esAuth from './locales/es/auth.json';
 import esErrors from './locales/es/errors.json';
 import esMarketing from './locales/es/marketing.json';
+import esInterviewPrep from './locales/es/interviewPrep.json';
 import urCommon from './locales/ur/common.json';
 import urSettings from './locales/ur/settings.json';
 import urDashboard from './locales/ur/dashboard.json';
 import urAuth from './locales/ur/auth.json';
 import urErrors from './locales/ur/errors.json';
 import urMarketing from './locales/ur/marketing.json';
+import urInterviewPrep from './locales/ur/interviewPrep.json';
 
 const resources = {
   en: {
@@ -30,6 +33,7 @@ const resources = {
     auth: enAuth,
     errors: enErrors,
     marketing: enMarketing,
+    interviewPrep: enInterviewPrep,
   },
   es: {
     common: esCommon,
@@ -38,6 +42,7 @@ const resources = {
     auth: esAuth,
     errors: esErrors,
     marketing: esMarketing,
+    interviewPrep: esInterviewPrep,
   },
   ur: {
     common: urCommon,
@@ -46,6 +51,7 @@ const resources = {
     auth: urAuth,
     errors: urErrors,
     marketing: urMarketing,
+    interviewPrep: urInterviewPrep,
   },
 };
 
@@ -54,7 +60,7 @@ i18n.use(initReactI18next).init({
   lng: DEFAULT_I18N_LANGUAGE,
   fallbackLng: DEFAULT_I18N_LANGUAGE,
   supportedLngs: I18N_LANGUAGE_CODES,
-  ns: ['common', 'settings', 'dashboard', 'auth', 'errors', 'marketing'],
+  ns: ['common', 'settings', 'dashboard', 'auth', 'errors', 'marketing', 'interviewPrep'],
   defaultNS: 'common',
   interpolation: {
     escapeValue: false,

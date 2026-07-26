@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppIcon from '../../../components/icons/AppIcon';
 import { authInputClassName } from '../../../components/auth/authUi';
 import RoleAutocompleteInput from './RoleAutocompleteInput';
@@ -12,6 +13,7 @@ import { cn } from '../../../lib/utils';
 const ACCEPT = '.pdf,.doc,.docx';
 
 function ResumeAnalysisResult({ projects, skills, onClear }) {
+  const { t } = useTranslation('interviewPrep');
   const hasProjects = Array.isArray(projects) && projects.length > 0;
   const hasSkills = Array.isArray(skills) && skills.length > 0;
 
@@ -20,20 +22,20 @@ function ResumeAnalysisResult({ projects, skills, onClear }) {
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <AppIcon name="check_circle" size="sm" className="text-secondary" />
-          <h3 className="font-label-md text-on-surface">Resume Analysis Result</h3>
+          <h3 className="font-label-md text-on-surface">{t('roleResume.analysisTitle')}</h3>
         </div>
         <button
           type="button"
           onClick={onClear}
           className="font-label-sm text-on-surface-variant hover:text-secondary transition-colors"
         >
-          Clear
+          {t('roleResume.clear')}
         </button>
       </div>
 
       {hasProjects ? (
         <div className="space-y-1">
-          <p className="font-label-sm text-on-surface-variant">Projects</p>
+          <p className="font-label-sm text-on-surface-variant">{t('roleResume.projects')}</p>
           <ul className="list-disc pl-5 space-y-0.5 font-body-md text-on-surface text-sm">
             {projects.map((project, index) => (
               <li key={`project-${index}`}>{project}</li>
@@ -44,7 +46,7 @@ function ResumeAnalysisResult({ projects, skills, onClear }) {
 
       {hasSkills ? (
         <div className="space-y-1.5">
-          <p className="font-label-sm text-on-surface-variant">Skills</p>
+          <p className="font-label-sm text-on-surface-variant">{t('roleResume.skills')}</p>
           <div className="flex flex-wrap gap-1.5">
             {skills.map((skill, index) => (
               <span
@@ -60,7 +62,7 @@ function ResumeAnalysisResult({ projects, skills, onClear }) {
 
       {!hasProjects && !hasSkills ? (
         <p className="font-body-md text-on-surface-variant text-sm">
-          No clear projects or skills detected. Questions will still use your role and experience.
+          {t('roleResume.noSkillsDetected')}
         </p>
       ) : null}
     </div>
@@ -81,6 +83,7 @@ export default function RoleResumeCard({
   onAnalysisComplete,
   onAnalysisClear,
 }) {
+  const { t } = useTranslation('interviewPrep');
   const fileInputRef = useRef(null);
   const [file, setFile] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
@@ -109,7 +112,7 @@ export default function RoleResumeCard({
       });
       setAnalyzed(true);
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Could not analyze resume. Try again.'));
+      setError(getApiErrorMessage(err, t('roleResume.analyzeFailed')));
     } finally {
       setAnalyzing(false);
     }
@@ -128,24 +131,24 @@ export default function RoleResumeCard({
       <SectionHeading
         color="role"
         icon="person"
-        title="Role & background"
-        description="Tell us the role and give context so questions match you."
+        title={t('roleResume.title')}
+        description={t('roleResume.description')}
       />
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1 sm:col-span-2 relative overflow-visible">
           <label htmlFor="mock-role-input" className="sr-only">
-            Interview role
+            {t('roleResume.roleLabel')}
           </label>
           <RoleAutocompleteInput
             value={role}
             onChange={onRoleChange}
             onBlur={onRoleBlur}
             hasError={showRoleError}
-            placeholder="e.g. Frontend Developer"
+            placeholder={t('roleResume.rolePlaceholder')}
           />
           {showRoleError ? (
-            <p className="font-label-sm text-error">Please enter a role.</p>
+            <p className="font-label-sm text-error">{t('roleResume.roleRequired')}</p>
           ) : null}
         </div>
 
@@ -153,7 +156,7 @@ export default function RoleResumeCard({
           type="text"
           value={experience}
           onChange={(event) => onExperienceChange(event.target.value)}
-          placeholder="Experience (e.g. 2 years)"
+          placeholder={t('roleResume.experiencePlaceholder')}
           className={authInputClassName}
         />
 
@@ -161,7 +164,7 @@ export default function RoleResumeCard({
           type="text"
           value={targetCompany}
           onChange={(event) => onTargetCompanyChange(event.target.value)}
-          placeholder="Target company (optional)"
+          placeholder={t('roleResume.companyPlaceholder')}
           className={authInputClassName}
           autoComplete="organization"
         />
@@ -218,7 +221,7 @@ export default function RoleResumeCard({
             <>
               <span className="font-label-md text-on-surface block truncate px-2">{file.name}</span>
               <span className="font-body-md text-on-surface-variant text-sm mt-0.5 block">
-                Ready to analyze
+                {t('roleResume.readyToAnalyze')}
               </span>
               <div className="mt-3 flex items-center justify-center gap-2">
                 <Button
@@ -231,10 +234,10 @@ export default function RoleResumeCard({
                   {analyzing ? (
                     <>
                       <AppIcon name="progress_activity" size="sm" spin className="text-on-secondary" />
-                      Analyzing…
+                      {t('roleResume.analyzing')}
                     </>
                   ) : (
-                    'Analyze Resume'
+                    t('roleResume.analyzeResume')
                   )}
                 </Button>
                 <button
@@ -243,7 +246,7 @@ export default function RoleResumeCard({
                   disabled={analyzing}
                   className="font-label-sm text-on-surface-variant hover:text-secondary transition-colors disabled:opacity-60"
                 >
-                  Remove
+                  {t('roleResume.remove')}
                 </button>
               </div>
             </>
@@ -254,10 +257,10 @@ export default function RoleResumeCard({
               className="w-full"
             >
               <span className="font-label-md text-secondary block">
-                Click to upload resume (Optional)
+                {t('roleResume.uploadCta')}
               </span>
               <span className="font-body-md text-on-surface-variant text-sm mt-0.5 block">
-                PDF or DOCX — we&apos;ll extract skills &amp; projects
+                {t('roleResume.uploadHint')}
               </span>
             </button>
           )}

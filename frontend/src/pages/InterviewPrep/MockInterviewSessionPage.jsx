@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { buttonPrimaryClass } from '../../components/ui/buttonTokens';
 import { cn } from '../../lib/utils';
@@ -21,7 +22,7 @@ import {
 import { getApiErrorMessage } from '../../features/interviewPrep/utils/apiErrorUtils';
 import {
   getMediaPermissionIssue,
-  PERMISSION_ISSUE_COPY,
+  getPermissionIssueMessage,
 } from '../../features/interviewPrep/utils/mediaPermissionUtils';
 
 const LiveInterviewAgent = lazy(
@@ -29,10 +30,12 @@ const LiveInterviewAgent = lazy(
 );
 
 function SessionExitLink() {
-  return <BackLink to="/interview-prep/mock">Exit</BackLink>;
+  const { t } = useTranslation('interviewPrep');
+  return <BackLink to="/interview-prep/mock">{t('backLinks.exit')}</BackLink>;
 }
 
 export default function MockInterviewSessionPage() {
+  const { t } = useTranslation('interviewPrep');
   const { sessionId } = useParams();
   const location = useLocation();
   const { user, loading: authLoading } = useAuth();
@@ -70,7 +73,7 @@ export default function MockInterviewSessionPage() {
         location.state?.roleLabel ||
         sessionFromApi?.roleLabel ||
         sessionFromApi?.role ||
-        'this role',
+        t('session.defaultRole'),
       difficulty: location.state?.difficulty || sessionFromApi?.difficulty || 'medium',
       durationMinutes:
         location.state?.durationMinutes || sessionFromApi?.durationMinutes || 15,
@@ -86,13 +89,13 @@ export default function MockInterviewSessionPage() {
       focusAreas:
         location.state?.customization?.focusAreas || sessionFromApi?.focusAreas || [],
     }),
-    [location.state, sessionFromApi]
+    [location.state, sessionFromApi, t]
   );
 
   const userName =
     user?.name ||
     [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
-    'Candidate';
+    t('session.defaultCandidate');
 
   const isCompletePhase =
     Boolean(interviewReport) || sessionFromApi?.status === 'completed';
@@ -128,7 +131,7 @@ export default function MockInterviewSessionPage() {
     if (status === 'requesting') return;
     requestAccessRef.current().catch((err) => {
       const issue = getMediaPermissionIssue(err) || 'unknown';
-      toast.error(PERMISSION_ISSUE_COPY[issue]);
+      toast.error(getPermissionIssueMessage(issue));
     });
   }, [stream, status, isCompletePhase]);
 
@@ -153,7 +156,7 @@ export default function MockInterviewSessionPage() {
           onSuccess: (data) => {
             const report = data?.report;
             if (!report) {
-              setSubmitError('Interview submitted but report was missing.');
+              setSubmitError(t('session.submitMissingReport'));
               submittedRef.current = false;
               return;
             }
@@ -161,12 +164,12 @@ export default function MockInterviewSessionPage() {
           },
           onError: (err) => {
             submittedRef.current = false;
-            setSubmitError(getApiErrorMessage(err, 'Could not submit live interview.'));
+            setSubmitError(getApiErrorMessage(err, t('session.submitFailed')));
           },
         }
       );
     },
-    [sessionId, submitLiveInterview]
+    [sessionId, submitLiveInterview, t]
   );
 
   if (authLoading || !user) {
@@ -183,12 +186,12 @@ export default function MockInterviewSessionPage() {
     return (
       <DashboardLayout user={user}>
         <PageContainer width="standard">
-          <p className="font-body-md text-on-surface-variant">Session not found.</p>
+          <p className="font-body-md text-on-surface-variant">{t('session.notFound')}</p>
           <Link
             to="/interview-prep/mock"
             className={cn(buttonPrimaryClass, 'px-6 py-2.5')}
           >
-            Back to setup
+            {t('backLinks.backToSetup')}
           </Link>
         </PageContainer>
       </DashboardLayout>
@@ -203,14 +206,14 @@ export default function MockInterviewSessionPage() {
             <SessionExitLink />
             <PageHeader
               align="center"
-              title="Interview complete"
-              description="Your combined content, voice, and video feedback is ready."
+              title={t('session.completeTitle')}
+              description={t('session.completeDescription')}
             />
 
             {!interviewReport && generateReport.isPending ? (
               <div className="flex items-center justify-center gap-2 py-md">
                 <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
-                <span className="font-body-md text-on-surface-variant">Loading your report…</span>
+                <span className="font-body-md text-on-surface-variant">{t('session.loadingReport')}</span>
               </div>
             ) : null}
 
@@ -222,7 +225,7 @@ export default function MockInterviewSessionPage() {
               to="/interview-prep"
               className={cn(buttonPrimaryClass, 'px-6 py-2.5')}
             >
-              Back to Interview Prep
+              {t('backLinks.backToInterviewPrep')}
             </Link>
           </>
         ) : (
@@ -237,13 +240,13 @@ export default function MockInterviewSessionPage() {
               <div className="text-center space-y-md">
                 <SessionExitLink />
                 <p className="font-body-md text-on-surface-variant">
-                  Could not load this interview session. Start a new one from setup.
+                  {t('session.loadFailed')}
                 </p>
                 <Link
                   to="/interview-prep/mock"
                   className={cn(buttonPrimaryClass, 'px-6 py-2.5')}
                 >
-                  Back to setup
+                  {t('backLinks.backToSetup')}
                 </Link>
               </div>
             ) : null}
@@ -285,7 +288,7 @@ export default function MockInterviewSessionPage() {
             {submitLiveInterview.isPending ? (
               <div className="flex items-center justify-center gap-2 py-md">
                 <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
-                <span className="font-body-md text-on-surface-variant">Generating your report…</span>
+                <span className="font-body-md text-on-surface-variant">{t('session.generatingReport')}</span>
               </div>
             ) : null}
           </>
