@@ -2,6 +2,12 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { AppError } from '../utils/sendResponse.js';
 import { getTokenFromRequest } from '../utils/authCookie.js';
+import {
+  createUserSession,
+  findActiveSession,
+  issueAuthToken,
+  touchSessionActivity,
+} from '../utils/sessionService.js';
 
 export const protect = async (req, res, next) => {
   try {
@@ -33,7 +39,26 @@ export const protect = async (req, res, next) => {
       throw new AppError('Account is not active. Please verify your email or contact support.', 403);
     }
 
+    let session = null;
+    let authSessionId = decoded.sid || null;
+
+    if (authSessionId) {
+      session = await findActiveSession(authSessionId, user._id);
+
+      if (!session) {
+        throw new AppError('Session expired. Please log in again.', 401);
+      }
+
+      void touchSessionActivity(session);
+    } else {
+      session = await createUserSession(user._id, req, { remember: true });
+      authSessionId = session.sessionId;
+      issueAuthToken(res, user, session, true);
+    }
+
     req.user = user;
+    req.authSession = session;
+    req.authSessionId = authSessionId;
     req.authTokenIssuedAt = typeof decoded.iat === 'number' ? decoded.iat : null;
     next();
   } catch (error) {

@@ -26,6 +26,8 @@ configurePassport();
 const app = express();
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
+app.set('trust proxy', 1);
+
 app.disable('x-powered-by');
 app.use(
   helmet({

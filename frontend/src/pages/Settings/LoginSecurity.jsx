@@ -1,14 +1,20 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import SettingsPageShell from '../../components/settings/SettingsPageShell';
 import SectionCard from '../../components/settings/SectionCard';
 import { PasswordField } from '../../components/settings/InputField';
 import ToggleSwitch from '../../components/settings/ToggleSwitch';
 import PasswordStrengthBar from '../../components/settings/PasswordStrengthBar';
-import { DUMMY_SESSION } from '../../components/settings/settingsDummyData';
+import AppIcon from '../../components/icons/AppIcon';
 import { validatePassword } from '../../utils/passwordValidator';
 import useAuth from '../../hooks/useAuth';
-import { useChangePassword } from '../../hooks/useSettings';
+import {
+  useChangePassword,
+  useRevokeOtherSessions,
+  useRevokeSession,
+  useSessions,
+} from '../../hooks/useSettings';
 import { getApiErrorMessage } from '../../features/interviewPrep/utils/apiErrorUtils';
 
 function ComingSoonNote({ children }) {
@@ -16,6 +22,138 @@ function ComingSoonNote({ children }) {
     <p className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 font-body-md text-sm text-on-surface-variant">
       {children}
     </p>
+  );
+}
+
+function formatSessionDate(value) {
+  if (!value) return '—';
+
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value));
+}
+
+function ActiveSessionsSection() {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+  const { data: sessions = [], isLoading, isError, refetch } = useSessions();
+  const revokeSession = useRevokeSession();
+  const revokeOthers = useRevokeOtherSessions();
+
+  const otherSessions = sessions.filter((session) => !session.isCurrent);
+  const isRevoking = revokeSession.isPending || revokeOthers.isPending;
+
+  const handleRevokeSession = async (session) => {
+    try {
+      const result = await revokeSession.mutateAsync(session.id);
+
+      if (result?.signedOutCurrent || session.isCurrent) {
+        toast.success('You have been signed out.');
+        await logout();
+        navigate('/login');
+        return;
+      }
+
+      toast.success('Device signed out.');
+      await refetch();
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Unable to sign out that device.'));
+    }
+  };
+
+  const handleRevokeOthers = async () => {
+    if (otherSessions.length === 0) {
+      toast.info('No other active sessions to sign out.');
+      return;
+    }
+
+    try {
+      const result = await revokeOthers.mutateAsync();
+      toast.success(result?.message || 'Other devices have been signed out.');
+      await refetch();
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Unable to sign out other devices.'));
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-6">
+        <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <ComingSoonNote>
+        Unable to load active sessions right now. Please refresh the page and try again.
+      </ComingSoonNote>
+    );
+  }
+
+  if (sessions.length === 0) {
+    return (
+      <ComingSoonNote>
+        No active sessions were found. Sign in again to refresh this list.
+      </ComingSoonNote>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-3">
+        {sessions.map((session) => (
+          <div
+            key={session.id}
+            className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest p-4"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0 space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-label-md text-on-surface">{session.deviceLabel}</p>
+                  {session.isCurrent ? (
+                    <span className="rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-label-md text-secondary">
+                      This device
+                    </span>
+                  ) : null}
+                </div>
+                <p className="font-body-md text-on-surface-variant text-sm">
+                  IP: {session.ipAddress || 'Unknown'}
+                </p>
+                <p className="font-body-md text-on-surface-variant text-sm">
+                  Signed in: {formatSessionDate(session.createdAt)}
+                </p>
+                <p className="font-body-md text-on-surface-variant text-sm">
+                  Last active: {formatSessionDate(session.lastActiveAt)}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleRevokeSession(session)}
+                disabled={isRevoking}
+                className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-50"
+              >
+                {session.isCurrent ? 'Sign out' : 'Sign out device'}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {otherSessions.length > 0 ? (
+        <button
+          type="button"
+          onClick={handleRevokeOthers}
+          disabled={isRevoking}
+          className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-50"
+        >
+          Sign out all other devices
+        </button>
+      ) : null}
+    </div>
   );
 }
 
@@ -143,8 +281,8 @@ export default function LoginSecurity() {
         color="focus"
       >
         <ComingSoonNote>
-          Two-factor authentication, login alerts, and trusted devices require session tracking and
-          are not saved yet. These controls are preview-only until that backend work is scheduled.
+          Two-factor authentication, login alerts, and trusted devices are coming in the next
+          phases. Session tracking is live below.
         </ComingSoonNote>
         <ToggleSwitch
           id="two-factor"
@@ -178,24 +316,10 @@ export default function LoginSecurity() {
         icon="devices"
         color="role"
       >
-        <ComingSoonNote>
-          Per-device session history is not tracked yet. Changing your password signs out other
-          browsers using your account. Full session management is planned as a separate feature.
-        </ComingSoonNote>
-        <div className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest p-4 space-y-3 opacity-70">
-          <div>
-            <p className="font-label-md text-on-surface">Current Device</p>
-            <p className="font-body-md text-on-surface-variant text-sm">{DUMMY_SESSION.device}</p>
-          </div>
-          <div>
-            <p className="font-label-md text-on-surface">Last Login</p>
-            <p className="font-body-md text-on-surface-variant text-sm">{DUMMY_SESSION.lastLogin}</p>
-          </div>
-          <div>
-            <p className="font-label-md text-on-surface">IP Address</p>
-            <p className="font-body-md text-on-surface-variant text-sm">{DUMMY_SESSION.ipAddress}</p>
-          </div>
-        </div>
+        <p className="font-body-md text-on-surface-variant text-sm">
+          Changing your password also signs out other browsers using your account.
+        </p>
+        <ActiveSessionsSection />
       </SectionCard>
     </SettingsPageShell>
   );
