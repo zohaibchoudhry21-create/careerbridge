@@ -3,7 +3,7 @@ import { buttonPrimaryClass } from '../ui/buttonTokens';
 export const authInputClassName =
   'w-full px-4 py-3 bg-white border border-outline-variant/50 rounded-2xl text-on-surface placeholder:text-on-surface-variant/50 focus:bg-white focus:border-secondary focus:ring-2 focus:ring-secondary/15 transition-all duration-200 outline-none';
 
-export const authInputPasswordClassName = `${authInputClassName} pr-12`;
+export const authInputPasswordClassName = `${authInputClassName} pe-12`;
 
 export const authSubmitClassName = [
   buttonPrimaryClass,

@@ -18,7 +18,7 @@ export default function SectionHeading({
   className = '',
   titleClassName = '',
 }) {
-  const descriptionPad = alignDescription ? 'pl-[42px]' : '';
+  const descriptionPad = alignDescription ? 'ps-[42px]' : '';
 
   return (
     <div className={cn('space-y-1', className)}>

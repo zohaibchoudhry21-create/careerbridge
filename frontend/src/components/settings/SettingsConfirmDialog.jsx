@@ -63,7 +63,7 @@ export default function SettingsConfirmDialog({
           ) : null}
         </div>
 
-        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-2 rtl:sm:flex-row-reverse">
           <Button
             type="button"
             variant="secondary"

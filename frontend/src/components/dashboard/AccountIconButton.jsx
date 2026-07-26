@@ -88,7 +88,7 @@ export default function AccountIconButton({ className = '' }) {
         <div
           role="menu"
           aria-label={t('accountMenu.label')}
-          className="absolute right-0 top-full z-50 mt-2 w-[min(260px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-outline-variant/40 bg-white py-2 shadow-level-2"
+          className="absolute end-0 top-full z-50 mt-2 w-[min(260px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-outline-variant/40 bg-white py-2 shadow-level-2"
         >
           <div className="border-b border-outline-variant/30 px-4 py-3">
             <p className="font-label-md font-bold text-on-surface truncate">
@@ -105,7 +105,7 @@ export default function AccountIconButton({ className = '' }) {
                     type="button"
                     role="menuitem"
                     onClick={() => handleNavigate(item.to)}
-                    className="flex w-full items-center gap-3 px-4 py-2.5 text-left font-label-md text-on-surface hover:bg-surface-container transition-colors"
+                    className="flex w-full items-center gap-3 px-4 py-2.5 text-start font-label-md text-on-surface hover:bg-surface-container transition-colors"
                   >
                     <AppIcon name={item.icon} size="nav" className="text-on-surface-variant" />
                     {item.label}
@@ -133,7 +133,7 @@ export default function AccountIconButton({ className = '' }) {
               type="button"
               role="menuitem"
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 px-4 py-2.5 text-left font-label-md text-on-surface hover:bg-surface-container transition-colors"
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-start font-label-md text-on-surface hover:bg-surface-container transition-colors"
             >
               <AppIcon name="logout" size="nav" className="text-on-surface-variant" />
               {t('accountMenu.signOut')}

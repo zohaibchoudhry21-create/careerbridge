@@ -112,7 +112,7 @@ export default function RegisterForm() {
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-outline transition-colors duration-200 hover:text-secondary"
+              className="absolute end-4 top-1/2 -translate-y-1/2 text-outline transition-colors duration-200 hover:text-secondary"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               <AppIcon name={showPassword ? 'visibility_off' : 'visibility'} size="h-5 w-5" />
