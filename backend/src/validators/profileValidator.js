@@ -27,6 +27,7 @@ const PROFILE_UPDATE_FIELDS = [
   'loginAlertsEnabled',
   'rememberDevicesEnabled',
   'languagePreference',
+  'themePreference',
 ];
 
 const optionalTrimmedString = (field, { max, allowEmpty = true } = {}) => {
@@ -90,6 +91,14 @@ export const updateLanguagePreferenceValidation = [
     .withMessage(ERROR_CODES.VALIDATION.LANGUAGE_REQUIRED)
     .isIn(['en-US', 'en-GB', 'es', 'ur'])
     .withMessage(ERROR_CODES.VALIDATION.LANGUAGE_UNSUPPORTED),
+];
+
+export const updateThemePreferenceValidation = [
+  body('themePreference')
+    .notEmpty()
+    .withMessage(ERROR_CODES.VALIDATION.THEME_REQUIRED)
+    .isIn(['light', 'dark', 'system'])
+    .withMessage(ERROR_CODES.VALIDATION.THEME_UNSUPPORTED),
 ];
 
 export const updateProfileValidation = [
@@ -175,12 +184,19 @@ export const updateProfileValidation = [
     .optional()
     .isIn(['en-US', 'en-GB', 'es', 'ur'])
     .withMessage(ERROR_CODES.VALIDATION.LANGUAGE_UNSUPPORTED),
+  body('themePreference')
+    .optional()
+    .isIn(['light', 'dark', 'system'])
+    .withMessage(ERROR_CODES.VALIDATION.THEME_UNSUPPORTED),
   body().custom((_value, { req }) => {
     const hasField = PROFILE_UPDATE_FIELDS.some((field) => req.body[field] !== undefined);
     const hasLanguageOnly =
       req.body.languagePreference !== undefined &&
       Object.keys(req.body).every((key) => key === 'languagePreference');
-    if (!hasField && !hasLanguageOnly) {
+    const hasThemeOnly =
+      req.body.themePreference !== undefined &&
+      Object.keys(req.body).every((key) => key === 'themePreference');
+    if (!hasField && !hasLanguageOnly && !hasThemeOnly) {
       throw new Error(ERROR_CODES.VALIDATION.PROFILE_FIELD_REQUIRED);
     }
     return true;
