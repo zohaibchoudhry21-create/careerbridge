@@ -383,7 +383,7 @@ export default function LoginSecurity() {
         icon="devices"
         color="role"
       >
-        <p className="font-body-md text-on-surface-variant text-sm">
+        <p className="font-body-md app-muted text-sm">
           {t('loginSecurity.sessions.passwordNote')}
         </p>
         <ActiveSessionsSection rememberDevicesEnabled={rememberDevicesEnabled} />
