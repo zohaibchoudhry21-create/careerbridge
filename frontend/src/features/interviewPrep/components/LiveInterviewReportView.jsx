@@ -37,8 +37,8 @@ function ScoreRing({ score = 0, size = 160, overallLabel }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-headline-dashboard text-headline-dashboard text-on-surface">{clamped}</span>
-        <span className="font-label-sm text-on-surface-variant">{overallLabel}</span>
+        <span className="font-headline-dashboard text-headline-dashboard app-heading">{clamped}</span>
+        <span className="font-label-sm app-muted">{overallLabel}</span>
       </div>
     </div>
   );
@@ -47,8 +47,8 @@ function ScoreRing({ score = 0, size = 160, overallLabel }) {
 function MetricTile({ label, value, suffix = '' }) {
   return (
     <div className="min-w-0 rounded-2xl text-center dashboard-glass-card dashboard-card-padding">
-      <p className="font-label-sm text-on-surface-variant">{label}</p>
-      <p className="mt-1 font-headline-section text-headline-section text-on-surface">
+      <p className="font-label-sm app-muted">{label}</p>
+      <p className="mt-1 font-headline-section text-headline-section app-heading">
         {value != null && value !== '' ? `${value}${suffix}` : '—'}
       </p>
     </div>
@@ -107,10 +107,10 @@ export default function LiveInterviewReportView({ report, sessionId }) {
   return (
     <div className="min-w-0 space-y-md">
       <header className="flex flex-col items-center gap-sm rounded-2xl text-center dashboard-glass-card dashboard-card-padding">
-        <h2 className="font-headline-dashboard text-headline-dashboard text-on-surface">
+        <h2 className="font-headline-dashboard text-headline-dashboard app-heading">
           {t('report.title')}
         </h2>
-        <p className="max-w-lg font-body-md text-on-surface-variant">{t('report.description')}</p>
+        <p className="max-w-lg font-body-md app-muted">{t('report.description')}</p>
         <ScoreRing score={overallScore} overallLabel={t('report.overall')} />
       </header>
 

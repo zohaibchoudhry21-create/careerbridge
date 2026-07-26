@@ -88,10 +88,10 @@ export default function InterviewProgressChart({ history = [], currentSessionId 
   return (
     <section className="dashboard-glass-card dashboard-card-padding rounded-2xl space-y-sm min-w-0">
       <div>
-        <h3 className="font-headline-section text-headline-section text-on-surface">
+        <h3 className="font-headline-section text-headline-section app-heading">
           {t('report.progressTitle')}
         </h3>
-        <p className="font-body-md text-on-surface-variant text-sm mt-1">
+        <p className="font-body-md app-muted text-sm mt-1">
           {t('report.progressDescription')}
         </p>
       </div>
