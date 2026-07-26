@@ -42,7 +42,7 @@ export default function NotificationsSettings() {
       saveLabel="Save Preferences"
       saving={saving}
     >
-      <SectionCard title="Email Notifications">
+      <SectionCard title="Email Notifications" icon="mail" color="settings">
         <ToggleSwitch
           id="email-resume"
           label="Resume Updates"
@@ -69,7 +69,7 @@ export default function NotificationsSettings() {
         />
       </SectionCard>
 
-      <SectionCard title="Push Notifications">
+      <SectionCard title="Push Notifications" icon="notifications_active" color="warning">
         <ToggleSwitch id="push-messages" label="Messages" checked={pushMessages} onChange={setPushMessages} />
         <ToggleSwitch
           id="push-interview"
@@ -85,7 +85,7 @@ export default function NotificationsSettings() {
         />
       </SectionCard>
 
-      <SectionCard title="SMS Notifications">
+      <SectionCard title="SMS Notifications" icon="sms" color="mode">
         <ToggleSwitch
           id="sms-security"
           label="Security Alerts"
@@ -95,7 +95,7 @@ export default function NotificationsSettings() {
         <ToggleSwitch id="sms-otp" label="OTP Messages" checked={smsOtp} onChange={setSmsOtp} />
       </SectionCard>
 
-      <SectionCard title="Newsletter">
+      <SectionCard title="Newsletter" icon="newspaper" color="skills">
         <ToggleSwitch
           id="newsletter"
           label="Product updates and career tips"

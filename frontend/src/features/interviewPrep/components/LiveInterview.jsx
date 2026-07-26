@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import AppIcon from '../../../components/icons/AppIcon';
 import { cn } from '../../../lib/utils';
+import Button from '../../../components/ui/Button';
 import { toDisplayErrorMessage } from '../lib/vapi.sdk';
 import { DEFAULT_INTERVIEW_SETUP_MODE } from '../constants/interviewPrepConstants';
 
@@ -110,7 +110,6 @@ export default function LiveInterview({
   onToggleCamera,
   videoRef,
   videoOverlay = null,
-  exitHref = '/interview-prep/mock',
 }) {
   const transcriptEndRef = useRef(null);
   const isVoiceOnly = interviewMode === 'voice_only';
@@ -142,16 +141,9 @@ export default function LiveInterview({
     : `Speak with ${aiName.toLowerCase()} in real time. Camera and mic stay on for feedback.`;
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-1 sm:px-0">
-      <div className="flex items-center justify-between gap-3">
-        <Link
-          to={exitHref}
-          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-label-md text-secondary transition-colors hover:bg-secondary/10"
-        >
-          <AppIcon name="arrow_back" size="sm" />
-          Exit
-        </Link>
-        {isActive ? (
+    <div className="w-full space-y-md">
+      {isActive ? (
+        <div className="flex justify-end">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 font-label-sm font-semibold text-emerald-700 ring-1 ring-emerald-200">
             <span className="relative flex h-2 w-2" aria-hidden>
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -159,18 +151,18 @@ export default function LiveInterview({
             </span>
             Live
           </span>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
 
-      <div className="mt-6 text-center">
+      <header className="space-y-2 text-center">
         <h1 className="bg-gradient-to-r from-on-surface to-secondary bg-clip-text font-headline-dashboard text-headline-dashboard text-transparent">
           Live interview
         </h1>
-        <p className="mx-auto mt-2 max-w-md font-body-md text-sm text-on-surface-variant">{subtitle}</p>
-      </div>
+        <p className="mx-auto max-w-md font-body-md text-sm text-on-surface-variant">{subtitle}</p>
+      </header>
 
       {(roleLabel || difficultyLabel || durationMinutes) && (
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-2">
           {roleLabel ? <SessionMetaChip>{roleLabel}</SessionMetaChip> : null}
           {difficultyLabel ? <SessionMetaChip>{difficultyLabel}</SessionMetaChip> : null}
           {durationMinutes ? <SessionMetaChip>{durationMinutes} min</SessionMetaChip> : null}
@@ -178,7 +170,7 @@ export default function LiveInterview({
         </div>
       )}
 
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+      <div className="flex flex-wrap items-center justify-center gap-2">
         {isVideoVoice ? (
           <MetricPill
             active={videoMetricsOn}
@@ -195,7 +187,7 @@ export default function LiveInterview({
 
       {notice}
 
-      <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         {/* AI interviewer — left */}
         <div className="relative flex aspect-video flex-col items-center justify-center overflow-hidden rounded-3xl border border-secondary/15 bg-white p-6 shadow-[0_8px_30px_rgba(0,88,190,0.08)]">
           <div
@@ -332,7 +324,7 @@ export default function LiveInterview({
       </div>
 
       {transcript.length > 0 ? (
-        <div className="mt-5 max-h-72 space-y-4 overflow-y-auto rounded-3xl border border-outline-variant/40 bg-white/80 p-5 shadow-sm backdrop-blur">
+        <div className="max-h-72 space-y-4 overflow-y-auto rounded-3xl border border-outline-variant/40 bg-white/80 p-5 shadow-sm backdrop-blur">
           <div className="flex items-center justify-between">
             <p className="font-label-sm text-on-surface-variant">Live transcript</p>
             <p className="font-label-sm text-on-surface-variant">
@@ -366,30 +358,32 @@ export default function LiveInterview({
       ) : null}
 
       {displayError ? (
-        <p className="mt-4 text-center font-body-md text-error max-w-xl mx-auto">{displayError}</p>
+        <p className="text-center font-body-md text-error max-w-xl mx-auto">{displayError}</p>
       ) : null}
 
-      <div className="mt-8 flex justify-center">
+      <div className="flex justify-center pt-2">
         {isActive ? (
-          <button
+          <Button
             type="button"
+            variant="destructive"
             onClick={onEnd}
-            className="flex items-center gap-2 rounded-full bg-gradient-to-r from-error to-[#e11d48] px-7 py-3.5 font-label-md text-on-error shadow-lg shadow-red-500/20 transition-all hover:shadow-xl active:scale-[0.97]"
+            className="gap-2 rounded-full px-7 py-3.5"
           >
             End interview
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             type="button"
+            variant="primary"
             onClick={onStart}
             disabled={startDisabled}
-            className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-secondary to-secondary-container px-7 py-3.5 font-label-md text-on-secondary shadow-lg shadow-secondary/25 transition-all hover:shadow-xl hover:shadow-secondary/30 active:scale-[0.97] disabled:opacity-60 disabled:shadow-none"
+            className="group gap-2 rounded-full px-7 py-3.5 disabled:shadow-none"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
               <path d="M8 5v14l11-7z" />
             </svg>
             {startLabel}
-          </button>
+          </Button>
         )}
       </div>
     </div>

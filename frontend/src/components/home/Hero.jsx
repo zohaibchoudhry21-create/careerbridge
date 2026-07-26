@@ -9,6 +9,8 @@ import {
   AvatarGroupTooltip,
 } from '../animate-ui/components/animate/avatar-group';
 import { Sparkles } from '../animate-ui/icons/sparkles';
+import { buttonPrimaryClass } from '../ui/buttonTokens';
+import { cn } from '../../lib/utils';
 
 function HeroCtaButton() {
   const [hovering, setHovering] = useState(false);
@@ -16,7 +18,10 @@ function HeroCtaButton() {
   return (
     <Link
       to="/login"
-      className="relative z-20 inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-primary-container text-on-primary text-lg rounded-xl px-8 py-4 hover:opacity-90 transition-opacity"
+      className={cn(
+        buttonPrimaryClass,
+        'relative z-20 w-full gap-2 text-lg rounded-xl px-8 py-4 sm:w-auto'
+      )}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onFocus={() => setHovering(true)}

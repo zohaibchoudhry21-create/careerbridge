@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import SettingsPageShell from '../../components/settings/SettingsPageShell';
 import SectionCard from '../../components/settings/SectionCard';
 import AppIcon from '../../components/icons/AppIcon';
+import Button from '../../components/ui/Button';
 
 export default function AccountManagement() {
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
@@ -73,27 +74,32 @@ export default function AccountManagement() {
       <SectionCard
         title="Deactivate Account"
         description="Temporarily disable your account. Your data will be preserved and you can reactivate anytime."
+        icon="pause_circle"
+        color="warning"
       >
-        <button
+        <Button
           type="button"
+          variant="primary"
           onClick={handleDeactivate}
           disabled={deactivating}
-          className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-60 flex items-center gap-2"
+          className="min-h-[44px] gap-2 px-4 py-2.5"
         >
           {deactivating ? (
             <>
-              <span className="w-4 h-4 border-2 border-on-surface border-t-transparent rounded-full animate-spin" />
+              <span className="w-4 h-4 border-2 border-on-secondary border-t-transparent rounded-full animate-spin" />
               Deactivating...
             </>
           ) : (
             'Deactivate Account'
           )}
-        </button>
+        </Button>
       </SectionCard>
 
       <SectionCard
         title="Delete Account"
         description="Permanently remove your account and all associated data."
+        icon="delete_forever"
+        color="danger"
         className="border-error/20"
       >
         <div className="rounded-xl border border-error/30 bg-error-container/20 p-4 space-y-4">
@@ -112,11 +118,12 @@ export default function AccountManagement() {
               I understand this action cannot be undone.
             </span>
           </label>
-          <button
+          <Button
             type="button"
+            variant="destructive"
             onClick={handleDelete}
             disabled={deleting || !deleteConfirmed}
-            className="px-4 py-2.5 rounded-xl bg-error text-white font-label-md hover:opacity-90 transition-opacity min-h-[44px] disabled:opacity-60 flex items-center gap-2"
+            className="min-h-[44px] gap-2 px-4 py-2.5"
           >
             {deleting ? (
               <>
@@ -126,19 +133,22 @@ export default function AccountManagement() {
             ) : (
               'Delete Account'
             )}
-          </button>
+          </Button>
         </div>
       </SectionCard>
 
       <SectionCard
         title="Export Data"
         description="Download a copy of your profile, resumes, and account activity."
+        icon="download"
+        color="resume"
       >
-        <button
+        <Button
           type="button"
+          variant="primary"
           onClick={handleExport}
           disabled={exporting}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-white font-label-md hover:opacity-90 transition-opacity min-h-[44px] disabled:opacity-60"
+          className="min-h-[44px] gap-2 px-4 py-2.5"
         >
           {exporting ? (
             <>
@@ -151,15 +161,21 @@ export default function AccountManagement() {
               Download My Data
             </>
           )}
-        </button>
+        </Button>
       </SectionCard>
 
-      <SectionCard title="Logout" description="Sign out of your account on this device.">
-        <button
+      <SectionCard
+        title="Logout"
+        description="Sign out of your account on this device."
+        icon="logout"
+        color="mode"
+      >
+        <Button
           type="button"
+          variant="secondary"
           onClick={handleLogout}
           disabled={loggingOut}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-60"
+          className="min-h-[44px] gap-2 px-4 py-2.5"
         >
           {loggingOut ? (
             <>
@@ -172,7 +188,7 @@ export default function AccountManagement() {
               Logout
             </>
           )}
-        </button>
+        </Button>
       </SectionCard>
     </SettingsPageShell>
   );

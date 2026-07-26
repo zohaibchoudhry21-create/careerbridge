@@ -7,12 +7,12 @@ import RoleResumeCard from './RoleResumeCard';
 import {
   CARD_CLASS,
   FocusAreasSection,
-  ICON_TINTS,
   InterviewModeSection,
-  SectionHeader,
   SELECTED_OPTION_CLASS,
   UNSELECTED_OPTION_CLASS,
 } from './InterviewSetupAdvanced';
+import SectionHeading from '../../../components/ui/SectionHeading';
+import Button from '../../../components/ui/Button';
 import {
   DEFAULT_INTERVIEWER_PERSONA,
   DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES,
@@ -197,12 +197,12 @@ export default function MockInterviewSetup() {
   };
 
   return (
-    <div className="max-w-5xl min-w-0 space-y-4">
-      <header className="min-w-0 space-y-1 mb-1">
+    <div className="min-w-0 space-y-md">
+      <header className="min-w-0">
         <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
           Customize your interview
         </h1>
-        <p className="font-body-md text-on-surface-variant">
+        <p className="font-body-md text-on-surface-variant mt-base">
           The more context you give, the more targeted your questions will be.
         </p>
       </header>
@@ -224,9 +224,9 @@ export default function MockInterviewSetup() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <section className={CARD_CLASS}>
-          <SectionHeader
+          <SectionHeading
+            color="difficulty"
             icon="tune"
-            iconClassName={ICON_TINTS.difficulty}
             title="Difficulty"
             description="Match your experience level."
           />
@@ -244,9 +244,9 @@ export default function MockInterviewSetup() {
         </section>
 
         <section className={CARD_CLASS}>
-          <SectionHeader
+          <SectionHeading
+            color="time"
             icon="hourglass_top"
-            iconClassName={ICON_TINTS.time}
             title="Time"
             description="How long the session runs."
           />
@@ -279,17 +279,18 @@ export default function MockInterviewSetup() {
         <p className="font-body-md text-on-surface-variant text-sm text-center sm:text-right">
           {selectionSummary}
         </p>
-        <button
+        <Button
           type="button"
+          variant="primary"
           onClick={handleStart}
           disabled={!canStart}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-on-surface text-surface font-label-md min-h-[48px] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 hover:opacity-90 shrink-0"
+          className="min-h-[48px] shrink-0 gap-2 px-6 py-3"
         >
           {startLiveInterview.isPending ? 'Starting…' : 'Start live interview'}
           {!startLiveInterview.isPending ? (
-            <AppIcon name="chevron_right" size="sm" className="text-surface" />
+            <AppIcon name="chevron_right" size="sm" className="text-on-secondary" />
           ) : null}
-        </button>
+        </Button>
       </div>
     </div>
   );

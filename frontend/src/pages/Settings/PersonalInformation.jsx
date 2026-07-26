@@ -49,7 +49,7 @@ export default function PersonalInformation() {
       onCancel={handleCancel}
       saving={saving}
     >
-      <SectionCard title="Personal Details">
+      <SectionCard title="Personal Details" icon="person" color="role">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <InputField
             id="firstName"
@@ -96,7 +96,7 @@ export default function PersonalInformation() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Location">
+      <SectionCard title="Location" icon="location_on" color="settings">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <SelectField
             id="country"
@@ -116,7 +116,7 @@ export default function PersonalInformation() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Professional">
+      <SectionCard title="Professional" icon="work" color="resume">
         <div className="grid grid-cols-1 gap-4">
           <InputField
             id="linkedin"

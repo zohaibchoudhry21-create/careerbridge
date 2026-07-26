@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import RadioGroup from '../../../components/settings/RadioGroup';
+import SectionHeading from '../../../components/ui/SectionHeading';
+import Button from '../../../components/ui/Button';
+import { accentCardClass } from '../../../components/ui/colorAccentTokens';
 import {
   DEFAULT_SKILL_QUIZ_QUESTION_COUNT,
   MOCK_INTERVIEW_DIFFICULTIES,
@@ -74,7 +77,7 @@ export default function SkillAssessmentSetup() {
 
   if (topicsLoading) {
     return (
-      <div className="flex justify-center py-2xl">
+      <div className="flex justify-center py-xl">
         <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
       </div>
     );
@@ -83,7 +86,7 @@ export default function SkillAssessmentSetup() {
   const topicOptions = topics.map((t) => ({ value: t.id, label: t.label }));
 
   return (
-    <div className="max-w-2xl min-w-0 space-y-md">
+    <div className="min-w-0 space-y-md">
       <header className="min-w-0">
         <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
           Skill Assessment
@@ -99,13 +102,23 @@ export default function SkillAssessmentSetup() {
         retryLabel="Retry generate quiz"
       />
 
-      <section className="dashboard-glass-card dashboard-card-padding rounded-2xl space-y-sm">
-        <h2 className="font-headline-section text-headline-section">Topic</h2>
+      <section className={accentCardClass}>
+        <SectionHeading
+          color="skills"
+          icon="school"
+          title="Topic"
+          description="Pick the skill area you want to test."
+        />
         <RadioGroup name="skill-topic" value={topic} onChange={setTopic} options={topicOptions} />
       </section>
 
-      <section className="dashboard-glass-card dashboard-card-padding rounded-2xl space-y-sm">
-        <h2 className="font-headline-section text-headline-section">Difficulty</h2>
+      <section className={accentCardClass}>
+        <SectionHeading
+          color="difficulty"
+          icon="tune"
+          title="Difficulty"
+          description="Match the quiz to your experience level."
+        />
         <RadioGroup
           name="skill-difficulty"
           value={difficulty}
@@ -114,8 +127,13 @@ export default function SkillAssessmentSetup() {
         />
       </section>
 
-      <section className="dashboard-glass-card dashboard-card-padding rounded-2xl space-y-sm">
-        <h2 className="font-headline-section text-headline-section">Length</h2>
+      <section className={accentCardClass}>
+        <SectionHeading
+          color="time"
+          icon="hourglass_top"
+          title="Length"
+          description="How many questions to include."
+        />
         <RadioGroup
           name="skill-length"
           value={questionCount}
@@ -124,11 +142,12 @@ export default function SkillAssessmentSetup() {
         />
       </section>
 
-      <button
+      <Button
         type="button"
+        variant="primary"
         onClick={handleStart}
         disabled={generateQuiz.isPending}
-        className="w-full sm:w-auto px-6 py-3 rounded-xl bg-secondary text-white font-label-md hover:opacity-90 disabled:opacity-60 min-h-[44px] inline-flex items-center justify-center gap-2"
+        className="min-h-[44px] w-full gap-2 px-6 py-3 sm:w-auto"
       >
         {generateQuiz.isPending ? (
           <>
@@ -138,7 +157,7 @@ export default function SkillAssessmentSetup() {
         ) : (
           'Generate & start quiz'
         )}
-      </button>
+      </Button>
     </div>
   );
 }

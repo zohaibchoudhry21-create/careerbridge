@@ -1,19 +1,22 @@
 import { IMAGES } from '../../config/images';
 import AnimatedContent from '../ui/AnimatedContent';
-import AppIcon from '../icons/AppIcon';
+import SectionIcon from '../ui/SectionIcon';
 
 const points = [
   {
     title: 'Upload your CV → AI builds your profile',
     description: 'Instant data extraction and structuring.',
+    color: 'success',
   },
   {
     title: 'One-click CV optimization',
     description: 'Tailored perfectly for any specific job description.',
+    color: 'scanner',
   },
   {
     title: 'Download ATS-ready resume',
     description: 'Export polished PDF templates optimized for applicant tracking systems.',
+    color: 'resume',
   },
 ];
 
@@ -46,7 +49,7 @@ export default function SolutionSection() {
             <ul className="space-y-4 pt-4">
               {points.map((point) => (
                 <li key={point.title} className="flex items-start gap-3">
-                  <AppIcon name="check_circle" size="h-5 w-5" className="text-secondary mt-1" />
+                  <SectionIcon color={point.color} icon="check_circle" size="sm" className="mt-1 shrink-0" />
                   <div>
                     <h4 className="font-label-md text-label-md text-on-surface">{point.title}</h4>
                     <p className="text-sm text-on-surface-variant">{point.description}</p>

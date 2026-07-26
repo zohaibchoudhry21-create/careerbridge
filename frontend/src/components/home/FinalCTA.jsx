@@ -1,3 +1,5 @@
+import Button from '../ui/Button';
+
 export default function FinalCTA() {
   return (
     <section className="py-xl text-center page-container-narrow reveal-zoom is-visible">
@@ -9,18 +11,20 @@ export default function FinalCTA() {
         the interviews.
       </p>
       <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-        <button
+        <Button
           type="button"
-          className="w-full sm:w-auto bg-secondary text-on-secondary font-label-md text-label-md rounded-2xl px-8 py-4 hover:bg-secondary-container transition-colors shadow-level-2 text-lg anim-bounce-loop"
+          variant="primary"
+          className="anim-bounce-loop w-full rounded-2xl px-8 py-4 text-lg shadow-level-2 sm:w-auto"
         >
           Get Started Free
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          className="w-full sm:w-auto bg-surface text-secondary border-2 border-secondary font-label-md text-label-md rounded-2xl px-8 py-4 hover:bg-surface-container transition-all hover:-translate-y-1 text-lg"
+          variant="secondary"
+          className="w-full rounded-2xl px-8 py-4 text-lg sm:w-auto"
         >
           Upload Your CV
-        </button>
+        </Button>
       </div>
     </section>
   );

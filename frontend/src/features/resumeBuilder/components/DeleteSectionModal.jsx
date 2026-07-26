@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import ResumeModal from './ResumeModal';
+import Button from '../../../components/ui/Button';
 
 export default function DeleteSectionModal({ open, sectionName, onClose, onConfirm }) {
   const [confirmed, setConfirmed] = useState(false);
@@ -11,24 +12,21 @@ export default function DeleteSectionModal({ open, sectionName, onClose, onConfi
 
   const footer = (
     <div className="flex gap-sm justify-end">
-      <button
-        type="button"
-        onClick={handleClose}
-        className="rounded-xl border border-outline-variant px-md py-sm font-label-md text-on-surface-variant hover:border-secondary/40 transition-colors"
-      >
+      <Button type="button" variant="secondary" onClick={handleClose} className="px-md py-sm">
         Cancel
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
+        variant="destructive"
         disabled={!confirmed}
         onClick={() => {
           onConfirm();
           setConfirmed(false);
         }}
-        className="rounded-xl bg-error px-md py-sm font-label-md text-white disabled:opacity-50 transition-colors"
+        className="px-md py-sm disabled:opacity-50"
       >
         Delete Section
-      </button>
+      </Button>
     </div>
   );
 

@@ -4,6 +4,7 @@ export const SETTINGS_DASHBOARD_CARDS = [
     title: 'Personal Information',
     description: 'Update your personal details and profile information.',
     icon: 'person',
+    color: 'role',
     to: '/settings/personal-information',
   },
   {
@@ -11,6 +12,7 @@ export const SETTINGS_DASHBOARD_CARDS = [
     title: 'Login & Security',
     description: 'Manage your password and secure your account.',
     icon: 'shield_lock',
+    color: 'security',
     to: '/settings/login-security',
   },
   {
@@ -18,6 +20,7 @@ export const SETTINGS_DASHBOARD_CARDS = [
     title: 'Privacy Settings',
     description: 'Control who can see your profile and how your data is used.',
     icon: 'shield',
+    color: 'focus',
     to: '/settings/privacy',
   },
   {
@@ -25,6 +28,7 @@ export const SETTINGS_DASHBOARD_CARDS = [
     title: 'Appearance & Language',
     description: 'Customize theme, language, and display preferences.',
     icon: 'palette',
+    color: 'mode',
     to: '/settings/appearance',
   },
   {
@@ -32,6 +36,7 @@ export const SETTINGS_DASHBOARD_CARDS = [
     title: 'Notifications',
     description: 'Manage your communication preferences.',
     icon: 'notifications',
+    color: 'warning',
     to: '/settings/notifications',
   },
   {
@@ -39,7 +44,7 @@ export const SETTINGS_DASHBOARD_CARDS = [
     title: 'Account Management',
     description: 'Deactivate, delete, export data, or sign out.',
     icon: 'manage_accounts',
+    color: 'danger',
     to: '/settings/account-management',
-    accent: 'error',
   },
 ];
