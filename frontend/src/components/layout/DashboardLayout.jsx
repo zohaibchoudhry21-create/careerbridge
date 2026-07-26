@@ -20,10 +20,10 @@ export default function DashboardLayout({ children, user }) {
 
   return (
     <div className="dashboard-shell h-screen overflow-hidden">
-      <header className="lg:hidden fixed top-0 inset-x-0 z-50 flex items-center gap-3 h-14 px-4 bg-background/80 backdrop-blur-xl border-b border-outline-variant/50">
+      <header className="lg:hidden fixed top-0 inset-x-0 z-50 flex items-center gap-3 h-14 px-4 bg-background/80 backdrop-blur-xl border-b border-outline-variant/50 dark:bg-[#0b1220]/90 dark:border-[#334155]">
         <button
           type="button"
-          className="relative z-[60] flex items-center justify-center w-10 h-10 rounded-2xl text-on-surface hover:bg-secondary/10 hover:scale-105 active:scale-95 transition-all duration-300 shrink-0"
+          className="relative z-[60] flex items-center justify-center w-10 h-10 rounded-2xl app-heading hover:bg-secondary/10 dark:hover:bg-secondary/15 hover:scale-105 active:scale-95 transition-all duration-300 shrink-0"
           onClick={toggleMobileSidebar}
           aria-label={mobileOpen ? t('sidebar.closeSidebar') : t('sidebar.openSidebar')}
           aria-expanded={mobileOpen}
@@ -49,7 +49,7 @@ export default function DashboardLayout({ children, user }) {
       <aside
         className={[
           'lg:hidden fixed top-0 start-0 z-50 h-full max-w-[85vw] w-[280px]',
-          'flex flex-col shrink-0 bg-background/90 backdrop-blur-xl border-e border-outline-variant/50',
+          'flex flex-col shrink-0 bg-background/90 backdrop-blur-xl border-e border-outline-variant/50 dark:bg-[#0f1728]/95 dark:border-[#334155]',
           'shadow-2xl py-sm px-sm overflow-hidden',
           'transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
           mobileOpen ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full',
@@ -65,7 +65,7 @@ export default function DashboardLayout({ children, user }) {
       <aside
         className={[
           'hidden lg:flex shrink-0 h-full flex-col',
-          'bg-background/80 backdrop-blur-xl border-e border-outline-variant/50',
+          'bg-background/80 backdrop-blur-xl border-e border-outline-variant/50 dark:bg-[#0f1728]/95 dark:border-[#334155]',
           'shadow-[8px_0_30px_rgba(0,0,0,0.04)] py-sm overflow-hidden',
           SIDEBAR_TRANSITION,
           collapsed ? 'w-[76px] px-2' : 'w-[280px] px-sm',

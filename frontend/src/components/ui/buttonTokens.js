@@ -29,6 +29,7 @@ export const buttonDestructiveClass = [
 export const buttonSecondaryClass = [
   BUTTON_BASE,
   'rounded-xl border border-outline-variant bg-transparent text-on-surface hover:bg-surface-container disabled:opacity-60',
+  'dark:border-[#334155] dark:text-[#eaf1ff] dark:hover:bg-[#243044]',
 ].join(' ');
 
 export const BUTTON_VARIANTS = {

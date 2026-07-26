@@ -18,9 +18,9 @@ export default function PageHeader({
   return (
     <header className={`min-w-0 ${layout} ${className}`.trim()}>
       <div className="min-w-0">
-        <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">{title}</h1>
+        <h1 className="font-headline-dashboard text-headline-dashboard app-heading">{title}</h1>
         {description ? (
-          <p className="font-body-md text-on-surface-variant mt-base">{description}</p>
+          <p className="font-body-md app-muted mt-base">{description}</p>
         ) : null}
       </div>
       {actions}
