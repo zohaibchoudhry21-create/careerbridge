@@ -33,6 +33,7 @@
     "mongoose": "^8.9.5",
     "multer": "^2.2.0",
     "nodemailer": "^9.0.3",
+    "otplib": "^13.4.1",
     "passport": "^0.7.0",
     "passport-facebook": "^3.0.0",
     "passport-google-oauth20": "^2.0.0",

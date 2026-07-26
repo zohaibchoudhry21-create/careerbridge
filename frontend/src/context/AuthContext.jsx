@@ -12,6 +12,7 @@ import {
   loginUser,
   logoutUser,
   setAuthToken,
+  verifyTwoFactorLogin,
 } from '../services/authService';
 import { clearStoredToken } from '../utils/tokenStorage';
 
@@ -95,6 +96,14 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (credentials, remember = true) => {
     const { data } = await loginUser({ ...credentials, remember });
+    if (data?.requires2FA) {
+      return { requires2FA: true };
+    }
+    return handleAuthSuccess(data);
+  }, [handleAuthSuccess]);
+
+  const verifyTwoFactor = useCallback(async (payload) => {
+    const { data } = await verifyTwoFactorLogin(payload);
     return handleAuthSuccess(data);
   }, [handleAuthSuccess]);
 
@@ -138,13 +147,14 @@ export function AuthProvider({ children }) {
       loading,
       isAuthenticated: Boolean(user && sessionActive),
       login,
+      verifyTwoFactor,
       logout,
       setSession: handleAuthSuccess,
       syncSession,
       updateUser,
       refreshUser,
     }),
-    [user, sessionActive, loading, login, logout, handleAuthSuccess, syncSession, updateUser, refreshUser]
+    [user, sessionActive, loading, login, verifyTwoFactor, logout, handleAuthSuccess, syncSession, updateUser, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

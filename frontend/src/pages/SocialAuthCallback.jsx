@@ -46,6 +46,12 @@ export default function SocialAuthCallback() {
     let isActive = true;
 
     const finishLogin = async (data) => {
+      if (data?.requires2FA) {
+        navigate('/login?twoFactor=1', { replace: true });
+        toast.info('Enter your authenticator code to continue.');
+        return;
+      }
+
       if (!data?.user) {
         throw new Error('Social login response did not include a user profile.');
       }

@@ -153,6 +153,34 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    twoFactorSecret: {
+      type: String,
+      select: false,
+      default: null,
+    },
+    twoFactorPendingSecret: {
+      type: String,
+      select: false,
+      default: null,
+    },
+    twoFactorBackupCodes: {
+      type: [
+        {
+          hash: { type: String, required: true },
+          usedAt: { type: Date, default: null },
+        },
+      ],
+      select: false,
+      default: [],
+    },
+    twoFactorConfirmedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );
@@ -207,6 +235,7 @@ userSchema.methods.toPublicJSON = function toPublicJSON() {
     isVerified: this.isVerified,
     loginAlertsEnabled: this.loginAlertsEnabled !== false,
     rememberDevicesEnabled: this.rememberDevicesEnabled === true,
+    twoFactorEnabled: this.twoFactorEnabled === true,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };
