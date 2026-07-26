@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import {
   decryptField,
@@ -103,10 +104,9 @@ const assertFreshOAuthSession = (req) => {
   const nowSeconds = Math.floor(Date.now() / 1000);
 
   if (typeof issuedAt !== 'number' || nowSeconds - issuedAt > maxAgeSeconds) {
-    throw new AppError(
-      `For security, sign out and sign in again with your provider, then try again within ${OAUTH_REAUTH_WINDOW_MINUTES} minutes.`,
-      403
-    );
+    throw new AppError(ERROR_CODES.TWO_FACTOR.OAUTH_REAUTH_REQUIRED, 403, {
+      minutes: OAUTH_REAUTH_WINDOW_MINUTES,
+    });
   }
 };
 
@@ -172,7 +172,7 @@ export const completeAuthenticatedLogin = async (
 
 export const setupTwoFactor = async (user) => {
   if (user.twoFactorEnabled) {
-    throw new AppError('Two-factor authentication is already enabled.', 400);
+    throw new AppError(ERROR_CODES.TWO_FACTOR.ALREADY_ENABLED, 400);
   }
 
   const secret = createTotpSecret();
@@ -191,20 +191,20 @@ export const confirmTwoFactor = async (user, code) => {
   const userWithSecrets = await loadUserWithTwoFactorSecrets(user._id);
 
   if (!userWithSecrets) {
-    throw new AppError('User no longer exists.', 404);
+    throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 404);
   }
 
   if (userWithSecrets.twoFactorEnabled) {
-    throw new AppError('Two-factor authentication is already enabled.', 400);
+    throw new AppError(ERROR_CODES.TWO_FACTOR.ALREADY_ENABLED, 400);
   }
 
   const pendingSecret = decryptUserSecret(userWithSecrets.twoFactorPendingSecret);
   if (!pendingSecret) {
-    throw new AppError('Start two-factor setup before confirming a code.', 400);
+    throw new AppError(ERROR_CODES.TWO_FACTOR.SETUP_REQUIRED, 400);
   }
 
   if (!verifyTotpCode(pendingSecret, code)) {
-    throw new AppError('Invalid authentication code. Please try again.', 400);
+    throw new AppError(ERROR_CODES.TWO_FACTOR.INVALID_CODE, 400);
   }
 
   const { codes, hashed } = await generateBackupCodes();
@@ -226,16 +226,16 @@ export const disableTwoFactor = async (req, { password, code, backupCode }) => {
   const user = await loadUserWithTwoFactorSecrets(req.user._id);
 
   if (!user?.twoFactorEnabled) {
-    throw new AppError('Two-factor authentication is not enabled.', 400);
+    throw new AppError(ERROR_CODES.TWO_FACTOR.NOT_ENABLED, 400);
   }
 
   if (user.provider === 'local') {
     if (!password) {
-      throw new AppError('Password confirmation is required to disable two-factor authentication.', 400);
+      throw new AppError(ERROR_CODES.TWO_FACTOR.PASSWORD_REQUIRED_DISABLE, 400);
     }
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-      throw new AppError('Password confirmation is incorrect.', 401);
+      throw new AppError(ERROR_CODES.TWO_FACTOR.PASSWORD_INCORRECT, 401);
     }
   } else {
     assertFreshOAuthSession(req);
@@ -246,7 +246,7 @@ export const disableTwoFactor = async (req, { password, code, backupCode }) => {
   const backupValid = backupCode ? await verifyBackupCode(user, backupCode) : false;
 
   if (!codeValid && !backupValid) {
-    throw new AppError('A valid authentication or backup code is required.', 401);
+    throw new AppError(ERROR_CODES.TWO_FACTOR.CODE_OR_BACKUP_REQUIRED, 401);
   }
 
   user.twoFactorEnabled = false;
@@ -265,16 +265,16 @@ export const regenerateBackupCodes = async (req, { password, code }) => {
   const user = await loadUserWithTwoFactorSecrets(req.user._id);
 
   if (!user?.twoFactorEnabled) {
-    throw new AppError('Two-factor authentication is not enabled.', 400);
+    throw new AppError(ERROR_CODES.TWO_FACTOR.NOT_ENABLED, 400);
   }
 
   if (user.provider === 'local') {
     if (!password) {
-      throw new AppError('Password confirmation is required to regenerate backup codes.', 400);
+      throw new AppError(ERROR_CODES.TWO_FACTOR.PASSWORD_REQUIRED_REGEN, 400);
     }
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-      throw new AppError('Password confirmation is incorrect.', 401);
+      throw new AppError(ERROR_CODES.TWO_FACTOR.PASSWORD_INCORRECT, 401);
     }
   } else {
     assertFreshOAuthSession(req);
@@ -282,7 +282,7 @@ export const regenerateBackupCodes = async (req, { password, code }) => {
 
   const secret = decryptUserSecret(user.twoFactorSecret);
   if (!verifyTotpCode(secret, code)) {
-    throw new AppError('Invalid authentication code. Please try again.', 401);
+    throw new AppError(ERROR_CODES.TWO_FACTOR.INVALID_CODE, 401);
   }
 
   const { codes, hashed } = await generateBackupCodes();
@@ -299,7 +299,7 @@ export const getTwoFactorStatus = async (userId) => {
   const user = await User.findById(userId).select('+twoFactorBackupCodes');
 
   if (!user) {
-    throw new AppError('User no longer exists.', 404);
+    throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 404);
   }
 
   const remainingBackupCodes = (user.twoFactorBackupCodes || []).filter((entry) => !entry.usedAt)
@@ -317,20 +317,20 @@ export const verifyTwoFactorLogin = async (res, req, { code, backupCode }) => {
   const challenge = getTwoFactorChallenge(challengeId);
 
   if (!challenge) {
-    throw new AppError('Two-factor challenge expired. Please sign in again.', 401);
+    throw new AppError(ERROR_CODES.TWO_FACTOR.CHALLENGE_EXPIRED, 401);
   }
 
   if (challenge.failedAttempts >= MAX_TWO_FACTOR_VERIFY_ATTEMPTS) {
     consumeTwoFactorChallenge(challengeId);
     clearTwoFactorChallengeCookie(res);
-    throw new AppError('Too many invalid codes. Please sign in again.', 429);
+    throw new AppError(ERROR_CODES.TWO_FACTOR.TOO_MANY_ATTEMPTS, 429);
   }
 
   const user = await loadUserWithTwoFactorSecrets(challenge.userId);
   if (!user?.twoFactorEnabled) {
     consumeTwoFactorChallenge(challengeId);
     clearTwoFactorChallengeCookie(res);
-    throw new AppError('Two-factor authentication is not enabled for this account.', 400);
+    throw new AppError(ERROR_CODES.TWO_FACTOR.NOT_ENABLED_FOR_ACCOUNT, 400);
   }
 
   const secret = decryptUserSecret(user.twoFactorSecret);
@@ -342,10 +342,10 @@ export const verifyTwoFactorLogin = async (res, req, { code, backupCode }) => {
     if (failures >= MAX_TWO_FACTOR_VERIFY_ATTEMPTS) {
       consumeTwoFactorChallenge(challengeId);
       clearTwoFactorChallengeCookie(res);
-      throw new AppError('Too many invalid codes. Please sign in again.', 429);
+      throw new AppError(ERROR_CODES.TWO_FACTOR.TOO_MANY_ATTEMPTS, 429);
     }
 
-    throw new AppError('Invalid authentication code. Please try again.', 401);
+    throw new AppError(ERROR_CODES.TWO_FACTOR.INVALID_CODE, 401);
   }
 
   const consumed = consumeTwoFactorChallenge(challengeId);

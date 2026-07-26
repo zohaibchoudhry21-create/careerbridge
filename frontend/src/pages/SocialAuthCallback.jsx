@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import useAuth from '../hooks/useAuth';
 import { exchangeSocialCode } from '../services/authService';
+import { isApiErrorCode, resolveApiError, resolveApiErrorCode } from '../utils/apiError';
 
 const socialLoginRequests = new Map();
 const socialLoginResults = new Map();
@@ -43,6 +44,8 @@ export default function SocialAuthCallback() {
 
   const code = searchParams.get('code');
   const error = searchParams.get('error');
+  const errorCode = searchParams.get('errorCode');
+  const errorParamsRaw = searchParams.get('errorParams');
 
   useEffect(() => {
     setMessage(t('social.completing'));
@@ -50,6 +53,30 @@ export default function SocialAuthCallback() {
 
   useEffect(() => {
     let isActive = true;
+
+    const resolveRedirectError = () => {
+      if (errorCode) {
+        let params = {};
+        if (errorParamsRaw) {
+          try {
+            params = JSON.parse(errorParamsRaw);
+          } catch {
+            params = {};
+          }
+        }
+        return resolveApiErrorCode(errorCode, params, t('social.failed'));
+      }
+
+      if (error) {
+        const decodedError = decodeURIComponent(error);
+        if (isApiErrorCode(decodedError)) {
+          return resolveApiErrorCode(decodedError, {}, t('social.failed'));
+        }
+        return decodedError;
+      }
+
+      return null;
+    };
 
     const finishLogin = async (data) => {
       if (data?.requires2FA) {
@@ -84,12 +111,12 @@ export default function SocialAuthCallback() {
     };
 
     const completeSocialLogin = async () => {
-      if (error) {
+      const redirectError = resolveRedirectError();
+      if (redirectError) {
         if (!isActive) return;
 
-        const decodedError = decodeURIComponent(error);
-        setMessage(decodedError);
-        toast.error(decodedError);
+        setMessage(redirectError);
+        toast.error(redirectError);
         setTimeout(() => navigate('/login', { replace: true }), 2500);
         return;
       }
@@ -113,10 +140,7 @@ export default function SocialAuthCallback() {
 
         socialLoginToasts.delete(code);
 
-        const apiMessage =
-          requestError.response?.data?.message ||
-          requestError.message ||
-          t('social.completeError');
+        const apiMessage = resolveApiError(requestError, t('social.completeError'));
         setMessage(apiMessage);
         toast.error(apiMessage);
         setTimeout(() => navigate('/login', { replace: true }), 2500);
@@ -128,7 +152,7 @@ export default function SocialAuthCallback() {
     return () => {
       isActive = false;
     };
-  }, [code, error, navigate, setSession, syncSession, t]);
+  }, [code, error, errorCode, errorParamsRaw, navigate, setSession, syncSession, t]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">

@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { verifyEmailOnce } from '../utils/verifyEmailOnce';
+import { resolveApiError } from '../utils/apiError';
 import { AuthLayout } from '../components/layout';
 import AppIcon from '../components/icons/AppIcon';
 
@@ -36,7 +37,7 @@ export default function VerifyEmail() {
       })
       .catch((error) => {
         if (!isActive) return;
-        const errorMessage = error.response?.data?.message || t('verifyEmail.errorFallback');
+        const errorMessage = resolveApiError(error, t('verifyEmail.errorFallback'));
         setStatus((prev) => {
           if (prev === 'success') return prev;
           toast.error(errorMessage);

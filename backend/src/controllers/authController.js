@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { assignVerificationToken } from './verifyEmailController.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
 import { setAuthCookie, clearAuthCookie, getTokenFromRequest, clearTwoFactorChallengeCookie, clearReactivationChallengeCookie } from '../utils/authCookie.js';
 import { consumeAuthCode } from '../utils/authCodeStore.js';
@@ -52,7 +53,7 @@ export const register = async (req, res, next) => {
         return res.status(200).json(response);
       }
 
-      throw new AppError('Email already registered. Please log in instead.', 400);
+      throw new AppError(ERROR_CODES.AUTH.EMAIL_ALREADY_REGISTERED, 400);
     }
 
     const user = await User.create({
@@ -88,21 +89,15 @@ export const login = async (req, res, next) => {
     const user = await User.findOne({ email }).select('+password');
 
     if (!user || !(await user.comparePassword(password))) {
-      throw new AppError('Invalid email or password', 401);
+      throw new AppError(ERROR_CODES.AUTH.INVALID_CREDENTIALS, 401);
     }
 
     if (!user.isVerified) {
-      throw new AppError(
-        'Please verify your email before logging in. Check your inbox for the verification link.',
-        403
-      );
+      throw new AppError(ERROR_CODES.AUTH.EMAIL_NOT_VERIFIED, 403);
     }
 
     if (user.status === 'inactive') {
-      throw new AppError(
-        'Please verify your email before logging in. Check your inbox for the verification link.',
-        403
-      );
+      throw new AppError(ERROR_CODES.AUTH.EMAIL_NOT_VERIFIED, 403);
     }
 
     if (needsReactivationChallenge(user)) {
@@ -122,7 +117,7 @@ export const login = async (req, res, next) => {
     }
 
     if (user.status !== 'active') {
-      throw new AppError('Account is not active. Please contact support.', 403);
+      throw new AppError(ERROR_CODES.AUTH.ACCOUNT_NOT_ACTIVE_SUPPORT, 403);
     }
 
     const remember = req.body.remember !== false;
@@ -242,7 +237,7 @@ export const resetPassword = async (req, res, next) => {
     }).select('+password');
 
     if (!user) {
-      throw new AppError('Invalid or expired reset token', 400);
+      throw new AppError(ERROR_CODES.AUTH.RESET_TOKEN_INVALID, 400);
     }
 
     user.password = password;
@@ -274,18 +269,18 @@ export const exchangeSocialCode = async (req, res, next) => {
     const authPayload = consumeAuthCode(code);
 
     if (!authPayload?.userId) {
-      throw new AppError('Invalid or expired authorization code', 400);
+      throw new AppError(ERROR_CODES.AUTH.AUTH_CODE_INVALID, 400);
     }
 
     const { userId, isNewUser } = authPayload;
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new AppError('User no longer exists.', 401);
+      throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 401);
     }
 
     if (!user.isVerified) {
-      throw new AppError('Account is not active.', 403);
+      throw new AppError(ERROR_CODES.AUTH.ACCOUNT_NOT_ACTIVE, 403);
     }
 
     if (needsReactivationChallenge(user)) {
@@ -303,7 +298,7 @@ export const exchangeSocialCode = async (req, res, next) => {
     }
 
     if (user.status !== 'active') {
-      throw new AppError('Account is not active.', 403);
+      throw new AppError(ERROR_CODES.AUTH.ACCOUNT_NOT_ACTIVE, 403);
     }
 
     const requiresTwoFactor = await issueLoginChallengeIfNeeded(res, req, {

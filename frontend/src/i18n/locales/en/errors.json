@@ -1,0 +1,127 @@
+{
+  "AUTH": {
+    "INVALID_CREDENTIALS": "Invalid email or password",
+    "EMAIL_NOT_VERIFIED": "Please verify your email before logging in. Check your inbox for the verification link.",
+    "EMAIL_ALREADY_REGISTERED": "Email already registered. Please log in instead.",
+    "EMAIL_ALREADY_REGISTERED_LOGIN": "Email already registered. Please use another email or log in.",
+    "ACCOUNT_NOT_ACTIVE": "Account is not active.",
+    "ACCOUNT_NOT_ACTIVE_SUPPORT": "Account is not active. Please contact support.",
+    "RESET_TOKEN_INVALID": "Invalid or expired reset token",
+    "AUTH_CODE_INVALID": "Invalid or expired authorization code",
+    "NOT_AUTHORIZED": "Not authorized. Please log in.",
+    "SESSION_EXPIRED": "Session expired. Please log in again.",
+    "TOKEN_INVALID": "Invalid or expired token. Please log in again.",
+    "AUTH_NOT_CONFIGURED": "Authentication is not configured.",
+    "OAUTH_REAUTH_REQUIRED": "For security, sign out and sign in again with {{provider}}, then try again within {{minutes}} minutes."
+  },
+  "VERIFY": {
+    "TOKEN_REQUIRED": "Verification token is required",
+    "TOKEN_INVALID": "Invalid or expired token",
+    "EMAIL_ALREADY_VERIFIED": "This email is already verified. Please log in."
+  },
+  "SOCIAL": {
+    "PROVIDER_NO_USER_ID": "Social provider did not return a user ID.",
+    "EMAIL_PERMISSION_REQUIRED": "Email permission is required to sign in with this provider.",
+    "EMAIL_EXISTS_LOCAL": "An account with this email already exists. Please log in with your email and password.",
+    "EMAIL_PROVIDER_MISMATCH": "This email is already linked to a different sign-in provider.",
+    "EMAIL_ALREADY_REGISTERED": "This email is already registered. Please use the original sign-in method for this account.",
+    "AUTH_FAILED": "Authentication failed. Please try again.",
+    "PROVIDER_NOT_CONFIGURED": "{{provider}} login is not configured on the server.",
+    "SIGN_IN_FAILED": "Unable to complete sign in. Please try again."
+  },
+  "REACTIVATION": {
+    "SESSION_EXPIRED": "Reactivation session expired. Please sign in again.",
+    "NOT_DEACTIVATED": "This account is not deactivated."
+  },
+  "TWO_FACTOR": {
+    "ALREADY_ENABLED": "Two-factor authentication is already enabled.",
+    "NOT_ENABLED": "Two-factor authentication is not enabled.",
+    "NOT_ENABLED_FOR_ACCOUNT": "Two-factor authentication is not enabled for this account.",
+    "SETUP_REQUIRED": "Start two-factor setup before confirming a code.",
+    "INVALID_CODE": "Invalid authentication code. Please try again.",
+    "CHALLENGE_EXPIRED": "Two-factor challenge expired. Please sign in again.",
+    "TOO_MANY_ATTEMPTS": "Too many invalid codes. Please sign in again.",
+    "PASSWORD_REQUIRED_DISABLE": "Password confirmation is required to disable two-factor authentication.",
+    "PASSWORD_REQUIRED_REGEN": "Password confirmation is required to regenerate backup codes.",
+    "PASSWORD_INCORRECT": "Password confirmation is incorrect.",
+    "CODE_OR_BACKUP_REQUIRED": "A valid authentication or backup code is required.",
+    "OAUTH_REAUTH_REQUIRED": "For security, sign out and sign in again with your provider, then try again within {{minutes}} minutes."
+  },
+  "PASSWORD": {
+    "REQUIRED": "Password is required",
+    "POLICY_VIOLATION": "Password does not meet requirements",
+    "TOO_COMMON": "Password is too common. Choose a stronger password",
+    "CURRENT_REQUIRED": "Current password is required",
+    "CONFIRM_REQUIRED": "Password confirmation is required",
+    "CONFIRM_MISMATCH": "Password confirmation does not match",
+    "CURRENT_INCORRECT": "Current password is incorrect.",
+    "SAME_AS_CURRENT": "New password must be different from your current password.",
+    "CHANGE_NOT_AVAILABLE": "Password changes are only available for email and password accounts."
+  },
+  "VALIDATION": {
+    "NAME_REQUIRED": "Name is required",
+    "EMAIL_REQUIRED": "Valid email is required",
+    "EMAIL_INVALID": "Valid email is required",
+    "RESET_TOKEN_REQUIRED": "Reset token is required",
+    "AUTH_CODE_REQUIRED": "Authorization code is required",
+    "AUTH_CODE_LENGTH": "Authorization code is required",
+    "TRUST_DEVICE_BOOLEAN": "trustDevice must be a boolean",
+    "LANGUAGE_REQUIRED": "languagePreference is required",
+    "LANGUAGE_UNSUPPORTED": "languagePreference must be a supported language code",
+    "NAME_EMPTY": "Name cannot be empty",
+    "NAME_TOO_LONG": "Name cannot exceed 100 characters",
+    "FIELD_MUST_BE_STRING": "{{field}} must be a string",
+    "FIELD_MAX_LENGTH": "{{field}} cannot exceed {{max}} characters",
+    "FIELD_EMPTY": "{{field}} cannot be empty",
+    "PHONE_TOO_LONG": "Phone number cannot exceed 30 characters",
+    "PHONE_INVALID": "Phone number format looks invalid",
+    "DATE_FORMAT": "Date of birth must be YYYY-MM-DD",
+    "DATE_INVALID": "Date of birth is not a valid date",
+    "DATE_FUTURE": "Date of birth cannot be in the future",
+    "DATE_OUT_OF_RANGE": "Date of birth is out of range",
+    "URL_TOO_LONG": "{{field}} cannot exceed 500 characters",
+    "URL_INVALID": "{{field}} must be a valid http(s) URL",
+    "BOOLEAN_REQUIRED": "{{field}} must be a boolean",
+    "PROFILE_FIELD_REQUIRED": "At least one profile field is required",
+    "CONFIRM_PHRASE_TOO_LONG": "Confirmation phrase is too long",
+    "SESSION_ID_INVALID": "Valid session id is required",
+    "TRUSTED_BOOLEAN": "trusted must be a boolean",
+    "TWO_FACTOR_CODE_FORMAT": "Authentication code must be a 6-digit number",
+    "TWO_FACTOR_BACKUP_FORMAT": "Backup code format looks invalid",
+    "TWO_FACTOR_CODE_REQUIRED": "Authentication code or backup code is required",
+    "INVALID_FIELD": "Invalid {{field}}.",
+    "GENERIC": "Validation failed."
+  },
+  "ACCOUNT": {
+    "USER_NOT_FOUND": "User no longer exists.",
+    "NAME_EMPTY": "Name cannot be empty.",
+    "EMAIL_ALREADY_REGISTERED": "Email already registered. Please use a different email.",
+    "DELETE_PASSWORD_REQUIRED": "Password confirmation is required to delete your account.",
+    "DELETE_PASSWORD_INCORRECT": "Password confirmation is incorrect.",
+    "DELETE_EMAIL_MISMATCH": "Email confirmation does not match your account email.",
+    "DELETE_PHRASE_REQUIRED": "Type \"{{phrase}}\" to confirm account deletion.",
+    "DELETE_OAUTH_REAUTH": "For security, sign out and sign in again with {{provider}}, then delete within {{minutes}} minutes.",
+    "ALREADY_DEACTIVATED": "Account is already deactivated.",
+    "EXPORT_COOLDOWN": "You can request another export in about {{hours}} hour(s)."
+  },
+  "SESSION": {
+    "NOT_FOUND": "Session not found.",
+    "CURRENT_NOT_IDENTIFIED": "Current session could not be identified.",
+    "TRUST_LIMIT_REACHED": "You have reached the maximum number of trusted devices. Remove trust from another device first.",
+    "REMEMBER_DEVICES_REQUIRED": "Enable Remember Devices in your security settings before trusting devices."
+  },
+  "COMMON": {
+    "ROUTE_NOT_FOUND": "Route not found",
+    "INTERNAL_ERROR": "Internal Server Error",
+    "PAYLOAD_TOO_LARGE": "Request payload is too large.",
+    "FILE_TOO_LARGE": "File is too large. Upload a document under 10 MB.",
+    "FILE_UPLOAD_FAILED": "File upload failed. Please check the file and try again.",
+    "DUPLICATE_EMAIL": "Email already registered. Please use another email or log in.",
+    "UNKNOWN": "Something went wrong. Please try again."
+  },
+  "RATE_LIMIT": {
+    "AUTH": "Too many auth attempts. Please try again later.",
+    "SOCIAL_AUTH": "Too many social login attempts. Please try again later.",
+    "RETRY_AFTER": " Try again in about {{seconds}} seconds."
+  }
+}

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import UserSession from '../models/UserSession.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
 import { clearAuthCookie } from '../utils/authCookie.js';
 import {
@@ -24,7 +25,7 @@ export const listSessions = async (req, res, next) => {
 export const revokeSession = async (req, res, next) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      throw new AppError('Session not found.', 404);
+      throw new AppError(ERROR_CODES.SESSION.NOT_FOUND, 404);
     }
 
     const session = await UserSession.findOne({
@@ -33,7 +34,7 @@ export const revokeSession = async (req, res, next) => {
     });
 
     if (!session || session.revokedAt) {
-      throw new AppError('Session not found.', 404);
+      throw new AppError(ERROR_CODES.SESSION.NOT_FOUND, 404);
     }
 
     session.revokedAt = new Date();
@@ -60,7 +61,7 @@ export const revokeSession = async (req, res, next) => {
 export const revokeOtherSessionsHandler = async (req, res, next) => {
   try {
     if (!req.authSessionId) {
-      throw new AppError('Current session could not be identified.', 400);
+      throw new AppError(ERROR_CODES.SESSION.CURRENT_NOT_IDENTIFIED, 400);
     }
 
     await revokeOtherSessions(req.user._id, req.authSessionId);
@@ -74,14 +75,11 @@ export const revokeOtherSessionsHandler = async (req, res, next) => {
 export const updateSessionTrust = async (req, res, next) => {
   try {
     if (!req.user.rememberDevicesEnabled) {
-      throw new AppError(
-        'Enable Remember Devices in your security settings before trusting devices.',
-        400
-      );
+      throw new AppError(ERROR_CODES.SESSION.REMEMBER_DEVICES_REQUIRED, 400);
     }
 
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      throw new AppError('Session not found.', 404);
+      throw new AppError(ERROR_CODES.SESSION.NOT_FOUND, 404);
     }
 
     const trusted = req.body.trusted === true;

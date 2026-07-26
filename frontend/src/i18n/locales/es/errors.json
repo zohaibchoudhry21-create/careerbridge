@@ -1,0 +1,127 @@
+{
+  "AUTH": {
+    "INVALID_CREDENTIALS": "Correo electrónico o contraseña no válidos",
+    "EMAIL_NOT_VERIFIED": "Verifica tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada para el enlace de verificación.",
+    "EMAIL_ALREADY_REGISTERED": "El correo electrónico ya está registrado. Inicia sesión en su lugar.",
+    "EMAIL_ALREADY_REGISTERED_LOGIN": "El correo electrónico ya está registrado. Usa otro correo o inicia sesión.",
+    "ACCOUNT_NOT_ACTIVE": "La cuenta no está activa.",
+    "ACCOUNT_NOT_ACTIVE_SUPPORT": "La cuenta no está activa. Contacta con soporte.",
+    "RESET_TOKEN_INVALID": "Token de restablecimiento no válido o caducado",
+    "AUTH_CODE_INVALID": "Código de autorización no válido o caducado",
+    "NOT_AUTHORIZED": "No autorizado. Inicia sesión.",
+    "SESSION_EXPIRED": "La sesión ha caducado. Inicia sesión de nuevo.",
+    "TOKEN_INVALID": "Token no válido o caducado. Inicia sesión de nuevo.",
+    "AUTH_NOT_CONFIGURED": "La autenticación no está configurada.",
+    "OAUTH_REAUTH_REQUIRED": "Por seguridad, cierra sesión e inicia sesión de nuevo con {{provider}}, luego inténtalo de nuevo en {{minutes}} minutos."
+  },
+  "VERIFY": {
+    "TOKEN_REQUIRED": "Se requiere el token de verificación",
+    "TOKEN_INVALID": "Token no válido o caducado",
+    "EMAIL_ALREADY_VERIFIED": "Este correo electrónico ya está verificado. Inicia sesión."
+  },
+  "SOCIAL": {
+    "PROVIDER_NO_USER_ID": "El proveedor social no devolvió un ID de usuario.",
+    "EMAIL_PERMISSION_REQUIRED": "Se requiere permiso de correo electrónico para iniciar sesión con este proveedor.",
+    "EMAIL_EXISTS_LOCAL": "Ya existe una cuenta con este correo electrónico. Inicia sesión con tu correo y contraseña.",
+    "EMAIL_PROVIDER_MISMATCH": "Este correo electrónico ya está vinculado a un proveedor de inicio de sesión diferente.",
+    "EMAIL_ALREADY_REGISTERED": "Este correo electrónico ya está registrado. Usa el método de inicio de sesión original de esta cuenta.",
+    "AUTH_FAILED": "La autenticación falló. Inténtalo de nuevo.",
+    "PROVIDER_NOT_CONFIGURED": "El inicio de sesión con {{provider}} no está configurado en el servidor.",
+    "SIGN_IN_FAILED": "No se pudo completar el inicio de sesión. Inténtalo de nuevo."
+  },
+  "REACTIVATION": {
+    "SESSION_EXPIRED": "La sesión de reactivación ha caducado. Inicia sesión de nuevo.",
+    "NOT_DEACTIVATED": "Esta cuenta no está desactivada."
+  },
+  "TWO_FACTOR": {
+    "ALREADY_ENABLED": "La autenticación de dos factores ya está activada.",
+    "NOT_ENABLED": "La autenticación de dos factores no está activada.",
+    "NOT_ENABLED_FOR_ACCOUNT": "La autenticación de dos factores no está activada para esta cuenta.",
+    "SETUP_REQUIRED": "Inicia la configuración de dos factores antes de confirmar un código.",
+    "INVALID_CODE": "Código de autenticación no válido. Inténtalo de nuevo.",
+    "CHALLENGE_EXPIRED": "El desafío de dos factores ha caducado. Inicia sesión de nuevo.",
+    "TOO_MANY_ATTEMPTS": "Demasiados códigos no válidos. Inicia sesión de nuevo.",
+    "PASSWORD_REQUIRED_DISABLE": "Se requiere confirmación de contraseña para desactivar la autenticación de dos factores.",
+    "PASSWORD_REQUIRED_REGEN": "Se requiere confirmación de contraseña para regenerar los códigos de respaldo.",
+    "PASSWORD_INCORRECT": "La confirmación de contraseña es incorrecta.",
+    "CODE_OR_BACKUP_REQUIRED": "Se requiere un código de autenticación o de respaldo válido.",
+    "OAUTH_REAUTH_REQUIRED": "Por seguridad, cierra sesión e inicia sesión de nuevo con tu proveedor, luego inténtalo de nuevo en {{minutes}} minutos."
+  },
+  "PASSWORD": {
+    "REQUIRED": "La contraseña es obligatoria",
+    "POLICY_VIOLATION": "La contraseña no cumple los requisitos",
+    "TOO_COMMON": "La contraseña es demasiado común. Elige una contraseña más segura",
+    "CURRENT_REQUIRED": "La contraseña actual es obligatoria",
+    "CONFIRM_REQUIRED": "La confirmación de contraseña es obligatoria",
+    "CONFIRM_MISMATCH": "La confirmación de contraseña no coincide",
+    "CURRENT_INCORRECT": "La contraseña actual es incorrecta.",
+    "SAME_AS_CURRENT": "La nueva contraseña debe ser diferente de tu contraseña actual.",
+    "CHANGE_NOT_AVAILABLE": "Los cambios de contraseña solo están disponibles para cuentas con correo y contraseña."
+  },
+  "VALIDATION": {
+    "NAME_REQUIRED": "El nombre es obligatorio",
+    "EMAIL_REQUIRED": "Se requiere un correo electrónico válido",
+    "EMAIL_INVALID": "Se requiere un correo electrónico válido",
+    "RESET_TOKEN_REQUIRED": "Se requiere el token de restablecimiento",
+    "AUTH_CODE_REQUIRED": "Se requiere el código de autorización",
+    "AUTH_CODE_LENGTH": "Se requiere el código de autorización",
+    "TRUST_DEVICE_BOOLEAN": "trustDevice debe ser un valor booleano",
+    "LANGUAGE_REQUIRED": "languagePreference es obligatorio",
+    "LANGUAGE_UNSUPPORTED": "languagePreference debe ser un código de idioma compatible",
+    "NAME_EMPTY": "El nombre no puede estar vacío",
+    "NAME_TOO_LONG": "El nombre no puede superar los 100 caracteres",
+    "FIELD_MUST_BE_STRING": "{{field}} debe ser una cadena de texto",
+    "FIELD_MAX_LENGTH": "{{field}} no puede superar {{max}} caracteres",
+    "FIELD_EMPTY": "{{field}} no puede estar vacío",
+    "PHONE_TOO_LONG": "El número de teléfono no puede superar los 30 caracteres",
+    "PHONE_INVALID": "El formato del número de teléfono parece no válido",
+    "DATE_FORMAT": "La fecha de nacimiento debe estar en formato AAAA-MM-DD",
+    "DATE_INVALID": "La fecha de nacimiento no es una fecha válida",
+    "DATE_FUTURE": "La fecha de nacimiento no puede ser en el futuro",
+    "DATE_OUT_OF_RANGE": "La fecha de nacimiento está fuera de rango",
+    "URL_TOO_LONG": "{{field}} no puede superar los 500 caracteres",
+    "URL_INVALID": "{{field}} debe ser una URL http(s) válida",
+    "BOOLEAN_REQUIRED": "{{field}} debe ser un valor booleano",
+    "PROFILE_FIELD_REQUIRED": "Se requiere al menos un campo de perfil",
+    "CONFIRM_PHRASE_TOO_LONG": "La frase de confirmación es demasiado larga",
+    "SESSION_ID_INVALID": "Se requiere un ID de sesión válido",
+    "TRUSTED_BOOLEAN": "trusted debe ser un valor booleano",
+    "TWO_FACTOR_CODE_FORMAT": "El código de autenticación debe ser un número de 6 dígitos",
+    "TWO_FACTOR_BACKUP_FORMAT": "El formato del código de respaldo parece no válido",
+    "TWO_FACTOR_CODE_REQUIRED": "Se requiere un código de autenticación o de respaldo",
+    "INVALID_FIELD": "{{field}} no válido.",
+    "GENERIC": "La validación falló."
+  },
+  "ACCOUNT": {
+    "USER_NOT_FOUND": "El usuario ya no existe.",
+    "NAME_EMPTY": "El nombre no puede estar vacío.",
+    "EMAIL_ALREADY_REGISTERED": "El correo electrónico ya está registrado. Usa un correo diferente.",
+    "DELETE_PASSWORD_REQUIRED": "Se requiere confirmación de contraseña para eliminar tu cuenta.",
+    "DELETE_PASSWORD_INCORRECT": "La confirmación de contraseña es incorrecta.",
+    "DELETE_EMAIL_MISMATCH": "La confirmación de correo electrónico no coincide con el correo de tu cuenta.",
+    "DELETE_PHRASE_REQUIRED": "Escribe \"{{phrase}}\" para confirmar la eliminación de la cuenta.",
+    "DELETE_OAUTH_REAUTH": "Por seguridad, cierra sesión e inicia sesión de nuevo con {{provider}}, luego elimina la cuenta en {{minutes}} minutos.",
+    "ALREADY_DEACTIVATED": "La cuenta ya está desactivada.",
+    "EXPORT_COOLDOWN": "Puedes solicitar otra exportación en aproximadamente {{hours}} hora(s)."
+  },
+  "SESSION": {
+    "NOT_FOUND": "Sesión no encontrada.",
+    "CURRENT_NOT_IDENTIFIED": "No se pudo identificar la sesión actual.",
+    "TRUST_LIMIT_REACHED": "Has alcanzado el número máximo de dispositivos de confianza. Elimina la confianza de otro dispositivo primero.",
+    "REMEMBER_DEVICES_REQUIRED": "Activa Recordar dispositivos en tu configuración de seguridad antes de confiar en dispositivos."
+  },
+  "COMMON": {
+    "ROUTE_NOT_FOUND": "Ruta no encontrada",
+    "INTERNAL_ERROR": "Error interno del servidor",
+    "PAYLOAD_TOO_LARGE": "La carga útil de la solicitud es demasiado grande.",
+    "FILE_TOO_LARGE": "El archivo es demasiado grande. Sube un documento de menos de 10 MB.",
+    "FILE_UPLOAD_FAILED": "Error al subir el archivo. Revisa el archivo e inténtalo de nuevo.",
+    "DUPLICATE_EMAIL": "El correo electrónico ya está registrado. Usa otro correo o inicia sesión.",
+    "UNKNOWN": "Algo salió mal. Inténtalo de nuevo."
+  },
+  "RATE_LIMIT": {
+    "AUTH": "Demasiados intentos de autenticación. Inténtalo de nuevo más tarde.",
+    "SOCIAL_AUTH": "Demasiados intentos de inicio de sesión social. Inténtalo de nuevo más tarde.",
+    "RETRY_AFTER": " Inténtalo de nuevo en aproximadamente {{seconds}} segundos."
+  }
+}

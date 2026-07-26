@@ -2,6 +2,10 @@ import User from '../models/User.js';
 import BuiltResume from '../models/BuiltResume.js';
 import UserSession from '../models/UserSession.js';
 import { ZipArchive as archiver } from 'archiver';
+import {
+  ACCOUNT_DELETE_CONFIRMATION_PHRASE,
+  ERROR_CODES,
+} from '../constants/apiErrorCodes.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
 import { assignVerificationToken } from './verifyEmailController.js';
 import { clearAuthCookie, setAuthCookie, clearTwoFactorChallengeCookie, clearReactivationChallengeCookie } from '../utils/authCookie.js';
@@ -14,7 +18,7 @@ import {
   setSessionTrust,
 } from '../utils/sessionService.js';
 
-const ACCOUNT_DELETE_CONFIRMATION = 'DELETE MY ACCOUNT';
+const ACCOUNT_DELETE_CONFIRMATION = ACCOUNT_DELETE_CONFIRMATION_PHRASE;
 /** OAuth destructive actions require a freshly issued session (minutes). */
 const OAUTH_REAUTH_WINDOW_MINUTES = 15;
 const EXPORT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
@@ -53,7 +57,7 @@ export const updateLanguagePreference = async (req, res, next) => {
     const user = await loadUser(req.user._id);
 
     if (!user) {
-      throw new AppError('User no longer exists.', 404);
+      throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 404);
     }
 
     user.languagePreference = String(req.body.languagePreference);
@@ -72,7 +76,7 @@ export const updateAccount = async (req, res, next) => {
     const user = await loadUser(req.user._id);
 
     if (!user) {
-      throw new AppError('User no longer exists.', 404);
+      throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 404);
     }
 
     const { name, email, dateOfBirth } = req.body;
@@ -83,7 +87,7 @@ export const updateAccount = async (req, res, next) => {
     if (name !== undefined) {
       const trimmedName = String(name).trim();
       if (!trimmedName) {
-        throw new AppError('Name cannot be empty.', 400);
+        throw new AppError(ERROR_CODES.ACCOUNT.NAME_EMPTY, 400);
       }
       user.name = trimmedName;
     }
@@ -112,7 +116,7 @@ export const updateAccount = async (req, res, next) => {
         const existingUser = await User.findOne({ email: normalizedEmail });
 
         if (existingUser && String(existingUser._id) !== String(user._id)) {
-          throw new AppError('Email already registered. Please use a different email.', 400);
+          throw new AppError(ERROR_CODES.ACCOUNT.EMAIL_ALREADY_REGISTERED, 400);
         }
 
         user.email = normalizedEmail;
@@ -173,23 +177,23 @@ export const changePassword = async (req, res, next) => {
     const user = await User.findById(req.user._id).select('+password');
 
     if (!user) {
-      throw new AppError('User no longer exists.', 404);
+      throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 404);
     }
 
     if (user.provider !== 'local') {
-      throw new AppError('Password changes are only available for email and password accounts.', 400);
+      throw new AppError(ERROR_CODES.PASSWORD.CHANGE_NOT_AVAILABLE, 400);
     }
 
     const { currentPassword, newPassword } = req.body;
     const isCurrentPasswordValid = await user.comparePassword(currentPassword);
 
     if (!isCurrentPasswordValid) {
-      throw new AppError('Current password is incorrect.', 401);
+      throw new AppError(ERROR_CODES.PASSWORD.CURRENT_INCORRECT, 401);
     }
 
     const isSameAsCurrent = await user.comparePassword(newPassword);
     if (isSameAsCurrent) {
-      throw new AppError('New password must be different from your current password.', 400);
+      throw new AppError(ERROR_CODES.PASSWORD.SAME_AS_CURRENT, 400);
     }
 
     user.password = newPassword;
@@ -221,20 +225,20 @@ export const deleteAccount = async (req, res, next) => {
     const user = await User.findById(req.user._id).select('+password');
 
     if (!user) {
-      throw new AppError('User no longer exists.', 404);
+      throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 404);
     }
 
     const { password, confirmEmail, confirmPhrase } = req.body;
 
     if (user.provider === 'local') {
       if (!password) {
-        throw new AppError('Password confirmation is required to delete your account.', 400);
+        throw new AppError(ERROR_CODES.ACCOUNT.DELETE_PASSWORD_REQUIRED, 400);
       }
 
       const isPasswordValid = await user.comparePassword(password);
 
       if (!isPasswordValid) {
-        throw new AppError('Password confirmation is incorrect.', 401);
+        throw new AppError(ERROR_CODES.ACCOUNT.DELETE_PASSWORD_INCORRECT, 401);
       }
     } else {
       const normalizedConfirmEmail = String(confirmEmail || '')
@@ -242,15 +246,14 @@ export const deleteAccount = async (req, res, next) => {
         .toLowerCase();
 
       if (!normalizedConfirmEmail || normalizedConfirmEmail !== user.email) {
-        throw new AppError('Email confirmation does not match your account email.', 400);
+        throw new AppError(ERROR_CODES.ACCOUNT.DELETE_EMAIL_MISMATCH, 400);
       }
 
       const phrase = String(confirmPhrase || '').trim().toUpperCase();
       if (phrase !== ACCOUNT_DELETE_CONFIRMATION) {
-        throw new AppError(
-          `Type "${ACCOUNT_DELETE_CONFIRMATION}" to confirm account deletion.`,
-          400
-        );
+        throw new AppError(ERROR_CODES.ACCOUNT.DELETE_PHRASE_REQUIRED, 400, {
+          phrase: ACCOUNT_DELETE_CONFIRMATION,
+        });
       }
 
       const issuedAt = req.authTokenIssuedAt;
@@ -261,10 +264,10 @@ export const deleteAccount = async (req, res, next) => {
         typeof issuedAt !== 'number' ||
         nowSeconds - issuedAt > maxAgeSeconds
       ) {
-        throw new AppError(
-          `For security, sign out and sign in again with ${user.provider}, then delete within ${OAUTH_REAUTH_WINDOW_MINUTES} minutes.`,
-          403
-        );
+        throw new AppError(ERROR_CODES.ACCOUNT.DELETE_OAUTH_REAUTH, 403, {
+          provider: user.provider,
+          minutes: OAUTH_REAUTH_WINDOW_MINUTES,
+        });
       }
     }
 
@@ -284,11 +287,11 @@ export const deactivateAccount = async (req, res, next) => {
     const user = await loadUser(req.user._id);
 
     if (!user) {
-      throw new AppError('User no longer exists.', 404);
+      throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 404);
     }
 
     if (user.status === 'deactivated') {
-      throw new AppError('Account is already deactivated.', 400);
+      throw new AppError(ERROR_CODES.ACCOUNT.ALREADY_DEACTIVATED, 400);
     }
 
     user.status = 'deactivated';
@@ -323,17 +326,16 @@ export const exportUserData = async (req, res, next) => {
     const user = await loadUser(req.user._id);
 
     if (!user) {
-      throw new AppError('User no longer exists.', 404);
+      throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 404);
     }
 
     if (user.lastDataExportAt) {
       const elapsed = Date.now() - new Date(user.lastDataExportAt).getTime();
       if (elapsed < EXPORT_COOLDOWN_MS) {
         const hoursRemaining = Math.ceil((EXPORT_COOLDOWN_MS - elapsed) / (60 * 60 * 1000));
-        throw new AppError(
-          `You can request another export in about ${hoursRemaining} hour${hoursRemaining === 1 ? '' : 's'}.`,
-          429
-        );
+        throw new AppError(ERROR_CODES.ACCOUNT.EXPORT_COOLDOWN, 429, {
+          hours: hoursRemaining,
+        });
       }
     }
 

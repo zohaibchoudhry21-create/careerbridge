@@ -1,6 +1,7 @@
 import passport from 'passport';
 import { createAuthCode } from '../utils/authCodeStore.js';
 import { isProviderConfigured } from '../config/passport.js';
+import { ERROR_CODES, isErrorCode } from '../constants/apiErrorCodes.js';
 
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 const API_URL = process.env.API_URL || `http://localhost:${process.env.PORT || 5000}`;
@@ -38,9 +39,24 @@ export const getSocialAuthStatus = (_req, res) => {
   });
 };
 
-const redirectWithError = (res, message) => {
-  const error = encodeURIComponent(message || 'Social authentication failed.');
-  return res.redirect(`${CLIENT_URL}/auth/social/callback?error=${error}`);
+const redirectWithErrorCode = (res, code, params = {}) => {
+  const search = new URLSearchParams({ errorCode: code });
+  if (params && Object.keys(params).length > 0) {
+    search.set('errorParams', JSON.stringify(params));
+  }
+  return res.redirect(`${CLIENT_URL}/auth/social/callback?${search.toString()}`);
+};
+
+const resolveSocialError = (err, fallbackCode = ERROR_CODES.SOCIAL.AUTH_FAILED) => {
+  if (err?.code && isErrorCode(err.code)) {
+    return { code: err.code, params: err.params || {} };
+  }
+
+  if (typeof err?.message === 'string' && isErrorCode(err.message)) {
+    return { code: err.message, params: {} };
+  }
+
+  return { code: fallbackCode, params: {} };
 };
 
 const getProviderAuthOptions = (provider) => {
@@ -50,8 +66,6 @@ const getProviderAuthOptions = (provider) => {
   };
 
   if (provider === 'google') {
-    // Without prompt, Google may auto-select the signed-in account and skip consent
-    // if the user already approved this app + scopes before.
     options.prompt = process.env.GOOGLE_OAUTH_PROMPT || 'select_account consent';
   }
 
@@ -60,10 +74,9 @@ const getProviderAuthOptions = (provider) => {
 
 export const initiateSocialAuth = (provider) => (req, res, next) => {
   if (!isProviderConfigured(provider)) {
-    return redirectWithError(
-      res,
-      `${provider.charAt(0).toUpperCase()}${provider.slice(1)} login is not configured on the server.`
-    );
+    return redirectWithErrorCode(res, ERROR_CODES.SOCIAL.PROVIDER_NOT_CONFIGURED, {
+      provider: provider.charAt(0).toUpperCase() + provider.slice(1),
+    });
   }
 
   return passport.authenticate(provider, getProviderAuthOptions(provider))(req, res, next);
@@ -71,10 +84,9 @@ export const initiateSocialAuth = (provider) => (req, res, next) => {
 
 export const handleSocialAuthCallback = (provider) => (req, res, next) => {
   if (!isProviderConfigured(provider)) {
-    return redirectWithError(
-      res,
-      `${provider.charAt(0).toUpperCase()}${provider.slice(1)} login is not configured on the server.`
-    );
+    return redirectWithErrorCode(res, ERROR_CODES.SOCIAL.PROVIDER_NOT_CONFIGURED, {
+      provider: provider.charAt(0).toUpperCase() + provider.slice(1),
+    });
   }
 
   if (!req.query.code && !req.query.error) {
@@ -90,14 +102,17 @@ export const handleSocialAuthCallback = (provider) => (req, res, next) => {
     (err, user, info) => {
       if (err) {
         console.error(`[social-auth] ${provider} callback error:`, err.message);
-        return redirectWithError(res, err.message);
+        const { code, params } = resolveSocialError(err);
+        return redirectWithErrorCode(res, code, params);
       }
 
       if (!user) {
-        const failureMessage =
-          info?.message || 'Authentication failed. Please try again.';
+        const failureMessage = info?.message || '';
         console.error(`[social-auth] ${provider} callback failed:`, failureMessage);
-        return redirectWithError(res, failureMessage);
+        const { code, params } = isErrorCode(failureMessage)
+          ? { code: failureMessage, params: {} }
+          : { code: ERROR_CODES.SOCIAL.AUTH_FAILED, params: {} };
+        return redirectWithErrorCode(res, code, params);
       }
 
       try {
@@ -105,7 +120,7 @@ export const handleSocialAuthCallback = (provider) => (req, res, next) => {
         return res.redirect(`${CLIENT_URL}/auth/social/callback?code=${code}`);
       } catch (error) {
         console.error(`[social-auth] ${provider} code creation failed:`, error.message);
-        return redirectWithError(res, 'Unable to complete sign in. Please try again.');
+        return redirectWithErrorCode(res, ERROR_CODES.SOCIAL.SIGN_IN_FAILED);
       }
     }
   )(req, res, next);

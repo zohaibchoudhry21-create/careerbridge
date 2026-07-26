@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { resendVerification } from '../services/authService';
+import { resolveApiError } from '../utils/apiError';
 import { AuthLayout } from '../components/layout';
 import AppIcon from '../components/icons/AppIcon';
 
@@ -30,7 +31,7 @@ export default function VerifyEmailSent() {
         setDevLink(data.verificationUrl);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || t('toasts.resendFailed'));
+      toast.error(resolveApiError(error, t('toasts.resendFailed')));
     } finally {
       setIsSubmitting(false);
     }

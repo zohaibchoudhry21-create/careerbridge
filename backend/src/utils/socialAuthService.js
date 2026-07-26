@@ -1,4 +1,6 @@
 import User from '../models/User.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
+import { AppError } from './sendResponse.js';
 
 const normalizeEmail = (email) => String(email || '').toLowerCase().trim();
 
@@ -12,11 +14,11 @@ export const findOrCreateSocialUser = async ({
   const normalizedEmail = normalizeEmail(email);
 
   if (!providerId) {
-    throw new Error('Social provider did not return a user ID.');
+    throw new AppError(ERROR_CODES.SOCIAL.PROVIDER_NO_USER_ID, 400);
   }
 
   if (!normalizedEmail) {
-    throw new Error('Email permission is required to sign in with this provider.');
+    throw new AppError(ERROR_CODES.SOCIAL.EMAIL_PERMISSION_REQUIRED, 400);
   }
 
   let user = await User.findOne({ provider, providerId });
@@ -54,22 +56,15 @@ export const findOrCreateSocialUser = async ({
   const existingByEmail = await User.findOne({ email: normalizedEmail });
 
   if (existingByEmail) {
-    // Never auto-link by email alone — prevents account takeover if an OAuth
-    // provider returns an email that already belongs to another account.
     if (existingByEmail.provider === 'local') {
-      throw new Error(
-        'An account with this email already exists. Please log in with your email and password.'
-      );
+      throw new AppError(ERROR_CODES.SOCIAL.EMAIL_EXISTS_LOCAL, 400);
     }
 
     if (existingByEmail.provider !== provider) {
-      throw new Error('This email is already linked to a different sign-in provider.');
+      throw new AppError(ERROR_CODES.SOCIAL.EMAIL_PROVIDER_MISMATCH, 400);
     }
 
-    // Same provider but missing providerId match is unexpected; refuse rather than overwrite.
-    throw new Error(
-      'This email is already registered. Please use the original sign-in method for this account.'
-    );
+    throw new AppError(ERROR_CODES.SOCIAL.EMAIL_ALREADY_REGISTERED, 400);
   }
 
   user = await User.create({
@@ -82,6 +77,7 @@ export const findOrCreateSocialUser = async ({
     status: 'active',
   });
 
+  user._isNewSocialUser = true;
   return { user, isNewUser: true };
 };
 
