@@ -3,10 +3,6 @@
     "title": "Cuenta",
     "description": "Administra la información de tu cuenta, seguridad y preferencias.",
     "manage": "Administrar",
-    "rtlPreview": {
-      "label": "Idioma (vista previa RTL)",
-      "note": "Temporal: se moverá a la barra de navegación en la Fase B6"
-    },
     "cards": {
       "personal-information": {
         "title": "Información personal",
