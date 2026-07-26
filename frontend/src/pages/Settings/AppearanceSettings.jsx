@@ -5,14 +5,12 @@ import useAuth from '../../hooks/useAuth';
 import { useLanguageSwitcher } from '../../hooks/useLanguageSwitcher';
 import SettingsPageShell, { simulateSave } from '../../components/settings/SettingsPageShell';
 import SectionCard from '../../components/settings/SectionCard';
-import RadioGroup from '../../components/settings/RadioGroup';
 import SelectField from '../../components/settings/SelectField';
 import ToggleSwitch from '../../components/settings/ToggleSwitch';
 import { DATE_FORMAT_OPTIONS } from '../../components/settings/settingsDummyData';
 import { DEFAULT_LANGUAGE_PREFERENCE } from '../../i18n/languagePreference';
 
 const DEFAULT_APPEARANCE = {
-  theme: 'Light',
   language: DEFAULT_LANGUAGE_PREFERENCE,
   timezone: 'Pacific Time (PT)',
   dateFormat: 'MM/DD/YYYY',
@@ -36,27 +34,6 @@ export default function AppearanceSettings() {
       language: user.languagePreference,
     }));
   }, [user?.languagePreference]);
-
-  const themeOptions = useMemo(
-    () => [
-      {
-        value: 'Light',
-        label: t('appearance.theme.light'),
-        description: t('appearance.theme.lightDescription'),
-      },
-      {
-        value: 'Dark',
-        label: t('appearance.theme.dark'),
-        description: t('appearance.theme.darkDescription'),
-      },
-      {
-        value: 'System',
-        label: t('appearance.theme.system'),
-        description: t('appearance.theme.systemDescription'),
-      },
-    ],
-    [t]
-  );
 
   const languageOptions = useMemo(
     () => [
@@ -124,15 +101,6 @@ export default function AppearanceSettings() {
       cancelLabel={t('appearance.resetToDefault')}
       saving={saving}
     >
-      <SectionCard title={t('appearance.theme.title')} icon="palette" color="mode">
-        <RadioGroup
-          name="theme"
-          value={settings.theme}
-          onChange={(value) => setSettings((current) => ({ ...current, theme: value }))}
-          options={themeOptions}
-        />
-      </SectionCard>
-
       <SectionCard title={t('appearance.languageRegion.title')} icon="language" color="role">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <SelectField
