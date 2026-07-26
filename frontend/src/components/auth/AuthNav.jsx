@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import LanguageSelector from '../../i18n/components/LanguageSelector';
 
 export default function AuthNav({ active = 'login' }) {
   return (
@@ -38,6 +39,7 @@ export default function AuthNav({ active = 'login' }) {
         </div>
 
         <div className="flex items-center gap-md">
+          <LanguageSelector />
           <Link
             to="/login"
             className={`font-label-md text-label-md transition-colors duration-200 ${

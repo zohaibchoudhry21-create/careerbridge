@@ -4,8 +4,6 @@ import { DashboardLayout, PageContainer, PageHeader } from '../../components/lay
 import AppIcon from '../../components/icons/AppIcon';
 import SettingCard from '../../components/settings/SettingCard';
 import { useSettingsCards } from '../../hooks/useSettingsCards';
-import RtlLanguagePreview from '../../i18n/components/RtlLanguagePreview';
-
 export default function Settings() {
   const { user, loading } = useAuth();
   const { t } = useTranslation('settings');
@@ -24,7 +22,6 @@ export default function Settings() {
   return (
     <DashboardLayout user={user}>
       <PageContainer>
-        <RtlLanguagePreview />
         <PageHeader title={t('hub.title')} description={t('hub.description')} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-sm min-w-0">

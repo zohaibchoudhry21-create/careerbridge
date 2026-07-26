@@ -1,16 +1,19 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
+import useAuth from '../../hooks/useAuth';
+import { useLanguageSwitcher } from '../../hooks/useLanguageSwitcher';
 import SettingsPageShell, { simulateSave } from '../../components/settings/SettingsPageShell';
 import SectionCard from '../../components/settings/SectionCard';
 import RadioGroup from '../../components/settings/RadioGroup';
 import SelectField from '../../components/settings/SelectField';
 import ToggleSwitch from '../../components/settings/ToggleSwitch';
 import { DATE_FORMAT_OPTIONS } from '../../components/settings/settingsDummyData';
+import { DEFAULT_LANGUAGE_PREFERENCE } from '../../i18n/languagePreference';
 
 const DEFAULT_APPEARANCE = {
   theme: 'Light',
-  language: 'en-US',
+  language: DEFAULT_LANGUAGE_PREFERENCE,
   timezone: 'Pacific Time (PT)',
   dateFormat: 'MM/DD/YYYY',
   timeFormat: '12 Hour',
@@ -21,8 +24,18 @@ const DEFAULT_APPEARANCE = {
 
 export default function AppearanceSettings() {
   const { t } = useTranslation('settings');
+  const { user } = useAuth();
+  const { setLanguageByPreference } = useLanguageSwitcher();
   const [settings, setSettings] = useState(DEFAULT_APPEARANCE);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!user?.languagePreference) return;
+    setSettings((current) => ({
+      ...current,
+      language: user.languagePreference,
+    }));
+  }, [user?.languagePreference]);
 
   const themeOptions = useMemo(
     () => [
@@ -50,6 +63,7 @@ export default function AppearanceSettings() {
       { value: 'en-US', label: t('appearance.languageRegion.languages.enUS') },
       { value: 'en-GB', label: t('appearance.languageRegion.languages.enGB') },
       { value: 'es', label: t('appearance.languageRegion.languages.es') },
+      { value: 'ur', label: t('appearance.languageRegion.languages.ur') },
     ],
     [t]
   );
@@ -75,6 +89,12 @@ export default function AppearanceSettings() {
 
   const updateField = (field) => (event) => {
     setSettings((current) => ({ ...current, [field]: event.target.value }));
+  };
+
+  const handleLanguageChange = async (event) => {
+    const preference = event.target.value;
+    setSettings((current) => ({ ...current, language: preference }));
+    await setLanguageByPreference(preference);
   };
 
   const handleSave = async () => {
@@ -119,7 +139,7 @@ export default function AppearanceSettings() {
             id="language"
             label={t('appearance.languageRegion.language')}
             value={settings.language}
-            onChange={updateField('language')}
+            onChange={handleLanguageChange}
             options={languageOptions}
           />
           <SelectField

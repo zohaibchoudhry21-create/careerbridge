@@ -69,6 +69,14 @@ const optionalUrlField = (field) =>
       return true;
     });
 
+export const updateLanguagePreferenceValidation = [
+  body('languagePreference')
+    .notEmpty()
+    .withMessage('languagePreference is required')
+    .isIn(['en-US', 'en-GB', 'es', 'ur'])
+    .withMessage('languagePreference must be a supported language code'),
+];
+
 export const updateProfileValidation = [
   body('name')
     .optional()
@@ -139,7 +147,10 @@ export const updateProfileValidation = [
     .withMessage('languagePreference must be a supported language code'),
   body().custom((_value, { req }) => {
     const hasField = PROFILE_UPDATE_FIELDS.some((field) => req.body[field] !== undefined);
-    if (!hasField) {
+    const hasLanguageOnly =
+      req.body.languagePreference !== undefined &&
+      Object.keys(req.body).every((key) => key === 'languagePreference');
+    if (!hasField && !hasLanguageOnly) {
       throw new Error('At least one profile field is required');
     }
     return true;

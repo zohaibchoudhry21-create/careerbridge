@@ -48,6 +48,25 @@ const syncDisplayNameFromParts = (user) => {
   }
 };
 
+export const updateLanguagePreference = async (req, res, next) => {
+  try {
+    const user = await loadUser(req.user._id);
+
+    if (!user) {
+      throw new AppError('User no longer exists.', 404);
+    }
+
+    user.languagePreference = String(req.body.languagePreference);
+    await user.save();
+
+    sendResponse(res, 200, true, 'Language preference updated', {
+      user: user.toPublicJSON(),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateAccount = async (req, res, next) => {
   try {
     const user = await loadUser(req.user._id);

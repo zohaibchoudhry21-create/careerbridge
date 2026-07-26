@@ -164,7 +164,8 @@
       "languages": {
         "enUS": "Inglés (EE. UU.)",
         "enGB": "Inglés (RU)",
-        "es": "Español"
+        "es": "Español",
+        "ur": "Urdu"
       },
       "timezones": {
         "pacific": "Hora del Pacífico (PT)",

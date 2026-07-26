@@ -44,5 +44,14 @@
   },
   "errors": {
     "somethingWentWrong": "Algo salió mal."
+  },
+  "languageSelector": {
+    "label": "Idioma",
+    "saveError": "No se pudo guardar la preferencia de idioma.",
+    "options": {
+      "en": "Inglés",
+      "es": "Español",
+      "ur": "Urdu"
+    }
   }
 }

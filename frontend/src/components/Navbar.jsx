@@ -6,6 +6,7 @@ import BrandLogo from './brand/BrandLogo';
 import AppIcon from './icons/AppIcon';
 import { buttonPrimaryClass, buttonSecondaryClass } from './ui/buttonTokens';
 import { cn } from '../lib/utils';
+import LanguageSelector from '../i18n/components/LanguageSelector';
 
 const linkClassName =
   'text-on-surface-variant font-medium hover:text-secondary transition-colors duration-200 whitespace-nowrap nav-link-underline text-sm';
@@ -70,6 +71,7 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-2 sm:gap-3 shrink-0">
+          <LanguageSelector />
           <Link
             to="/login"
             className={cn(buttonSecondaryClass, 'px-3.5 py-1.5 text-label-md')}
@@ -108,11 +110,17 @@ export default function Navbar() {
       )}
 
       <div
-        className={`xl:hidden fixed top-14 right-0 z-50 h-[calc(100vh-3.5rem)] w-full max-w-sm bg-surface border-l border-outline-variant shadow-level-2 overflow-y-auto transition-transform duration-300 ease-in-out ${
-          menuOpen ? 'translate-x-0 pointer-events-auto' : 'translate-x-full pointer-events-none'
-        }`}
+        className={cn(
+          'xl:hidden fixed top-14 end-0 z-50 h-[calc(100vh-3.5rem)] w-full max-w-sm bg-surface border-s border-outline-variant shadow-level-2 overflow-y-auto transition-transform duration-300 ease-in-out',
+          menuOpen
+            ? 'translate-x-0 pointer-events-auto'
+            : 'ltr:translate-x-full rtl:-translate-x-full pointer-events-none'
+        )}
       >
         <div className="flex flex-col gap-1 p-4">
+          <div className="px-3 py-2">
+            <LanguageSelector className="w-full" />
+          </div>
           {navLinks.map((link) => (
             <NavLinkItem
               key={link.label}

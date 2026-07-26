@@ -4,6 +4,7 @@ import Sidebar from '../dashboard/Sidebar';
 import BrandLogo from '../brand/BrandLogo';
 import usePersistedSidebarCollapse from '../../hooks/usePersistedSidebarCollapse';
 import AppIcon from '../icons/AppIcon';
+import LanguageSelector from '../../i18n/components/LanguageSelector';
 
 const SIDEBAR_TRANSITION =
   'transition-[width,padding] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]';
@@ -29,6 +30,7 @@ export default function DashboardLayout({ children, user }) {
           <AppIcon name={mobileOpen ? 'close' : 'menu'} size="dashboard" />
         </button>
         <BrandLogo className="h-8 w-auto max-w-[10rem] shrink-0" />
+        <LanguageSelector compact className="ms-auto" />
       </header>
 
       {mobileOpen && (
@@ -70,7 +72,12 @@ export default function DashboardLayout({ children, user }) {
       </aside>
 
       <main className="dashboard-main transition-[margin,padding] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
-        <div className="max-w-[1280px] mx-auto w-full">{children}</div>
+        <div className="max-w-[1280px] mx-auto w-full">
+          <div className="hidden lg:flex justify-end mb-4">
+            <LanguageSelector />
+          </div>
+          {children}
+        </div>
       </main>
     </div>
   );

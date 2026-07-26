@@ -10,5 +10,14 @@
     "collapseSidebar": "سائڈبار بند کریں",
     "openSidebar": "سائڈبار کھولیں",
     "closeSidebar": "سائڈبار بند کریں"
+  },
+  "languageSelector": {
+    "label": "زبان",
+    "saveError": "زبان کی ترجیح محفوظ نہیں ہو سکی۔",
+    "options": {
+      "en": "انگریزی",
+      "es": "ہسپانوی",
+      "ur": "اردو"
+    }
   }
 }

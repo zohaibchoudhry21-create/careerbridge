@@ -15,6 +15,12 @@ export const updateSessionTrust = (sessionId, trusted) =>
 
 export const updateAccount = (payload) => api.patch('/users/me', payload).then(unwrap);
 
+export async function persistLanguagePreference(languagePreference) {
+  return api
+    .patch('/users/me/language-preference', { languagePreference })
+    .then(unwrap);
+}
+
 export const changeUserPassword = (payload) => api.patch('/users/me/password', payload).then(unwrap);
 
 export const deleteUserAccount = (payload) => api.delete('/users/me', { data: payload }).then(unwrap);
