@@ -43,9 +43,16 @@ export const extractPdfWithPythonService = async (buffer, type = 'resume') => {
   formData.append('file', new Blob([buffer], { type: 'application/pdf' }), 'document.pdf');
   formData.append('type', type);
 
+  const headers = {};
+  const apiKey = process.env.PYTHON_SERVICE_API_KEY?.trim();
+  if (apiKey) {
+    headers['X-API-Key'] = apiKey;
+  }
+
   const response = await fetch(`${getPythonServiceUrl()}/extract`, {
     method: 'POST',
     body: formData,
+    headers,
     signal: AbortSignal.timeout(EXTRACT_TIMEOUT_MS),
   });
 

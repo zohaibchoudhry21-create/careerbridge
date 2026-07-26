@@ -1,0 +1,53 @@
+{
+  "welcome": {
+    "title": "Welcome back, {{name}}",
+    "subtitle": "Your career is evolving faster than you think. Let's make today count.",
+    "lastActivity": "Last activity: {{activity}}",
+    "aiStatus": "AI Status: {{status}}"
+  },
+  "quickActions": {
+    "sectionTitle": "Accelerated Tools",
+    "build-resume": "Build ATS Resume",
+    "optimize-resume": "Optimize Resume",
+    "cover-letter": "Create Cover Letter"
+  },
+  "profileStrength": {
+    "title": "Profile Strength",
+    "atsScore": "ATS Score",
+    "skillsMatched": "Skills Matched",
+    "missingSkills": "Missing Skills (Priority):"
+  },
+  "resumeIntelligence": {
+    "title": "Resume Intelligence",
+    "atsStatus": "ATS Optimization Status:",
+    "keywordGaps": "Keyword Gaps Identified",
+    "aiInsight": "AI Insight",
+    "improvementPotential": "Improvement potential: <strong>{{potential}}</strong> if project descriptions are quantified."
+  },
+  "interviewReadiness": {
+    "title": "Interview Readiness",
+    "weakAreas": "Weak Areas",
+    "strongArea": "Strong Area",
+    "videoMode": "Video Mode",
+    "voiceAnalysis": "Voice Analysis"
+  },
+  "jobMatches": {
+    "title": "Today's Top AI Matches",
+    "viewAll": "View All",
+    "skillMatch": "{{percent}}% Skill Match",
+    "recommendedByAi": "Recommended by AI Agent",
+    "quickApply": "Quick Apply",
+    "companyLogo": "{{company}} logo"
+  },
+  "careerRisk": {
+    "title": "Career Risk Level",
+    "recommendation": "AI Recommendation",
+    "browseTracks": "Browse AI Career Tracks"
+  },
+  "loading": {
+    "message": "Loading your dashboard..."
+  },
+  "error": {
+    "title": "Unable to load dashboard"
+  }
+}

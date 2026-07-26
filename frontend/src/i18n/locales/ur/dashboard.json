@@ -1,0 +1,53 @@
+{
+  "welcome": {
+    "title": "خوش آمدید، {{name}}",
+    "subtitle": "آپ کا کیریئر آپ کے خیال سے زیادہ تیزی سے آگے بڑھ رہا ہے۔ آج کو معنی خیز بنائیں۔",
+    "lastActivity": "آخری سرگرمی: {{activity}}",
+    "aiStatus": "اے آئی کی حیثیت: {{status}}"
+  },
+  "quickActions": {
+    "sectionTitle": "تیز رفتار ٹولز",
+    "build-resume": "اے ٹی ایس ریزیومے بنائیں",
+    "optimize-resume": "ریزیومے بہتر بنائیں",
+    "cover-letter": "کور لیٹر بنائیں"
+  },
+  "profileStrength": {
+    "title": "پروفائل کی مضبوطی",
+    "atsScore": "اے ٹی ایس اسکور",
+    "skillsMatched": "میل کھانے والی مہارتیں",
+    "missingSkills": "کمی والی مہارتیں (ترجیحی):"
+  },
+  "resumeIntelligence": {
+    "title": "ریزیومے انٹیلیجنس",
+    "atsStatus": "اے ٹی ایس آپٹیمائزیشن کی حیثیت:",
+    "keywordGaps": "شناخت شدہ کی ورڈ کی کمی",
+    "aiInsight": "اے آئی بصیرت",
+    "improvementPotential": "بہتری کی گنجائش: <strong>{{potential}}</strong> اگر پروجیکٹ کی تفصیلات میں اعداد شامل کیے جائیں۔"
+  },
+  "interviewReadiness": {
+    "title": "انٹرویو کی تیاری",
+    "weakAreas": "کمزور شعبے",
+    "strongArea": "مضبوط شعبہ",
+    "videoMode": "ویڈیو موڈ",
+    "voiceAnalysis": "آواز کا تجزیہ"
+  },
+  "jobMatches": {
+    "title": "آج کے بہترین اے آئی میچ",
+    "viewAll": "سب دیکھیں",
+    "skillMatch": "{{percent}}% مہارت میچ",
+    "recommendedByAi": "اے آئی ایجنٹ کی سفارش",
+    "quickApply": "فوری درخواست",
+    "companyLogo": "{{company}} لوگو"
+  },
+  "careerRisk": {
+    "title": "کیریئر کا خطرے کی سطح",
+    "recommendation": "اے آئی سفارش",
+    "browseTracks": "اے آئی کیریئر ٹریکس دیکھیں"
+  },
+  "loading": {
+    "message": "آپ کا ڈیش بورڈ لوڈ ہو رہا ہے..."
+  },
+  "error": {
+    "title": "ڈیش بورڈ لوڈ نہیں ہو سکا"
+  }
+}

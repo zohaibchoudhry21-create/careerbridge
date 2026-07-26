@@ -4,6 +4,7 @@ import {
   hashEmailVerificationToken,
 } from '../utils/emailVerificationToken.js';
 import { sendVerificationEmail } from '../utils/emailService.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
 
 const buildVerificationUrl = (rawToken) => {
@@ -50,7 +51,7 @@ export const verifyEmail = async (req, res, next) => {
     const { token } = req.query;
 
     if (!token || typeof token !== 'string') {
-      throw new AppError('Verification token is required', 400);
+      throw new AppError(ERROR_CODES.VERIFY.TOKEN_REQUIRED, 400);
     }
 
     const hashedToken = hashEmailVerificationToken(token);
@@ -61,7 +62,7 @@ export const verifyEmail = async (req, res, next) => {
     }).select('+verificationToken');
 
     if (!user) {
-      throw new AppError('Invalid or expired token', 400);
+      throw new AppError(ERROR_CODES.VERIFY.TOKEN_INVALID, 400);
     }
 
     if (user.isVerified && user.status === 'active') {
@@ -90,7 +91,7 @@ export const resendVerificationEmail = async (req, res, next) => {
     }
 
     if (user.isVerified) {
-      throw new AppError('This email is already verified. Please log in.', 400);
+      throw new AppError(ERROR_CODES.VERIFY.EMAIL_ALREADY_VERIFIED, 400);
     }
 
     const { verificationUrl, emailResult } = await assignVerificationToken(user);

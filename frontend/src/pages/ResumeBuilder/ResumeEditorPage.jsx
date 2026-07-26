@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import useAuth from '../../hooks/useAuth';
@@ -11,13 +12,17 @@ import {
   ResumeEditorProvider,
   useResumeEditor,
 } from '../../features/resumeBuilder/context/ResumeEditorContext';
+import { resolveApiError } from '../../utils/apiError';
 import {
   useBuiltResume,
   useBuiltResumes,
   useUpdateBuiltResume,
 } from '../../features/resumeBuilder/hooks/useResumeBuilder';
 
+import { EDITOR_TABS } from '../../features/resumeBuilder/constants/resumeEditorConstants';
+
 function ResumeEditorContent() {
+  const { t } = useTranslation('resumeBuilder');
   const { resumeId } = useParams();
   const navigate = useNavigate();
   const { loadResume, state, dispatch } = useResumeEditor();
@@ -28,12 +33,12 @@ function ResumeEditorContent() {
   const savedTimer = useRef(null);
   const loadedResumeId = useRef(null);
   const [saveStatus, setSaveStatus] = useState('idle');
-  const [activeTab, setActiveTab] = useState('Content');
+  const [activeTab, setActiveTab] = useState(EDITOR_TABS.CONTENT);
   const [personalDetailsTrigger, setPersonalDetailsTrigger] = useState(0);
 
   useEffect(() => {
     loadedResumeId.current = null;
-    setActiveTab('Content');
+    setActiveTab(EDITOR_TABS.CONTENT);
   }, [resumeId]);
 
   useEffect(() => {
@@ -67,14 +72,14 @@ function ResumeEditorContent() {
         savedTimer.current = setTimeout(() => setSaveStatus('idle'), 2500);
       } catch (error) {
         setSaveStatus('idle');
-        toast.error(error?.response?.data?.message || 'Auto-save failed.');
+        toast.error(resolveApiError(error, t('toasts.autoSaveFailed')));
       }
     }, 1500);
 
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
     };
-  }, [state, updateResume, dispatch]);
+  }, [state, updateResume, dispatch, t]);
 
   useEffect(
     () => () => {
@@ -84,19 +89,19 @@ function ResumeEditorContent() {
   );
 
   if (isLoading) {
-    return <div className="font-body-md text-on-surface-variant">Loading resume editor...</div>;
+    return <div className="font-body-md text-on-surface-variant">{t('page.editor.loading')}</div>;
   }
 
   if (isError || !resume) {
     return (
       <div>
-        <p className="font-body-md text-error mb-sm">Resume not found.</p>
+        <p className="font-body-md text-error mb-sm">{t('page.editor.notFound')}</p>
         <button
           type="button"
           onClick={() => navigate('/resume/templates')}
           className="text-secondary hover:underline font-label-md"
         >
-          Back to templates
+          {t('page.editor.backToTemplates')}
         </button>
       </div>
     );
@@ -113,20 +118,20 @@ function ResumeEditorContent() {
         saveStatus={saveStatus}
       />
       <div className="flex-1 grid lg:grid-cols-[40%_60%] min-h-0">
-        {activeTab === 'Content' && (
+        {activeTab === EDITOR_TABS.CONTENT && (
           <EditorLeftPanel personalDetailsTrigger={personalDetailsTrigger} />
         )}
-        {activeTab === 'Customize' && (
+        {activeTab === EDITOR_TABS.CUSTOMIZE && (
           <CustomizePanel
             onGoToPersonalDetails={() => {
-              setActiveTab('Content');
+              setActiveTab(EDITOR_TABS.CONTENT);
               setPersonalDetailsTrigger((count) => count + 1);
             }}
           />
         )}
-        {activeTab === 'AI Tools' && (
+        {activeTab === EDITOR_TABS.AI_TOOLS && (
           <div className="h-full overflow-y-auto p-sm bg-surface">
-            <p className="font-body-md text-on-surface-variant">AI Tools Coming Soon</p>
+            <p className="font-body-md text-on-surface-variant">{t('page.editor.aiToolsComingSoon')}</p>
           </div>
         )}
         <div className="overflow-y-auto p-sm lg:p-md bg-surface-container-low/50">

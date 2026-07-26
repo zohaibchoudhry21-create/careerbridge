@@ -1,13 +1,15 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { runResumeAiAction } from '../services/resumeBuilderService';
+import { resolveApiError } from '../../../utils/apiError';
 import { runAiTextAction, stripHtml } from '../utils/resumeEditorUtils';
 
-const ACTION_LABELS = {
-  improve: 'Improve Writing',
-  suggest: 'Suggest Content',
-  grammar: 'Grammar Check',
-  shorter: 'Shorter',
+const ACTION_KEYS = {
+  improve: 'aiActions.improve',
+  suggest: 'aiActions.suggest',
+  grammar: 'aiActions.grammar',
+  shorter: 'aiActions.shorter',
 };
 
 export default function AIActionButtons({
@@ -16,13 +18,14 @@ export default function AIActionButtons({
   context = '',
   onResult,
 }) {
+  const { t } = useTranslation('resumeBuilder');
   const [loadingAction, setLoadingAction] = useState(null);
 
   const handleAction = async (action) => {
     const plainContent = stripHtml(content);
 
     if (!plainContent && action !== 'suggest') {
-      toast.info('Add some text before using AI.');
+      toast.info(t('toasts.aiAddTextFirst'));
       return;
     }
 
@@ -41,11 +44,11 @@ export default function AIActionButtons({
 
       if (status === 503 || status === 502) {
         onResult(runAiTextAction(content, action));
-        toast.info('AI service unavailable — applied basic improvement.');
+        toast.info(t('toasts.aiUnavailable'));
         return;
       }
 
-      toast.error(error?.response?.data?.message || 'AI action failed.');
+      toast.error(resolveApiError(error, t('toasts.aiActionFailed')));
     } finally {
       setLoadingAction(null);
     }
@@ -61,7 +64,9 @@ export default function AIActionButtons({
           onClick={() => handleAction(action)}
           className="rounded-full border border-outline-variant px-sm py-1 font-label-sm text-on-surface-variant hover:border-secondary/40 hover:text-secondary disabled:opacity-60"
         >
-          {loadingAction === action ? 'Working...' : ACTION_LABELS[action] || action}
+          {loadingAction === action
+            ? t('aiActions.working')
+            : t(ACTION_KEYS[action] || action, { defaultValue: action })}
         </button>
       ))}
     </div>

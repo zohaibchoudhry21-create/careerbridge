@@ -1,14 +1,22 @@
+import { useTranslation } from 'react-i18next';
 import { validatePassword } from '../../utils/passwordValidator';
+import AppIcon from '../icons/AppIcon';
 
 export default function PasswordRequirements({ password = '' }) {
+  const { t } = useTranslation('auth');
   const { rules } = validatePassword(password);
   const showRules = password.length > 0;
 
+  const getRuleLabel = (rule) => {
+    if (rule.id === 'tooCommon') {
+      return t('validation.rules.tooCommon');
+    }
+    return t(`validation.rules.${rule.id}`, { defaultValue: rule.message });
+  };
+
   if (!showRules) {
     return (
-      <p className="text-xs text-on-surface-variant mt-2">
-        Use 8+ characters with uppercase, lowercase, number, and special character.
-      </p>
+      <p className="text-xs text-on-surface-variant mt-2">{t('validation.passwordHint')}</p>
     );
   }
 
@@ -21,10 +29,12 @@ export default function PasswordRequirements({ password = '' }) {
             rule.passed ? 'text-emerald-600' : 'text-error'
           }`}
         >
-          <span className="material-symbols-outlined text-sm leading-none mt-0.5">
-            {rule.passed ? 'check_circle' : 'cancel'}
-          </span>
-          <span>{rule.message}</span>
+          <AppIcon
+            name={rule.passed ? 'check_circle' : 'cancel'}
+            size="h-3.5 w-3.5"
+            className="mt-0.5"
+          />
+          <span>{getRuleLabel(rule)}</span>
         </li>
       ))}
     </ul>

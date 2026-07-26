@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import useAuth from '../hooks/useAuth';
 import { exchangeSocialCode } from '../services/authService';
+import { isApiErrorCode, resolveApiError, resolveApiErrorCode } from '../utils/apiError';
 
 const socialLoginRequests = new Map();
 const socialLoginResults = new Map();
@@ -34,20 +36,62 @@ const getSharedSocialLogin = (code) => {
 };
 
 export default function SocialAuthCallback() {
+  const { t } = useTranslation('auth');
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { setSession, syncSession } = useAuth();
-  const [message, setMessage] = useState('Completing sign in...');
+  const [message, setMessage] = useState(t('social.completing'));
 
   const code = searchParams.get('code');
   const error = searchParams.get('error');
+  const errorCode = searchParams.get('errorCode');
+  const errorParamsRaw = searchParams.get('errorParams');
+
+  useEffect(() => {
+    setMessage(t('social.completing'));
+  }, [t]);
 
   useEffect(() => {
     let isActive = true;
 
+    const resolveRedirectError = () => {
+      if (errorCode) {
+        let params = {};
+        if (errorParamsRaw) {
+          try {
+            params = JSON.parse(errorParamsRaw);
+          } catch {
+            params = {};
+          }
+        }
+        return resolveApiErrorCode(errorCode, params, t('social.failed'));
+      }
+
+      if (error) {
+        const decodedError = decodeURIComponent(error);
+        if (isApiErrorCode(decodedError)) {
+          return resolveApiErrorCode(decodedError, {}, t('social.failed'));
+        }
+        return decodedError;
+      }
+
+      return null;
+    };
+
     const finishLogin = async (data) => {
+      if (data?.requires2FA) {
+        navigate('/login?twoFactor=1', { replace: true });
+        toast.info(t('social.enterAuthenticator'));
+        return;
+      }
+
+      if (data?.requiresReactivation) {
+        navigate('/login?reactivate=1', { replace: true });
+        return;
+      }
+
       if (!data?.user) {
-        throw new Error('Social login response did not include a user profile.');
+        throw new Error(t('social.noUserProfile'));
       }
 
       flushSync(() => {
@@ -60,19 +104,19 @@ export default function SocialAuthCallback() {
 
       if (code && !socialLoginToasts.has(code)) {
         socialLoginToasts.add(code);
-        toast.success(data.message || 'Signed in successfully.');
+        toast.success(data.message || t('social.success'));
       }
 
       navigate('/dashboard', { replace: true });
     };
 
     const completeSocialLogin = async () => {
-      if (error) {
+      const redirectError = resolveRedirectError();
+      if (redirectError) {
         if (!isActive) return;
 
-        const decodedError = decodeURIComponent(error);
-        setMessage(decodedError);
-        toast.error(decodedError);
+        setMessage(redirectError);
+        toast.error(redirectError);
         setTimeout(() => navigate('/login', { replace: true }), 2500);
         return;
       }
@@ -80,8 +124,8 @@ export default function SocialAuthCallback() {
       if (!code) {
         if (!isActive) return;
 
-        setMessage('Missing authorization code.');
-        toast.error('Social login failed. Please try again.');
+        setMessage(t('social.missingCode'));
+        toast.error(t('social.failed'));
         setTimeout(() => navigate('/login', { replace: true }), 2500);
         return;
       }
@@ -96,10 +140,7 @@ export default function SocialAuthCallback() {
 
         socialLoginToasts.delete(code);
 
-        const apiMessage =
-          requestError.response?.data?.message ||
-          requestError.message ||
-          'Unable to complete social login.';
+        const apiMessage = resolveApiError(requestError, t('social.completeError'));
         setMessage(apiMessage);
         toast.error(apiMessage);
         setTimeout(() => navigate('/login', { replace: true }), 2500);
@@ -111,7 +152,7 @@ export default function SocialAuthCallback() {
     return () => {
       isActive = false;
     };
-  }, [code, error, navigate, setSession, syncSession]);
+  }, [code, error, errorCode, errorParamsRaw, navigate, setSession, syncSession, t]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">

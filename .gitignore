@@ -13,6 +13,11 @@ backend/automation-screenshots/
 # Node modules
 node_modules/
 
+# Python
+python-service/venv/
+**/__pycache__/
+*.pyc
+
 .DS_Store
 *.log
 

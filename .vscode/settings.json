@@ -1,0 +1,21 @@
+{
+  "git.path": "C:\\Program Files\\Git\\cmd\\git.exe",
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+  "git.showPushSuccessNotification": true,
+  "scm.defaultViewMode": "tree",
+  "gitlens.views.scm.grouped.views": {
+    "commits": true,
+    "branches": true,
+    "remotes": true,
+    "stashes": true,
+    "tags": true,
+    "worktrees": false
+  },
+  "gitlens.currentLine.enabled": true,
+  "gitlens.codeLens.enabled": true,
+  "gitlens.hovers.currentLine.over": "line",
+  "gitlens.showWelcomeOnInstall": false,
+  "gitlens.plusFeatures.enabled": false
+}

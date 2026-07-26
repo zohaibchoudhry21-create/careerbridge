@@ -4,6 +4,7 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
+  timeout: 8000,
 });
 
 export default api;
@@ -36,3 +37,13 @@ export const forgotPassword = (email) => api.post('/auth/forgot-password', { ema
 export const resetPassword = (data) => api.post('/auth/reset-password', data);
 export const verifyEmail = (token) => api.get('/verify-email', { params: { token } });
 export const resendVerification = (email) => api.post('/auth/resend-verification', { email });
+
+export const setupTwoFactor = () => api.post('/auth/2fa/setup');
+export const confirmTwoFactorSetup = (code) => api.post('/auth/2fa/confirm', { code });
+export const disableTwoFactor = (payload) => api.post('/auth/2fa/disable', payload);
+export const regenerateTwoFactorBackupCodes = (payload) =>
+  api.post('/auth/2fa/backup-codes/regenerate', payload);
+export const verifyTwoFactorLogin = (payload) => api.post('/auth/2fa/verify', payload);
+export const getTwoFactorStatus = () => api.get('/auth/2fa/status');
+export const confirmAccountReactivation = () => api.post('/auth/reactivate');
+export const cancelAccountReactivation = () => api.post('/auth/reactivate/clear-challenge');

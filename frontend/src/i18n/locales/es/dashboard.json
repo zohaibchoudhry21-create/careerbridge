@@ -1,0 +1,53 @@
+{
+  "welcome": {
+    "title": "Bienvenido de nuevo, {{name}}",
+    "subtitle": "Tu carrera evoluciona más rápido de lo que crees. Hagamos que hoy cuente.",
+    "lastActivity": "Última actividad: {{activity}}",
+    "aiStatus": "Estado de IA: {{status}}"
+  },
+  "quickActions": {
+    "sectionTitle": "Herramientas aceleradas",
+    "build-resume": "Crear currículum ATS",
+    "optimize-resume": "Optimizar currículum",
+    "cover-letter": "Crear carta de presentación"
+  },
+  "profileStrength": {
+    "title": "Fortaleza del perfil",
+    "atsScore": "Puntuación ATS",
+    "skillsMatched": "Habilidades coincidentes",
+    "missingSkills": "Habilidades faltantes (prioridad):"
+  },
+  "resumeIntelligence": {
+    "title": "Inteligencia de currículum",
+    "atsStatus": "Estado de optimización ATS:",
+    "keywordGaps": "Brechas de palabras clave identificadas",
+    "aiInsight": "Perspectiva de IA",
+    "improvementPotential": "Potencial de mejora: <strong>{{potential}}</strong> si se cuantifican las descripciones de proyectos."
+  },
+  "interviewReadiness": {
+    "title": "Preparación para entrevistas",
+    "weakAreas": "Áreas débiles",
+    "strongArea": "Área fuerte",
+    "videoMode": "Modo video",
+    "voiceAnalysis": "Análisis de voz"
+  },
+  "jobMatches": {
+    "title": "Mejores coincidencias de IA de hoy",
+    "viewAll": "Ver todo",
+    "skillMatch": "{{percent}}% coincidencia de habilidades",
+    "recommendedByAi": "Recomendado por agente de IA",
+    "quickApply": "Aplicar rápido",
+    "companyLogo": "Logo de {{company}}"
+  },
+  "careerRisk": {
+    "title": "Nivel de riesgo profesional",
+    "recommendation": "Recomendación de IA",
+    "browseTracks": "Explorar trayectorias profesionales con IA"
+  },
+  "loading": {
+    "message": "Cargando tu panel..."
+  },
+  "error": {
+    "title": "No se pudo cargar el panel"
+  }
+}

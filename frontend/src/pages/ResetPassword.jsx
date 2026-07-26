@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { resetPassword } from '../services/authService';
+import { resolveApiError } from '../utils/apiError';
 import useAuth from '../hooks/useAuth';
 import { validatePassword } from '../utils/passwordValidator';
 import { AuthLayout } from '../components/layout';
 import PasswordRequirements from '../components/auth/PasswordRequirements';
+import AppIcon from '../components/icons/AppIcon';
 
 export default function ResetPassword() {
+  const { t } = useTranslation('auth');
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { setSession } = useAuth();
@@ -39,10 +43,10 @@ export default function ResetPassword() {
         password: values.password,
       });
       setSession(data);
-      toast.success('Password reset successful!');
+      toast.success(t('toasts.resetSuccess'));
       navigate('/', { replace: true });
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Password reset failed.');
+      toast.error(resolveApiError(error, t('toasts.resetFailed')));
     } finally {
       setIsSubmitting(false);
     }
@@ -50,53 +54,50 @@ export default function ResetPassword() {
 
   return (
     <AuthLayout navActive="login">
-      <header className="mb-10 text-center lg:text-left">
+      <header className="mb-10 text-center lg:text-start">
         <h1 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-on-surface mb-xs">
-          Reset Password
+          {t('resetPassword.title')}
         </h1>
-        <p className="font-body-md text-body-md text-on-surface-variant">
-          Enter your reset token and choose a new password
-        </p>
+        <p className="font-body-md text-body-md text-on-surface-variant">{t('resetPassword.subtitle')}</p>
       </header>
 
       <form className="space-y-md" onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="space-y-xs">
           <label className="font-label-md text-label-md text-on-surface" htmlFor="token">
-            Reset Token
+            {t('fields.resetToken')}
           </label>
           <input
             id="token"
             type="text"
-            placeholder="Paste reset token"
-            className="w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none"
-            {...register('token', { required: 'Reset token is required' })}
+            placeholder={t('fields.placeholders.resetToken')}
+            className="w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none text-start"
+            {...register('token', { required: t('validation.resetTokenRequired') })}
           />
           {errors.token && <p className="text-sm text-error">{errors.token.message}</p>}
         </div>
 
         <div className="space-y-xs">
           <label className="font-label-md text-label-md text-on-surface" htmlFor="password">
-            New Password
+            {t('fields.newPassword')}
           </label>
           <div className="relative">
             <input
               id="password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Enter new password"
-              className="w-full px-4 pr-12 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none"
+              placeholder={t('fields.placeholders.newPassword')}
+              className="w-full px-4 pe-12 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none text-start"
               {...register('password', {
-                required: 'Password is required',
+                required: t('validation.passwordRequired'),
                 validate: (value) => validatePassword(value).valid || ' ',
               })}
             />
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-secondary"
+              className="absolute end-4 top-1/2 -translate-y-1/2 text-outline hover:text-secondary"
+              aria-label={showPassword ? t('fields.hidePassword') : t('fields.showPassword')}
             >
-              <span className="material-symbols-outlined text-xl">
-                {showPassword ? 'visibility_off' : 'visibility'}
-              </span>
+              <AppIcon name={showPassword ? 'visibility_off' : 'visibility'} size="h-5 w-5" />
             </button>
           </div>
           <PasswordRequirements password={password} />
@@ -104,16 +105,16 @@ export default function ResetPassword() {
 
         <div className="space-y-xs">
           <label className="font-label-md text-label-md text-on-surface" htmlFor="confirmPassword">
-            Confirm Password
+            {t('fields.confirmPassword')}
           </label>
           <input
             id="confirmPassword"
             type="password"
-            placeholder="Confirm new password"
-            className="w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none"
+            placeholder={t('fields.placeholders.confirmNewPassword')}
+            className="w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none text-start"
             {...register('confirmPassword', {
-              required: 'Please confirm password',
-              validate: (value) => value === password || 'Passwords do not match',
+              required: t('validation.confirmRequiredShort'),
+              validate: (value) => value === password || t('validation.passwordMismatch'),
             })}
           />
           {errors.confirmPassword && (
@@ -129,17 +130,17 @@ export default function ResetPassword() {
           {isSubmitting ? (
             <>
               <span className="w-5 h-5 border-2 border-on-secondary border-t-transparent rounded-full animate-spin" />
-              Resetting...
+              {t('resetPassword.submitting')}
             </>
           ) : (
-            'Reset Password'
+            t('resetPassword.submit')
           )}
         </button>
       </form>
 
-      <div className="mt-xl text-center lg:text-left">
+      <div className="mt-xl text-center lg:text-start">
         <Link to="/login" className="text-secondary font-bold hover:underline">
-          Back to Login
+          {t('resetPassword.backToLogin')}
         </Link>
       </div>
     </AuthLayout>

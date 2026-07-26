@@ -1,18 +1,21 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import AppIcon from '../../../components/icons/AppIcon';
 
 const TOOLBAR_BUTTONS = [
-  { command: 'bold', icon: 'format_bold', label: 'Bold' },
-  { command: 'italic', icon: 'format_italic', label: 'Italic' },
-  { command: 'underline', icon: 'format_underlined', label: 'Underline' },
-  { command: 'insertUnorderedList', icon: 'format_list_bulleted', label: 'Bullet list' },
-  { command: 'createLink', icon: 'link', label: 'Link', prompt: true },
-  { command: 'justifyLeft', icon: 'format_align_left', label: 'Align left' },
-  { command: 'justifyCenter', icon: 'format_align_center', label: 'Align center' },
-  { command: 'justifyRight', icon: 'format_align_right', label: 'Align right' },
-  { command: 'justifyFull', icon: 'format_align_justify', label: 'Justify' },
+  { command: 'bold', icon: 'format_bold', labelKey: 'richText.bold' },
+  { command: 'italic', icon: 'format_italic', labelKey: 'richText.italic' },
+  { command: 'underline', icon: 'format_underlined', labelKey: 'richText.underline' },
+  { command: 'insertUnorderedList', icon: 'format_list_bulleted', labelKey: 'richText.bulletList' },
+  { command: 'createLink', icon: 'link', labelKey: 'richText.link', prompt: true },
+  { command: 'justifyLeft', icon: 'format_align_left', labelKey: 'richText.alignLeft' },
+  { command: 'justifyCenter', icon: 'format_align_center', labelKey: 'richText.alignCenter' },
+  { command: 'justifyRight', icon: 'format_align_right', labelKey: 'richText.alignRight' },
+  { command: 'justifyFull', icon: 'format_align_justify', labelKey: 'richText.justify' },
 ];
 
 export default function RichTextEditor({ value, onChange, placeholder = '' }) {
+  const { t } = useTranslation('resumeBuilder');
   const editorRef = useRef(null);
   const savedRangeRef = useRef(null);
   const isInternalUpdateRef = useRef(false);
@@ -76,9 +79,22 @@ export default function RichTextEditor({ value, onChange, placeholder = '' }) {
     restoreSelection();
 
     if (command === 'createLink') {
-      const url = window.prompt('Enter URL');
+      const url = window.prompt(t('richText.enterUrl'));
       if (!url) return;
-      document.execCommand(command, false, url);
+      const trimmed = url.trim();
+      const lower = trimmed.toLowerCase();
+      if (
+        lower.startsWith('javascript:') ||
+        lower.startsWith('data:') ||
+        lower.startsWith('vbscript:')
+      ) {
+        return;
+      }
+      const safeUrl =
+        /^https?:\/\//i.test(trimmed) || trimmed.startsWith('mailto:')
+          ? trimmed
+          : `https://${trimmed}`;
+      document.execCommand(command, false, safeUrl);
     } else {
       document.execCommand(command, false, null);
     }
@@ -90,21 +106,25 @@ export default function RichTextEditor({ value, onChange, placeholder = '' }) {
   return (
     <div className="rounded-xl border border-outline-variant overflow-hidden">
       <div className="flex flex-wrap items-center gap-1 border-b border-outline-variant/40 bg-surface-container-low px-2 py-2">
-        {TOOLBAR_BUTTONS.map((button) => (
-          <button
-            key={button.command}
-            type="button"
-            onMouseDown={(event) => {
-              event.preventDefault();
-              runCommand(button.command);
-            }}
-            className="p-1.5 rounded-md text-on-surface-variant hover:bg-white hover:text-secondary transition-colors"
-            aria-label={button.label}
-            title={button.label}
-          >
-            <span className="material-symbols-outlined text-[18px]">{button.icon}</span>
-          </button>
-        ))}
+        {TOOLBAR_BUTTONS.map((button) => {
+          const label = t(button.labelKey);
+
+          return (
+            <button
+              key={button.command}
+              type="button"
+              onMouseDown={(event) => {
+                event.preventDefault();
+                runCommand(button.command);
+              }}
+              className="p-1.5 rounded-md text-on-surface-variant hover:bg-white hover:text-secondary transition-colors"
+              aria-label={label}
+              title={label}
+            >
+              <AppIcon name={button.icon} size="button" className="text-on-surface-variant" />
+            </button>
+          );
+        })}
       </div>
       <div
         ref={editorRef}

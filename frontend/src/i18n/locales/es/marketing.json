@@ -1,0 +1,211 @@
+{
+  "brand": "AI CareerBridge",
+  "hero": {
+    "badge": "CREADOR DE CURRÍCULUMS EN LÍNEA GRATIS",
+    "headlineLine1": "Crea un currículum",
+    "headlineLine2": "ganador gratis",
+    "subline1": "Tu primer currículum es 100% gratis para siempre.",
+    "subline2": "Descargas ilimitadas. Sin cargos ocultos.",
+    "typingPhrases": [
+      "Sí, de verdad",
+      "crea currículums optimizados para ATS.",
+      "consigue entrevistas más rápido.",
+      "descarga PDFs ilimitados."
+    ],
+    "cta": "Empieza gratis",
+    "trustLine": "Con la confianza de <strong>{{count}}</strong> usuarios",
+    "trustCount": "5.3 millones",
+    "resumeAlt": {
+      "atlanticBlue": "Vista previa del currículum Atlantic Blue",
+      "classicClear": "Vista previa del currículum Classic Clear"
+    },
+    "socialCard": {
+      "name": "Andrew Irwin",
+      "role": "Product Manager",
+      "tiktokLine1": "Sitios web potentes que ojalá hubiera conocido antes:",
+      "tiktokLine2": "Este es un SALVAVIDAS",
+      "tiktokMeta": "@maedeh.davami | 1,8 millones de visualizaciones"
+    }
+  },
+  "trustBadges": {
+    "items": [
+      {
+        "title": "Tu primer currículum es gratis",
+        "subtitle": "No se requiere tarjeta de crédito"
+      },
+      {
+        "title": "Privacidad y cumplimiento RGPD",
+        "subtitle": "Tus datos siguen siendo tuyos"
+      },
+      {
+        "title": "Descargas PDF ilimitadas",
+        "subtitle": "Sin marcas de agua, nunca"
+      }
+    ]
+  },
+  "problem": {
+    "title": "¿Por qué la mayoría de candidatos fracasan en el proceso de contratación?",
+    "subtitle": "La búsqueda de empleo moderna está rota. Sin las herramientas adecuadas, grandes candidatos se pierden en los sistemas automatizados.",
+    "items": [
+      {
+        "title": "Rechazo por ATS",
+        "description": "Más del 75% de los CV se rechazan por los sistemas de seguimiento de candidatos antes de que un humano los vea, por un formato deficiente."
+      },
+      {
+        "title": "Currículums genéricos",
+        "description": "Enviar exactamente el mismo currículum a cada oferta reduce drásticamente tu tasa de respuesta."
+      },
+      {
+        "title": "Preparación débil",
+        "description": "Aunque pases la primera selección, la falta de preparación de entrevista adaptada al puesto concreto lleva al fracaso."
+      }
+    ]
+  },
+  "solution": {
+    "badge": "La solución",
+    "title": "Conoce AI Career OS",
+    "descriptionHighlight": "Un sistema integral de automatización de carrera",
+    "descriptionBody": "diseñado para eliminar la fricción entre tú y tu próxima oferta.",
+    "mockupAriaLabel": "Maqueta de la solución",
+    "points": [
+      {
+        "title": "Sube tu CV → la IA construye tu perfil",
+        "description": "Extracción y estructuración instantánea de datos."
+      },
+      {
+        "title": "Optimización de CV con un clic",
+        "description": "Adaptado a la perfección para cualquier descripción de puesto."
+      },
+      {
+        "title": "Descarga currículum listo para ATS",
+        "description": "Exporta plantillas PDF pulidas y optimizadas para sistemas de seguimiento de candidatos."
+      }
+    ]
+  },
+  "features": {
+    "title": "Herramientas potentes para el crecimiento profesional",
+    "items": [
+      {
+        "title": "Creador de CV con OCR",
+        "description": "Sube cualquier PDF o imagen. Nuestro OCR lo convierte al instante en un perfil digital estructurado y editable."
+      },
+      {
+        "title": "Entrada de perfil por voz",
+        "description": "¿Sin tiempo para escribir? Dicta tu experiencia y deja que nuestra IA la estructure en puntos profesionales."
+      },
+      {
+        "title": "Optimización con 1 clic",
+        "description": "Pega una descripción de puesto. Reescribimos tus puntos para coincidir con palabras clave y destacar experiencia relevante al instante."
+      },
+      {
+        "title": "Generador de PDF de currículum",
+        "description": "Exporta a plantillas PDF bellamente diseñadas y compatibles con ATS que lucen premium y pasan la selección."
+      },
+      {
+        "title": "Emparejamiento inteligente de empleo",
+        "description": "Obtén coincidencias de empleo clasificadas por IA según tus habilidades, experiencia y objetivos de carrera."
+      },
+      {
+        "title": "Inteligencia salarial",
+        "description": "Obtén datos de mercado en tiempo real sobre lo que deberías ganar según tus habilidades, ubicación y nivel de experiencia."
+      }
+    ]
+  },
+  "howItWorks": {
+    "title": "Cómo funciona",
+    "subtitle": "De datos en bruto a listo para la entrevista en minutos.",
+    "steps": [
+      {
+        "title": "Sube o habla",
+        "description": "Introduce tu experiencia en bruto mediante carga de CV, nota de voz o entrada manual. Nosotros hacemos el trabajo pesado."
+      },
+      {
+        "title": "Genera el perfil",
+        "description": "La IA estructura tus datos en un perfil maestro y genera un currículum listo para ATS."
+      },
+      {
+        "title": "Optimiza y aplica",
+        "description": "Apunta a roles concretos. Un clic ajusta las palabras clave de tu CV para superar los filtros ATS de esa oferta exacta."
+      }
+    ]
+  },
+  "aiPower": {
+    "title": "No solo un creador de currículums — un sistema completo de inteligencia de carrera.",
+    "subtitle": "Aprovecha el aprendizaje profundo para entender lo que buscan los responsables de contratación antes de que apliques.",
+    "items": [
+      {
+        "title": "Motor de optimización ATS",
+        "description": "Simula software de selección corporativo para garantizar alta parseabilidad."
+      },
+      {
+        "title": "IA de coincidencia con descripción de puesto",
+        "description": "Analiza la semántica de la oferta para sugerir habilidades faltantes que podrías tener."
+      },
+      {
+        "title": "Análisis de riesgo de carrera",
+        "description": "Puntuación a prueba de IA para ver qué tan susceptibles son tus roles objetivo a la automatización."
+      }
+    ],
+    "demo": {
+      "matchAnalysis": "Análisis de coincidencia",
+      "matchPercent": "94% de coincidencia",
+      "keywordsDetected": "Palabras clave detectadas",
+      "keywordsScore": "12/15",
+      "formattingScore": "Puntuación de formato",
+      "formattingValue": "100/100",
+      "quote": "\"Fuerte alineación en habilidades técnicas. Sugerimos ampliar la experiencia en liderazgo para alcanzar el 98%.\" - Asistente IA"
+    }
+  },
+  "finalCta": {
+    "title": "Empieza a construir tu carrera impulsada por IA hoy.",
+    "description": "Deja de perder horas formateando documentos. Deja que nuestro OS gestione la logística para que te centres en las entrevistas.",
+    "primary": "Empieza gratis",
+    "secondary": "Sube tu CV"
+  },
+  "footer": {
+    "tagline": "Plataforma de carrera impulsada por IA para crear currículums, optimizar perfiles, practicar entrevistas y hacer crecer tu futuro profesional.",
+    "columns": [
+      {
+        "title": "Enlaces rápidos",
+        "links": ["Inicio", "Funciones", "Herramientas de carrera", "Plantillas", "Precios", "Recursos"]
+      },
+      {
+        "title": "Funciones de IA",
+        "links": [
+          "Creador de currículum con IA",
+          "Escáner de CV con OCR",
+          "Creador de perfil por voz",
+          "Análisis de entrevistas",
+          "Predictor salarial"
+        ]
+      },
+      {
+        "title": "Herramientas de carrera",
+        "links": [
+          "Optimizador de LinkedIn",
+          "Análisis a prueba de IA",
+          "Análisis de brecha de habilidades",
+          "Emparejamiento inteligente de empleo"
+        ]
+      },
+      {
+        "title": "Recursos",
+        "links": [
+          "Blog de carrera",
+          "Consejos para entrevistas",
+          "Guías de currículum",
+          "Tendencias de carrera con IA",
+          "Centro de ayuda"
+        ]
+      }
+    ],
+    "contact": {
+      "title": "Contacto",
+      "email": "support@aicareerbridge.com",
+      "location": "Remoto • En todo el mundo"
+    },
+    "legal": ["Política de privacidad", "Términos y condiciones", "Política de cookies"],
+    "copyright": "© 2026 AI CareerBridge. Todos los derechos reservados.",
+    "poweredBy": "Impulsado por IA • Creado para las carreras del futuro"
+  }
+}

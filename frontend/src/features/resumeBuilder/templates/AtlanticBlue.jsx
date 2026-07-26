@@ -1,4 +1,6 @@
+import AppIcon from '../../../components/icons/AppIcon';
 import { stripHtml } from '../utils/resumeEditorUtils';
+import { sanitizeHtml } from '../../../utils/sanitizeHtml';
 import { getPersonalPhoto, TEMPLATE_PREVIEW_ATLANTIC_PHOTO } from '../utils/personalDetailsPhoto';
 import {
   mapAdditionalSections,
@@ -297,13 +299,12 @@ function SidebarContactRow({ icon, value }) {
 
   return (
     <div className="flex items-start gap-[8px]" style={{ fontSize: 10, color: SIDEBAR_MUTED, lineHeight: 1.5 }}>
-      <span
-        className="material-symbols-outlined shrink-0"
-        style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 1 }}
-        aria-hidden
-      >
-        {icon}
-      </span>
+      <AppIcon
+        name={icon}
+        size="h-[13px] w-[13px]"
+        className="shrink-0"
+        style={{ color: 'rgba(255,255,255,0.85)' }}
+      />
       <span className="break-all">{value}</span>
     </div>
   );
@@ -365,6 +366,7 @@ export default function AtlanticBlue({ resumeData, className = '', customize }) 
 
   return (
     <article
+      dir="ltr"
       className={`flex min-w-0 ${className}`}
       style={{
         width: A4_WIDTH,
@@ -552,7 +554,7 @@ export default function AtlanticBlue({ resumeData, className = '', customize }) 
             <RightHeading theme={theme}>Profile</RightHeading>
             <div
               style={{ fontSize: theme.bodyFontSize, lineHeight: theme.lineHeight, color: BODY_COLOR }}
-              dangerouslySetInnerHTML={{ __html: profile }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(profile) }}
             />
           </section>
         ) : null}

@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -8,8 +8,17 @@ import VerifyEmail from './pages/VerifyEmail';
 import VerifyEmailSent from './pages/VerifyEmailSent';
 import SocialAuthCallback from './pages/SocialAuthCallback';
 import Dashboard from './pages/Dashboard';
-import ProfileLayout from './pages/Profile/ProfileLayout';
-import ProfileOverview from './pages/Profile/ProfileOverview';
+import Settings from './pages/Settings/Settings';
+import PersonalInformation from './pages/Settings/PersonalInformation';
+import LoginSecurity from './pages/Settings/LoginSecurity';
+import AppearanceSettings from './pages/Settings/AppearanceSettings';
+import AccountManagement from './pages/Settings/AccountManagement';
+import InterviewPrepPage from './pages/InterviewPrep/InterviewPrepPage';
+import SkillAssessmentSetupPage from './pages/InterviewPrep/SkillAssessmentSetupPage';
+import MockInterviewLayout from './pages/InterviewPrep/MockInterviewLayout';
+import MockInterviewSetupPage from './pages/InterviewPrep/MockInterviewSetupPage';
+import MockInterviewSessionPage from './pages/InterviewPrep/MockInterviewSessionPage';
+import SkillAssessmentQuizPage from './pages/InterviewPrep/SkillAssessmentQuizPage';
 import TemplateSelectionPage from './pages/ResumeBuilder/TemplateSelectionPage';
 import ResumeEditorPage from './pages/ResumeBuilder/ResumeEditorPage';
 import HeroResumeCapture from './pages/dev/HeroResumeCapture';
@@ -79,6 +88,41 @@ function App() {
         }
       />
       <Route
+        path="/interview-prep"
+        element={
+          <ProtectedRoute>
+            <InterviewPrepPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/interview-prep/skills"
+        element={
+          <ProtectedRoute>
+            <SkillAssessmentSetupPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/interview-prep/mock"
+        element={
+          <ProtectedRoute>
+            <MockInterviewLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<MockInterviewSetupPage />} />
+        <Route path=":sessionId" element={<MockInterviewSessionPage />} />
+      </Route>
+      <Route
+        path="/interview-prep/skills/:quizId"
+        element={
+          <ProtectedRoute>
+            <SkillAssessmentQuizPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/resume/templates"
         element={
           <ProtectedRoute>
@@ -95,15 +139,61 @@ function App() {
         }
       />
       <Route
-        path="/profile"
+        path="/settings"
         element={
           <ProtectedRoute>
-            <ProfileLayout />
+            <Settings />
           </ProtectedRoute>
         }
-      >
-        <Route index element={<ProfileOverview />} />
-      </Route>
+      />
+      <Route
+        path="/settings/personal-information"
+        element={
+          <ProtectedRoute>
+            <PersonalInformation />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/login-security"
+        element={
+          <ProtectedRoute>
+            <LoginSecurity />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/privacy"
+        element={
+          <ProtectedRoute>
+            <Navigate to="/settings" replace />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/appearance"
+        element={
+          <ProtectedRoute>
+            <AppearanceSettings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/notifications"
+        element={
+          <ProtectedRoute>
+            <Navigate to="/settings" replace />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/account-management"
+        element={
+          <ProtectedRoute>
+            <AccountManagement />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

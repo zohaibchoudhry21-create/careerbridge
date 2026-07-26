@@ -1,16 +1,24 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import JobMatchCard from './JobMatchCard';
+import AppIcon from '../icons/AppIcon';
+import SectionIcon from '../ui/SectionIcon';
 
 function JobMatchesSection({ matches = [] }) {
+  const { t } = useTranslation('dashboard');
+
   return (
-    <div className="col-span-1 lg:col-span-8 dashboard-glass-card dashboard-card-padding rounded-2xl overflow-hidden min-w-0">
-      <div className="flex justify-between items-center mb-sm gap-2">
-        <h4 className="font-headline-section text-headline-section">Today&apos;s Top AI Matches</h4>
+    <div className="col-span-1 min-w-0 overflow-hidden rounded-2xl dashboard-glass-card dashboard-card-padding lg:col-span-8">
+      <div className="mb-sm flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <SectionIcon color="skills" icon="work" />
+          <h4 className="dashboard-section-title">{t('jobMatches.title')}</h4>
+        </div>
         <button
           type="button"
-          className="text-secondary font-bold text-[14px] flex items-center gap-1 shrink-0"
+          className="flex shrink-0 items-center gap-1 text-[14px] font-bold text-secondary"
         >
-          View All <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+          {t('jobMatches.viewAll')} <AppIcon name="chevron_right" size="button" />
         </button>
       </div>
       <div className="space-y-sm">

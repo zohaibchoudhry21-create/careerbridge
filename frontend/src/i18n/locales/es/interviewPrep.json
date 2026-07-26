@@ -1,0 +1,256 @@
+{
+  "page": {
+    "title": "Preparación para entrevistas",
+    "description": "Practica entrevistas y pon a prueba tus habilidades con evaluaciones impulsadas por IA."
+  },
+  "backLinks": {
+    "interviewPrep": "Preparación para entrevistas",
+    "exit": "Salir",
+    "newQuiz": "Nuevo cuestionario",
+    "backToSetup": "Volver a configuración",
+    "backToInterviewPrep": "Volver a Preparación para entrevistas"
+  },
+  "hub": {
+    "comingSoon": "Próximamente",
+    "start": "Empezar",
+    "mockInterview": {
+      "title": "Entrevista simulada con IA",
+      "description": "Entrevista en vivo con voz en tiempo real, retroalimentación de cámara e informe combinado."
+    },
+    "skillAssessment": {
+      "title": "Evaluación de habilidades",
+      "description": "Cuestionario de opción múltiple por tema con puntuación y detección de áreas débiles."
+    }
+  },
+  "mockSetup": {
+    "title": "Personaliza tu entrevista",
+    "description": "Cuanto más contexto des, más específicas serán las preguntas.",
+    "difficulty": {
+      "title": "Dificultad",
+      "description": "Ajusta a tu nivel de experiencia.",
+      "easy": "Nivel inicial",
+      "medium": "Nivel medio",
+      "hard": "Senior / liderazgo"
+    },
+    "time": {
+      "title": "Tiempo",
+      "description": "Duración de la sesión.",
+      "minutes": "{{count}} minutos"
+    },
+    "focusAreas": {
+      "title": "Áreas de enfoque",
+      "description": "Elige en qué debe centrarse la entrevista."
+    },
+    "mode": {
+      "title": "Modo de entrevista",
+      "description": "Elige cómo quieres responder.",
+      "videoVoice": "Vídeo y voz",
+      "voiceOnly": "Solo voz",
+      "textOnly": "Solo texto",
+      "comingSoon": "Próximamente"
+    },
+    "startErrorTitle": "No se pudo iniciar la entrevista",
+    "startLive": "Iniciar entrevista en vivo",
+    "starting": "Iniciando…",
+    "enterRole": "Introduce un puesto.",
+    "vapiNotConfigured": "La entrevista en vivo no está configurada. Añade VITE_VAPI_WEB_TOKEN al .env del frontend",
+    "startFailed": "No se pudo iniciar la entrevista en vivo."
+  },
+  "roleResume": {
+    "title": "Puesto y contexto",
+    "description": "Indica el puesto y el contexto para personalizar las preguntas.",
+    "roleLabel": "Puesto de entrevista",
+    "rolePlaceholder": "p. ej. Desarrollador frontend",
+    "roleRequired": "Introduce un puesto.",
+    "experiencePlaceholder": "Experiencia (p. ej. 2 años)",
+    "companyPlaceholder": "Empresa objetivo (opcional)",
+    "analysisTitle": "Resultado del análisis del CV",
+    "clear": "Borrar",
+    "projects": "Proyectos",
+    "skills": "Habilidades",
+    "noSkillsDetected": "No se detectaron proyectos o habilidades claros. Las preguntas seguirán usando tu puesto y experiencia.",
+    "readyToAnalyze": "Listo para analizar",
+    "analyzing": "Analizando…",
+    "analyzeResume": "Analizar CV",
+    "remove": "Quitar",
+    "uploadCta": "Haz clic para subir CV (opcional)",
+    "uploadHint": "PDF o DOCX — extraeremos habilidades y proyectos",
+    "analyzeFailed": "No se pudo analizar el CV. Inténtalo de nuevo."
+  },
+  "roleAutocomplete": {
+    "placeholder": "p. ej. Product manager",
+    "noSuggestions": "No se encontraron sugerencias. Prueba otra palabra clave.",
+    "loadFailed": "No se pudieron cargar sugerencias. Comprueba la conexión con el backend/Groq.",
+    "findingRoles": "Buscando puestos…",
+    "loading": "Loading suggestions…",
+    "useTypedRole": "Use \"{{role}}\" as role"
+  },
+  "focusAreas": {
+    "systemDesign": "Diseño de sistemas",
+    "behavioral": "Conductual",
+    "coding": "Programación",
+    "caseStudy": "Caso práctico",
+    "leadership": "Liderazgo",
+    "communication": "Comunicación"
+  },
+  "skillSetup": {
+    "title": "Evaluación de habilidades",
+    "description": "Elige un tema y la dificultad. Las preguntas las genera la IA y se puntúan en el servidor.",
+    "topic": {
+      "title": "Tema",
+      "description": "Elige el área que quieres evaluar."
+    },
+    "difficulty": {
+      "title": "Dificultad",
+      "description": "Ajusta el cuestionario a tu nivel."
+    },
+    "length": {
+      "title": "Longitud",
+      "description": "Cuántas preguntas incluir.",
+      "questions": "{{count}} preguntas"
+    },
+    "selectTopic": "Selecciona un tema.",
+    "startFailed": "No se pudo iniciar el cuestionario.",
+    "generateFailed": "No se pudo generar el cuestionario. Comprueba tu conexión e inténtalo de nuevo.",
+    "topicsLoadFailed": "No se pudieron cargar los temas",
+    "topicsLoadMessage": "No pudimos cargar los temas. Comprueba tu conexión e inténtalo de nuevo.",
+    "reloadTopics": "Recargar temas",
+    "generating": "Generando cuestionario…",
+    "generateStart": "Generar e iniciar cuestionario",
+    "retryGenerate": "Reintentar generación"
+  },
+  "topics": {
+    "javascript": "JavaScript",
+    "react": "React",
+    "sql": "SQL",
+    "data-structures": "Data Structures",
+    "nodejs": "Node.js",
+    "python": "Python",
+    "system-design": "System Design",
+    "html-css": "HTML & CSS"
+  },
+  "difficulty": {
+    "easy": "Fácil",
+    "medium": "Medio",
+    "hard": "Difícil"
+  },
+  "session": {
+    "notFound": "Sesión no encontrada.",
+    "loadFailed": "No se pudo cargar esta sesión. Inicia una nueva desde la configuración.",
+    "completeTitle": "Entrevista completada",
+    "completeDescription": "Tu informe combinado de contenido, voz y vídeo está listo.",
+    "loadingReport": "Cargando tu informe…",
+    "generatingReport": "Generando tu informe…",
+    "submitMissingReport": "Entrevista enviada pero faltaba el informe.",
+    "submitFailed": "No se pudo enviar la entrevista en vivo.",
+    "defaultRole": "este puesto",
+    "defaultCandidate": "Candidato"
+  },
+  "live": {
+    "title": "Entrevista en vivo",
+    "liveBadge": "En vivo",
+    "subtitleVoice": "Habla con {{name}} en tiempo real. El micrófono permanece activo para la retroalimentación.",
+    "subtitleVideo": "Habla con {{name}} en tiempo real. Cámara y micrófono activos para la retroalimentación.",
+    "aiName": "Entrevistador IA",
+    "minutesShort": "{{count}} min",
+    "videoVoice": "Vídeo y voz",
+    "voiceOnly": "Solo voz",
+    "videoMetricsOn": "Métricas de vídeo activas",
+    "videoMetricsPaused": "Métricas de vídeo en pausa",
+    "voiceMetricsOn": "Métricas de voz activas",
+    "voiceMetricsPaused": "Métricas de voz en pausa",
+    "statusReady": "Listo",
+    "statusConnecting": "Conectando…",
+    "statusSpeaking": "Hablando",
+    "statusListening": "Escuchando",
+    "statusEnded": "Llamada finalizada",
+    "voiceOnlyMode": "Modo solo voz",
+    "micOn": "Micrófono activo",
+    "cameraOn": "Cámara activa",
+    "cameraOff": "Cámara apagada",
+    "muteMic": "Silenciar micrófono",
+    "unmuteMic": "Activar micrófono",
+    "turnOffCamera": "Apagar cámara",
+    "turnOnCamera": "Encender cámara",
+    "transcriptTitle": "Transcripción en vivo",
+    "turn": "turno",
+    "turns": "turnos",
+    "endInterview": "Finalizar entrevista",
+    "startInterview": "Iniciar entrevista",
+    "waitingMic": "Esperando micrófono…",
+    "waitingCamera": "Esperando cámara…",
+    "loadingFaceModels": "Cargando modelos de análisis facial…",
+    "faceModelsFailed": "No se pudieron cargar los modelos faciales. Las métricas de contacto visual pueden no estar disponibles.",
+    "endedNoConversation": "La entrevista terminó antes de registrar conversación. Vuelve a iniciarla.",
+    "endedNoConversationWithReason": "La entrevista terminó antes de registrar conversación ({{reason}}). Vuelve a iniciarla.",
+    "analyzingCamera": "Analizando cámara…",
+    "eyeContactGood": "Contacto visual: bueno",
+    "eyeContactLow": "Contacto visual: bajo",
+    "genericError": "Algo salió mal."
+  },
+  "report": {
+    "title": "Informe de entrevista",
+    "description": "Resumen de IA basado en tus respuestas, voz y presencia en cámara.",
+    "overall": "General",
+    "eyeContact": "Contacto visual",
+    "speakingPace": "Ritmo al hablar",
+    "fillerWords": "Muletillas",
+    "engagement": "Compromiso",
+    "wpmSuffix": " PPM",
+    "strengths": "Fortalezas",
+    "areasToImprove": "Áreas a mejorar",
+    "contentQuality": "Calidad del contenido",
+    "voiceAnalysis": "Análisis de voz",
+    "videoPresence": "Presencia en vídeo",
+    "recommendedNextSteps": "Próximos pasos recomendados",
+    "noFeedback": "Sin comentarios disponibles.",
+    "noVoiceFeedback": "Sin comentarios de voz.",
+    "noVideoFeedback": "Sin comentarios de vídeo.",
+    "progressTitle": "Tu progreso",
+    "progressDescription": "Tendencia de puntuación en entrevistas simuladas recientes.",
+    "chartLabel": "Puntuación general",
+    "chartTooltip": "Puntuación: {{score}}"
+  },
+  "quiz": {
+    "questionOf": "Pregunta {{current}} de {{total}}",
+    "progress": "Progreso {{current}}/{{total}}",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "submit": "Enviar cuestionario",
+    "submitting": "Enviando…",
+    "answerAll": "Responde todas las preguntas.",
+    "unavailable": "Cuestionario no disponible",
+    "loadFailed": "No se pudo cargar este cuestionario.",
+    "reload": "Recargar cuestionario",
+    "submitFailed": "Error al enviar",
+    "submitFailedMessage": "No se pudo enviar el cuestionario. Tus respuestas siguen aquí — inténtalo de nuevo.",
+    "retrySubmit": "Reintentar envío",
+    "yourScore": "Tu puntuación",
+    "scoreSummary": "{{score}} de {{total}} correctas",
+    "weakAreas": {
+      "title": "Áreas débiles",
+      "description": "Subtemas donde fallaste más — enfócate aquí."
+    },
+    "reviewMistakes": {
+      "title": "Revisar errores",
+      "description": "Mira lo que fallaste y las respuestas correctas.",
+      "yourAnswer": "Tu respuesta: {{answer}}",
+      "correct": "Correcta: {{answer}}"
+    },
+    "takeAnother": "Hacer otro cuestionario"
+  },
+  "permissions": {
+    "denied": "Se bloqueó el acceso a cámara o micrófono. Permítelos en la configuración del sitio y vuelve a intentarlo.",
+    "not_found": "No se encontró cámara ni micrófono. Conecta dispositivos e inténtalo de nuevo.",
+    "in_use": "Tu cámara o micrófono puede estar en uso por otra app. Ciérrala e inténtalo de nuevo.",
+    "unknown": "No pudimos acceder a cámara o micrófono. Comprueba permisos e inténtalo de nuevo."
+  },
+  "retry": {
+    "title": "Algo salió mal",
+    "tryAgain": "Reintentar"
+  },
+  "vapi": {
+    "voiceCallError": "Error de llamada de voz.",
+    "voiceCallErrorDetail": "Error de llamada. Comprueba tu clave Vapi y el acceso al micrófono."
+  }
+}

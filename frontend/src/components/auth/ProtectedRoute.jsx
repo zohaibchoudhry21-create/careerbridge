@@ -1,36 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 
+/**
+ * Protected pages. Short bootstrap wait only — never hang forever.
+ */
 export default function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading, syncSession } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
-  const [sessionChecked, setSessionChecked] = useState(false);
-  const syncAttempted = useRef(false);
+  const [bootDone, setBootDone] = useState(!loading);
 
   useEffect(() => {
-    if (loading) {
-      return;
+    if (!loading) {
+      setBootDone(true);
+      return undefined;
     }
 
-    if (isAuthenticated) {
-      setSessionChecked(true);
-      return;
-    }
+    const timer = window.setTimeout(() => setBootDone(true), 1500);
+    return () => window.clearTimeout(timer);
+  }, [loading]);
 
-    if (syncAttempted.current) {
-      return;
-    }
-
-    syncAttempted.current = true;
-
-    (async () => {
-      await syncSession({ preserveExistingSession: false });
-      setSessionChecked(true);
-    })();
-  }, [loading, isAuthenticated, syncSession]);
-
-  if (loading || !sessionChecked) {
+  if (!bootDone) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="w-10 h-10 border-4 border-secondary border-t-transparent rounded-full animate-spin" />

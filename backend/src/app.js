@@ -14,6 +14,11 @@ import authRoutes from './routes/authRoutes.js';
 import socialAuthRoutes from './routes/socialAuthRoutes.js';
 import verifyRoutes from './routes/verifyRoutes.js';
 import resumeBuilderRoutes from './routes/resumeBuilderRoutes.js';
+import skillQuizRoutes from './routes/skillQuizRoutes.js';
+import mockInterviewRoutes from './routes/mockInterviewRoutes.js';
+import voiceAnalysisRoutes from './routes/voiceAnalysisRoutes.js';
+import videoAnalysisRoutes from './routes/videoAnalysisRoutes.js';
+import { ERROR_CODES, getErrorMessage } from './constants/apiErrorCodes.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 
 connectDB();
@@ -21,6 +26,8 @@ configurePassport();
 
 const app = express();
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+
+app.set('trust proxy', 1);
 
 app.disable('x-powered-by');
 app.use(
@@ -36,10 +43,36 @@ app.use(
   })
 );
 
-const authLimiter = rateLimit({
+const createCodedRateLimiter = ({ windowMs, max, code, skip }) =>
+  rateLimit({
+    windowMs,
+    max,
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip,
+    handler: (req, res) => {
+      const resetTime = req.rateLimit?.resetTime;
+      let retryAfterSeconds = Math.max(1, Math.ceil(windowMs / 1000));
+
+      if (resetTime instanceof Date) {
+        retryAfterSeconds = Math.max(1, Math.ceil((resetTime.getTime() - Date.now()) / 1000));
+      }
+
+      res.set('Retry-After', String(retryAfterSeconds));
+      res.status(429).json({
+        success: false,
+        code,
+        params: {},
+        message: getErrorMessage(code),
+        retryAfterSeconds,
+      });
+    },
+  });
+
+const authLimiter = createCodedRateLimiter({
   windowMs: 15 * 60 * 1000,
-  max: 20,
-  message: { success: false, message: 'Too many auth attempts. Please try again later.' },
+  max: 80,
+  code: ERROR_CODES.RATE_LIMIT.AUTH,
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => {
@@ -69,10 +102,10 @@ const authLimiter = rateLimit({
   },
 });
 
-const socialOAuthLimiter = rateLimit({
+const socialOAuthLimiter = createCodedRateLimiter({
   windowMs: 15 * 60 * 1000,
   max: 60,
-  message: { success: false, message: 'Too many social login attempts. Please try again later.' },
+  code: ERROR_CODES.RATE_LIMIT.SOCIAL_AUTH,
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => {
@@ -113,6 +146,10 @@ app.use('/api', apiRoutes);
 app.use('/api', dashboardRoutes);
 app.use('/api', userRoutes);
 app.use('/api', resumeBuilderRoutes);
+app.use('/api', skillQuizRoutes);
+app.use('/api', mockInterviewRoutes);
+app.use('/api', voiceAnalysisRoutes);
+app.use('/api', videoAnalysisRoutes);
 app.use('/api', verifyRoutes);
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/auth', socialOAuthLimiter, socialAuthRoutes);
