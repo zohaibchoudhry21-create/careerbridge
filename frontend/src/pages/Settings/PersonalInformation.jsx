@@ -4,6 +4,8 @@ import SettingsPageShell, { simulateSave } from '../../components/settings/Setti
 import SectionCard from '../../components/settings/SectionCard';
 import InputField from '../../components/settings/InputField';
 import SelectField from '../../components/settings/SelectField';
+import ProfileAvatar from '../../components/settings/ProfileAvatar';
+import { getDisplayName } from '../../components/settings/profileUtils';
 import {
   COUNTRY_OPTIONS,
   DUMMY_PROFILE,
@@ -49,6 +51,18 @@ export default function PersonalInformation() {
       onCancel={handleCancel}
       saving={saving}
     >
+      <SectionCard title="Profile photo" icon="person" color="role">
+        <div className="flex items-center gap-4 min-w-0">
+          <ProfileAvatar profile={form} className="w-16 h-16 text-lg" />
+          <div className="min-w-0">
+            <p className="font-headline-section text-headline-section text-on-surface truncate">
+              {getDisplayName(form)}
+            </p>
+            <p className="font-body-md text-on-surface-variant truncate mt-1">{form.email}</p>
+          </div>
+        </div>
+      </SectionCard>
+
       <SectionCard title="Personal Details" icon="person" color="role">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <InputField
