@@ -7,7 +7,6 @@ import AppIcon from './icons/AppIcon';
 import { buttonPrimaryClass, buttonSecondaryClass } from './ui/buttonTokens';
 import { cn } from '../lib/utils';
 import LanguageSelector from '../i18n/components/LanguageSelector';
-import DarkMode from '../theme/components/ThemeToggle/DarkMode.jsx';
 
 const linkClassName =
   'text-on-surface-variant font-medium hover:text-secondary transition-colors duration-200 whitespace-nowrap nav-link-underline text-sm';
@@ -51,7 +50,7 @@ export default function Navbar() {
   return (
     <nav
       ref={navRef}
-      className="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant shadow-sm"
+      className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant shadow-sm"
       id="navbar"
     >
       <div className="shell-inner flex justify-between items-center h-14 min-w-0 gap-3">
@@ -72,7 +71,6 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-2 sm:gap-3 shrink-0">
-          <DarkMode />
           <LanguageSelector />
           <Link
             to="/login"
@@ -121,7 +119,6 @@ export default function Navbar() {
       >
         <div className="flex flex-col gap-1 p-4">
           <div className="px-3 py-2 flex items-center gap-2">
-            <DarkMode />
             <LanguageSelector className="flex-1" />
           </div>
           {navLinks.map((link) => (

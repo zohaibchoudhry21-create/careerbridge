@@ -14,7 +14,7 @@
       },
       "appearance": {
         "title": "Appearance & Language",
-        "description": "Customize theme, language, and display preferences."
+        "description": "Customize language and display preferences."
       },
       "account-management": {
         "title": "Account Management",
@@ -142,15 +142,6 @@
     "description": "Customize how CareerBridge looks and displays information.",
     "savePreferences": "Save Preferences",
     "resetToDefault": "Reset to Default",
-    "theme": {
-      "title": "Theme",
-      "light": "Light",
-      "lightDescription": "Bright interface for daytime use.",
-      "dark": "Dark",
-      "darkDescription": "Reduced glare for low-light environments.",
-      "system": "System",
-      "systemDescription": "Match your device settings automatically."
-    },
     "languageRegion": {
       "title": "Language & Region",
       "language": "Language",

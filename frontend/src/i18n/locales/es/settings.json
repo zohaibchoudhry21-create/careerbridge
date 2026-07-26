@@ -14,7 +14,7 @@
       },
       "appearance": {
         "title": "Apariencia e idioma",
-        "description": "Personaliza el tema, idioma y preferencias de visualización."
+        "description": "Personaliza el idioma y las preferencias de visualización."
       },
       "account-management": {
         "title": "Administración de cuenta",
@@ -142,15 +142,6 @@
     "description": "Personaliza cómo se ve CareerBridge y cómo muestra la información.",
     "savePreferences": "Guardar preferencias",
     "resetToDefault": "Restablecer valores predeterminados",
-    "theme": {
-      "title": "Tema",
-      "light": "Claro",
-      "lightDescription": "Interfaz brillante para uso diurno.",
-      "dark": "Oscuro",
-      "darkDescription": "Menos deslumbramiento en entornos con poca luz.",
-      "system": "Sistema",
-      "systemDescription": "Coincidir con la configuración de tu dispositivo."
-    },
     "languageRegion": {
       "title": "Idioma y región",
       "language": "Idioma",

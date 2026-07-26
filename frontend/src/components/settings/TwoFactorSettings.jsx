@@ -176,7 +176,7 @@ export default function TwoFactorSettings() {
               type="button"
               onClick={handleRegenerate}
               disabled={busy}
-              className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md app-heading hover:bg-surface-container dark:hover:bg-[#243044] transition-colors min-h-[44px] disabled:opacity-50"
+              className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md app-heading hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-50"
             >
               {t('twoFactor.regenerateButton')}
             </button>

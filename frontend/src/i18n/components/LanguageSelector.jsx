@@ -27,7 +27,6 @@ export default function LanguageSelector({ className = '', compact = false }) {
         className={cn(
           'inline-flex items-center gap-1.5 rounded-xl border border-outline-variant/50 bg-white/80 px-2.5 py-1.5',
           'font-label-md app-heading hover:border-secondary/40 hover:bg-white transition-colors',
-          'dark:bg-[#1a2332]/90 dark:border-[#334155] dark:hover:bg-[#243044]',
           'disabled:opacity-60 min-h-[36px]',
           compact && 'px-2 py-1'
         )}
@@ -41,7 +40,7 @@ export default function LanguageSelector({ className = '', compact = false }) {
         <ul
           role="listbox"
           aria-label={t('languageSelector.label')}
-          className="absolute end-0 top-full z-50 mt-2 min-w-[10rem] overflow-hidden rounded-xl border border-outline-variant/40 bg-white py-1 shadow-level-2 dark:bg-[#1a2332] dark:border-[#334155]"
+          className="absolute end-0 top-full z-50 mt-2 min-w-[10rem] overflow-hidden rounded-xl border border-outline-variant/40 bg-white py-1 shadow-level-2"
         >
           {options.map((option) => {
             const selected = option.i18nCode === currentI18nCode;
@@ -54,8 +53,8 @@ export default function LanguageSelector({ className = '', compact = false }) {
                   className={cn(
                     'flex w-full items-center justify-between gap-3 px-3 py-2.5 text-start font-label-md transition-colors',
                     selected
-                      ? 'bg-secondary/10 text-secondary dark:bg-secondary/20'
-                      : 'app-heading hover:bg-surface-container dark:hover:bg-[#243044]'
+                      ? 'bg-secondary/10 text-secondary'
+                      : 'app-heading hover:bg-surface-container'
                   )}
                 >
                   <span>{option.label}</span>

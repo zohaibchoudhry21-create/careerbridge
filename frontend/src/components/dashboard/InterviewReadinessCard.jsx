@@ -18,16 +18,16 @@ function InterviewReadinessCard({ interviewReadiness }) {
           <SectionIcon color="mode" icon="mic_external_on" />
           <h4 className="dashboard-section-title">{t('interviewReadiness.title')}</h4>
         </div>
-        <span className="font-bold text-secondary dark:text-[#93c5fd]">{score}%</span>
+        <span className="font-bold text-secondary">{score}%</span>
       </div>
       <div className="mb-sm grid grid-cols-1 gap-xs sm:grid-cols-2">
         <div className="rounded-xl dashboard-inner-surface p-sm">
           <p className="text-[10px] uppercase dashboard-muted">{t('interviewReadiness.weakAreas')}</p>
-          <p className="text-[12px] font-medium text-error dark:text-red-400">{weakAreas?.join(', ')}</p>
+          <p className="text-[12px] font-medium text-error">{weakAreas?.join(', ')}</p>
         </div>
         <div className="rounded-xl dashboard-inner-surface p-sm">
           <p className="text-[10px] uppercase dashboard-muted">{t('interviewReadiness.strongArea')}</p>
-          <p className="text-[12px] font-medium text-green-700 dark:text-green-400">{strongArea}</p>
+          <p className="text-[12px] font-medium text-green-700">{strongArea}</p>
         </div>
       </div>
       <div className="flex flex-col gap-xs sm:flex-row">

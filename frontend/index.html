@@ -4,22 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Career Bridge - AI Career OS</title>
-    <script>
-      (function () {
-        try {
-          var key = 'cb_guest_theme';
-          var stored = localStorage.getItem(key);
-          var theme = stored === 'dark' ? 'dark' : stored === 'light' ? 'light' : 'light';
-          if (stored === 'system') {
-            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            localStorage.setItem(key, theme);
-          }
-          if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-          }
-        } catch (e) {}
-      })();
-    </script>
     <link
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap"
       rel="stylesheet"

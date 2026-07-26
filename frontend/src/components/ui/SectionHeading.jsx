@@ -35,7 +35,7 @@ export default function SectionHeading({
           </h2>
         </div>
         {optional ? (
-          <span className="shrink-0 rounded-full bg-[#F1F3F7] px-2.5 py-1 font-label-sm app-muted dark:bg-[#2d3a4f]">
+          <span className="shrink-0 rounded-full bg-[#F1F3F7] px-2.5 py-1 font-label-sm app-muted">
             Optional
           </span>
         ) : null}

@@ -24,7 +24,7 @@ function QuickActions() {
             className="dashboard-card-hover flex min-h-[96px] min-w-0 flex-col items-center justify-center gap-xs rounded-2xl text-center transition-all dashboard-glass-card dashboard-card-padding"
           >
             {icon ? <SectionIcon color={color} icon={icon} size="sm" /> : null}
-            <span className="min-w-0 break-words font-label-md text-on-surface dark:text-[#eaf1ff]">{label}</span>
+            <span className="min-w-0 break-words font-label-md text-on-surface">{label}</span>
           </button>
         ))}
       </div>

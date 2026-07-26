@@ -17,21 +17,21 @@ function ProfileStrengthCard({ profileStrength }) {
           <SectionIcon color="role" icon="trending_up" />
           <h4 className="dashboard-section-title">{t('profileStrength.title')}</h4>
         </div>
-        <span className="shrink-0 font-bold text-secondary dark:text-[#93c5fd]">
+        <span className="shrink-0 font-bold text-secondary">
           {score}/{maxScore}
         </span>
       </div>
       <div className="mb-sm h-2 w-full rounded-full dashboard-inner-surface-high">
-        <div className="h-2 rounded-full bg-secondary dark:bg-[#60a5fa] transition-all" style={{ width: `${widthPercent}%` }} />
+        <div className="h-2 rounded-full bg-secondary transition-all" style={{ width: `${widthPercent}%` }} />
       </div>
       <div className="space-y-sm">
         <div className="flex items-center justify-between rounded-xl dashboard-inner-surface p-sm">
           <span className="font-label-md">{t('profileStrength.atsScore')}</span>
-          <span className="font-label-md text-secondary dark:text-[#93c5fd]">{atsScore}%</span>
+          <span className="font-label-md text-secondary">{atsScore}%</span>
         </div>
         <div className="flex items-center justify-between rounded-xl dashboard-inner-surface p-sm">
           <span className="font-label-md">{t('profileStrength.skillsMatched')}</span>
-          <span className="font-label-md text-secondary dark:text-[#93c5fd]">
+          <span className="font-label-md text-secondary">
             {skillsMatched}/{skillsTotal}
           </span>
         </div>
@@ -44,7 +44,7 @@ function ProfileStrengthCard({ profileStrength }) {
               key={skill.label}
               className={`rounded-full px-3 py-1 text-[12px] ${
                 skill.priority
-                  ? 'bg-error-container font-bold text-on-error-container dark:bg-red-950/50 dark:text-red-300'
+                  ? 'bg-error-container font-bold text-on-error-container'
                   : 'dashboard-pill-neutral'
               }`}
             >

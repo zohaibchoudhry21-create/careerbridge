@@ -16,7 +16,7 @@ function JobMatchesSection({ matches = [] }) {
         </div>
         <button
           type="button"
-          className="flex shrink-0 items-center gap-1 text-[14px] font-bold text-secondary dark:text-[#93c5fd]"
+          className="flex shrink-0 items-center gap-1 text-[14px] font-bold text-secondary"
         >
           {t('jobMatches.viewAll')} <AppIcon name="chevron_right" size="button" />
         </button>

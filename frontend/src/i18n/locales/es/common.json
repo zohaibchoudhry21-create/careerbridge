@@ -58,18 +58,5 @@
       "es": "Español",
       "ur": "Urdu"
     }
-  },
-  "themeToggle": {
-    "saveError": "No se pudo guardar la preferencia de tema.",
-    "modes": {
-      "light": "Tema claro",
-      "dark": "Tema oscuro",
-      "system": "Tema del sistema"
-    },
-    "switchTo": {
-      "light": "Cambiar a tema claro",
-      "dark": "Cambiar a tema oscuro",
-      "system": "Cambiar a tema del sistema"
-    }
   }
 }

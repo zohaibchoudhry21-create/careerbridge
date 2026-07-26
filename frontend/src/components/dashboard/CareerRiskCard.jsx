@@ -4,9 +4,9 @@ import AppIcon from '../icons/AppIcon';
 import SectionIcon from '../ui/SectionIcon';
 
 const riskStyles = {
-  LOW: 'bg-green-100 text-green-800 dark:bg-green-950/50 dark:text-green-300',
-  MEDIUM: 'bg-error-container text-on-error-container dark:bg-red-950/50 dark:text-red-300',
-  HIGH: 'bg-error-container text-on-error-container dark:bg-red-950/50 dark:text-red-300',
+  LOW: 'bg-green-100 text-green-800',
+  MEDIUM: 'bg-error-container text-on-error-container',
+  HIGH: 'bg-error-container text-on-error-container',
 };
 
 function CareerRiskCard({ careerRisk }) {
@@ -28,14 +28,14 @@ function CareerRiskCard({ careerRisk }) {
         </span>
       </div>
       <div className="space-y-sm">
-        <p className="text-[14px] leading-relaxed text-on-surface dark:text-[#dce8f8]">{careerRisk.summary}</p>
+        <p className="text-[14px] leading-relaxed text-on-surface">{careerRisk.summary}</p>
         <div className="rounded-xl dashboard-inner-surface p-sm">
-          <p className="mb-1 text-[12px] font-bold text-secondary dark:text-[#93c5fd]">{t('careerRisk.recommendation')}</p>
+          <p className="mb-1 text-[12px] font-bold text-secondary">{t('careerRisk.recommendation')}</p>
           <p className="text-[13px] dashboard-muted">{careerRisk.recommendation}</p>
         </div>
         <button
           type="button"
-          className="mt-sm flex min-h-[44px] items-center gap-1 text-[12px] font-bold text-secondary dark:text-[#93c5fd]"
+          className="mt-sm flex min-h-[44px] items-center gap-1 text-[12px] font-bold text-secondary"
         >
           {t('careerRisk.browseTracks')}{' '}
           <AppIcon name="open_in_new" size="h-4 w-4" />
