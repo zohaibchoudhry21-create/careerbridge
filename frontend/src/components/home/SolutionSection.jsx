@@ -1,28 +1,19 @@
+import { useTranslation } from 'react-i18next';
 import { IMAGES } from '../../config/images';
 import AnimatedContent from '../ui/AnimatedContent';
 import SectionIcon from '../ui/SectionIcon';
 
-const points = [
-  {
-    title: 'Upload your CV → AI builds your profile',
-    description: 'Instant data extraction and structuring.',
-    color: 'success',
-  },
-  {
-    title: 'One-click CV optimization',
-    description: 'Tailored perfectly for any specific job description.',
-    color: 'scanner',
-  },
-  {
-    title: 'Download ATS-ready resume',
-    description: 'Export polished PDF templates optimized for applicant tracking systems.',
-    color: 'resume',
-  },
-];
+const POINT_COLORS = ['success', 'scanner', 'resume'];
 
 export default function SolutionSection() {
+  const { t } = useTranslation('marketing');
+  const points = t('solution.points', { returnObjects: true });
+
   return (
-    <section className="bg-surface-container-low border-y border-outline-variant/20 py-xl overflow-hidden">
+    <section
+      id="templates"
+      className="bg-surface-container-low border-y border-outline-variant/20 py-xl overflow-hidden"
+    >
       <div className="page-container grid grid-cols-1 lg:grid-cols-12 gap-xl items-center">
         <AnimatedContent
           direction="horizontal"
@@ -36,26 +27,29 @@ export default function SolutionSection() {
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 bg-secondary/10 px-4 py-2 rounded-full">
               <span className="font-label-sm text-label-sm text-secondary uppercase tracking-wider">
-                The Solution
+                {t('solution.badge')}
               </span>
             </div>
             <h2 className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface">
-              Meet AI Career OS
+              {t('solution.title')}
             </h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant border-l-4 border-secondary pl-4">
-              <span className="animated-underline">An end-to-end career automation system</span> designed
-              to eliminate friction between you and your next offer.
+              <span className="animated-underline">{t('solution.descriptionHighlight')}</span>{' '}
+              {t('solution.descriptionBody')}
             </p>
             <ul className="space-y-4 pt-4">
-              {points.map((point) => (
-                <li key={point.title} className="flex items-start gap-3">
-                  <SectionIcon color={point.color} icon="check_circle" size="sm" className="mt-1 shrink-0" />
-                  <div>
-                    <h4 className="font-label-md text-label-md text-on-surface">{point.title}</h4>
-                    <p className="text-sm text-on-surface-variant">{point.description}</p>
-                  </div>
-                </li>
-              ))}
+              {POINT_COLORS.map((color, index) => {
+                const point = points[index] || {};
+                return (
+                  <li key={color} className="flex items-start gap-3">
+                    <SectionIcon color={color} icon="check_circle" size="sm" className="mt-1 shrink-0" />
+                    <div>
+                      <h4 className="font-label-md text-label-md text-on-surface">{point.title}</h4>
+                      <p className="text-sm text-on-surface-variant">{point.description}</p>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </AnimatedContent>
@@ -75,7 +69,7 @@ export default function SolutionSection() {
               className="absolute inset-0 bg-cover bg-center transition-transform hover:scale-105 duration-700"
               style={{ backgroundImage: `url('${IMAGES.solution}')` }}
               role="img"
-              aria-label="Solution mockup"
+              aria-label={t('solution.mockupAriaLabel')}
             />
           </div>
         </AnimatedContent>
