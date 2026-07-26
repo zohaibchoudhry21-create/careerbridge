@@ -148,12 +148,12 @@ export default function TwoFactorSettings() {
 
       {twoFactorEnabled ? (
         <div className="space-y-4">
-          <p className="font-body-md text-on-surface">
+          <p className="font-body-md app-heading">
             <Trans i18nKey="twoFactor.enabled" ns="settings" components={{ strong: <strong /> }} />
           </p>
 
           <div className="space-y-3 max-w-xl">
-            <p className="font-label-md text-on-surface">{t('twoFactor.regenerateTitle')}</p>
+            <p className="font-label-md app-heading">{t('twoFactor.regenerateTitle')}</p>
             {isLocalAccount ? (
               <InputField
                 id="regen-password"
@@ -176,14 +176,14 @@ export default function TwoFactorSettings() {
               type="button"
               onClick={handleRegenerate}
               disabled={busy}
-              className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-50"
+              className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md app-heading hover:bg-surface-container dark:hover:bg-[#243044] transition-colors min-h-[44px] disabled:opacity-50"
             >
               {t('twoFactor.regenerateButton')}
             </button>
           </div>
 
           <div className="space-y-3 max-w-xl border-t border-outline-variant/20 pt-4">
-            <p className="font-label-md text-on-surface">{t('twoFactor.disableTitle')}</p>
+            <p className="font-label-md app-heading">{t('twoFactor.disableTitle')}</p>
             {isLocalAccount ? (
               <InputField
                 id="disable-password"
@@ -230,11 +230,11 @@ export default function TwoFactorSettings() {
                   <QRCodeSVG value={setupData.otpauthUrl} size={180} />
                 </div>
                 <div className="space-y-2">
-                  <p className="font-label-md text-on-surface">{t('twoFactor.manualEntryKey')}</p>
-                  <p className="font-mono text-sm break-all text-on-surface-variant">
+                  <p className="font-label-md app-heading">{t('twoFactor.manualEntryKey')}</p>
+                  <p className="font-mono text-sm break-all app-muted">
                     {setupData.manualEntryKey}
                   </p>
-                  <p className="font-body-md text-on-surface-variant text-sm">{t('twoFactor.scanQr')}</p>
+                  <p className="font-body-md app-muted text-sm">{t('twoFactor.scanQr')}</p>
                 </div>
               </div>
               <InputField

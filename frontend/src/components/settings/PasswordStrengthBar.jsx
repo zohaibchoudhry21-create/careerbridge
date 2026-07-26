@@ -3,7 +3,7 @@ import { validatePassword } from '../../utils/passwordValidator';
 export default function PasswordStrengthBar({ password = '' }) {
   if (!password) {
     return (
-      <p className="text-xs text-on-surface-variant mt-2">
+      <p className="text-xs app-muted mt-2">
         Use 8+ characters with uppercase, lowercase, number, and special character.
       </p>
     );
@@ -21,10 +21,10 @@ export default function PasswordStrengthBar({ password = '' }) {
   return (
     <div className="mt-2 space-y-2">
       <div className="flex items-center justify-between text-xs">
-        <span className="text-on-surface-variant">Password strength</span>
-        <span className="font-medium text-on-surface">{strengthLabel}</span>
+        <span className="app-muted">Password strength</span>
+        <span className="font-medium app-heading">{strengthLabel}</span>
       </div>
-      <div className="h-2 w-full rounded-full bg-surface-container-high overflow-hidden">
+      <div className="h-2 w-full rounded-full bg-surface-container-high dark:bg-[#2d3a4f] overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-300 ${strengthColor}`}
           style={{ width: `${strengthPercent}%` }}

@@ -2,11 +2,11 @@ export default function ToggleSwitch({ id, label, description, checked, onChange
   return (
     <div className="flex items-start justify-between gap-4 py-3 border-b border-outline-variant/20 last:border-b-0">
       <div className="min-w-0">
-        <label htmlFor={id} className="font-label-md text-on-surface block cursor-pointer">
+        <label htmlFor={id} className="font-label-md app-heading block cursor-pointer">
           {label}
         </label>
         {description ? (
-          <p className="font-body-md text-on-surface-variant text-sm mt-1">{description}</p>
+          <p className="font-body-md app-muted text-sm mt-1">{description}</p>
         ) : null}
       </div>
       <button
