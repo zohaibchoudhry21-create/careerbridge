@@ -1,3 +1,5 @@
+import Button from '../../../components/ui/Button';
+
 export default function RetryErrorPanel({
   title = 'Something went wrong',
   message,
@@ -14,13 +16,9 @@ export default function RetryErrorPanel({
       <p className="font-label-md text-on-surface">{title}</p>
       <p className="font-body-md text-error text-sm">{message}</p>
       {onRetry ? (
-        <button
-          type="button"
-          onClick={onRetry}
-          className="px-4 py-2.5 rounded-xl bg-secondary text-white font-label-md min-h-[44px]"
-        >
+        <Button type="button" variant="primary" onClick={onRetry} className="min-h-[44px] px-4 py-2.5">
           {retryLabel}
-        </button>
+        </Button>
       ) : null}
     </div>
   );

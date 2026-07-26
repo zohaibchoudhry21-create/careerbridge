@@ -1,32 +1,33 @@
 import AnimatedContent from '../ui/AnimatedContent';
-import AppIcon from '../icons/AppIcon';
+import SectionIcon from '../ui/SectionIcon';
 
 const problems = [
   {
     icon: 'filter_alt_off',
+    color: 'danger',
     title: 'ATS Rejection',
     description:
       'Over 75% of CVs are rejected by Applicant Tracking Systems before a human ever sees them due to poor formatting.',
     cardClass: 'bg-error-container/20 border border-error-container',
-    iconClass: 'bg-error-container text-error anim-pulse-red',
+    iconAnimationClass: 'anim-pulse-red',
   },
   {
     icon: 'difference',
+    color: 'warning',
     title: 'Generic Resumes',
     description:
       'Sending the exact same resume to every job description drastically lowers your callback rate.',
     cardClass: 'bg-surface-container-high border border-outline-variant/50',
-    iconClass: 'bg-surface-variant text-on-surface-variant anim-pulse-red',
-    animationDelay: '0.5s',
+    iconAnimationClass: 'anim-pulse-red [animation-delay:0.5s]',
   },
   {
     icon: 'psychology_alt',
+    color: 'interview',
     title: 'Weak Prep',
     description:
       'Even if you pass the screen, lacking tailored interview preparation tailored to the specific role leads to failure.',
     cardClass: 'bg-surface-container-high border border-outline-variant/50',
-    iconClass: 'bg-surface-variant text-on-surface-variant anim-pulse-red',
-    animationDelay: '1s',
+    iconAnimationClass: 'anim-pulse-red [animation-delay:1s]',
   },
 ];
 
@@ -38,9 +39,9 @@ export default function ProblemSection() {
         duration={0.9}
         ease="power3.out"
         threshold={0.15}
-        className="text-center mb-lg space-y-4 max-w-2xl mx-auto"
+        className="mx-auto mb-lg max-w-2xl space-y-4 text-center"
       >
-        <h2 className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface">
+        <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface md:font-headline-lg md:text-headline-lg">
           Why do most candidates fail in the hiring process?
         </h2>
         <p className="font-body-md text-body-md text-on-surface-variant">
@@ -49,7 +50,7 @@ export default function ProblemSection() {
         </p>
       </AnimatedContent>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
+      <div className="grid grid-cols-1 gap-md md:grid-cols-3">
         {problems.map((item, index) => (
           <AnimatedContent
             key={item.title}
@@ -61,14 +62,14 @@ export default function ProblemSection() {
             className="h-full"
           >
             <div
-              className={`${item.cardClass} p-6 rounded-2xl flex flex-col items-center text-center space-y-4 hover:shadow-level-2 hover:-translate-y-2 transition-all h-full`}
+              className={`${item.cardClass} flex h-full flex-col items-center space-y-4 rounded-2xl p-6 text-center transition-all hover:-translate-y-2 hover:shadow-level-2`}
             >
-              <div
-                className={`w-16 h-16 rounded-full flex items-center justify-center mb-2 ${item.iconClass}`}
-                style={item.animationDelay ? { animationDelay: item.animationDelay } : undefined}
-              >
-                <AppIcon name={item.icon} size="h-8 w-8" />
-              </div>
+              <SectionIcon
+                color={item.color}
+                icon={item.icon}
+                size="lg"
+                className={`mb-2 ${item.iconAnimationClass}`}
+              />
               <h3 className="font-headline-md text-headline-md text-on-surface">{item.title}</h3>
               <p className="font-body-md text-body-md text-on-surface-variant">{item.description}</p>
             </div>

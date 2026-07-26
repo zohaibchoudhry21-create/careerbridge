@@ -1,22 +1,15 @@
 import ResumeModal from './ResumeModal';
+import Button from '../../../components/ui/Button';
 
 export default function StartChoiceModal({ open, onClose, onImport, onBlank }) {
   const footer = (
     <div className="flex flex-col sm:flex-row gap-sm">
-      <button
-        type="button"
-        onClick={onBlank}
-        className="flex-1 rounded-xl border border-outline-variant py-sm font-label-md text-on-surface-variant hover:border-secondary/40 hover:text-secondary transition-colors"
-      >
+      <Button type="button" variant="secondary" onClick={onBlank} className="flex-1 py-sm">
         Start from blank
-      </button>
-      <button
-        type="button"
-        onClick={onImport}
-        className="flex-1 rounded-xl bg-secondary py-sm font-label-md text-white hover:bg-secondary-container transition-colors"
-      >
+      </Button>
+      <Button type="button" variant="primary" onClick={onImport} className="flex-1 py-sm">
         Import resume
-      </button>
+      </Button>
     </div>
   );
 

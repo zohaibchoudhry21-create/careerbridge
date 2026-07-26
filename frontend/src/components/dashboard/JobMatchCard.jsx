@@ -1,4 +1,6 @@
 import { memo } from 'react';
+import { cn } from '../../lib/utils';
+import { buttonPrimaryClass, buttonSecondaryClass } from '../ui/buttonTokens';
 
 function JobMatchCard({ job }) {
   if (!job) return null;
@@ -34,11 +36,10 @@ function JobMatchCard({ job }) {
         </div>
         <a
           href={job.applyUrl}
-          className={`px-4 py-2 rounded-full font-bold text-[14px] text-center shrink-0 min-h-[44px] flex items-center justify-center transition-all ${
-            isPrimary
-              ? 'bg-secondary text-white'
-              : 'bg-secondary/10 text-secondary hover:bg-secondary hover:text-white'
-          }`}
+          className={cn(
+            'min-h-[44px] shrink-0 rounded-full px-4 py-2 text-center text-[14px] font-bold',
+            isPrimary ? buttonPrimaryClass : buttonSecondaryClass
+          )}
         >
           Quick Apply
         </a>

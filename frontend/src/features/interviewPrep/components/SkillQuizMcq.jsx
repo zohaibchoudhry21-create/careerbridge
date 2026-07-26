@@ -1,4 +1,10 @@
 import AppIcon from '../../../components/icons/AppIcon';
+import Button from '../../../components/ui/Button';
+import { cn } from '../../../lib/utils';
+import {
+  selectedOptionClass,
+  unselectedOptionClass,
+} from '../../../components/ui/colorAccentTokens';
 
 export default function SkillQuizMcq({
   question,
@@ -35,13 +41,20 @@ export default function SkillQuizMcq({
               type="button"
               disabled={disabled}
               onClick={() => onSelect(index)}
-              className={`w-full text-left rounded-xl border p-4 transition-all min-h-[44px] ${
-                selected
-                  ? 'border-secondary bg-secondary/5'
-                  : 'border-outline-variant/40 bg-surface-container-lowest hover:border-secondary/30'
-              } disabled:opacity-60`}
+              className={cn(
+                'w-full min-h-[44px] rounded-xl border-2 p-4 text-left transition-all duration-150',
+                selected ? selectedOptionClass : unselectedOptionClass,
+                disabled && 'opacity-60'
+              )}
             >
-              <span className="font-label-md text-on-surface">{option}</span>
+              <span
+                className={cn(
+                  'font-label-md',
+                  selected ? 'text-secondary' : 'text-on-surface'
+                )}
+              >
+                {option}
+              </span>
             </button>
           );
         })}
@@ -74,21 +87,23 @@ export function SkillQuizProgress({ current, total }) {
 export function SkillQuizNavButtons({ onPrev, onNext, canPrev, canNext, isLast, onSubmit, submitting }) {
   return (
     <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-2 pt-sm">
-      <button
+      <Button
         type="button"
+        variant="secondary"
         onClick={onPrev}
         disabled={!canPrev || submitting}
-        className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md min-h-[44px] disabled:opacity-50"
+        className="min-h-[44px] px-4 py-2.5 disabled:opacity-50"
       >
         Previous
-      </button>
+      </Button>
 
       {isLast ? (
-        <button
+        <Button
           type="button"
+          variant="primary"
           onClick={onSubmit}
           disabled={!canNext || submitting}
-          className="px-6 py-2.5 rounded-xl bg-secondary text-white font-label-md min-h-[44px] inline-flex items-center justify-center gap-2 disabled:opacity-60"
+          className="min-h-[44px] gap-2 px-6 py-2.5"
         >
           {submitting ? (
             <>
@@ -98,16 +113,17 @@ export function SkillQuizNavButtons({ onPrev, onNext, canPrev, canNext, isLast, 
           ) : (
             'Submit quiz'
           )}
-        </button>
+        </Button>
       ) : (
-        <button
+        <Button
           type="button"
+          variant="primary"
           onClick={onNext}
           disabled={!canNext || submitting}
-          className="px-6 py-2.5 rounded-xl bg-secondary text-white font-label-md min-h-[44px] disabled:opacity-60"
+          className="min-h-[44px] px-6 py-2.5"
         >
           Next
-        </button>
+        </Button>
       )}
     </div>
   );

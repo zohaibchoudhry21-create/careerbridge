@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import InterviewProgressChart from './InterviewProgressChart';
 import { fetchInterviewReportHistory } from '../services/mockInterviewService';
+import SectionHeading from '../../../components/ui/SectionHeading';
+import { accentCardClass } from '../../../components/ui/colorAccentTokens';
 
 function ScoreRing({ score = 0, size = 160 }) {
   const radius = (size - 16) / 2;
@@ -43,22 +45,22 @@ function ScoreRing({ score = 0, size = 160 }) {
 
 function MetricTile({ label, value, suffix = '' }) {
   return (
-    <div className="dashboard-glass-card dashboard-card-padding rounded-2xl text-center min-w-0">
+    <div className="min-w-0 rounded-2xl text-center dashboard-glass-card dashboard-card-padding">
       <p className="font-label-sm text-on-surface-variant">{label}</p>
-      <p className="font-headline-section text-headline-section text-on-surface mt-1">
+      <p className="mt-1 font-headline-section text-headline-section text-on-surface">
         {value != null && value !== '' ? `${value}${suffix}` : '—'}
       </p>
     </div>
   );
 }
 
-function BulletList({ title, items = [] }) {
+function BulletList({ title, items = [], color = 'settings', icon = 'checklist' }) {
   if (!items.length) return null;
 
   return (
-    <section className="dashboard-glass-card dashboard-card-padding rounded-2xl space-y-2">
-      <h3 className="font-headline-section text-headline-section text-on-surface">{title}</h3>
-      <ul className="list-disc pl-5 space-y-1 font-body-md text-on-surface-variant">
+    <section className={accentCardClass}>
+      <SectionHeading color={color} icon={icon} title={title} alignDescription={false} />
+      <ul className="list-disc space-y-1 pl-5 font-body-md text-on-surface-variant">
         {items.map((item, index) => (
           <li key={`${title}-${index}`}>{item}</li>
         ))}
@@ -67,13 +69,13 @@ function BulletList({ title, items = [] }) {
   );
 }
 
-function SectionCard({ title, score, children }) {
+function ReportSectionCard({ title, score, color, icon, children }) {
   return (
-    <section className="dashboard-glass-card dashboard-card-padding rounded-2xl space-y-2 min-w-0">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="font-headline-section text-headline-section text-on-surface">{title}</h3>
+    <section className={`${accentCardClass} min-w-0`}>
+      <div className="flex items-start justify-between gap-2">
+        <SectionHeading color={color} icon={icon} title={title} alignDescription={false} />
         {score != null ? (
-          <span className="font-label-md text-secondary bg-secondary/10 px-2 py-0.5 rounded-full">
+          <span className="shrink-0 rounded-full bg-secondary/10 px-2 py-0.5 font-label-md text-secondary">
             {score}/100
           </span>
         ) : null}
@@ -101,18 +103,18 @@ export default function LiveInterviewReportView({ report, sessionId }) {
   const fillerWords = sections.voiceAnalysis?.fillerWords;
 
   return (
-    <div className="space-y-md min-w-0">
-      <header className="dashboard-glass-card dashboard-card-padding rounded-2xl flex flex-col items-center text-center gap-sm">
+    <div className="min-w-0 space-y-md">
+      <header className="flex flex-col items-center gap-sm rounded-2xl text-center dashboard-glass-card dashboard-card-padding">
         <h2 className="font-headline-dashboard text-headline-dashboard text-on-surface">
           Interview report
         </h2>
-        <p className="font-body-md text-on-surface-variant max-w-lg">
+        <p className="max-w-lg font-body-md text-on-surface-variant">
           AI summary based on your answers, voice delivery, and on-camera presence.
         </p>
         <ScoreRing score={overallScore} />
       </header>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-sm">
+      <div className="grid grid-cols-2 gap-sm md:grid-cols-4">
         <MetricTile label="Eye contact" value={eyeContact} suffix="%" />
         <MetricTile label="Speaking pace" value={wpm} suffix=" WPM" />
         <MetricTile label="Filler words" value={fillerWords} />
@@ -125,32 +127,52 @@ export default function LiveInterviewReportView({ report, sessionId }) {
 
       <InterviewProgressChart history={history} currentSessionId={sessionId} />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-sm">
-        <BulletList title="Strengths" items={strengths} />
-        <BulletList title="Areas to improve" items={improvementAreas} />
+      <div className="grid grid-cols-1 gap-sm md:grid-cols-2">
+        <BulletList title="Strengths" items={strengths} color="success" icon="thumb_up" />
+        <BulletList title="Areas to improve" items={improvementAreas} color="warning" icon="trending_up" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-sm">
-        <SectionCard title="Content quality" score={sections.contentQuality?.score}>
-          <p className="font-body-md text-on-surface-variant text-sm">
+      <div className="grid grid-cols-1 gap-sm md:grid-cols-2">
+        <ReportSectionCard
+          title="Content quality"
+          score={sections.contentQuality?.score}
+          color="skills"
+          icon="article"
+        >
+          <p className="font-body-md text-sm text-on-surface-variant">
             {sections.contentQuality?.feedback || 'No feedback available.'}
           </p>
-        </SectionCard>
+        </ReportSectionCard>
 
-        <SectionCard title="Voice analysis" score={sections.voiceAnalysis?.confidenceScore}>
-          <p className="font-body-md text-on-surface-variant text-sm">
+        <ReportSectionCard
+          title="Voice analysis"
+          score={sections.voiceAnalysis?.confidenceScore}
+          color="mode"
+          icon="mic"
+        >
+          <p className="font-body-md text-sm text-on-surface-variant">
             {sections.voiceAnalysis?.feedback || 'No voice feedback available.'}
           </p>
-        </SectionCard>
+        </ReportSectionCard>
 
-        <SectionCard title="Video presence" score={sections.videoAnalysis?.engagementScore}>
-          <p className="font-body-md text-on-surface-variant text-sm">
+        <ReportSectionCard
+          title="Video presence"
+          score={sections.videoAnalysis?.engagementScore}
+          color="interview"
+          icon="videocam"
+        >
+          <p className="font-body-md text-sm text-on-surface-variant">
             {sections.videoAnalysis?.feedback || 'No video feedback available.'}
           </p>
-        </SectionCard>
+        </ReportSectionCard>
       </div>
 
-      <BulletList title="Recommended next steps" items={recommendedNextSteps} />
+      <BulletList
+        title="Recommended next steps"
+        items={recommendedNextSteps}
+        color="focus"
+        icon="checklist"
+      />
     </div>
   );
 }

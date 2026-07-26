@@ -1,3 +1,5 @@
+import Button from '../ui/Button';
+
 export default function SaveButtons({
   onSave,
   onCancel,
@@ -8,20 +10,22 @@ export default function SaveButtons({
   className = '',
 }) {
   return (
-    <div className={`flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-md ${className}`}>
-      <button
+    <div className={`flex flex-col-reverse sm:flex-row sm:justify-end gap-2 ${className}`}>
+      <Button
         type="button"
+        variant="secondary"
         onClick={onCancel}
         disabled={saving}
-        className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-60"
+        className="min-h-[44px] px-4 py-2.5"
       >
         {cancelLabel}
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
+        variant="primary"
         onClick={onSave}
         disabled={saving || disabled}
-        className="px-4 py-2.5 rounded-xl bg-secondary text-white font-label-md hover:opacity-90 transition-opacity disabled:opacity-60 min-h-[44px] flex items-center justify-center gap-2"
+        className="min-h-[44px] gap-2 px-4 py-2.5"
       >
         {saving ? (
           <>
@@ -31,7 +35,7 @@ export default function SaveButtons({
         ) : (
           saveLabel
         )}
-      </button>
+      </Button>
     </div>
   );
 }

@@ -70,7 +70,12 @@ export default function LoginSecurity() {
       saveLabel="Change Password"
       saving={saving}
     >
-      <SectionCard title="Password" description="Choose a strong password you do not use elsewhere.">
+      <SectionCard
+        title="Password"
+        description="Choose a strong password you do not use elsewhere."
+        icon="lock"
+        color="security"
+      >
         <div className="space-y-4 max-w-xl">
           <PasswordField
             id="current-password"
@@ -105,7 +110,12 @@ export default function LoginSecurity() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Security" description="Additional protections for your account.">
+      <SectionCard
+        title="Security"
+        description="Additional protections for your account."
+        icon="shield"
+        color="focus"
+      >
         <ToggleSwitch
           id="two-factor"
           label="Two-Factor Authentication"
@@ -129,7 +139,12 @@ export default function LoginSecurity() {
         />
       </SectionCard>
 
-      <SectionCard title="Active Sessions" description="Devices currently signed in to your account.">
+      <SectionCard
+        title="Active Sessions"
+        description="Devices currently signed in to your account."
+        icon="devices"
+        color="role"
+      >
         <div className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest p-4 space-y-3">
           <div>
             <p className="font-label-md text-on-surface">Current Device</p>

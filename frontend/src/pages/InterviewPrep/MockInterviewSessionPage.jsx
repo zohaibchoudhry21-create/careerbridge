@@ -1,7 +1,9 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import DashboardLayout from '../../components/layout/DashboardLayout';
+import { buttonPrimaryClass } from '../../components/ui/buttonTokens';
+import { cn } from '../../lib/utils';
+import { DashboardLayout, PageContainer, PageHeader, BackLink } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
 import AppIcon from '../../components/icons/AppIcon';
 import LiveInterviewReportView from '../../features/interviewPrep/components/LiveInterviewReportView';
@@ -25,6 +27,10 @@ import {
 const LiveInterviewAgent = lazy(
   () => import('../../features/interviewPrep/components/LiveInterviewAgent')
 );
+
+function SessionExitLink() {
+  return <BackLink to="/interview-prep/mock">Exit</BackLink>;
+}
 
 export default function MockInterviewSessionPage() {
   const { sessionId } = useParams();
@@ -166,7 +172,7 @@ export default function MockInterviewSessionPage() {
   if (authLoading || !user) {
     return (
       <DashboardLayout user={user}>
-        <div className="flex justify-center py-2xl">
+        <div className="flex justify-center py-xl">
           <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
         </div>
       </DashboardLayout>
@@ -176,39 +182,30 @@ export default function MockInterviewSessionPage() {
   if (!sessionId) {
     return (
       <DashboardLayout user={user}>
-        <div className="max-w-lg mx-auto space-y-md pt-12">
+        <PageContainer width="standard">
           <p className="font-body-md text-on-surface-variant">Session not found.</p>
           <Link
             to="/interview-prep/mock"
-            className="inline-flex px-6 py-2.5 rounded-xl bg-secondary text-white font-label-md"
+            className={cn(buttonPrimaryClass, 'px-6 py-2.5')}
           >
             Back to setup
           </Link>
-        </div>
+        </PageContainer>
       </DashboardLayout>
     );
   }
 
   return (
     <DashboardLayout user={user}>
-      <div className="min-w-0 pt-8 md:pt-10 lg:pt-12">
+      <PageContainer width="standard">
         {isCompletePhase ? (
-          <div className="space-y-md max-w-4xl mx-auto">
-            <Link
-              to="/interview-prep/mock"
-              className="inline-flex items-center gap-1 font-label-md text-secondary hover:underline mb-md"
-            >
-              <AppIcon name="arrow_back" size="sm" />
-              Exit
-            </Link>
-            <header className="text-center">
-              <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
-                Interview complete
-              </h1>
-              <p className="font-body-md text-on-surface-variant mt-base">
-                Your combined content, voice, and video feedback is ready.
-              </p>
-            </header>
+          <>
+            <SessionExitLink />
+            <PageHeader
+              align="center"
+              title="Interview complete"
+              description="Your combined content, voice, and video feedback is ready."
+            />
 
             {!interviewReport && generateReport.isPending ? (
               <div className="flex items-center justify-center gap-2 py-md">
@@ -223,27 +220,28 @@ export default function MockInterviewSessionPage() {
 
             <Link
               to="/interview-prep"
-              className="inline-flex px-6 py-2.5 rounded-xl bg-secondary text-white font-label-md"
+              className={cn(buttonPrimaryClass, 'px-6 py-2.5')}
             >
               Back to Interview Prep
             </Link>
-          </div>
+          </>
         ) : (
           <>
             {sessionLoading && !questions.length ? (
-              <div className="flex justify-center py-2xl">
+              <div className="flex justify-center py-xl">
                 <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
               </div>
             ) : null}
 
             {!sessionLoading && !questions.length ? (
-              <div className="max-w-lg mx-auto text-center space-y-md">
+              <div className="text-center space-y-md">
+                <SessionExitLink />
                 <p className="font-body-md text-on-surface-variant">
                   Could not load this interview session. Start a new one from setup.
                 </p>
                 <Link
                   to="/interview-prep/mock"
-                  className="inline-flex px-6 py-2.5 rounded-xl bg-secondary text-white font-label-md"
+                  className={cn(buttonPrimaryClass, 'px-6 py-2.5')}
                 >
                   Back to setup
                 </Link>
@@ -251,29 +249,37 @@ export default function MockInterviewSessionPage() {
             ) : null}
 
             {questions.length > 0 ? (
-              <Suspense
-                fallback={
-                  <div className="flex justify-center py-2xl">
-                    <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
-                  </div>
-                }
-              >
-                <LiveInterviewAgent
-                  userName={userName}
-                  sessionId={sessionId}
-                  questions={questions}
-                  roleLabel={interviewMeta.roleLabel}
-                  difficulty={interviewMeta.difficulty}
-                  durationMinutes={interviewMeta.durationMinutes}
-                  interviewerPersona={interviewMeta.interviewerPersona}
-                  interviewMode={interviewMeta.interviewMode}
-                  focusAreas={interviewMeta.focusAreas}
-                  stream={stream}
-                  onFinished={handleFinished}
-                  submitError={submitError}
-                  isSubmitting={submitLiveInterview.isPending}
-                />
-              </Suspense>
+              <>
+                <SessionExitLink />
+                <Suspense
+                  fallback={
+                    <div className="flex justify-center py-xl">
+                      <AppIcon
+                        name="progress_activity"
+                        size="dashboard"
+                        spin
+                        className="text-secondary"
+                      />
+                    </div>
+                  }
+                >
+                  <LiveInterviewAgent
+                    userName={userName}
+                    sessionId={sessionId}
+                    questions={questions}
+                    roleLabel={interviewMeta.roleLabel}
+                    difficulty={interviewMeta.difficulty}
+                    durationMinutes={interviewMeta.durationMinutes}
+                    interviewerPersona={interviewMeta.interviewerPersona}
+                    interviewMode={interviewMeta.interviewMode}
+                    focusAreas={interviewMeta.focusAreas}
+                    stream={stream}
+                    onFinished={handleFinished}
+                    submitError={submitError}
+                    isSubmitting={submitLiveInterview.isPending}
+                  />
+                </Suspense>
+              </>
             ) : null}
 
             {submitLiveInterview.isPending ? (
@@ -284,7 +290,7 @@ export default function MockInterviewSessionPage() {
             ) : null}
           </>
         )}
-      </div>
+      </PageContainer>
     </DashboardLayout>
   );
 }

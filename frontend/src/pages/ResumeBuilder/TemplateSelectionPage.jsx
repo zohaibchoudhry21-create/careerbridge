@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import DashboardLayout from '../../components/layout/DashboardLayout';
+import { DashboardLayout, PageContainer, PageHeader } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
 import TemplateCard from '../../features/resumeBuilder/components/TemplateCard';
 import TemplatePreviewModal from '../../features/resumeBuilder/components/TemplatePreviewModal';
@@ -13,6 +13,12 @@ import {
   useCreateBuiltResume,
   useImportBuiltResume,
 } from '../../features/resumeBuilder/hooks/useResumeBuilder';
+import { cn } from '../../lib/utils';
+import {
+  selectedOptionClass,
+  unselectedOptionClass,
+} from '../../components/ui/colorAccentTokens';
+import { buttonSecondaryClass } from '../../components/ui/buttonTokens';
 
 export default function TemplateSelectionPage() {
   const { user } = useAuth();
@@ -86,42 +92,37 @@ export default function TemplateSelectionPage() {
 
   return (
     <DashboardLayout user={user}>
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-start justify-between gap-sm mb-md">
-          <div>
-            <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
-              Start building your resume
-            </h1>
-            <p className="font-body-md text-on-surface-variant mt-1">
-              Choose a design you like. You can customize or switch it later.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              if (!selectedTemplate) {
-                toast.info('Select a template first, then import your resume.');
-                return;
-              }
-              setImportOpen(true);
-            }}
-            className="rounded-xl border border-outline-variant px-md py-sm font-label-md text-on-surface hover:border-secondary/40 hover:text-secondary transition-colors"
-          >
-            Import existing resume
-          </button>
-        </div>
+      <PageContainer>
+        <PageHeader
+          title="Start building your resume"
+          description="Choose a design you like. You can customize or switch it later."
+          actions={
+            <button
+              type="button"
+              onClick={() => {
+                if (!selectedTemplate) {
+                  toast.info('Select a template first, then import your resume.');
+                  return;
+                }
+                setImportOpen(true);
+              }}
+              className={cn(buttonSecondaryClass, 'px-md py-sm')}
+            >
+              Import existing resume
+            </button>
+          }
+        />
 
-        <div className="flex flex-wrap gap-2 mb-md">
+        <div className="flex flex-wrap gap-2">
           {TEMPLATE_CATEGORIES.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => setCategory(item.id)}
-              className={`rounded-full px-md py-sm font-label-md transition-colors ${
-                category === item.id
-                  ? 'bg-secondary text-white'
-                  : 'bg-surface-container text-on-surface-variant hover:text-on-surface'
-              }`}
+              className={cn(
+                'rounded-full border-2 px-md py-sm font-label-md transition-all duration-150',
+                category === item.id ? selectedOptionClass : unselectedOptionClass
+              )}
             >
               {item.label}
             </button>
@@ -133,7 +134,7 @@ export default function TemplateSelectionPage() {
             <TemplateCard key={template.id} template={template} onClick={openPreview} />
           ))}
         </div>
-      </div>
+      </PageContainer>
 
       <TemplatePreviewModal
         open={previewOpen}
