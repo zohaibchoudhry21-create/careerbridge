@@ -5,7 +5,7 @@ import BrandLogo from '../brand/BrandLogo';
 import usePersistedSidebarCollapse from '../../hooks/usePersistedSidebarCollapse';
 import AppIcon from '../icons/AppIcon';
 import LanguageSelector from '../../i18n/components/LanguageSelector';
-import ThemeToggle from '../../theme/components/ThemeToggle';
+import DarkMode from '../../theme/components/ThemeToggle/DarkMode.jsx';
 
 const SIDEBAR_TRANSITION =
   'transition-[width,padding] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]';
@@ -32,7 +32,7 @@ export default function DashboardLayout({ children, user }) {
         </button>
         <BrandLogo className="h-8 w-auto max-w-[10rem] shrink-0" />
         <div className="ms-auto flex items-center gap-2">
-          <ThemeToggle />
+          <DarkMode />
           <LanguageSelector compact />
         </div>
       </header>

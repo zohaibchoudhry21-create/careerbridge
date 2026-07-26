@@ -1,5 +1,5 @@
 import express from 'express';
-import { updateAccount, changePassword, deleteAccount, deactivateAccount, exportUserData, updateLanguagePreference, updateThemePreference } from '../controllers/settingsController.js';
+import { updateAccount, changePassword, deleteAccount, deactivateAccount, exportUserData, updateLanguagePreference } from '../controllers/settingsController.js';
 import {
   listSessions,
   revokeOtherSessionsHandler,
@@ -11,7 +11,6 @@ import { validateRequest } from '../middleware/validateRequest.js';
 import {
   updateProfileValidation,
   updateLanguagePreferenceValidation,
-  updateThemePreferenceValidation,
   changePasswordValidation,
   deleteAccountValidation,
 } from '../validators/profileValidator.js';
@@ -26,13 +25,6 @@ router.patch(
   updateLanguagePreferenceValidation,
   validateRequest,
   updateLanguagePreference
-);
-router.patch(
-  '/users/me/theme-preference',
-  protect,
-  updateThemePreferenceValidation,
-  validateRequest,
-  updateThemePreference
 );
 router.patch('/users/me', protect, updateProfileValidation, validateRequest, updateAccount);
 router.patch('/users/me/password', protect, changePasswordValidation, validateRequest, changePassword);

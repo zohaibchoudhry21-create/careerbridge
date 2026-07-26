@@ -21,10 +21,6 @@ export async function persistLanguagePreference(languagePreference) {
     .then(unwrap);
 }
 
-export async function persistThemePreference(themePreference) {
-  return api.patch('/users/me/theme-preference', { themePreference }).then(unwrap);
-}
-
 export const changeUserPassword = (payload) => api.patch('/users/me/password', payload).then(unwrap);
 
 export const deleteUserAccount = (payload) => api.delete('/users/me', { data: payload }).then(unwrap);
