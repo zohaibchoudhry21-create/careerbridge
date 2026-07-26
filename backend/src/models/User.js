@@ -159,6 +159,12 @@ const userSchema = new mongoose.Schema(
       enum: ['en-US', 'en-GB', 'es', 'ur'],
       default: 'en-US',
     },
+    /** UI color theme preference. */
+    themePreference: {
+      type: String,
+      enum: ['light', 'dark', 'system'],
+      default: 'light',
+    },
     twoFactorEnabled: {
       type: Boolean,
       default: false,
@@ -246,6 +252,7 @@ userSchema.methods.toPublicJSON = function toPublicJSON() {
     loginAlertsEnabled: this.loginAlertsEnabled !== false,
     rememberDevicesEnabled: this.rememberDevicesEnabled === true,
     languagePreference: this.languagePreference || 'en-US',
+    themePreference: this.themePreference || 'light',
     twoFactorEnabled: this.twoFactorEnabled === true,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,

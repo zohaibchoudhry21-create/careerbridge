@@ -71,6 +71,25 @@ export const updateLanguagePreference = async (req, res, next) => {
   }
 };
 
+export const updateThemePreference = async (req, res, next) => {
+  try {
+    const user = await loadUser(req.user._id);
+
+    if (!user) {
+      throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 404);
+    }
+
+    user.themePreference = String(req.body.themePreference);
+    await user.save();
+
+    sendResponse(res, 200, true, 'Theme preference updated', {
+      user: user.toPublicJSON(),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateAccount = async (req, res, next) => {
   try {
     const user = await loadUser(req.user._id);
@@ -134,6 +153,10 @@ export const updateAccount = async (req, res, next) => {
 
     if (req.body.languagePreference !== undefined) {
       user.languagePreference = String(req.body.languagePreference);
+    }
+
+    if (req.body.themePreference !== undefined) {
+      user.themePreference = String(req.body.themePreference);
     }
 
     if (emailChanged) {
