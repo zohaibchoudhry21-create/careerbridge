@@ -6,28 +6,34 @@ import { readGuestLanguage } from './guestLanguageStorage.js';
 import enCommon from './locales/en/common.json';
 import enSettings from './locales/en/settings.json';
 import enDashboard from './locales/en/dashboard.json';
+import enAuth from './locales/en/auth.json';
 import esCommon from './locales/es/common.json';
 import esSettings from './locales/es/settings.json';
 import esDashboard from './locales/es/dashboard.json';
+import esAuth from './locales/es/auth.json';
 import urCommon from './locales/ur/common.json';
 import urSettings from './locales/ur/settings.json';
 import urDashboard from './locales/ur/dashboard.json';
+import urAuth from './locales/ur/auth.json';
 
 const resources = {
   en: {
     common: enCommon,
     settings: enSettings,
     dashboard: enDashboard,
+    auth: enAuth,
   },
   es: {
     common: esCommon,
     settings: esSettings,
     dashboard: esDashboard,
+    auth: esAuth,
   },
   ur: {
     common: urCommon,
     settings: urSettings,
     dashboard: urDashboard,
+    auth: urAuth,
   },
 };
 
@@ -36,7 +42,7 @@ i18n.use(initReactI18next).init({
   lng: DEFAULT_I18N_LANGUAGE,
   fallbackLng: DEFAULT_I18N_LANGUAGE,
   supportedLngs: I18N_LANGUAGE_CODES,
-  ns: ['common', 'settings', 'dashboard'],
+  ns: ['common', 'settings', 'dashboard', 'auth'],
   defaultNS: 'common',
   interpolation: {
     escapeValue: false,

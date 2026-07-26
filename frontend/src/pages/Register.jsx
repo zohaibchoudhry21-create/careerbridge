@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { registerUser } from '../services/authService';
 import { validatePassword } from '../utils/passwordValidator';
@@ -10,6 +11,7 @@ import PasswordRequirements from '../components/auth/PasswordRequirements';
 import AppIcon from '../components/icons/AppIcon';
 
 export default function Register() {
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,7 +36,7 @@ export default function Register() {
         email: values.email,
         password: values.password,
       });
-      toast.success(data.message || 'Please verify your email to continue.');
+      toast.success(data.message || t('toasts.verifyEmailRequired'));
       navigate('/verify-email-sent', {
         replace: true,
         state: {
@@ -44,53 +46,51 @@ export default function Register() {
         },
       });
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Registration failed.');
+      toast.error(error.response?.data?.message || t('toasts.registrationFailed'));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const inputClassName =
-    'w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none';
+    'w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none text-start';
 
   return (
     <AuthLayout navbar="landing">
-      <header className="mb-10 text-center lg:text-left">
+      <header className="mb-10 text-center lg:text-start">
         <h1 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-on-surface mb-xs">
-          Create Account
+          {t('register.title')}
         </h1>
-        <p className="font-body-md text-body-md text-on-surface-variant">
-          Join AI CareerBridge and start building your future today
-        </p>
+        <p className="font-body-md text-body-md text-on-surface-variant">{t('register.subtitle')}</p>
       </header>
 
       <form className="space-y-md" onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="space-y-xs">
           <label className="font-label-md text-label-md text-on-surface" htmlFor="name">
-            Full Name
+            {t('fields.fullName')}
           </label>
           <input
             id="name"
             type="text"
-            placeholder="Enter your full name"
+            placeholder={t('fields.placeholders.fullName')}
             className={inputClassName}
-            {...register('name', { required: 'Name is required' })}
+            {...register('name', { required: t('validation.nameRequired') })}
           />
           {errors.name && <p className="text-sm text-error">{errors.name.message}</p>}
         </div>
 
         <div className="space-y-xs">
           <label className="font-label-md text-label-md text-on-surface" htmlFor="email">
-            Email Address
+            {t('fields.email')}
           </label>
           <input
             id="email"
             type="email"
-            placeholder="Enter your email"
+            placeholder={t('fields.placeholders.email')}
             className={inputClassName}
             {...register('email', {
-              required: 'Email is required',
-              pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email' },
+              required: t('validation.emailRequired'),
+              pattern: { value: /^\S+@\S+\.\S+$/, message: t('validation.emailInvalid') },
             })}
           />
           {errors.email && <p className="text-sm text-error">{errors.email.message}</p>}
@@ -98,24 +98,24 @@ export default function Register() {
 
         <div className="space-y-xs">
           <label className="font-label-md text-label-md text-on-surface" htmlFor="password">
-            Password
+            {t('fields.password')}
           </label>
           <div className="relative">
             <input
               id="password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Create a password"
-              className={`${inputClassName} pr-12`}
+              placeholder={t('fields.placeholders.createPassword')}
+              className={`${inputClassName} pe-12`}
               {...register('password', {
-                required: 'Password is required',
+                required: t('validation.passwordRequired'),
                 validate: (value) => validatePassword(value).valid || ' ',
               })}
             />
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-secondary"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="absolute end-4 top-1/2 -translate-y-1/2 text-outline hover:text-secondary"
+              aria-label={showPassword ? t('fields.hidePassword') : t('fields.showPassword')}
             >
               <AppIcon name={showPassword ? 'visibility_off' : 'visibility'} size="h-5 w-5" />
             </button>
@@ -125,16 +125,16 @@ export default function Register() {
 
         <div className="space-y-xs">
           <label className="font-label-md text-label-md text-on-surface" htmlFor="confirmPassword">
-            Confirm Password
+            {t('fields.confirmPassword')}
           </label>
           <input
             id="confirmPassword"
             type="password"
-            placeholder="Confirm your password"
+            placeholder={t('fields.placeholders.confirmPassword')}
             className={inputClassName}
             {...register('confirmPassword', {
-              required: 'Please confirm your password',
-              validate: (value) => value === password || 'Passwords do not match',
+              required: t('validation.confirmRequired'),
+              validate: (value) => value === password || t('validation.passwordMismatch'),
             })}
           />
           {errors.confirmPassword && (
@@ -150,10 +150,10 @@ export default function Register() {
           {isSubmitting ? (
             <>
               <span className="w-5 h-5 border-2 border-on-secondary border-t-transparent rounded-full animate-spin" />
-              Creating account...
+              {t('register.submitting')}
             </>
           ) : (
-            'Sign Up'
+            t('register.submit')
           )}
         </button>
       </form>
@@ -164,9 +164,9 @@ export default function Register() {
 
       <div className="mt-xl text-center">
         <p className="font-body-md text-body-md text-on-surface-variant">
-          Already have an account?{' '}
+          {t('register.hasAccount')}{' '}
           <Link to="/login" className="text-secondary font-bold hover:underline">
-            Log In
+            {t('register.logIn')}
           </Link>
         </p>
       </div>
