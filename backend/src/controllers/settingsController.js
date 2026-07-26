@@ -145,6 +145,11 @@ export const changePassword = async (req, res, next) => {
       throw new AppError('Current password is incorrect.', 401);
     }
 
+    const isSameAsCurrent = await user.comparePassword(newPassword);
+    if (isSameAsCurrent) {
+      throw new AppError('New password must be different from your current password.', 400);
+    }
+
     user.password = newPassword;
     user.tokenVersion = (Number(user.tokenVersion) || 0) + 1;
     await user.save();
