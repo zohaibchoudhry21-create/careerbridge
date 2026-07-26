@@ -21,7 +21,7 @@ function NavTooltip({ label, children }) {
       {children}
       <span
         role="tooltip"
-        className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-lg bg-on-surface px-2.5 py-1.5 font-label-sm text-surface opacity-0 shadow-md transition-opacity duration-200 group-hover/nav:opacity-100"
+        className="pointer-events-none absolute start-full top-1/2 z-50 ms-2 -translate-y-1/2 whitespace-nowrap rounded-lg bg-on-surface px-2.5 py-1.5 font-label-sm text-surface opacity-0 shadow-md transition-opacity duration-200 group-hover/nav:opacity-100"
       >
         {label}
       </span>
@@ -48,7 +48,7 @@ function NavItem({ item, index = 0, collapsed, onNavigate }) {
     ].join(' ');
 
     if (active) {
-      return `${base} text-secondary font-bold bg-secondary/10 shadow-sm relative before:absolute before:content-[''] before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-7 before:bg-secondary before:rounded-full`;
+      return `${base} text-secondary font-bold bg-secondary/10 shadow-sm relative before:absolute before:content-[''] before:start-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-7 before:bg-secondary before:rounded-full`;
     }
 
     return `${base} text-on-surface-variant hover:text-secondary hover:bg-surface-container/80`;
