@@ -27,7 +27,7 @@ export default function SectionHeading({
           <SectionIcon color={color} icon={icon} />
           <h2
             className={cn(
-              'font-headline-section text-headline-section text-on-surface',
+              'font-headline-section text-headline-section app-heading',
               titleClassName
             )}
           >
@@ -35,7 +35,7 @@ export default function SectionHeading({
           </h2>
         </div>
         {optional ? (
-          <span className="shrink-0 rounded-full bg-[#F1F3F7] px-2.5 py-1 font-label-sm text-on-surface-variant dark:bg-surface-container-high">
+          <span className="shrink-0 rounded-full bg-[#F1F3F7] px-2.5 py-1 font-label-sm app-muted dark:bg-[#2d3a4f]">
             Optional
           </span>
         ) : null}
@@ -43,7 +43,7 @@ export default function SectionHeading({
       {description ? (
         <p
           className={cn(
-            'font-body-md text-sm text-on-surface-variant',
+            'font-body-md text-sm app-muted',
             descriptionPad
           )}
         >

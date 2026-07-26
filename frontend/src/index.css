@@ -13,7 +13,7 @@
 
   body {
     @apply bg-surface text-on-surface font-body-md antialiased;
-    @apply dark:bg-[#0b1220] dark:text-[#eaf1ff];
+    @apply dark:bg-[#0b1220];
     overflow-x: hidden;
     max-width: 100%;
   }
@@ -71,31 +71,44 @@
     min-height: min(100vh, 900px);
   }
 
+  .app-heading {
+    @apply text-on-surface dark:text-[#eaf1ff];
+  }
+
+  .app-muted {
+    @apply text-on-surface-variant dark:text-[#94a3b8];
+  }
+
+  .app-surface-card,
   .dashboard-glass-card {
     @apply bg-white/90 backdrop-blur-sm border border-[#E2E8F0] rounded-2xl text-on-surface;
     @apply dark:bg-[#1a2332]/95 dark:border-[#334155] dark:text-[#eaf1ff];
   }
 
+  .app-inner-surface,
   .dashboard-inner-surface {
     @apply bg-surface-container-low;
     @apply dark:bg-[#243044] dark:text-[#dce8f8];
   }
 
+  .app-inner-surface-high,
   .dashboard-inner-surface-high {
     @apply bg-surface-container-high;
     @apply dark:bg-[#2d3a4f];
   }
 
+  .app-muted-token,
   .dashboard-muted {
     @apply text-on-surface-variant;
     @apply dark:text-[#94a3b8];
   }
 
+  .app-section-title,
   .dashboard-section-title {
-    @apply font-headline-section text-headline-section text-on-surface;
-    @apply dark:text-[#eaf1ff];
+    @apply font-headline-section text-headline-section app-heading;
   }
 
+  .app-pill-neutral,
   .dashboard-pill-neutral {
     @apply bg-surface-container-high text-on-surface-variant;
     @apply dark:bg-[#2d3a4f] dark:text-[#cbd5e1];

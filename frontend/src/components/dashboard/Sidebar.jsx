@@ -52,7 +52,7 @@ function NavItem({ item, index = 0, collapsed, onNavigate }) {
       return `${base} text-secondary font-bold bg-secondary/10 shadow-sm relative before:absolute before:content-[''] before:start-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-7 before:bg-secondary before:rounded-full`;
     }
 
-    return `${base} text-on-surface-variant hover:text-secondary hover:bg-surface-container/80`;
+    return `${base} app-muted hover:text-secondary hover:bg-surface-container/80 dark:hover:bg-[#243044]/80`;
   };
 
   const content = (
@@ -131,9 +131,9 @@ function SidebarContent({ collapsed, onToggleCollapse, onNavigate, showCollapseT
             onClick={onToggleCollapse}
             className={[
               'relative flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl',
-              'text-on-surface',
+              'app-heading',
               'transition-all duration-300',
-              'hover:bg-secondary/10',
+              'hover:bg-secondary/10 dark:hover:bg-secondary/15',
               'hover:scale-105',
               'active:scale-95',
               'overflow-hidden',
@@ -161,7 +161,7 @@ function SidebarContent({ collapsed, onToggleCollapse, onNavigate, showCollapseT
           ].join(' ')}
           aria-hidden={collapsed}
         >
-          <div className="rounded-2xl p-2 transition-all duration-300 hover:bg-surface-container">
+          <div className="rounded-2xl p-2 transition-all duration-300 hover:bg-surface-container dark:hover:bg-[#243044]/60">
             <SidebarBrand />
           </div>
         </div>
@@ -181,7 +181,7 @@ function SidebarContent({ collapsed, onToggleCollapse, onNavigate, showCollapseT
 
       <div
         className={[
-          'shrink-0 mt-auto pt-2 border-t border-outline-variant/30',
+          'shrink-0 mt-auto pt-2 border-t border-outline-variant/30 dark:border-[#334155]/50',
           SIDEBAR_ANIMATION,
           collapsed ? 'flex justify-center py-2' : 'flex items-center px-1 py-2',
         ].join(' ')}
