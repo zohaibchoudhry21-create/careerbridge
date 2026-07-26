@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk';
 import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { extractJsonFromText } from './resumeAiPrompts.js';
 
@@ -7,7 +8,7 @@ const getClient = () => {
   const { apiKey } = getGroqConfig();
 
   if (!apiKey) {
-    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.GROQ_NOT_CONFIGURED, 503);
   }
 
   return new Groq({ apiKey });
@@ -44,26 +45,26 @@ Rules:
 
 const normalizeQuestions = (rawQuestions, expectedCount) => {
   if (!Array.isArray(rawQuestions) || rawQuestions.length < expectedCount) {
-    throw new AppError('AI returned an invalid quiz structure.', 502);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.AI_INVALID_QUIZ, 502);
   }
 
   const questions = rawQuestions.slice(0, expectedCount).map((q, index) => {
     const options = Array.isArray(q.options) ? q.options.map(String) : [];
 
     if (options.length !== 4) {
-      throw new AppError('Each quiz question must have exactly 4 options.', 502);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.AI_INVALID_OPTIONS, 502);
     }
 
     const correctIndex = Number(q.correctIndex);
 
     if (!Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex > 3) {
-      throw new AppError('Quiz question has an invalid correctIndex.', 502);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.AI_INVALID_CORRECT_INDEX, 502);
     }
 
     const questionText = String(q.question || '').trim();
 
     if (!questionText) {
-      throw new AppError('Quiz question text is missing.', 502);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.AI_MISSING_QUESTION, 502);
     }
 
     return {
@@ -81,7 +82,7 @@ const normalizeQuestions = (rawQuestions, expectedCount) => {
 
 export const generateSkillQuizWithGroq = async ({ topicLabel, difficulty, questionCount }) => {
   if (!isGroqConfigured()) {
-    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.GROQ_NOT_CONFIGURED, 503);
   }
 
   const { model } = getGroqConfig();
@@ -102,7 +103,7 @@ export const generateSkillQuizWithGroq = async ({ topicLabel, difficulty, questi
   const content = completion.choices?.[0]?.message?.content?.trim();
 
   if (!content) {
-    throw new AppError('Groq returned an empty quiz response.', 502);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.EMPTY_QUIZ_RESPONSE, 502);
   }
 
   let parsed;

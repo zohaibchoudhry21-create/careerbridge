@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk';
 import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { extractJsonFromText } from './resumeAiPrompts.js';
 
@@ -93,7 +94,7 @@ export const fetchRoleSuggestionsWithGroq = async (query) => {
   }
 
   if (!isGroqConfigured()) {
-    throw new AppError('Groq is not configured. Set GROQ_API_KEY in environment.', 503);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.GROQ_NOT_CONFIGURED, 503);
   }
 
   try {
@@ -102,11 +103,7 @@ export const fetchRoleSuggestionsWithGroq = async (query) => {
     trimCache();
     return suggestions;
   } catch (error) {
-    const message =
-      error?.error?.message ||
-      error?.message ||
-      'Failed to fetch role suggestions from Groq.';
-
-    throw new AppError(message, error?.status || 502);
+    console.warn('[role-suggestions] Groq request failed:', error?.message || error);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.ROLE_SUGGESTIONS_FAILED, error?.status || 502);
   }
 };

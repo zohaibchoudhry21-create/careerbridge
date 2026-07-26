@@ -3,6 +3,7 @@ import {
   DEFAULT_SKILL_QUIZ_QUESTION_COUNT,
   SKILL_ASSESSMENT_TOPICS,
 } from '../constants/interviewPrepConstants.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
 import { generateSkillQuizWithGroq } from '../utils/skillQuizGroqService.js';
 import { serializeSkillQuizForClient } from '../utils/skillQuizSerializer.js';
@@ -18,7 +19,7 @@ const loadQuizForUser = async (quizId, userId) => {
   const quiz = await SkillQuiz.findOne({ _id: quizId, userId });
 
   if (!quiz) {
-    throw new AppError('Quiz not found.', 404);
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.QUIZ_NOT_FOUND, 404);
   }
 
   return quiz;
@@ -40,7 +41,7 @@ export const generateSkillQuiz = async (req, res, next) => {
     const meta = findTopicMeta(topic);
 
     if (!meta) {
-      throw new AppError('Invalid topic.', 400);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.INVALID_TOPIC, 400);
     }
 
     const difficulty = req.body.difficulty || 'medium';
@@ -76,7 +77,7 @@ export const getSkillQuiz = async (req, res, next) => {
     const quiz = await loadQuizForUser(req.params.quizId, req.user._id);
 
     if (quiz.status === 'submitted') {
-      throw new AppError('This quiz has already been submitted.', 400);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.QUIZ_ALREADY_SUBMITTED, 400);
     }
 
     sendResponse(res, 200, true, 'Quiz fetched successfully.', {
@@ -93,19 +94,19 @@ export const submitSkillQuiz = async (req, res, next) => {
     const quiz = await loadQuizForUser(quizId, req.user._id);
 
     if (quiz.status === 'submitted') {
-      throw new AppError('This quiz has already been submitted.', 400);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.QUIZ_ALREADY_SUBMITTED, 400);
     }
 
     const questionIds = new Set(quiz.questions.map((q) => q.questionId));
 
     for (const answer of answers) {
       if (!questionIds.has(answer.questionId)) {
-        throw new AppError('Invalid answer for unknown question.', 400);
+        throw new AppError(ERROR_CODES.INTERVIEW_PREP.INVALID_ANSWER, 400);
       }
     }
 
     if (answers.length !== quiz.questions.length) {
-      throw new AppError('Please answer every question before submitting.', 400);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.INCOMPLETE_ANSWERS, 400);
     }
 
     const { score, total, percentage, perQuestion } = scoreSkillQuiz(quiz.questions, answers);

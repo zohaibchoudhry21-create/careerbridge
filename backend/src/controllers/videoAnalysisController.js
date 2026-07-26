@@ -1,4 +1,5 @@
 import { aggregateVideoFrameSamples, buildVideoFeedbackText } from '../utils/videoAnalysisMetrics.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
 
 export const analyzeVideoFrames = async (req, res, next) => {
@@ -6,7 +7,7 @@ export const analyzeVideoFrames = async (req, res, next) => {
     const frameSamples = req.body?.frameSamples;
 
     if (!Array.isArray(frameSamples) || frameSamples.length === 0) {
-      throw new AppError('frameSamples array is required.', 400);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.FRAME_SAMPLES_REQUIRED, 400);
     }
 
     const aggregated = aggregateVideoFrameSamples(frameSamples);

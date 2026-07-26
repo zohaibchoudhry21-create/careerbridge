@@ -1,5 +1,6 @@
 import { transcribeAudioWithGroq } from '../utils/groqWhisperService.js';
 import { analyzeVoiceFromTranscription } from '../utils/voiceAnalysisService.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
 
 export const analyzeVoice = async (req, res, next) => {
@@ -21,7 +22,7 @@ export const analyzeVoice = async (req, res, next) => {
     }
 
     if (!transcript) {
-      throw new AppError('Transcript or audio recording is required.', 400);
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_OR_AUDIO_REQUIRED, 400);
     }
 
     const durationMs = req.body?.durationMs ? Number(req.body.durationMs) : undefined;

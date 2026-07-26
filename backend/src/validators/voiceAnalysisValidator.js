@@ -1,4 +1,5 @@
 import { body } from 'express-validator';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 
 export const analyzeVoiceValidation = [
   body('transcript').optional().isString(),
@@ -11,6 +12,6 @@ export const analyzeVoiceValidation = [
     if (req.body?.transcript?.trim()) {
       return true;
     }
-    throw new Error('Provide an audio file or transcript for voice analysis.');
+    throw new Error(ERROR_CODES.INTERVIEW_PREP.VOICE_INPUT_REQUIRED);
   }),
 ];

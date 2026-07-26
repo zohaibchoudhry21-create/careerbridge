@@ -1,4 +1,5 @@
 import rateLimit from 'express-rate-limit';
+import { ERROR_CODES, getErrorMessage } from '../constants/apiErrorCodes.js';
 import { getInterviewPrepRateLimitKey } from '../utils/interviewPrepRateLimitKey.js';
 
 /**
@@ -7,7 +8,7 @@ import { getInterviewPrepRateLimitKey } from '../utils/interviewPrepRateLimitKey
  */
 const userKeyGenerator = getInterviewPrepRateLimitKey;
 
-const createUserRateLimiter = ({ windowMs, max, message }) =>
+const createUserRateLimiter = ({ windowMs, max, code }) =>
   rateLimit({
     windowMs,
     max,
@@ -15,7 +16,7 @@ const createUserRateLimiter = ({ windowMs, max, message }) =>
     legacyHeaders: false,
     validate: false,
     keyGenerator: userKeyGenerator,
-    handler: (req, res, _next, _options) => {
+    handler: (req, res) => {
       const resetTime = req.rateLimit?.resetTime;
       let retryAfterSeconds = Math.max(1, Math.ceil(windowMs / 1000));
 
@@ -26,7 +27,9 @@ const createUserRateLimiter = ({ windowMs, max, message }) =>
       res.set('Retry-After', String(retryAfterSeconds));
       res.status(429).json({
         success: false,
-        message,
+        code,
+        params: {},
+        message: getErrorMessage(code),
         retryAfterSeconds,
       });
     },
@@ -36,26 +39,26 @@ const createUserRateLimiter = ({ windowMs, max, message }) =>
 export const interviewFlowLimiter = createUserRateLimiter({
   windowMs: 60 * 1000,
   max: 40,
-  message: 'Too many interview requests. Please wait a moment and try again.',
+  code: ERROR_CODES.RATE_LIMIT.INTERVIEW_FLOW,
 });
 
 /** report generation (heavier Groq aggregation) */
 export const interviewHeavyLimiter = createUserRateLimiter({
   windowMs: 60 * 1000,
   max: 20,
-  message: 'Too many interview report requests. Please wait before generating again.',
+  code: ERROR_CODES.RATE_LIMIT.INTERVIEW_HEAVY,
 });
 
 /** skill quiz AI generation */
 export const skillQuizGenerateLimiter = createUserRateLimiter({
   windowMs: 60 * 1000,
   max: 5,
-  message: 'Too many quiz generation requests. Please wait before trying again.',
+  code: ERROR_CODES.RATE_LIMIT.SKILL_QUIZ_GENERATE,
 });
 
 /** skill quiz submit (server scoring; abuse protection) */
 export const skillQuizSubmitLimiter = createUserRateLimiter({
   windowMs: 60 * 1000,
   max: 10,
-  message: 'Too many quiz submit attempts. Please wait and try again.',
+  code: ERROR_CODES.RATE_LIMIT.SKILL_QUIZ_SUBMIT,
 });

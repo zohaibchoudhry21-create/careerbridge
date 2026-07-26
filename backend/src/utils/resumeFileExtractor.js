@@ -1,5 +1,6 @@
 import mammoth from 'mammoth';
 import { PDFParse } from 'pdf-parse';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { extractPdfWithPythonOrFallback } from './pythonExtractorService.js';
 import { cleanExtractedText } from './resumeTextCleanup.js';
@@ -99,11 +100,11 @@ export const extractPdfTextFallback = async (buffer) => {
 
 export const extractResumeTextFromFile = async (file) => {
   if (!file?.buffer) {
-    throw new AppError('Resume file is required.', 400);
+    throw new AppError(ERROR_CODES.RESUME_BUILDER.FILE_REQUIRED, 400);
   }
 
   if (isImageMime(file.mimetype)) {
-    throw new AppError('Image import is not supported yet. Use PDF or DOCX.', 400);
+    throw new AppError(ERROR_CODES.RESUME_BUILDER.IMAGE_NOT_SUPPORTED, 400);
   }
 
   if (file.mimetype === 'application/pdf') {
@@ -116,16 +117,13 @@ export const extractResumeTextFromFile = async (file) => {
     const pages = mapPagesFromExtraction(extraction);
 
     if (!text) {
-      throw new AppError('Could not extract text from the PDF. Try a text-based PDF or paste your resume.', 400);
+      throw new AppError(ERROR_CODES.RESUME_BUILDER.PDF_EXTRACT_FAILED, 400);
     }
 
     // Both conditions must be true: low quality score AND very short text.
     // Minimal CVs without dates/email can score low but still have enough content.
     if (scoreResumeTextQuality(text) < 2 && text.length < 80) {
-      throw new AppError(
-        'Very little text was found in this PDF. It may be scanned/image-based — paste your resume text instead.',
-        400
-      );
+      throw new AppError(ERROR_CODES.RESUME_BUILDER.PDF_SCANNED, 400);
     }
 
     lastResumeFileExtraction = {
@@ -147,7 +145,7 @@ export const extractResumeTextFromFile = async (file) => {
     const text = cleanExtractedText(result.value?.trim() || '');
 
     if (!text) {
-      throw new AppError('Could not extract text from the document.', 400);
+      throw new AppError(ERROR_CODES.RESUME_BUILDER.DOCX_EXTRACT_FAILED, 400);
     }
 
     lastResumeFileExtraction = {
@@ -161,5 +159,5 @@ export const extractResumeTextFromFile = async (file) => {
     return text;
   }
 
-  throw new AppError('Unsupported file type. Use .pdf or .docx.', 400);
+  throw new AppError(ERROR_CODES.RESUME_BUILDER.UNSUPPORTED_FILE_TYPE, 400);
 };

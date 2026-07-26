@@ -1,5 +1,6 @@
 import BuiltResume from '../models/BuiltResume.js';
 import User from '../models/User.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
 import { buildBlankResumePayload } from '../utils/resumeBuilderDefaults.js';
 import { mapClaudeResumeToPayload } from '../utils/resumeAiMapper.js';
@@ -19,7 +20,7 @@ const loadResumeForUser = async (resumeId, userId) => {
   const resume = await BuiltResume.findOne({ _id: resumeId, userId });
 
   if (!resume) {
-    throw new AppError('Resume not found.', 404);
+    throw new AppError(ERROR_CODES.RESUME_BUILDER.RESUME_NOT_FOUND, 404);
   }
 
   return resume;
@@ -62,13 +63,13 @@ export const createBuiltResume = async (req, res, next) => {
     const user = await loadUser(req.user._id);
 
     if (!user) {
-      throw new AppError('User no longer exists.', 404);
+      throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 404);
     }
 
     const { templateId, name, personalDetails, sections, customize } = req.body;
 
     if (!templateId) {
-      throw new AppError('Template is required.', 400);
+      throw new AppError(ERROR_CODES.RESUME_BUILDER.TEMPLATE_REQUIRED, 400);
     }
 
     const existingCount = await BuiltResume.countDocuments({ userId: user._id });
@@ -183,7 +184,7 @@ export const resumeAiAction = async (req, res, next) => {
     const allowedActions = ['improve', 'grammar', 'shorter', 'suggest'];
 
     if (!action || !allowedActions.includes(action)) {
-      throw new AppError('Invalid AI action.', 400);
+      throw new AppError(ERROR_CODES.RESUME_BUILDER.INVALID_AI_ACTION, 400);
     }
 
     const { result, provider } = await runResumeAiActionWithProvider(action, content, context);
@@ -199,14 +200,14 @@ export const importBuiltResume = async (req, res, next) => {
     const user = await loadUser(req.user._id);
 
     if (!user) {
-      throw new AppError('User no longer exists.', 404);
+      throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 404);
     }
 
     const { templateId, mode, pastedText } = req.body;
     const file = req.file;
 
     if (!templateId) {
-      throw new AppError('Template is required.', 400);
+      throw new AppError(ERROR_CODES.RESUME_BUILDER.TEMPLATE_REQUIRED, 400);
     }
 
     let payload;
@@ -217,7 +218,7 @@ export const importBuiltResume = async (req, res, next) => {
       const text = await extractResumeTextFromFile(file);
       payload = await buildImportPayload(text, user, templateId, { alreadyCleaned: true });
     } else {
-      throw new AppError('Provide a resume file or pasted text.', 400);
+      throw new AppError(ERROR_CODES.RESUME_BUILDER.IMPORT_INPUT_REQUIRED, 400);
     }
 
     const existingCount = await BuiltResume.countDocuments({ userId: user._id });
@@ -244,7 +245,7 @@ export const suggestResumeSkills = async (req, res, next) => {
     const user = await loadUser(req.user._id);
 
     if (!user) {
-      throw new AppError('User no longer exists.', 404);
+      throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 404);
     }
 
     const title = 'Professional';

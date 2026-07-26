@@ -1,5 +1,6 @@
 import { isAnthropicConfigured } from '../config/anthropicConfig.js';
 import { isGroqConfigured } from '../config/groqConfig.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { parseResumeWithClaude, runResumeAiAction } from './resumeClaudeService.js';
 import { parseResumeWithGroq, runResumeAiActionWithGroq } from './resumeGroqService.js';
@@ -58,8 +59,5 @@ export const runResumeAiActionWithProvider = async (action, content, context = '
     return { result, provider: 'claude' };
   }
 
-  throw new AppError(
-    'AI service is not configured. Set GROQ_API_KEY or ANTHROPIC_API_KEY in environment.',
-    503
-  );
+  throw new AppError(ERROR_CODES.RESUME_BUILDER.AI_NOT_CONFIGURED, 503);
 };
