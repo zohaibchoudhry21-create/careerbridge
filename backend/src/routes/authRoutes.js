@@ -24,6 +24,10 @@ import {
   redirectFrontendSocialCallback,
 } from '../controllers/socialAuthController.js';
 import { resendVerificationEmail } from '../controllers/verifyEmailController.js';
+import {
+  clearReactivationChallenge,
+  reactivateAccount,
+} from '../controllers/reactivationController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import {
@@ -45,6 +49,8 @@ const router = express.Router();
 
 router.post('/register', registerValidation, validateRequest, register);
 router.post('/login', loginValidation, validateRequest, login);
+router.post('/reactivate', reactivateAccount);
+router.post('/reactivate/clear-challenge', clearReactivationChallenge);
 router.post('/2fa/verify', verifyTwoFactorValidation, validateRequest, verifyLogin);
 router.post('/2fa/clear-challenge', clearChallenge);
 router.get('/me', protect, getMe);

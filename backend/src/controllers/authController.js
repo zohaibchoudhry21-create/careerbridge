@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { assignVerificationToken } from './verifyEmailController.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
-import { setAuthCookie, clearAuthCookie, getTokenFromRequest, clearTwoFactorChallengeCookie } from '../utils/authCookie.js';
+import { setAuthCookie, clearAuthCookie, getTokenFromRequest, clearTwoFactorChallengeCookie, clearReactivationChallengeCookie } from '../utils/authCookie.js';
 import { consumeAuthCode } from '../utils/authCodeStore.js';
 import { sendPasswordResetEmail } from '../utils/emailService.js';
 import { sendWelcomeEmailIfNeeded } from '../utils/welcomeEmailService.js';
@@ -18,6 +18,10 @@ import {
   finalizeLogin,
   issueLoginChallengeIfNeeded,
 } from './twoFactorController.js';
+import {
+  beginReactivationChallenge,
+  needsReactivationChallenge,
+} from '../utils/reactivationService.js';
 
 const buildResetPasswordUrl = (rawToken) => {
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
@@ -87,11 +91,38 @@ export const login = async (req, res, next) => {
       throw new AppError('Invalid email or password', 401);
     }
 
-    if (!user.isVerified || user.status !== 'active') {
+    if (!user.isVerified) {
       throw new AppError(
         'Please verify your email before logging in. Check your inbox for the verification link.',
         403
       );
+    }
+
+    if (user.status === 'inactive') {
+      throw new AppError(
+        'Please verify your email before logging in. Check your inbox for the verification link.',
+        403
+      );
+    }
+
+    if (needsReactivationChallenge(user)) {
+      const remember = req.body.remember !== false;
+      const trustDevice = req.body.trustDevice === true;
+
+      beginReactivationChallenge(res, req, {
+        user,
+        remember,
+        trustDevice,
+        source: 'login',
+      });
+
+      return sendResponse(res, 200, true, 'Account reactivation required.', {
+        requiresReactivation: true,
+      });
+    }
+
+    if (user.status !== 'active') {
+      throw new AppError('Account is not active. Please contact support.', 403);
     }
 
     const remember = req.body.remember !== false;
@@ -152,6 +183,7 @@ export const logout = async (req, res, next) => {
 
     clearAuthCookie(res);
     clearTwoFactorChallengeCookie(res);
+    clearReactivationChallengeCookie(res);
     sendResponse(res, 200, true, 'Logged out successfully');
   } catch (error) {
     next(error);
@@ -252,7 +284,25 @@ export const exchangeSocialCode = async (req, res, next) => {
       throw new AppError('User no longer exists.', 401);
     }
 
-    if (!user.isVerified || user.status !== 'active') {
+    if (!user.isVerified) {
+      throw new AppError('Account is not active.', 403);
+    }
+
+    if (needsReactivationChallenge(user)) {
+      beginReactivationChallenge(res, req, {
+        user,
+        remember: true,
+        trustDevice: false,
+        source: 'social',
+        isNewUser,
+      });
+
+      return sendResponse(res, 200, true, 'Account reactivation required.', {
+        requiresReactivation: true,
+      });
+    }
+
+    if (user.status !== 'active') {
       throw new AppError('Account is not active.', 403);
     }
 

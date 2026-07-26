@@ -45,3 +45,5 @@ export const regenerateTwoFactorBackupCodes = (payload) =>
   api.post('/auth/2fa/backup-codes/regenerate', payload);
 export const verifyTwoFactorLogin = (payload) => api.post('/auth/2fa/verify', payload);
 export const getTwoFactorStatus = () => api.get('/auth/2fa/status');
+export const confirmAccountReactivation = () => api.post('/auth/reactivate');
+export const cancelAccountReactivation = () => api.post('/auth/reactivate/clear-challenge');

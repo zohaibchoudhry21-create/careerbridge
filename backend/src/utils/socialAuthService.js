@@ -34,8 +34,12 @@ export const findOrCreateSocialUser = async ({
       shouldSave = true;
     }
 
-    if (!user.isVerified || user.status !== 'active') {
+    if (!user.isVerified) {
       user.isVerified = true;
+      shouldSave = true;
+    }
+
+    if (user.status === 'inactive') {
       user.status = 'active';
       shouldSave = true;
     }

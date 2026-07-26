@@ -19,4 +19,25 @@ export const changeUserPassword = (payload) => api.patch('/users/me/password', p
 
 export const deleteUserAccount = (payload) => api.delete('/users/me', { data: payload }).then(unwrap);
 
+export const deactivateUserAccount = () => api.post('/users/me/deactivate').then(unwrap);
+
+export const exportUserData = async () => {
+  const response = await api.get('/users/me/export', { responseType: 'blob' });
+  const disposition = response.headers['content-disposition'];
+  const filenameMatch = disposition?.match(/filename="([^"]+)"/);
+  const filename =
+    filenameMatch?.[1] || `careerbridge-export-${new Date().toISOString().slice(0, 10)}.zip`;
+
+  const blobUrl = window.URL.createObjectURL(new Blob([response.data], { type: 'application/zip' }));
+  const link = document.createElement('a');
+  link.href = blobUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(blobUrl);
+
+  return { filename };
+};
+
 export default updateAccount;

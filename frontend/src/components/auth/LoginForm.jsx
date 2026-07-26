@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -8,6 +8,52 @@ import AppIcon from '../icons/AppIcon';
 
 const RECOVERY_HINT =
   'Lost your authenticator and backup codes? Contact support from your registered email for manual recovery.';
+
+function ReactivationStep({ onConfirm, onCancel, submitting }) {
+  return (
+    <div className="space-y-md">
+      <header className="mb-6 text-center lg:text-left">
+        <h2 className="font-display-md text-on-surface mb-2">Account deactivated</h2>
+        <p className="font-body-md text-on-surface-variant">
+          Your credentials are valid, but this account is currently deactivated. Reactivate now to
+          continue signing in.
+        </p>
+      </header>
+
+      <div className="rounded-2xl border border-warning/30 bg-warning/5 px-4 py-4">
+        <p className="font-body-md text-sm text-on-surface-variant">
+          If you did not intend to sign in, choose Cancel to keep the account deactivated.
+        </p>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={submitting}
+          className="w-full sm:w-auto px-4 py-4 rounded-2xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors disabled:opacity-70"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={submitting}
+          className="w-full sm:flex-1 bg-secondary text-on-secondary font-label-md py-4 rounded-2xl hover:opacity-95 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+        >
+          {submitting ? (
+            <>
+              <span className="w-5 h-5 border-2 border-on-secondary border-t-transparent rounded-full animate-spin" />
+              Reactivating...
+            </>
+          ) : (
+            'Reactivate account'
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function TwoFactorStep({ onSubmit, submitting, useBackupCode, onToggleBackup }) {
   const [code, setCode] = useState('');
@@ -81,14 +127,26 @@ function TwoFactorStep({ onSubmit, submitting, useBackupCode, onToggleBackup }) 
 }
 
 export default function LoginForm() {
-  const { login, verifyTwoFactor } = useAuth();
+  const { login, verifyTwoFactor, confirmReactivation, cancelReactivation } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [step, setStep] = useState(searchParams.get('twoFactor') === '1' ? '2fa' : 'credentials');
+  const initialStep = (() => {
+    if (searchParams.get('twoFactor') === '1') return '2fa';
+    if (searchParams.get('reactivate') === '1') return 'reactivation';
+    return 'credentials';
+  })();
+  const [step, setStep] = useState(initialStep);
   const [useBackupCode, setUseBackupCode] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.accountDeactivated) {
+      toast.info('Your account is deactivated. Sign in and confirm reactivation to restore access.');
+      navigate(`${location.pathname}${location.search}`, { replace: true, state: {} });
+    }
+  }, [location.pathname, location.search, location.state, navigate]);
 
   const {
     register,
@@ -118,6 +176,11 @@ export default function LoginForm() {
       if (result?.requires2FA) {
         setStep('2fa');
         toast.info('Enter your authenticator code to continue.');
+        return;
+      }
+
+      if (result?.requiresReactivation) {
+        setStep('reactivation');
         return;
       }
 
@@ -155,6 +218,40 @@ export default function LoginForm() {
     }
   };
 
+  const handleReactivationConfirm = async () => {
+    setIsSubmitting(true);
+    try {
+      const result = await confirmReactivation();
+      if (result?.requires2FA) {
+        setStep('2fa');
+        toast.info('Enter your authenticator code to continue.');
+        return;
+      }
+
+      toast.success('Account reactivated. Welcome back!');
+      const redirectTo = location.state?.from?.pathname || '/dashboard';
+      navigate(redirectTo, { replace: true });
+    } catch (error) {
+      const message =
+        error.response?.data?.message || 'Unable to reactivate account. Please sign in again.';
+      toast.error(message);
+      setStep('credentials');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleReactivationCancel = async () => {
+    setIsSubmitting(true);
+    try {
+      await cancelReactivation();
+      toast.info('Sign-in cancelled. Your account remains deactivated.');
+      setStep('credentials');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const inputClassName =
     'w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none';
 
@@ -165,6 +262,16 @@ export default function LoginForm() {
         submitting={isSubmitting}
         useBackupCode={useBackupCode}
         onToggleBackup={() => setUseBackupCode((value) => !value)}
+      />
+    );
+  }
+
+  if (step === 'reactivation') {
+    return (
+      <ReactivationStep
+        onConfirm={handleReactivationConfirm}
+        onCancel={handleReactivationCancel}
+        submitting={isSubmitting}
       />
     );
   }
