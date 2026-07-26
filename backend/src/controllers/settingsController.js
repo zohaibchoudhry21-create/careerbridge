@@ -1,8 +1,10 @@
 import User from '../models/User.js';
 import BuiltResume from '../models/BuiltResume.js';
+import UserSession from '../models/UserSession.js';
+import { ZipArchive as archiver } from 'archiver';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
 import { assignVerificationToken } from './verifyEmailController.js';
-import { clearAuthCookie, setAuthCookie } from '../utils/authCookie.js';
+import { clearAuthCookie, setAuthCookie, clearTwoFactorChallengeCookie, clearReactivationChallengeCookie } from '../utils/authCookie.js';
 import generateToken from '../utils/generateToken.js';
 import {
   clearAllSessionTrust,
@@ -15,6 +17,7 @@ import {
 const ACCOUNT_DELETE_CONFIRMATION = 'DELETE MY ACCOUNT';
 /** OAuth destructive actions require a freshly issued session (minutes). */
 const OAUTH_REAUTH_WINDOW_MINUTES = 15;
+const EXPORT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 const loadUser = (userId) => User.findById(userId);
 
@@ -248,6 +251,134 @@ export const deleteAccount = async (req, res, next) => {
     clearAuthCookie(res);
 
     sendResponse(res, 200, true, 'Account deleted successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deactivateAccount = async (req, res, next) => {
+  try {
+    const user = await loadUser(req.user._id);
+
+    if (!user) {
+      throw new AppError('User no longer exists.', 404);
+    }
+
+    if (user.status === 'deactivated') {
+      throw new AppError('Account is already deactivated.', 400);
+    }
+
+    user.status = 'deactivated';
+    await user.save();
+
+    await revokeAllSessionsForUser(user._id);
+    clearAuthCookie(res);
+    clearTwoFactorChallengeCookie(res);
+    clearReactivationChallengeCookie(res);
+
+    sendResponse(res, 200, true, 'Account deactivated successfully', {
+      user: user.toPublicJSON(),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const sanitizeSessionForExport = (session) => ({
+  deviceLabel: session.deviceLabel,
+  browser: session.browser,
+  os: session.os,
+  ipAddress: session.ipAddress,
+  isTrusted: session.isTrusted === true,
+  createdAt: session.createdAt,
+  lastActiveAt: session.lastActiveAt,
+  revokedAt: session.revokedAt,
+});
+
+export const exportUserData = async (req, res, next) => {
+  try {
+    const user = await loadUser(req.user._id);
+
+    if (!user) {
+      throw new AppError('User no longer exists.', 404);
+    }
+
+    if (user.lastDataExportAt) {
+      const elapsed = Date.now() - new Date(user.lastDataExportAt).getTime();
+      if (elapsed < EXPORT_COOLDOWN_MS) {
+        const hoursRemaining = Math.ceil((EXPORT_COOLDOWN_MS - elapsed) / (60 * 60 * 1000));
+        throw new AppError(
+          `You can request another export in about ${hoursRemaining} hour${hoursRemaining === 1 ? '' : 's'}.`,
+          429
+        );
+      }
+    }
+
+    const [resumes, sessions] = await Promise.all([
+      BuiltResume.find({ userId: user._id }).sort({ updatedAt: -1 }).lean(),
+      UserSession.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
+    ]);
+
+    const exportedAt = new Date().toISOString();
+    const profile = {
+      ...user.toPublicJSON(),
+      exportedAt,
+    };
+
+    const readme = [
+      'CareerBridge Data Export',
+      '=======================',
+      '',
+      `Exported at: ${exportedAt}`,
+      `Account email: ${user.email}`,
+      '',
+      'Contents:',
+      '- profile.json — account and personal information',
+      '- sessions.json — device sign-in history (sanitized)',
+      '- resumes/ — built resume documents',
+      '',
+      'This export excludes passwords, authentication secrets, and backup codes.',
+    ].join('\n');
+
+    const archive = new archiver({ zlib: { level: 9 } });
+    const filename = `careerbridge-export-${exportedAt.slice(0, 10)}.zip`;
+
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+    archive.on('error', (error) => {
+      next(error);
+    });
+
+    archive.pipe(res);
+    archive.append(JSON.stringify(profile, null, 2), { name: 'profile.json' });
+    archive.append(
+      JSON.stringify(
+        {
+          exportedAt,
+          sessions: sessions.map(sanitizeSessionForExport),
+        },
+        null,
+        2
+      ),
+      { name: 'sessions.json' }
+    );
+    archive.append(readme, { name: 'README.txt' });
+
+    for (const resume of resumes) {
+      const safeName = String(resume.name || 'resume')
+        .replace(/[^a-z0-9-_]+/gi, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 40) || 'resume';
+      archive.append(JSON.stringify(resume, null, 2), {
+        name: `resumes/${safeName}-${String(resume._id)}.json`,
+      });
+    }
+
+    user.lastDataExportAt = new Date();
+    await user.save();
+
+    await archive.finalize();
   } catch (error) {
     next(error);
   }

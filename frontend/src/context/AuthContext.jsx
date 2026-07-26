@@ -13,6 +13,8 @@ import {
   logoutUser,
   setAuthToken,
   verifyTwoFactorLogin,
+  confirmAccountReactivation,
+  cancelAccountReactivation,
 } from '../services/authService';
 import { clearStoredToken } from '../utils/tokenStorage';
 
@@ -99,6 +101,9 @@ export function AuthProvider({ children }) {
     if (data?.requires2FA) {
       return { requires2FA: true };
     }
+    if (data?.requiresReactivation) {
+      return { requiresReactivation: true };
+    }
     return handleAuthSuccess(data);
   }, [handleAuthSuccess]);
 
@@ -106,6 +111,22 @@ export function AuthProvider({ children }) {
     const { data } = await verifyTwoFactorLogin(payload);
     return handleAuthSuccess(data);
   }, [handleAuthSuccess]);
+
+  const confirmReactivation = useCallback(async () => {
+    const { data } = await confirmAccountReactivation();
+    if (data?.requires2FA) {
+      return { requires2FA: true };
+    }
+    return handleAuthSuccess(data);
+  }, [handleAuthSuccess]);
+
+  const cancelReactivation = useCallback(async () => {
+    try {
+      await cancelAccountReactivation();
+    } catch {
+      // Clearing local state is still useful if the challenge already expired.
+    }
+  }, []);
 
   const logout = useCallback(async () => {
     if (sessionActive) {
@@ -148,13 +169,15 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(user && sessionActive),
       login,
       verifyTwoFactor,
+      confirmReactivation,
+      cancelReactivation,
       logout,
       setSession: handleAuthSuccess,
       syncSession,
       updateUser,
       refreshUser,
     }),
-    [user, sessionActive, loading, login, verifyTwoFactor, logout, handleAuthSuccess, syncSession, updateUser, refreshUser]
+    [user, sessionActive, loading, login, verifyTwoFactor, confirmReactivation, cancelReactivation, logout, handleAuthSuccess, syncSession, updateUser, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

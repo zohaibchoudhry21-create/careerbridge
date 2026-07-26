@@ -52,6 +52,11 @@ export default function SocialAuthCallback() {
         return;
       }
 
+      if (data?.requiresReactivation) {
+        navigate('/login?reactivate=1', { replace: true });
+        return;
+      }
+
       if (!data?.user) {
         throw new Error('Social login response did not include a user profile.');
       }

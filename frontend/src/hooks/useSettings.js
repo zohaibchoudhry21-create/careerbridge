@@ -3,6 +3,8 @@ import useAuth from './useAuth';
 import {
   changeUserPassword,
   deleteUserAccount,
+  deactivateUserAccount,
+  exportUserData,
   getUserSessions,
   revokeOtherUserSessions,
   revokeUserSession,
@@ -44,6 +46,18 @@ export function useChangePassword() {
 export function useDeleteAccount() {
   return useMutation({
     mutationFn: deleteUserAccount,
+  });
+}
+
+export function useDeactivateAccount() {
+  return useMutation({
+    mutationFn: deactivateUserAccount,
+  });
+}
+
+export function useExportAccountData() {
+  return useMutation({
+    mutationFn: exportUserData,
   });
 }
 

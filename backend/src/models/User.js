@@ -119,7 +119,7 @@ const userSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['inactive', 'active'],
+      enum: ['inactive', 'active', 'deactivated'],
       default: 'inactive',
     },
     role: {
@@ -178,6 +178,10 @@ const userSchema = new mongoose.Schema(
       default: [],
     },
     twoFactorConfirmedAt: {
+      type: Date,
+      default: null,
+    },
+    lastDataExportAt: {
       type: Date,
       default: null,
     },

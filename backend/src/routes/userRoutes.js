@@ -1,5 +1,5 @@
 import express from 'express';
-import { updateAccount, changePassword, deleteAccount } from '../controllers/settingsController.js';
+import { updateAccount, changePassword, deleteAccount, deactivateAccount, exportUserData } from '../controllers/settingsController.js';
 import {
   listSessions,
   revokeOtherSessionsHandler,
@@ -19,6 +19,8 @@ const router = express.Router();
 
 router.patch('/users/me', protect, updateProfileValidation, validateRequest, updateAccount);
 router.patch('/users/me/password', protect, changePasswordValidation, validateRequest, changePassword);
+router.post('/users/me/deactivate', protect, deactivateAccount);
+router.get('/users/me/export', protect, exportUserData);
 router.delete('/users/me', protect, deleteAccountValidation, validateRequest, deleteAccount);
 router.get('/users/me/sessions', protect, listSessions);
 router.delete('/users/me/sessions/others', protect, revokeOtherSessionsHandler);

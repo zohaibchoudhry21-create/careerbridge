@@ -48,3 +48,6 @@ export const SETTINGS_DASHBOARD_CARDS = [
     to: '/settings/account-management',
   },
 ];
+
+/** Must match backend `ACCOUNT_DELETE_CONFIRMATION` in settingsController.js */
+export const DELETE_ACCOUNT_CONFIRMATION_PHRASE = 'DELETE MY ACCOUNT';
