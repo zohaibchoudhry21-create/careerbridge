@@ -6,6 +6,7 @@ import {
   listActiveSessionsForUser,
   revokeOtherSessions,
   serializeSession,
+  setSessionTrust,
 } from '../utils/sessionService.js';
 
 export const listSessions = async (req, res, next) => {
@@ -65,6 +66,30 @@ export const revokeOtherSessionsHandler = async (req, res, next) => {
     await revokeOtherSessions(req.user._id, req.authSessionId);
 
     sendResponse(res, 200, true, 'All other devices have been signed out.');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateSessionTrust = async (req, res, next) => {
+  try {
+    if (!req.user.rememberDevicesEnabled) {
+      throw new AppError(
+        'Enable Remember Devices in your security settings before trusting devices.',
+        400
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      throw new AppError('Session not found.', 404);
+    }
+
+    const trusted = req.body.trusted === true;
+    const session = await setSessionTrust(req.user._id, req.params.id, trusted);
+
+    sendResponse(res, 200, true, trusted ? 'Device marked as trusted.' : 'Device trust removed.', {
+      session: serializeSession(session, req.authSessionId),
+    });
   } catch (error) {
     next(error);
   }

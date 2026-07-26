@@ -18,6 +18,7 @@ export const registerValidation = [
 export const loginValidation = [
   body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
   body('password').notEmpty().withMessage('Password is required'),
+  body('trustDevice').optional().isBoolean().withMessage('trustDevice must be a boolean'),
 ];
 
 export const forgotPasswordValidation = [

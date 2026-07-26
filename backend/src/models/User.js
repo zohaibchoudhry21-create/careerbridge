@@ -148,6 +148,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    /** Opt-in trusted-device flow for fewer security prompts on known devices. */
+    rememberDevicesEnabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
@@ -201,6 +206,7 @@ userSchema.methods.toPublicJSON = function toPublicJSON() {
     status: this.status,
     isVerified: this.isVerified,
     loginAlertsEnabled: this.loginAlertsEnabled !== false,
+    rememberDevicesEnabled: this.rememberDevicesEnabled === true,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };
