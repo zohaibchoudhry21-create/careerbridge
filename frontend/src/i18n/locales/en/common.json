@@ -58,5 +58,18 @@
       "es": "Spanish",
       "ur": "Urdu"
     }
+  },
+  "themeToggle": {
+    "saveError": "Unable to save theme preference.",
+    "modes": {
+      "light": "Light theme",
+      "dark": "Dark theme",
+      "system": "System theme"
+    },
+    "switchTo": {
+      "light": "Switch to light theme",
+      "dark": "Switch to dark theme",
+      "system": "Switch to system theme"
+    }
   }
 }
