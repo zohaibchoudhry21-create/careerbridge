@@ -75,10 +75,10 @@ export default function AccountIconButton({ className = '' }) {
         aria-label={t('accountMenu.label')}
         aria-haspopup="menu"
         aria-expanded={open}
-        className={`inline-flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-high border text-on-surface-variant transition-colors dark:bg-[#243044] dark:text-[#cbd5e1] dark:border-[#334155] ${
+        className={`inline-flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-high border text-on-surface-variant transition-colors ${
           open
-            ? 'border-secondary/40 bg-white dark:bg-[#2d3a4f] dark:border-secondary/50'
-            : 'border-outline-variant/30 hover:border-secondary/40 hover:bg-white dark:hover:bg-[#2d3a4f]'
+            ? 'border-secondary/40 bg-white'
+            : 'border-outline-variant/30 hover:border-secondary/40 hover:bg-white'
         }`}
       >
         <AppIcon name="person" size="nav" />
@@ -88,10 +88,10 @@ export default function AccountIconButton({ className = '' }) {
         <div
           role="menu"
           aria-label={t('accountMenu.label')}
-          className="absolute end-0 top-full z-50 mt-2 w-[min(260px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-outline-variant/40 bg-white dark:bg-[#1a2332] dark:border-[#334155] py-2 shadow-level-2"
+          className="absolute end-0 top-full z-50 mt-2 w-[min(260px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-outline-variant/40 bg-white py-2 shadow-level-2"
         >
-          <div className="border-b border-outline-variant/30 dark:border-[#334155] px-4 py-3">
-            <p className="font-label-md font-bold text-on-surface dark:text-[#eaf1ff] truncate">
+          <div className="border-b border-outline-variant/30 px-4 py-3">
+            <p className="font-label-md font-bold text-on-surface truncate">
               {user?.email || t('accountMenu.account')}
             </p>
           </div>
@@ -105,9 +105,9 @@ export default function AccountIconButton({ className = '' }) {
                     type="button"
                     role="menuitem"
                     onClick={() => handleNavigate(item.to)}
-                    className="flex w-full items-center gap-3 px-4 py-2.5 text-start font-label-md text-on-surface dark:text-[#eaf1ff] hover:bg-surface-container dark:hover:bg-[#243044] transition-colors"
+                    className="flex w-full items-center gap-3 px-4 py-2.5 text-start font-label-md text-on-surface hover:bg-surface-container transition-colors"
                   >
-                    <AppIcon name={item.icon} size="nav" className="text-on-surface-variant dark:text-[#94a3b8]" />
+                    <AppIcon name={item.icon} size="nav" className="text-on-surface-variant" />
                     {item.label}
                   </button>
                 );
@@ -119,7 +119,7 @@ export default function AccountIconButton({ className = '' }) {
                   href={item.href}
                   role="menuitem"
                   onClick={closeMenu}
-                  className="flex w-full items-center gap-3 px-4 py-2.5 font-label-md text-on-surface dark:text-[#eaf1ff] hover:bg-surface-container dark:hover:bg-[#243044] transition-colors"
+                  className="flex w-full items-center gap-3 px-4 py-2.5 font-label-md text-on-surface hover:bg-surface-container transition-colors"
                 >
                   <AppIcon name={item.icon} size="nav" className="text-on-surface-variant" />
                   {item.label}
@@ -128,14 +128,14 @@ export default function AccountIconButton({ className = '' }) {
             })}
           </div>
 
-          <div className="border-t border-outline-variant/30 dark:border-[#334155] py-1">
+          <div className="border-t border-outline-variant/30 py-1">
             <button
               type="button"
               role="menuitem"
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 px-4 py-2.5 text-start font-label-md text-on-surface dark:text-[#eaf1ff] hover:bg-surface-container dark:hover:bg-[#243044] transition-colors"
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-start font-label-md text-on-surface hover:bg-surface-container transition-colors"
             >
-              <AppIcon name="logout" size="nav" className="text-on-surface-variant dark:text-[#94a3b8]" />
+              <AppIcon name="logout" size="nav" className="text-on-surface-variant" />
               {t('accountMenu.signOut')}
             </button>
           </div>

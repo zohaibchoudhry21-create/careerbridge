@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useDashboardNavItems } from '../../hooks/useDashboardNav';
 import BrandLogo from '../brand/BrandLogo';
 import AppIcon from '../icons/AppIcon';
-import DarkMode from '../../theme/components/ThemeToggle/DarkMode.jsx';
 
 const SIDEBAR_ANIMATION =
   'transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]';
@@ -52,7 +51,7 @@ function NavItem({ item, index = 0, collapsed, onNavigate }) {
       return `${base} text-secondary font-bold bg-secondary/10 shadow-sm relative before:absolute before:content-[''] before:start-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-7 before:bg-secondary before:rounded-full`;
     }
 
-    return `${base} app-muted hover:text-secondary hover:bg-surface-container/80 dark:hover:bg-[#243044]/80`;
+    return `${base} app-muted hover:text-secondary hover:bg-surface-container/80`;
   };
 
   const content = (
@@ -133,7 +132,7 @@ function SidebarContent({ collapsed, onToggleCollapse, onNavigate, showCollapseT
               'relative flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl',
               'app-heading',
               'transition-all duration-300',
-              'hover:bg-secondary/10 dark:hover:bg-secondary/15',
+              'hover:bg-secondary/10',
               'hover:scale-105',
               'active:scale-95',
               'overflow-hidden',
@@ -161,7 +160,7 @@ function SidebarContent({ collapsed, onToggleCollapse, onNavigate, showCollapseT
           ].join(' ')}
           aria-hidden={collapsed}
         >
-          <div className="rounded-2xl p-2 transition-all duration-300 hover:bg-surface-container dark:hover:bg-[#243044]/60">
+          <div className="rounded-2xl p-2 transition-all duration-300 hover:bg-surface-container">
             <SidebarBrand />
           </div>
         </div>
@@ -178,16 +177,6 @@ function SidebarContent({ collapsed, onToggleCollapse, onNavigate, showCollapseT
           />
         ))}
       </nav>
-
-      <div
-        className={[
-          'shrink-0 mt-auto pt-2 border-t border-outline-variant/30 dark:border-[#334155]/50',
-          SIDEBAR_ANIMATION,
-          collapsed ? 'flex justify-center py-2' : 'flex items-center px-1 py-2',
-        ].join(' ')}
-      >
-        <DarkMode />
-      </div>
     </>
   );
 }

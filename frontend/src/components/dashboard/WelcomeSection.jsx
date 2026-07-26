@@ -17,11 +17,11 @@ function WelcomeSection({ welcome }) {
         <p className="font-body-md app-muted mt-base">{t('welcome.subtitle')}</p>
       </div>
       <div className="flex flex-wrap items-center gap-sm shrink-0 max-w-full">
-        <span className="px-sm py-xs bg-surface-container-high text-secondary rounded-full font-label-sm flex items-center gap-2 max-w-full dark:bg-[#243044] dark:text-[#93c5fd]">
+        <span className="px-sm py-xs bg-surface-container-high text-secondary rounded-full font-label-sm flex items-center gap-2 max-w-full">
           <AppIcon name="history" size="h-4 w-4" />
           {t('welcome.lastActivity', { activity: welcome.lastActivity })}
         </span>
-        <span className="px-sm py-xs bg-secondary-fixed text-on-secondary-fixed-variant rounded-full font-label-sm flex items-center gap-2 border border-secondary/20 max-w-full dark:bg-secondary/20 dark:text-[#bfdbfe] dark:border-secondary/40">
+        <span className="px-sm py-xs bg-secondary-fixed text-on-secondary-fixed-variant rounded-full font-label-sm flex items-center gap-2 border border-secondary/20 max-w-full">
           {t('welcome.aiStatus', { status: welcome.aiStatus })}
         </span>
         <AccountIconButton className="hidden lg:inline-flex" />

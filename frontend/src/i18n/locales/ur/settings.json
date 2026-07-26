@@ -14,7 +14,7 @@
       },
       "appearance": {
         "title": "ظاہری شکل اور زبان",
-        "description": "تھیم، زبان اور ڈسپلے کی ترجیحات اپنی مرضی کے مطابق بنائیں۔"
+        "description": "زبان اور ڈسپلے کی ترجیحات اپنی مرضی کے مطابق بنائیں۔"
       },
       "account-management": {
         "title": "اکاؤنٹ کا انتظام",
@@ -142,15 +142,6 @@
     "description": "CareerBridge کی ظاہری شکل اور معلومات کی ڈسپلے ترتیب اپنی مرضی کے مطابق بنائیں۔",
     "savePreferences": "ترجیحات محفوظ کریں",
     "resetToDefault": "ڈیفالٹ پر واپس",
-    "theme": {
-      "title": "تھیم",
-      "light": "روشن",
-      "lightDescription": "دن کے وقت کے لیے روشن انٹرفیس۔",
-      "dark": "تاریک",
-      "darkDescription": "کم روشنی میں آنکھوں کے لیے آرام دہ۔",
-      "system": "سسٹم",
-      "systemDescription": "آپ کے آلے کی ترتیبات کے مطابق خودکار۔"
-    },
     "languageRegion": {
       "title": "زبان اور علاقہ",
       "language": "زبان",

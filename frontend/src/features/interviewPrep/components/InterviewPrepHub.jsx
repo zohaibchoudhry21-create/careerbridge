@@ -38,7 +38,7 @@ export default function InterviewPrepHub() {
             <div className="flex items-start justify-between gap-sm">
               <SectionIcon color={module.color} icon={module.icon} size="md" />
               {module.comingSoon ? (
-                <span className="rounded-full bg-surface-container-high dark:bg-[#2d3a4f] px-2 py-0.5 font-label-sm app-muted">
+                <span className="rounded-full bg-surface-container-high px-2 py-0.5 font-label-sm app-muted">
                   {t('hub.comingSoon')}
                 </span>
               ) : null}
