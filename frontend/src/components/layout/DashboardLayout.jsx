@@ -5,6 +5,7 @@ import BrandLogo from '../brand/BrandLogo';
 import usePersistedSidebarCollapse from '../../hooks/usePersistedSidebarCollapse';
 import AppIcon from '../icons/AppIcon';
 import LanguageSelector from '../../i18n/components/LanguageSelector';
+import ThemeToggle from '../../theme/components/ThemeToggle';
 
 const SIDEBAR_TRANSITION =
   'transition-[width,padding] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]';
@@ -30,7 +31,10 @@ export default function DashboardLayout({ children, user }) {
           <AppIcon name={mobileOpen ? 'close' : 'menu'} size="dashboard" />
         </button>
         <BrandLogo className="h-8 w-auto max-w-[10rem] shrink-0" />
-        <LanguageSelector compact className="ms-auto" />
+        <div className="ms-auto flex items-center gap-2">
+          <ThemeToggle />
+          <LanguageSelector compact />
+        </div>
       </header>
 
       {mobileOpen && (
