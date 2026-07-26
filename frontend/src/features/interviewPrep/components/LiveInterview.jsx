@@ -77,7 +77,7 @@ function VoiceWaveform({ active }) {
 
 function SessionMetaChip({ children }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-outline-variant/60 bg-white/80 px-3 py-1 font-label-sm text-on-surface-variant backdrop-blur-sm">
+    <span className="inline-flex items-center rounded-full border border-outline-variant/60 bg-white/80 dark:bg-[#243044]/90 dark:border-[#475569] px-3 py-1 font-label-sm app-muted backdrop-blur-sm">
       {children}
     </span>
   );
