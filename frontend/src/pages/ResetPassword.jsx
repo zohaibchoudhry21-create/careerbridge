@@ -4,6 +4,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { resetPassword } from '../services/authService';
+import { resolveApiError } from '../utils/apiError';
 import useAuth from '../hooks/useAuth';
 import { validatePassword } from '../utils/passwordValidator';
 import { AuthLayout } from '../components/layout';
@@ -45,7 +46,7 @@ export default function ResetPassword() {
       toast.success(t('toasts.resetSuccess'));
       navigate('/', { replace: true });
     } catch (error) {
-      toast.error(error.response?.data?.message || t('toasts.resetFailed'));
+      toast.error(resolveApiError(error, t('toasts.resetFailed')));
     } finally {
       setIsSubmitting(false);
     }

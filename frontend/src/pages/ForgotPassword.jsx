@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { forgotPassword } from '../services/authService';
+import { resolveApiError } from '../utils/apiError';
 import { AuthLayout } from '../components/layout';
 
 export default function ForgotPassword() {
@@ -26,7 +27,7 @@ export default function ForgotPassword() {
         setResetToken(data.resetToken);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || t('toasts.forgotPasswordError'));
+      toast.error(resolveApiError(error, t('toasts.forgotPasswordError')));
     } finally {
       setIsSubmitting(false);
     }

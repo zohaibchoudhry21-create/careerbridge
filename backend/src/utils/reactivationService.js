@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import {
   createReactivationChallenge,
@@ -41,7 +42,7 @@ export const confirmReactivation = async (res, req) => {
   const challenge = getReactivationChallenge(challengeId);
 
   if (!challenge) {
-    throw new AppError('Reactivation session expired. Please sign in again.', 401);
+    throw new AppError(ERROR_CODES.REACTIVATION.SESSION_EXPIRED, 401);
   }
 
   const user = await User.findById(challenge.userId);
@@ -49,13 +50,13 @@ export const confirmReactivation = async (res, req) => {
   if (!user) {
     consumeReactivationChallenge(challengeId);
     clearReactivationChallengeCookie(res);
-    throw new AppError('User no longer exists.', 404);
+    throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 404);
   }
 
   if (user.status !== 'deactivated') {
     consumeReactivationChallenge(challengeId);
     clearReactivationChallengeCookie(res);
-    throw new AppError('This account is not deactivated.', 400);
+    throw new AppError(ERROR_CODES.REACTIVATION.NOT_DEACTIVATED, 400);
   }
 
   user.status = 'active';

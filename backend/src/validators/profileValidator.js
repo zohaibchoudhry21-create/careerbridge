@@ -1,10 +1,11 @@
 import { body } from 'express-validator';
-import { getPasswordErrorMessage } from '../utils/passwordValidator.js';
+import { ERROR_CODES, formatValidationCode } from '../constants/apiErrorCodes.js';
+import { getPasswordErrorCode } from '../utils/passwordValidator.js';
 
 const newPasswordValidation = body('newPassword').custom((value) => {
-  const message = getPasswordErrorMessage(value);
-  if (message) {
-    throw new Error(message);
+  const passwordError = getPasswordErrorCode(value);
+  if (passwordError) {
+    throw new Error(formatValidationCode(passwordError.code, passwordError.params));
   }
   return true;
 });
@@ -36,16 +37,24 @@ const optionalTrimmedString = (field, { max, allowEmpty = true } = {}) => {
   if (allowEmpty) {
     chain = chain.custom((value) => {
       if (value === undefined || value === null || value === '') return true;
-      if (typeof value !== 'string') throw new Error(`${field} must be a string`);
-      if (max && value.length > max) throw new Error(`${field} cannot exceed ${max} characters`);
+      if (typeof value !== 'string') {
+        throw new Error(
+          formatValidationCode(ERROR_CODES.VALIDATION.FIELD_MUST_BE_STRING, { field })
+        );
+      }
+      if (max && value.length > max) {
+        throw new Error(
+          formatValidationCode(ERROR_CODES.VALIDATION.FIELD_MAX_LENGTH, { field, max })
+        );
+      }
       return true;
     });
   } else {
     chain = chain
       .notEmpty()
-      .withMessage(`${field} cannot be empty`)
+      .withMessage(formatValidationCode(ERROR_CODES.VALIDATION.FIELD_EMPTY, { field }))
       .isLength({ max })
-      .withMessage(`${field} cannot exceed ${max} characters`);
+      .withMessage(formatValidationCode(ERROR_CODES.VALIDATION.FIELD_MAX_LENGTH, { field, max }));
   }
 
   return chain;
@@ -57,14 +66,20 @@ const optionalUrlField = (field) =>
     .customSanitizer((value) => (value === undefined || value === null ? value : String(value).trim()))
     .custom((value) => {
       if (value === undefined || value === null || value === '') return true;
-      if (value.length > 500) throw new Error(`${field} cannot exceed 500 characters`);
+      if (value.length > 500) {
+        throw new Error(
+          formatValidationCode(ERROR_CODES.VALIDATION.URL_TOO_LONG, { field })
+        );
+      }
       try {
         const parsed = new URL(value);
         if (!['http:', 'https:'].includes(parsed.protocol)) {
-          throw new Error('invalid protocol');
+          throw new Error(
+            formatValidationCode(ERROR_CODES.VALIDATION.URL_INVALID, { field })
+          );
         }
       } catch {
-        throw new Error(`${field} must be a valid http(s) URL`);
+        throw new Error(formatValidationCode(ERROR_CODES.VALIDATION.URL_INVALID, { field }));
       }
       return true;
     });
@@ -72,9 +87,9 @@ const optionalUrlField = (field) =>
 export const updateLanguagePreferenceValidation = [
   body('languagePreference')
     .notEmpty()
-    .withMessage('languagePreference is required')
+    .withMessage(ERROR_CODES.VALIDATION.LANGUAGE_REQUIRED)
     .isIn(['en-US', 'en-GB', 'es', 'ur'])
-    .withMessage('languagePreference must be a supported language code'),
+    .withMessage(ERROR_CODES.VALIDATION.LANGUAGE_UNSUPPORTED),
 ];
 
 export const updateProfileValidation = [
@@ -82,10 +97,15 @@ export const updateProfileValidation = [
     .optional()
     .trim()
     .notEmpty()
-    .withMessage('Name cannot be empty')
+    .withMessage(ERROR_CODES.VALIDATION.NAME_EMPTY)
     .isLength({ max: 100 })
-    .withMessage('Name cannot exceed 100 characters'),
-  body('email').optional().trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
+    .withMessage(ERROR_CODES.VALIDATION.NAME_TOO_LONG),
+  body('email')
+    .optional()
+    .trim()
+    .isEmail()
+    .withMessage(ERROR_CODES.VALIDATION.EMAIL_INVALID)
+    .normalizeEmail(),
   optionalTrimmedString('firstName', { max: 50 }),
   optionalTrimmedString('lastName', { max: 50 }),
   body('phone')
@@ -93,9 +113,11 @@ export const updateProfileValidation = [
     .customSanitizer((value) => (value === undefined || value === null ? value : String(value).trim()))
     .custom((value) => {
       if (value === undefined || value === null || value === '') return true;
-      if (value.length > 30) throw new Error('Phone number cannot exceed 30 characters');
+      if (value.length > 30) {
+        throw new Error(ERROR_CODES.VALIDATION.PHONE_TOO_LONG);
+      }
       if (!/^\+?[\d\s().-]{7,30}$/.test(value)) {
-        throw new Error('Phone number format looks invalid');
+        throw new Error(ERROR_CODES.VALIDATION.PHONE_INVALID);
       }
       return true;
     }),
@@ -109,20 +131,20 @@ export const updateProfileValidation = [
     .custom((value) => {
       if (value === undefined || value === null || value === '') return true;
       if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        throw new Error('Date of birth must be YYYY-MM-DD');
+        throw new Error(ERROR_CODES.VALIDATION.DATE_FORMAT);
       }
       const date = new Date(`${value}T00:00:00.000Z`);
       if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) {
-        throw new Error('Date of birth is not a valid date');
+        throw new Error(ERROR_CODES.VALIDATION.DATE_INVALID);
       }
       const today = new Date();
       const todayUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
       if (date > todayUtc) {
-        throw new Error('Date of birth cannot be in the future');
+        throw new Error(ERROR_CODES.VALIDATION.DATE_FUTURE);
       }
       const min = new Date(Date.UTC(today.getUTCFullYear() - 120, today.getUTCMonth(), today.getUTCDate()));
       if (date < min) {
-        throw new Error('Date of birth is out of range');
+        throw new Error(ERROR_CODES.VALIDATION.DATE_OUT_OF_RANGE);
       }
       return true;
     }),
@@ -136,36 +158,44 @@ export const updateProfileValidation = [
   body('loginAlertsEnabled')
     .optional()
     .isBoolean()
-    .withMessage('loginAlertsEnabled must be a boolean'),
+    .withMessage(
+      formatValidationCode(ERROR_CODES.VALIDATION.BOOLEAN_REQUIRED, {
+        field: 'loginAlertsEnabled',
+      })
+    ),
   body('rememberDevicesEnabled')
     .optional()
     .isBoolean()
-    .withMessage('rememberDevicesEnabled must be a boolean'),
+    .withMessage(
+      formatValidationCode(ERROR_CODES.VALIDATION.BOOLEAN_REQUIRED, {
+        field: 'rememberDevicesEnabled',
+      })
+    ),
   body('languagePreference')
     .optional()
     .isIn(['en-US', 'en-GB', 'es', 'ur'])
-    .withMessage('languagePreference must be a supported language code'),
+    .withMessage(ERROR_CODES.VALIDATION.LANGUAGE_UNSUPPORTED),
   body().custom((_value, { req }) => {
     const hasField = PROFILE_UPDATE_FIELDS.some((field) => req.body[field] !== undefined);
     const hasLanguageOnly =
       req.body.languagePreference !== undefined &&
       Object.keys(req.body).every((key) => key === 'languagePreference');
     if (!hasField && !hasLanguageOnly) {
-      throw new Error('At least one profile field is required');
+      throw new Error(ERROR_CODES.VALIDATION.PROFILE_FIELD_REQUIRED);
     }
     return true;
   }),
 ];
 
 export const changePasswordValidation = [
-  body('currentPassword').notEmpty().withMessage('Current password is required'),
+  body('currentPassword').notEmpty().withMessage(ERROR_CODES.PASSWORD.CURRENT_REQUIRED),
   newPasswordValidation,
   body('confirmPassword')
     .notEmpty()
-    .withMessage('Password confirmation is required')
+    .withMessage(ERROR_CODES.PASSWORD.CONFIRM_REQUIRED)
     .custom((value, { req }) => {
       if (value !== req.body.newPassword) {
-        throw new Error('Password confirmation does not match');
+        throw new Error(ERROR_CODES.PASSWORD.CONFIRM_MISMATCH);
       }
       return true;
     }),
@@ -177,10 +207,10 @@ export const deleteAccountValidation = [
     .optional({ nullable: true })
     .trim()
     .isEmail()
-    .withMessage('Valid email is required'),
+    .withMessage(ERROR_CODES.VALIDATION.EMAIL_INVALID),
   body('confirmPhrase')
     .optional({ nullable: true })
     .trim()
     .isLength({ max: 64 })
-    .withMessage('Confirmation phrase is too long'),
+    .withMessage(ERROR_CODES.VALIDATION.CONFIRM_PHRASE_TOO_LONG),
 ];

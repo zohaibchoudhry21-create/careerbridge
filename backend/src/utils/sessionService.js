@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { UAParser } from 'ua-parser-js';
 import UserSession from '../models/UserSession.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import generateToken from './generateToken.js';
 import { setAuthCookie } from './authCookie.js';
@@ -105,10 +106,7 @@ export const assertCanTrustSession = async (userId, excludeSessionId = null) => 
   const trustedCount = await countTrustedActiveSessions(userId, excludeSessionId);
 
   if (trustedCount >= MAX_TRUSTED_SESSIONS_PER_USER) {
-    throw new AppError(
-      'You have reached the maximum number of trusted devices. Remove trust from another device first.',
-      400
-    );
+    throw new AppError(ERROR_CODES.SESSION.TRUST_LIMIT_REACHED, 400);
   }
 };
 
@@ -172,7 +170,7 @@ export const setSessionTrust = async (userId, sessionId, trusted) => {
   });
 
   if (!session) {
-    throw new AppError('Session not found.', 404);
+    throw new AppError(ERROR_CODES.SESSION.NOT_FOUND, 404);
   }
 
   if (trusted) {

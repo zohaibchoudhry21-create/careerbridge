@@ -1,3 +1,5 @@
+import { ERROR_CODES, formatValidationCode } from '../constants/apiErrorCodes.js';
+
 const COMMON_PASSWORDS = new Set([
   'password',
   'password1',
@@ -22,49 +24,68 @@ const RULES = [
   {
     id: 'length',
     test: (password) => password.length >= 8,
-    message: 'Must be at least 8 characters long',
   },
   {
     id: 'uppercase',
     test: (password) => /[A-Z]/.test(password),
-    message: 'Must include at least one uppercase letter (A-Z)',
   },
   {
     id: 'lowercase',
     test: (password) => /[a-z]/.test(password),
-    message: 'Must include at least one lowercase letter (a-z)',
   },
   {
     id: 'number',
     test: (password) => /[0-9]/.test(password),
-    message: 'Must include at least one number (0-9)',
   },
   {
     id: 'special',
     test: (password) => /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(password),
-    message: 'Must include at least one special character (e.g. !@#$%^&*)',
   },
 ];
 
 export const validatePassword = (password = '') => {
   const value = String(password);
-  const failedRules = RULES.filter((rule) => !rule.test(value)).map((rule) => rule.message);
+  const failedRuleIds = RULES.filter((rule) => !rule.test(value)).map((rule) => rule.id);
   const isCommon = Boolean(value && COMMON_PASSWORDS.has(value.toLowerCase()));
 
+  const errors = [];
+  if (failedRuleIds.length > 0) {
+    errors.push(failedRuleIds[0]);
+  }
   if (isCommon) {
-    failedRules.push('Password is too common. Choose a stronger password');
+    errors.push('common');
   }
 
   return {
-    valid: failedRules.length === 0,
-    errors: failedRules,
+    valid: errors.length === 0,
+    errors,
+    failedRuleIds,
+    isCommon,
   };
 };
 
+export const getPasswordErrorCode = (password) => {
+  const { failedRuleIds, isCommon } = validatePassword(password);
+
+  if (failedRuleIds.length > 0) {
+    return {
+      code: ERROR_CODES.PASSWORD.POLICY_VIOLATION,
+      params: { rule: failedRuleIds[0] },
+    };
+  }
+
+  if (isCommon) {
+    return { code: ERROR_CODES.PASSWORD.TOO_COMMON, params: {} };
+  }
+
+  return null;
+};
+
+/** @deprecated Use getPasswordErrorCode — kept for transitional compatibility */
 export const getPasswordErrorMessage = (password) => {
-  const { errors } = validatePassword(password);
-  if (errors.length === 0) return null;
-  return errors.join('. ');
+  const result = getPasswordErrorCode(password);
+  if (!result) return null;
+  return formatValidationCode(result.code, result.params);
 };
 
 export default validatePassword;

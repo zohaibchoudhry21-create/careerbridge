@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { getSocialAuthStatusUrl, resolveSocialAuthUrl } from '../../config/apiConfig';
+import { resolveApiError } from '../../utils/apiError';
 
 function GoogleIcon({ className = 'w-5 h-5' }) {
   return (
@@ -68,7 +69,7 @@ export default function SocialLoginButtons({ stacked = false }) {
         const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-          throw new Error(data.message || t('social.statusError'));
+          throw new Error(resolveApiError({ response: { data } }, t('social.statusError')));
         }
 
         return data;
@@ -94,7 +95,7 @@ export default function SocialLoginButtons({ stacked = false }) {
         if (!isActive) return;
         setConfiguredProviders(new Set());
         setAuthUrls({});
-        setStatusError(error.message || t('social.statusError'));
+        setStatusError(resolveApiError(error, t('social.statusError')));
       });
 
     return () => {

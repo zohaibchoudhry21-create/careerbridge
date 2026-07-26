@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from '../utils/sendResponse.js';
 import { getTokenFromRequest } from '../utils/authCookie.js';
 import {
@@ -14,29 +15,33 @@ export const protect = async (req, res, next) => {
     const token = getTokenFromRequest(req);
 
     if (!token) {
-      throw new AppError('Not authorized. Please log in.', 401);
+      throw new AppError(ERROR_CODES.AUTH.NOT_AUTHORIZED, 401);
     }
 
     if (!process.env.JWT_SECRET) {
-      throw new AppError('Authentication is not configured.', 500);
+      throw new AppError(ERROR_CODES.AUTH.AUTH_NOT_CONFIGURED, 500);
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id);
 
     if (!user) {
-      throw new AppError('User no longer exists.', 401);
+      throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 401);
     }
 
     const tokenVersion = Number(decoded.tokenVersion) || 0;
     const currentVersion = Number(user.tokenVersion) || 0;
 
     if (tokenVersion !== currentVersion) {
-      throw new AppError('Session expired. Please log in again.', 401);
+      throw new AppError(ERROR_CODES.AUTH.SESSION_EXPIRED, 401);
     }
 
-    if (!user.isVerified || user.status !== 'active') {
-      throw new AppError('Account is not active. Please verify your email or contact support.', 403);
+    if (!user.isVerified) {
+      throw new AppError(ERROR_CODES.AUTH.EMAIL_NOT_VERIFIED, 403);
+    }
+
+    if (user.status !== 'active') {
+      throw new AppError(ERROR_CODES.AUTH.ACCOUNT_NOT_ACTIVE_SUPPORT, 403);
     }
 
     let session = null;
@@ -46,7 +51,7 @@ export const protect = async (req, res, next) => {
       session = await findActiveSession(authSessionId, user._id);
 
       if (!session) {
-        throw new AppError('Session expired. Please log in again.', 401);
+        throw new AppError(ERROR_CODES.AUTH.SESSION_EXPIRED, 401);
       }
 
       void touchSessionActivity(session);
@@ -66,7 +71,7 @@ export const protect = async (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return next(new AppError('Invalid or expired token. Please log in again.', 401));
+      return next(new AppError(ERROR_CODES.AUTH.TOKEN_INVALID, 401));
     }
     next(error);
   }

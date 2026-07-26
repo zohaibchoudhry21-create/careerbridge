@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-do
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import useAuth from '../../hooks/useAuth';
+import { resolveApiError } from '../../utils/apiError';
 import SocialLoginButtons from './SocialLoginButtons';
 import AppIcon from '../icons/AppIcon';
 
@@ -186,7 +187,7 @@ export default function LoginForm() {
       const message =
         error.code === 'ECONNABORTED'
           ? t('toasts.serverTimeout')
-          : error.response?.data?.message || t('toasts.loginFailed');
+          : resolveApiError(error, t('toasts.loginFailed'));
       toast.error(message);
 
       if (error.response?.status === 403) {
@@ -205,7 +206,7 @@ export default function LoginForm() {
       const redirectTo = location.state?.from?.pathname || '/dashboard';
       navigate(redirectTo, { replace: true });
     } catch (error) {
-      const message = error.response?.data?.message || t('toasts.invalidCode');
+      const message = resolveApiError(error, t('toasts.invalidCode'));
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -226,7 +227,7 @@ export default function LoginForm() {
       const redirectTo = location.state?.from?.pathname || '/dashboard';
       navigate(redirectTo, { replace: true });
     } catch (error) {
-      const message = error.response?.data?.message || t('toasts.reactivateFailed');
+      const message = resolveApiError(error, t('toasts.reactivateFailed'));
       toast.error(message);
       setStep('credentials');
     } finally {

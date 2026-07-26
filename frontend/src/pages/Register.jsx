@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { registerUser } from '../services/authService';
+import { resolveApiError } from '../utils/apiError';
 import { validatePassword } from '../utils/passwordValidator';
 import { AuthLayout } from '../components/layout';
 import SocialLoginButtons from '../components/auth/SocialLoginButtons';
@@ -46,7 +47,7 @@ export default function Register() {
         },
       });
     } catch (error) {
-      toast.error(error.response?.data?.message || t('toasts.registrationFailed'));
+      toast.error(resolveApiError(error, t('toasts.registrationFailed')));
     } finally {
       setIsSubmitting(false);
     }
