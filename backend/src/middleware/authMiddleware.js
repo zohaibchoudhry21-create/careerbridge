@@ -51,7 +51,10 @@ export const protect = async (req, res, next) => {
 
       void touchSessionActivity(session);
     } else {
-      session = await createUserSession(user._id, req, { remember: true });
+      session = await createUserSession(user._id, req, {
+        remember: true,
+        rememberDevicesEnabled: user.rememberDevicesEnabled === true,
+      });
       authSessionId = session.sessionId;
       issueAuthToken(res, user, session, true);
     }

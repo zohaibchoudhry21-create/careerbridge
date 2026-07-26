@@ -15,6 +15,7 @@ import {
   useRevokeSession,
   useSessions,
   useUpdateAccount,
+  useUpdateSessionTrust,
 } from '../../hooks/useSettings';
 import { getApiErrorMessage } from '../../features/interviewPrep/utils/apiErrorUtils';
 
@@ -35,15 +36,17 @@ function formatSessionDate(value) {
   }).format(new Date(value));
 }
 
-function ActiveSessionsSection() {
+function ActiveSessionsSection({ rememberDevicesEnabled }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { data: sessions = [], isLoading, isError, refetch } = useSessions();
   const revokeSession = useRevokeSession();
   const revokeOthers = useRevokeOtherSessions();
+  const updateSessionTrust = useUpdateSessionTrust();
 
   const otherSessions = sessions.filter((session) => !session.isCurrent);
-  const isRevoking = revokeSession.isPending || revokeOthers.isPending;
+  const isBusy =
+    revokeSession.isPending || revokeOthers.isPending || updateSessionTrust.isPending;
 
   const handleRevokeSession = async (session) => {
     try {
@@ -75,6 +78,21 @@ function ActiveSessionsSection() {
       await refetch();
     } catch (error) {
       toast.error(getApiErrorMessage(error, 'Unable to sign out other devices.'));
+    }
+  };
+
+  const handleTrustChange = async (session, trusted) => {
+    if (!rememberDevicesEnabled) {
+      toast.error('Enable Remember Devices before trusting a device.');
+      return;
+    }
+
+    try {
+      await updateSessionTrust.mutateAsync({ sessionId: session.id, trusted });
+      toast.success(trusted ? 'Device marked as trusted.' : 'Device trust removed.');
+      await refetch();
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Unable to update device trust.'));
     }
   };
 
@@ -119,6 +137,11 @@ function ActiveSessionsSection() {
                       This device
                     </span>
                   ) : null}
+                  {session.isTrusted ? (
+                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-label-md text-primary">
+                      Trusted
+                    </span>
+                  ) : null}
                 </div>
                 <p className="font-body-md text-on-surface-variant text-sm">
                   IP: {session.ipAddress || 'Unknown'}
@@ -131,14 +154,26 @@ function ActiveSessionsSection() {
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => handleRevokeSession(session)}
-                disabled={isRevoking}
-                className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-50"
-              >
-                {session.isCurrent ? 'Sign out' : 'Sign out device'}
-              </button>
+              <div className="flex flex-col gap-2">
+                {rememberDevicesEnabled ? (
+                  <button
+                    type="button"
+                    onClick={() => handleTrustChange(session, !session.isTrusted)}
+                    disabled={isBusy}
+                    className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-50"
+                  >
+                    {session.isTrusted ? 'Remove trust' : 'Trust device'}
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => handleRevokeSession(session)}
+                  disabled={isBusy}
+                  className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-50"
+                >
+                  {session.isCurrent ? 'Sign out' : 'Sign out device'}
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -148,7 +183,7 @@ function ActiveSessionsSection() {
         <button
           type="button"
           onClick={handleRevokeOthers}
-          disabled={isRevoking}
+          disabled={isBusy}
           className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-50"
         >
           Sign out all other devices
@@ -164,6 +199,7 @@ export default function LoginSecurity() {
   const updateAccount = useUpdateAccount();
   const isLocalAccount = (user?.provider || user?.authProvider || 'local') === 'local';
   const loginAlertsEnabled = user?.loginAlertsEnabled !== false;
+  const rememberDevicesEnabled = user?.rememberDevicesEnabled === true;
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -222,6 +258,17 @@ export default function LoginSecurity() {
       toast.success(checked ? 'Login alerts enabled.' : 'Login alerts disabled.');
     } catch (error) {
       toast.error(getApiErrorMessage(error, 'Unable to update login alerts.'));
+    }
+  };
+
+  const handleRememberDevicesChange = async (checked) => {
+    try {
+      await updateAccount.mutateAsync({ rememberDevicesEnabled: checked });
+      toast.success(
+        checked ? 'Remember Devices enabled.' : 'Remember Devices disabled.'
+      );
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Unable to update Remember Devices.'));
     }
   };
 
@@ -293,7 +340,7 @@ export default function LoginSecurity() {
         color="focus"
       >
         <ComingSoonNote>
-          Two-factor authentication and trusted devices are coming in later phases.
+          Two-factor authentication is coming in the next phase.
         </ComingSoonNote>
         <ToggleSwitch
           id="two-factor"
@@ -314,10 +361,10 @@ export default function LoginSecurity() {
         <ToggleSwitch
           id="remember-devices"
           label="Remember Devices"
-          description="Stay signed in on trusted devices for faster access."
-          checked={false}
-          onChange={() => {}}
-          disabled
+          description="Mark trusted devices to skip login alert emails on familiar browsers."
+          checked={rememberDevicesEnabled}
+          onChange={handleRememberDevicesChange}
+          disabled={updateAccount.isPending}
         />
       </SectionCard>
 
@@ -328,9 +375,9 @@ export default function LoginSecurity() {
         color="role"
       >
         <p className="font-body-md text-on-surface-variant text-sm">
-          Changing your password also signs out other browsers using your account.
+          Changing your password clears device trust and signs out other browsers using your account.
         </p>
-        <ActiveSessionsSection />
+        <ActiveSessionsSection rememberDevicesEnabled={rememberDevicesEnabled} />
       </SectionCard>
     </SettingsPageShell>
   );

@@ -91,7 +91,12 @@ export const login = async (req, res, next) => {
     }
 
     const remember = req.body.remember !== false;
-    const session = await createUserSession(user._id, req, { remember });
+    const trustDevice = req.body.trustDevice === true;
+    const session = await createUserSession(user._id, req, {
+      remember,
+      rememberDevicesEnabled: user.rememberDevicesEnabled === true,
+      trustDevice,
+    });
     issueAuthToken(res, user, session, remember);
 
     sendResponse(res, 200, true, 'Login successful', {
@@ -198,7 +203,10 @@ export const resetPassword = async (req, res, next) => {
     await user.save();
 
     await revokeAllSessionsForUser(user._id);
-    const session = await createUserSession(user._id, req, { remember: true });
+    const session = await createUserSession(user._id, req, {
+      remember: true,
+      rememberDevicesEnabled: user.rememberDevicesEnabled === true,
+    });
     issueAuthToken(res, user, session, true);
 
     sendResponse(res, 200, true, 'Password reset successful', {
@@ -231,7 +239,10 @@ export const exchangeSocialCode = async (req, res, next) => {
       throw new AppError('Account is not active.', 403);
     }
 
-    const session = await createUserSession(user._id, req, { remember: true });
+    const session = await createUserSession(user._id, req, {
+      remember: true,
+      rememberDevicesEnabled: user.rememberDevicesEnabled === true,
+    });
     issueAuthToken(res, user, session, true);
 
     sendResponse(res, 200, true, 'Login successful', {

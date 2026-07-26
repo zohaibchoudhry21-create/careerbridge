@@ -7,6 +7,7 @@ import {
   revokeOtherUserSessions,
   revokeUserSession,
   updateAccount,
+  updateSessionTrust,
 } from '../services/settingsService';
 import { dashboardKeys } from './useDashboard';
 
@@ -72,6 +73,17 @@ export function useRevokeOtherSessions() {
 
   return useMutation({
     mutationFn: revokeOtherUserSessions,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: sessionKeys.all });
+    },
+  });
+}
+
+export function useUpdateSessionTrust() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ sessionId, trusted }) => updateSessionTrust(sessionId, trusted),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: sessionKeys.all });
     },

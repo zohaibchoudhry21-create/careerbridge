@@ -4,6 +4,7 @@ import {
   listSessions,
   revokeOtherSessionsHandler,
   revokeSession,
+  updateSessionTrust,
 } from '../controllers/sessionController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { validateRequest } from '../middleware/validateRequest.js';
@@ -12,6 +13,7 @@ import {
   changePasswordValidation,
   deleteAccountValidation,
 } from '../validators/profileValidator.js';
+import { updateSessionTrustValidation } from '../validators/sessionValidator.js';
 
 const router = express.Router();
 
@@ -20,6 +22,13 @@ router.patch('/users/me/password', protect, changePasswordValidation, validateRe
 router.delete('/users/me', protect, deleteAccountValidation, validateRequest, deleteAccount);
 router.get('/users/me/sessions', protect, listSessions);
 router.delete('/users/me/sessions/others', protect, revokeOtherSessionsHandler);
+router.patch(
+  '/users/me/sessions/:id/trust',
+  protect,
+  updateSessionTrustValidation,
+  validateRequest,
+  updateSessionTrust
+);
 router.delete('/users/me/sessions/:id', protect, revokeSession);
 
 export default router;

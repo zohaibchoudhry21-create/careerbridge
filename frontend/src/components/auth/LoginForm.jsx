@@ -22,6 +22,7 @@ export default function LoginForm() {
       email: '',
       password: '',
       remember: false,
+      trustDevice: false,
     },
   });
 
@@ -29,7 +30,11 @@ export default function LoginForm() {
     setIsSubmitting(true);
     try {
       await login(
-        { email: values.email, password: values.password },
+        {
+          email: values.email,
+          password: values.password,
+          trustDevice: values.trustDevice,
+        },
         values.remember
       );
       toast.success('Login successful! Welcome back.');
@@ -125,6 +130,20 @@ export default function LoginForm() {
             Forgot Password?
           </Link>
         </div>
+
+        <label className="flex items-start gap-2 cursor-pointer font-label-md text-label-md">
+          <input
+            type="checkbox"
+            className="mt-1 w-4 h-4 rounded border-outline text-secondary focus:ring-secondary"
+            {...register('trustDevice')}
+          />
+          <span className="text-on-surface-variant">
+            Trust this device
+            <span className="block text-sm text-on-surface-variant/80">
+              Requires Remember Devices to be enabled in your account settings.
+            </span>
+          </span>
+        </label>
 
         <button
           type="submit"

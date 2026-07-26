@@ -5,9 +5,11 @@ import { assignVerificationToken } from './verifyEmailController.js';
 import { clearAuthCookie, setAuthCookie } from '../utils/authCookie.js';
 import generateToken from '../utils/generateToken.js';
 import {
+  clearAllSessionTrust,
   issueAuthToken,
   revokeAllSessionsForUser,
   revokeOtherSessions,
+  setSessionTrust,
 } from '../utils/sessionService.js';
 
 const ACCOUNT_DELETE_CONFIRMATION = 'DELETE MY ACCOUNT';
@@ -100,6 +102,10 @@ export const updateAccount = async (req, res, next) => {
       user.loginAlertsEnabled = Boolean(req.body.loginAlertsEnabled);
     }
 
+    if (req.body.rememberDevicesEnabled !== undefined) {
+      user.rememberDevicesEnabled = Boolean(req.body.rememberDevicesEnabled);
+    }
+
     if (emailChanged) {
       const { verificationUrl, emailResult } = await assignVerificationToken(user, {
         name: user.name,
@@ -164,10 +170,14 @@ export const changePassword = async (req, res, next) => {
     user.tokenVersion = (Number(user.tokenVersion) || 0) + 1;
     await user.save();
 
+    await clearAllSessionTrust(user._id);
     await revokeOtherSessions(user._id, req.authSessionId);
 
     const session = req.authSession;
     if (session) {
+      session.isTrusted = false;
+      session.trustedAt = null;
+      await session.save();
       issueAuthToken(res, user, session, true);
     } else {
       const token = generateToken(user._id, user.tokenVersion);

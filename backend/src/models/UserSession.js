@@ -66,6 +66,10 @@ const userSessionSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    trustedAt: {
+      type: Date,
+      default: null,
+    },
     lastActiveAt: {
       type: Date,
       default: Date.now,

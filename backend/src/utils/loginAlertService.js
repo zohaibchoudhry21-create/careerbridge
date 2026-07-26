@@ -8,6 +8,9 @@ const recentAlerts = new Map();
 
 const isLoginAlertsEnabled = (user) => user?.loginAlertsEnabled !== false;
 
+const isTrustedDeviceForUser = (user, session) =>
+  user?.rememberDevicesEnabled === true && Boolean(session?.isTrusted);
+
 const isKnownIp = (ipAddress) => {
   const value = String(ipAddress || '').trim();
   return Boolean(value && value !== 'Unknown');
@@ -37,7 +40,7 @@ const markAlertSent = (key) => {
 
 const shouldSendLoginAlert = async (user, session) => {
   if (!isLoginAlertsEnabled(user)) return false;
-  if (session?.isTrusted) return false;
+  if (isTrustedDeviceForUser(user, session)) return false;
 
   const historyCutoff = new Date(Date.now() - HISTORY_WINDOW_MS);
   const baseQuery = {

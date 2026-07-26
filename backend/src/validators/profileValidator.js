@@ -24,6 +24,7 @@ const PROFILE_UPDATE_FIELDS = [
   'portfolio',
   'headline',
   'loginAlertsEnabled',
+  'rememberDevicesEnabled',
 ];
 
 const optionalTrimmedString = (field, { max, allowEmpty = true } = {}) => {
@@ -127,6 +128,10 @@ export const updateProfileValidation = [
     .optional()
     .isBoolean()
     .withMessage('loginAlertsEnabled must be a boolean'),
+  body('rememberDevicesEnabled')
+    .optional()
+    .isBoolean()
+    .withMessage('rememberDevicesEnabled must be a boolean'),
   body().custom((_value, { req }) => {
     const hasField = PROFILE_UPDATE_FIELDS.some((field) => req.body[field] !== undefined);
     if (!hasField) {

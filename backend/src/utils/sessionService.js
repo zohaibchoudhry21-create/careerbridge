@@ -1,10 +1,13 @@
 import crypto from 'crypto';
 import { UAParser } from 'ua-parser-js';
 import UserSession from '../models/UserSession.js';
+import { AppError } from './sendResponse.js';
 import generateToken from './generateToken.js';
 import { setAuthCookie } from './authCookie.js';
 
 export const MAX_SESSIONS_PER_USER = 20;
+export const MAX_TRUSTED_SESSIONS_PER_USER = 10;
+const TRUST_HISTORY_WINDOW_MS = 90 * 24 * 60 * 60 * 1000;
 const LAST_ACTIVE_THROTTLE_MS = 5 * 60 * 1000;
 
 export const getJwtExpireMs = () => {
@@ -80,7 +83,112 @@ export const serializeSession = (session, currentSessionId) => ({
   lastActiveAt: session.lastActiveAt,
   isCurrent: session.sessionId === currentSessionId,
   isTrusted: Boolean(session.isTrusted),
+  trustedAt: session.trustedAt || null,
 });
+
+export const countTrustedActiveSessions = async (userId, excludeSessionId = null) => {
+  const query = {
+    userId,
+    isTrusted: true,
+    revokedAt: null,
+    expiresAt: { $gt: new Date() },
+  };
+
+  if (excludeSessionId) {
+    query._id = { $ne: excludeSessionId };
+  }
+
+  return UserSession.countDocuments(query);
+};
+
+export const assertCanTrustSession = async (userId, excludeSessionId = null) => {
+  const trustedCount = await countTrustedActiveSessions(userId, excludeSessionId);
+
+  if (trustedCount >= MAX_TRUSTED_SESSIONS_PER_USER) {
+    throw new AppError(
+      'You have reached the maximum number of trusted devices. Remove trust from another device first.',
+      400
+    );
+  }
+};
+
+const hasTrustedFingerprintHistory = async (userId, deviceFingerprint) => {
+  if (!deviceFingerprint) return false;
+
+  const historyCutoff = new Date(Date.now() - TRUST_HISTORY_WINDOW_MS);
+
+  return UserSession.exists({
+    userId,
+    deviceFingerprint,
+    isTrusted: true,
+    createdAt: { $gte: historyCutoff },
+  });
+};
+
+const resolveSessionTrust = async (
+  userId,
+  deviceFingerprint,
+  { rememberDevicesEnabled = false, trustDevice = false } = {}
+) => {
+  if (!rememberDevicesEnabled) {
+    return { isTrusted: false, trustedAt: null };
+  }
+
+  if (trustDevice) {
+    try {
+      await assertCanTrustSession(userId);
+      return { isTrusted: true, trustedAt: new Date() };
+    } catch {
+      return { isTrusted: false, trustedAt: null };
+    }
+  }
+
+  const previouslyTrusted = await hasTrustedFingerprintHistory(userId, deviceFingerprint);
+  if (!previouslyTrusted) {
+    return { isTrusted: false, trustedAt: null };
+  }
+
+  const trustedCount = await countTrustedActiveSessions(userId);
+  if (trustedCount >= MAX_TRUSTED_SESSIONS_PER_USER) {
+    return { isTrusted: false, trustedAt: null };
+  }
+
+  return { isTrusted: true, trustedAt: new Date() };
+};
+
+export const clearAllSessionTrust = async (userId) => {
+  await UserSession.updateMany(
+    { userId, isTrusted: true },
+    { isTrusted: false, trustedAt: null }
+  );
+};
+
+export const setSessionTrust = async (userId, sessionId, trusted) => {
+  const session = await UserSession.findOne({
+    _id: sessionId,
+    userId,
+    revokedAt: null,
+    expiresAt: { $gt: new Date() },
+  });
+
+  if (!session) {
+    throw new AppError('Session not found.', 404);
+  }
+
+  if (trusted) {
+    if (!session.isTrusted) {
+      await assertCanTrustSession(userId, session._id);
+    }
+    session.isTrusted = true;
+    session.trustedAt = new Date();
+  } else {
+    session.isTrusted = false;
+    session.trustedAt = null;
+  }
+
+  await session.save();
+  return session;
+};
 
 export const enforceSessionCap = async (userId) => {
   const activeSessions = await UserSession.find({
@@ -102,11 +210,19 @@ export const enforceSessionCap = async (userId) => {
   await UserSession.updateMany({ _id: { $in: idsToRevoke } }, { revokedAt: new Date() });
 };
 
-export const createUserSession = async (userId, req, { remember = true } = {}) => {
+export const createUserSession = async (
+  userId,
+  req,
+  { remember = true, rememberDevicesEnabled = false, trustDevice = false } = {}
+) => {
   await enforceSessionCap(userId);
 
   const client = parseRequestClient(req);
   const now = new Date();
+  const trust = await resolveSessionTrust(userId, client.deviceFingerprint, {
+    rememberDevicesEnabled,
+    trustDevice,
+  });
 
   return UserSession.create({
     userId,
@@ -114,7 +230,8 @@ export const createUserSession = async (userId, req, { remember = true } = {}) =
     ...client,
     lastActiveAt: now,
     expiresAt: new Date(now.getTime() + getJwtExpireMs()),
-    isTrusted: false,
+    isTrusted: trust.isTrusted,
+    trustedAt: trust.trustedAt,
   });
 };
 

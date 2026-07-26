@@ -10,6 +10,9 @@ export const revokeUserSession = (sessionId) =>
 export const revokeOtherUserSessions = () =>
   api.delete('/users/me/sessions/others').then(unwrap);
 
+export const updateSessionTrust = (sessionId, trusted) =>
+  api.patch(`/users/me/sessions/${sessionId}/trust`, { trusted }).then(unwrap);
+
 export const updateAccount = (payload) => api.patch('/users/me', payload).then(unwrap);
 
 export const changeUserPassword = (payload) => api.patch('/users/me/password', payload).then(unwrap);
