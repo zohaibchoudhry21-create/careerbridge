@@ -1,0 +1,211 @@
+{
+  "brand": "AI CareerBridge",
+  "hero": {
+    "badge": "FREE ONLINE RESUME BUILDER",
+    "headlineLine1": "Build a job-winning",
+    "headlineLine2": "resume for free",
+    "subline1": "Your first resume is 100% free forever.",
+    "subline2": "Unlimited downloads. No hidden fees.",
+    "typingPhrases": [
+      "Yes, really",
+      "build ATS-optimized resumes.",
+      "land interviews faster.",
+      "download unlimited PDFs."
+    ],
+    "cta": "Get started for free",
+    "trustLine": "Trusted by <strong>{{count}}</strong> users",
+    "trustCount": "5.3 million",
+    "resumeAlt": {
+      "atlanticBlue": "Atlantic Blue resume preview",
+      "classicClear": "Classic Clear resume preview"
+    },
+    "socialCard": {
+      "name": "Andrew Irwin",
+      "role": "Product Manager",
+      "tiktokLine1": "Powerful websites I wish I knew earlier:",
+      "tiktokLine2": "This one is a LIFESAVER",
+      "tiktokMeta": "@maedeh.davami | 1.8 million views"
+    }
+  },
+  "trustBadges": {
+    "items": [
+      {
+        "title": "Your First Resume Is Free",
+        "subtitle": "No credit card required"
+      },
+      {
+        "title": "Privacy & GDPR Compliant",
+        "subtitle": "Your data stays yours"
+      },
+      {
+        "title": "Unlimited PDF Downloads",
+        "subtitle": "No watermarks, ever"
+      }
+    ]
+  },
+  "problem": {
+    "title": "Why do most candidates fail in the hiring process?",
+    "subtitle": "The modern job search is broken. Without the right tools, great candidates slip through the cracks of automated systems.",
+    "items": [
+      {
+        "title": "ATS Rejection",
+        "description": "Over 75% of CVs are rejected by Applicant Tracking Systems before a human ever sees them due to poor formatting."
+      },
+      {
+        "title": "Generic Resumes",
+        "description": "Sending the exact same resume to every job description drastically lowers your callback rate."
+      },
+      {
+        "title": "Weak Prep",
+        "description": "Even if you pass the screen, lacking tailored interview preparation tailored to the specific role leads to failure."
+      }
+    ]
+  },
+  "solution": {
+    "badge": "The Solution",
+    "title": "Meet AI Career OS",
+    "descriptionHighlight": "An end-to-end career automation system",
+    "descriptionBody": "designed to eliminate friction between you and your next offer.",
+    "mockupAriaLabel": "Solution mockup",
+    "points": [
+      {
+        "title": "Upload your CV → AI builds your profile",
+        "description": "Instant data extraction and structuring."
+      },
+      {
+        "title": "One-click CV optimization",
+        "description": "Tailored perfectly for any specific job description."
+      },
+      {
+        "title": "Download ATS-ready resume",
+        "description": "Export polished PDF templates optimized for applicant tracking systems."
+      }
+    ]
+  },
+  "features": {
+    "title": "Powerful Tools for Career Growth",
+    "items": [
+      {
+        "title": "OCR CV Builder",
+        "description": "Upload any PDF or image. Our OCR instantly converts it into a structured, editable digital profile."
+      },
+      {
+        "title": "Voice Profile Input",
+        "description": "Too busy to type? Speak your experience aloud and let our AI structure it into professional bullet points."
+      },
+      {
+        "title": "1-Click Optimization",
+        "description": "Paste a job description. We rewrite your bullets to match keywords and highlight relevant experience instantly."
+      },
+      {
+        "title": "Resume PDF Generator",
+        "description": "Export to beautifully designed, ATS-friendly PDF templates that look premium and pass screening."
+      },
+      {
+        "title": "Smart Job Matching",
+        "description": "Get AI-ranked job matches based on your skills, experience, and career goals."
+      },
+      {
+        "title": "Salary Intelligence",
+        "description": "Get real-time market data on what you should be earning based on your skills, location, and experience level."
+      }
+    ]
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "subtitle": "From raw data to interview ready in minutes.",
+    "steps": [
+      {
+        "title": "Upload or Speak",
+        "description": "Input your raw experience via CV upload, voice note, or manual entry. We handle the heavy lifting."
+      },
+      {
+        "title": "Generate Profile",
+        "description": "AI structures your data into a master profile and generates an ATS-ready resume."
+      },
+      {
+        "title": "Optimize & Apply",
+        "description": "Target specific roles. One click adjusts your CV keywords to beat ATS filters for that exact job description."
+      }
+    ]
+  },
+  "aiPower": {
+    "title": "Not just a resume builder — a complete career intelligence system.",
+    "subtitle": "Leverage deep learning to understand what hiring managers want before you even apply.",
+    "items": [
+      {
+        "title": "ATS Optimization Engine",
+        "description": "Simulates corporate screening software to ensure high parsability."
+      },
+      {
+        "title": "Job Description Matching AI",
+        "description": "Analyzes JD semantics to suggest missing skills you might possess."
+      },
+      {
+        "title": "Career Risk Analysis",
+        "description": "AI-proof scoring to see how susceptible your target roles are to automation."
+      }
+    ],
+    "demo": {
+      "matchAnalysis": "Match Analysis",
+      "matchPercent": "94% Match",
+      "keywordsDetected": "Keywords Detected",
+      "keywordsScore": "12/15",
+      "formattingScore": "Formatting Score",
+      "formattingValue": "100/100",
+      "quote": "\"Strong alignment in technical skills. Suggest expanding on leadership experience to reach 98%.\" - AI Assistant"
+    }
+  },
+  "finalCta": {
+    "title": "Start building your AI-powered career today.",
+    "description": "Stop wasting hours formatting documents. Let our OS handle the logistics so you can focus on the interviews.",
+    "primary": "Get Started Free",
+    "secondary": "Upload Your CV"
+  },
+  "footer": {
+    "tagline": "AI-powered career platform to build resumes, optimize profiles, practice interviews, and grow your professional future.",
+    "columns": [
+      {
+        "title": "Quick Links",
+        "links": ["Home", "Features", "Career Tools", "Templates", "Pricing", "Resources"]
+      },
+      {
+        "title": "AI Features",
+        "links": [
+          "AI Resume Builder",
+          "OCR CV Scanner",
+          "Voice Profile Builder",
+          "Interview Analysis",
+          "Salary Predictor"
+        ]
+      },
+      {
+        "title": "Career Tools",
+        "links": [
+          "LinkedIn Optimizer",
+          "AI-Proof Analysis",
+          "Skill Gap Analysis",
+          "Smart Job Matching"
+        ]
+      },
+      {
+        "title": "Resources",
+        "links": [
+          "Career Blog",
+          "Interview Tips",
+          "Resume Guides",
+          "AI Career Trends",
+          "Help Center"
+        ]
+      }
+    ],
+    "contact": {
+      "title": "Contact",
+      "email": "support@aicareerbridge.com",
+      "location": "Remote • Worldwide"
+    },
+    "legal": ["Privacy Policy", "Terms & Conditions", "Cookie Policy"],
+    "copyright": "© 2026 AI CareerBridge. All rights reserved.",
+    "poweredBy": "Powered by AI • Built for Future Careers"
+  }
+}

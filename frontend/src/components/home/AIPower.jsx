@@ -1,31 +1,17 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import SectionIcon from '../ui/SectionIcon';
 
-const aiFeatures = [
-  {
-    icon: 'find_in_page',
-    color: 'scanner',
-    title: 'ATS Optimization Engine',
-    description: 'Simulates corporate screening software to ensure high parsability.',
-    delay: '',
-  },
-  {
-    icon: 'join_inner',
-    color: 'focus',
-    title: 'Job Description Matching AI',
-    description: 'Analyzes JD semantics to suggest missing skills you might possess.',
-    delay: 'delay-100',
-  },
-  {
-    icon: 'trending_up',
-    color: 'warning',
-    title: 'Career Risk Analysis',
-    description: 'AI-proof scoring to see how susceptible your target roles are to automation.',
-    delay: 'delay-200',
-  },
+const AI_FEATURE_META = [
+  { icon: 'find_in_page', color: 'scanner', delay: '' },
+  { icon: 'join_inner', color: 'focus', delay: 'delay-100' },
+  { icon: 'trending_up', color: 'warning', delay: 'delay-200' },
 ];
 
 export default function AIPower() {
+  const { t } = useTranslation('marketing');
+  const items = t('aiPower.items', { returnObjects: true });
+
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
 
@@ -34,8 +20,6 @@ export default function AIPower() {
     import('particles.js')
       .then(() => {
         if (cancelled || typeof window.particlesJS === 'undefined') return;
-        // particles.js deepExtend touches arguments.callee (throws in strict mode).
-        // Guard so an uncaught error cannot interrupt React Router transitions.
         try {
           window.particlesJS('particles-js', {
             particles: {
@@ -92,37 +76,40 @@ export default function AIPower() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg items-center">
           <div className="reveal-left is-visible">
             <h2 className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-primary mb-4">
-              Not just a resume builder — a complete career intelligence system.
+              {t('aiPower.title')}
             </h2>
-            <p className="font-body-lg text-body-lg text-on-primary-container mb-8">
-              Leverage deep learning to understand what hiring managers want before you even apply.
-            </p>
+            <p className="font-body-lg text-body-lg text-on-primary-container mb-8">{t('aiPower.subtitle')}</p>
             <div className="space-y-6">
-              {aiFeatures.map((feature) => (
-                <div
-                  key={feature.title}
-                  className={`flex items-start gap-4 hover:translate-x-2 transition-transform duration-300 ${feature.delay}`}
-                >
-                  <SectionIcon color={feature.color} icon={feature.icon} size="md" />
-                  <div>
-                    <h4 className="font-label-md text-label-md text-on-primary">{feature.title}</h4>
-                    <p className="text-sm text-on-primary-container">{feature.description}</p>
+              {AI_FEATURE_META.map((meta, index) => {
+                const feature = items[index] || {};
+                return (
+                  <div
+                    key={meta.icon}
+                    className={`flex items-start gap-4 hover:translate-x-2 transition-transform duration-300 ${meta.delay}`}
+                  >
+                    <SectionIcon color={meta.color} icon={meta.icon} size="md" />
+                    <div>
+                      <h4 className="font-label-md text-label-md text-on-primary">{feature.title}</h4>
+                      <p className="text-sm text-on-primary-container">{feature.description}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
           <div className="bg-surface/5 p-6 rounded-2xl border border-secondary/50 backdrop-blur-sm shadow-[0_0_30px_rgba(33,112,228,0.2)] reveal-zoom delay-300 is-visible">
             <div className="flex items-center justify-between mb-4 pb-4 border-b border-surface/10">
-              <span className="font-label-md text-on-primary">Match Analysis</span>
-              <span className="text-secondary-fixed text-sm font-bold animate-pulse">94% Match</span>
+              <span className="font-label-md text-on-primary">{t('aiPower.demo.matchAnalysis')}</span>
+              <span className="text-secondary-fixed text-sm font-bold animate-pulse">
+                {t('aiPower.demo.matchPercent')}
+              </span>
             </div>
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-on-primary-container">Keywords Detected</span>
-                  <span className="text-on-primary">12/15</span>
+                  <span className="text-on-primary-container">{t('aiPower.demo.keywordsDetected')}</span>
+                  <span className="text-on-primary">{t('aiPower.demo.keywordsScore')}</span>
                 </div>
                 <div className="w-full bg-surface/10 rounded-full h-1.5 overflow-hidden relative">
                   <div
@@ -133,8 +120,8 @@ export default function AIPower() {
               </div>
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-on-primary-container">Formatting Score</span>
-                  <span className="text-on-primary">100/100</span>
+                  <span className="text-on-primary-container">{t('aiPower.demo.formattingScore')}</span>
+                  <span className="text-on-primary">{t('aiPower.demo.formattingValue')}</span>
                 </div>
                 <div className="w-full bg-surface/10 rounded-full h-1.5 overflow-hidden relative">
                   <div
@@ -144,10 +131,7 @@ export default function AIPower() {
                 </div>
               </div>
               <div className="mt-6 pt-4 border-t border-surface/10">
-                <p className="text-xs text-on-primary-container italic">
-                  &quot;Strong alignment in technical skills. Suggest expanding on leadership experience
-                  to reach 98%.&quot; - AI Assistant
-                </p>
+                <p className="text-xs text-on-primary-container italic">{t('aiPower.demo.quote')}</p>
               </div>
             </div>
           </div>

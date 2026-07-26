@@ -8,16 +8,19 @@ import enSettings from './locales/en/settings.json';
 import enDashboard from './locales/en/dashboard.json';
 import enAuth from './locales/en/auth.json';
 import enErrors from './locales/en/errors.json';
+import enMarketing from './locales/en/marketing.json';
 import esCommon from './locales/es/common.json';
 import esSettings from './locales/es/settings.json';
 import esDashboard from './locales/es/dashboard.json';
 import esAuth from './locales/es/auth.json';
 import esErrors from './locales/es/errors.json';
+import esMarketing from './locales/es/marketing.json';
 import urCommon from './locales/ur/common.json';
 import urSettings from './locales/ur/settings.json';
 import urDashboard from './locales/ur/dashboard.json';
 import urAuth from './locales/ur/auth.json';
 import urErrors from './locales/ur/errors.json';
+import urMarketing from './locales/ur/marketing.json';
 
 const resources = {
   en: {
@@ -26,6 +29,7 @@ const resources = {
     dashboard: enDashboard,
     auth: enAuth,
     errors: enErrors,
+    marketing: enMarketing,
   },
   es: {
     common: esCommon,
@@ -33,6 +37,7 @@ const resources = {
     dashboard: esDashboard,
     auth: esAuth,
     errors: esErrors,
+    marketing: esMarketing,
   },
   ur: {
     common: urCommon,
@@ -40,6 +45,7 @@ const resources = {
     dashboard: urDashboard,
     auth: urAuth,
     errors: urErrors,
+    marketing: urMarketing,
   },
 };
 
@@ -48,7 +54,7 @@ i18n.use(initReactI18next).init({
   lng: DEFAULT_I18N_LANGUAGE,
   fallbackLng: DEFAULT_I18N_LANGUAGE,
   supportedLngs: I18N_LANGUAGE_CODES,
-  ns: ['common', 'settings', 'dashboard', 'auth', 'errors'],
+  ns: ['common', 'settings', 'dashboard', 'auth', 'errors', 'marketing'],
   defaultNS: 'common',
   interpolation: {
     escapeValue: false,

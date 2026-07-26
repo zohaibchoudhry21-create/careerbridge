@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { motion } from 'motion/react';
+import { Trans, useTranslation } from 'react-i18next';
 import { IMAGES } from '../../config/images';
 import TextType from '../ui/TextType';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -12,12 +13,12 @@ import { Sparkles } from '../animate-ui/icons/sparkles';
 import { buttonPrimaryClass } from '../ui/buttonTokens';
 import { cn } from '../../lib/utils';
 
-function HeroCtaButton() {
+function HeroCtaButton({ label }) {
   const [hovering, setHovering] = useState(false);
 
   return (
     <Link
-      to="/login"
+      to="/register"
       className={cn(
         buttonPrimaryClass,
         'relative z-20 w-full gap-2 text-lg rounded-xl px-8 py-4 sm:w-auto'
@@ -27,7 +28,7 @@ function HeroCtaButton() {
       onFocus={() => setHovering(true)}
       onBlur={() => setHovering(false)}
     >
-      Get started for free
+      {label}
       <motion.span
         className="inline-flex shrink-0"
         animate={{ x: hovering ? 8 : 0 }}
@@ -55,13 +56,6 @@ function HeroCtaButton() {
 
 const A4_WIDTH = 794;
 const A4_HEIGHT = 1123;
-
-const heroTypingPhrases = [
-  'Yes, really',
-  'build ATS-optimized resumes.',
-  'land interviews faster.',
-  'download unlimited PDFs.',
-];
 
 const LEFT_RESUME_SCALE = 0.55;
 const RIGHT_RESUME_SCALE = 0.5;
@@ -131,6 +125,9 @@ function ScaledResumeImage({ src, alt, width, height }) {
 }
 
 export default function Hero() {
+  const { t } = useTranslation('marketing');
+  const typingPhrases = t('hero.typingPhrases', { returnObjects: true });
+
   return (
     <section className="w-full bg-surface-container reveal is-visible">
       <div className="page-container py-xl xl:py-20">
@@ -138,24 +135,24 @@ export default function Hero() {
           <div className="flex flex-col gap-6 max-w-xl">
             <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest inline-flex items-center gap-2">
               <Sparkles size={16} className="text-secondary" animateOnHover />
-              FREE ONLINE RESUME BUILDER
+              {t('hero.badge')}
             </p>
 
             <h1
               className="text-2xl sm:text-3xl xl:text-5xl font-black leading-tight text-gray-950"
               id="hero-headline"
             >
-              Build a job-winning
+              {t('hero.headlineLine1')}
               <br />
-              resume for free
+              {t('hero.headlineLine2')}
             </h1>
 
             <div className="space-y-2 text-lg text-gray-500 leading-relaxed">
-              <p>Your first resume is 100% free forever.</p>
-              <p>Unlimited downloads. No hidden fees.</p>
+              <p>{t('hero.subline1')}</p>
+              <p>{t('hero.subline2')}</p>
               <p>
                 <TextType
-                  text={heroTypingPhrases}
+                  text={Array.isArray(typingPhrases) ? typingPhrases : []}
                   as="span"
                   className="font-semibold text-secondary"
                   typingSpeed={75}
@@ -171,7 +168,7 @@ export default function Hero() {
             </div>
 
             <div>
-              <HeroCtaButton />
+              <HeroCtaButton label={t('hero.cta')} />
             </div>
 
             <div className="flex items-center gap-3 mt-8 pt-2">
@@ -185,7 +182,12 @@ export default function Hero() {
                 ))}
               </AvatarGroup>
               <p className="font-body-md text-body-md text-on-surface-variant">
-                Trusted by <span className="font-semibold">5.3 million</span> users
+                <Trans
+                  i18nKey="hero.trustLine"
+                  ns="marketing"
+                  values={{ count: t('hero.trustCount') }}
+                  components={{ strong: <strong className="font-semibold" /> }}
+                />
               </p>
             </div>
           </div>
@@ -202,7 +204,7 @@ export default function Hero() {
                 <div className="relative z-10 mt-0 -rotate-2">
                   <ScaledResumeImage
                     src={IMAGES.resumeAtlanticBlue}
-                    alt="Atlantic Blue resume preview"
+                    alt={t('hero.resumeAlt.atlanticBlue')}
                     width={LEFT_SCALED_WIDTH}
                     height={LEFT_SCALED_HEIGHT}
                   />
@@ -211,7 +213,7 @@ export default function Hero() {
                 <div className="relative z-[5] mt-16 rotate-2">
                   <ScaledResumeImage
                     src={IMAGES.resumeClassicClear}
-                    alt="Classic Clear resume preview"
+                    alt={t('hero.resumeAlt.classicClear')}
                     width={RIGHT_SCALED_WIDTH}
                     height={RIGHT_SCALED_HEIGHT}
                   />
@@ -224,10 +226,10 @@ export default function Hero() {
                 </div>
                 <div className="min-w-0">
                   <p className="font-label-md text-label-md text-on-surface leading-tight">
-                    Andrew Irwin
+                    {t('hero.socialCard.name')}
                   </p>
                   <p className="font-body-md text-body-md text-on-surface-variant text-sm leading-tight">
-                    Product Manager
+                    {t('hero.socialCard.role')}
                   </p>
                 </div>
               </div>
@@ -236,16 +238,16 @@ export default function Hero() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="font-body-md text-body-md text-on-surface-variant text-sm leading-snug">
-                      Powerful websites I wish I knew earlier:
+                      {t('hero.socialCard.tiktokLine1')}
                     </p>
                     <p className="font-label-md text-label-md text-on-surface text-sm mt-1 leading-snug">
-                      This one is a LIFESAVER
+                      {t('hero.socialCard.tiktokLine2')}
                     </p>
                   </div>
                   <TikTokIcon className="w-7 h-7 text-on-surface shrink-0" />
                 </div>
                 <p className="font-body-md text-body-md text-on-surface-variant text-xs mt-2">
-                  @maedeh.davami | 1.8 million views
+                  {t('hero.socialCard.tiktokMeta')}
                 </p>
               </div>
             </div>

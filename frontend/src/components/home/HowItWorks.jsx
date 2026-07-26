@@ -1,36 +1,13 @@
+import { useTranslation } from 'react-i18next';
 import SectionIcon from '../ui/SectionIcon';
 import { Sparkles } from '../animate-ui/icons/sparkles';
 import { CircleCheck } from '../animate-ui/icons/circle-check';
 import { ArrowRight } from '../animate-ui/icons/arrow-right';
 
-const steps = [
-  {
-    number: 1,
-    icon: 'upload_file',
-    color: 'resume',
-    title: 'Upload or Speak',
-    description:
-      'Input your raw experience via CV upload, voice note, or manual entry. We handle the heavy lifting.',
-    delay: 'delay-100',
-  },
-  {
-    number: 2,
-    color: 'focus',
-    AnimatedIcon: Sparkles,
-    title: 'Generate Profile',
-    description:
-      'AI structures your data into a master profile and generates an ATS-ready resume.',
-    delay: 'delay-300',
-  },
-  {
-    number: 3,
-    color: 'success',
-    AnimatedIcon: CircleCheck,
-    title: 'Optimize & Apply',
-    description:
-      'Target specific roles. One click adjusts your CV keywords to beat ATS filters for that exact job description.',
-    delay: 'delay-500',
-  },
+const STEP_META = [
+  { number: 1, icon: 'upload_file', color: 'resume', delay: 'delay-100' },
+  { number: 2, color: 'focus', AnimatedIcon: Sparkles, delay: 'delay-300' },
+  { number: 3, color: 'success', AnimatedIcon: CircleCheck, delay: 'delay-500' },
 ];
 
 const ICON_CARD_SIZE = 72;
@@ -69,16 +46,19 @@ function StepIcon({ icon, color, AnimatedIcon, number }) {
 }
 
 export default function HowItWorks() {
+  const { t } = useTranslation('marketing');
+  const steps = t('howItWorks.steps', { returnObjects: true });
+
   return (
-    <section className="bg-surface-container-highest py-xl">
+    <section className="bg-surface-container-highest py-xl" id="tools">
       <div className="page-container">
         <div className="reveal is-visible mb-lg text-center">
           <h2 className="inline-flex flex-wrap items-center justify-center gap-2 font-headline-lg-mobile text-headline-lg-mobile text-on-surface md:font-headline-lg md:text-headline-lg">
-            How It Works
+            {t('howItWorks.title')}
             <ArrowRight size={28} className="hidden text-secondary sm:inline" animateOnHover />
           </h2>
           <p className="mt-2 font-body-md text-body-md text-on-surface-variant">
-            From raw data to interview ready in minutes.
+            {t('howItWorks.subtitle')}
           </p>
         </div>
 
@@ -102,21 +82,24 @@ export default function HowItWorks() {
             </div>
           </div>
 
-          {steps.map((step) => (
-            <div
-              key={step.number}
-              className={`reveal relative flex max-w-xs flex-col items-center text-center ${step.delay} is-visible`}
-            >
-              <StepIcon
-                icon={step.icon}
-                color={step.color}
-                AnimatedIcon={step.AnimatedIcon}
-                number={step.number}
-              />
-              <h3 className="mb-2 font-headline-md text-headline-md text-on-surface">{step.title}</h3>
-              <p className="px-4 text-sm text-on-surface-variant">{step.description}</p>
-            </div>
-          ))}
+          {STEP_META.map((meta, index) => {
+            const step = steps[index] || {};
+            return (
+              <div
+                key={meta.number}
+                className={`reveal relative flex max-w-xs flex-col items-center text-center ${meta.delay} is-visible`}
+              >
+                <StepIcon
+                  icon={meta.icon}
+                  color={meta.color}
+                  AnimatedIcon={meta.AnimatedIcon}
+                  number={meta.number}
+                />
+                <h3 className="mb-2 font-headline-md text-headline-md text-on-surface">{step.title}</h3>
+                <p className="px-4 text-sm text-on-surface-variant">{step.description}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
