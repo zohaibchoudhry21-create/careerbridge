@@ -1,15 +1,15 @@
-export const DASHBOARD_NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', icon: 'dashboard', href: '/dashboard' },
-  { id: 'resume-builder', label: 'Resume Builder', icon: 'description', href: '/resume/templates' },
-  { id: 'resume-scanner', label: 'Resume Scanner', icon: 'document_scanner', href: '#' },
-  { id: 'interview-prep', label: 'Interview Prep', icon: 'mic_external_on', href: '/interview-prep' },
-  { id: 'linkedin', label: 'LinkedIn Optimizer', icon: 'share_reviews', href: '#' },
+export const DASHBOARD_NAV_DEFS = [
+  { id: 'dashboard', icon: 'dashboard', href: '/dashboard' },
+  { id: 'resumeBuilder', icon: 'description', href: '/resume/templates' },
+  { id: 'resumeScanner', icon: 'document_scanner', href: '#' },
+  { id: 'interviewPrep', icon: 'mic_external_on', href: '/interview-prep' },
+  { id: 'linkedinOptimizer', icon: 'share_reviews', href: '#' },
 ];
 
-export const QUICK_ACTIONS = [
-  { id: 'build-resume', label: 'Build ATS Resume', icon: 'description', href: '/resume/templates', color: 'resume' },
-  { id: 'optimize-resume', label: 'Optimize Resume', icon: 'document_scanner', color: 'scanner' },
-  { id: 'cover-letter', label: 'Create Cover Letter', icon: 'edit_note', color: 'skills' },
+export const QUICK_ACTION_DEFS = [
+  { id: 'build-resume', icon: 'description', href: '/resume/templates', color: 'resume' },
+  { id: 'optimize-resume', icon: 'document_scanner', color: 'scanner' },
+  { id: 'cover-letter', icon: 'edit_note', color: 'skills' },
 ];
 
 export const DEFAULT_AVATAR =

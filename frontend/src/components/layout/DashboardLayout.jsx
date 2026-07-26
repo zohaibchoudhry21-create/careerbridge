@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Sidebar from '../dashboard/Sidebar';
 import BrandLogo from '../brand/BrandLogo';
 import usePersistedSidebarCollapse from '../../hooks/usePersistedSidebarCollapse';
@@ -8,6 +9,7 @@ const SIDEBAR_TRANSITION =
   'transition-[width,padding] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]';
 
 export default function DashboardLayout({ children, user }) {
+  const { t } = useTranslation('common');
   const [mobileOpen, setMobileOpen] = useState(false);
   const { collapsed, toggleCollapsed } = usePersistedSidebarCollapse();
 
@@ -21,7 +23,7 @@ export default function DashboardLayout({ children, user }) {
           type="button"
           className="relative z-[60] flex items-center justify-center w-10 h-10 rounded-2xl text-on-surface hover:bg-secondary/10 hover:scale-105 active:scale-95 transition-all duration-300 shrink-0"
           onClick={toggleMobileSidebar}
-          aria-label={mobileOpen ? 'Close sidebar' : 'Open sidebar'}
+          aria-label={mobileOpen ? t('sidebar.closeSidebar') : t('sidebar.openSidebar')}
           aria-expanded={mobileOpen}
         >
           <AppIcon name={mobileOpen ? 'close' : 'menu'} size="dashboard" />
@@ -34,7 +36,7 @@ export default function DashboardLayout({ children, user }) {
           type="button"
           className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
           onClick={closeMobileSidebar}
-          aria-label="Close sidebar"
+          aria-label={t('sidebar.closeSidebar')}
         />
       )}
 

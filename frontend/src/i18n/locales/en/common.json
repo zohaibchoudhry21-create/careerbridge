@@ -1,3 +1,48 @@
 {
-  "appName": "CareerBridge"
+  "appName": "CareerBridge",
+  "nav": {
+    "aiResumeParsing": "AI Resume Parsing",
+    "cvUpload": "CV Upload",
+    "aiSuggestions": "AI Suggestions",
+    "resumeBuilder": "Resume Builder",
+    "login": "Login",
+    "uploadCv": "Upload CV",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "resumeBuilder": "Resume Builder",
+    "resumeScanner": "Resume Scanner",
+    "interviewPrep": "Interview Prep",
+    "linkedinOptimizer": "LinkedIn Optimizer",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "openSidebar": "Open sidebar",
+    "closeSidebar": "Close sidebar"
+  },
+  "accountMenu": {
+    "label": "Account menu",
+    "account": "Account",
+    "settings": "Settings",
+    "help": "Help",
+    "privacyCenter": "Privacy Center",
+    "signOut": "Sign out",
+    "logoutSuccess": "Logout successful",
+    "logoutFailed": "Logout failed. Please try again."
+  },
+  "buttons": {
+    "saveChanges": "Save Changes",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "confirm": "Confirm",
+    "tryAgain": "Try Again",
+    "closeDialog": "Close dialog"
+  },
+  "back": {
+    "toSettings": "Back to Settings"
+  },
+  "errors": {
+    "somethingWentWrong": "Something went wrong."
+  }
 }

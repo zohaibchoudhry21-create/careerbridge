@@ -2,10 +2,13 @@ import useAuth from '../../hooks/useAuth';
 import { DashboardLayout, PageContainer, PageHeader } from '../../components/layout';
 import AppIcon from '../../components/icons/AppIcon';
 import SettingCard from '../../components/settings/SettingCard';
-import { SETTINGS_DASHBOARD_CARDS } from '../../components/settings/settingsConstants';
+import { useSettingsCards } from '../../hooks/useSettingsCards';
+import { useTranslation } from 'react-i18next';
 
 export default function Settings() {
   const { user, loading } = useAuth();
+  const { t } = useTranslation('settings');
+  const settingsCards = useSettingsCards();
 
   if (loading || !user) {
     return (
@@ -20,13 +23,10 @@ export default function Settings() {
   return (
     <DashboardLayout user={user}>
       <PageContainer>
-        <PageHeader
-          title="Account"
-          description="Manage your account information, security, and preferences."
-        />
+        <PageHeader title={t('hub.title')} description={t('hub.description')} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-sm min-w-0">
-          {SETTINGS_DASHBOARD_CARDS.map((section) => (
+          {settingsCards.map((section) => (
             <SettingCard
               key={section.id}
               title={section.title}

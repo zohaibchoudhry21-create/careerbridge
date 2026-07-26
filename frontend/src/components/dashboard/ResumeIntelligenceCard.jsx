@@ -1,7 +1,10 @@
 import { memo } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import SectionIcon from '../ui/SectionIcon';
 
 function ResumeIntelligenceCard({ resumeIntelligence }) {
+  const { t } = useTranslation('dashboard');
+
   if (!resumeIntelligence) return null;
 
   const { atsOptimizationStatus, keywordGaps, aiInsight } = resumeIntelligence;
@@ -10,16 +13,16 @@ function ResumeIntelligenceCard({ resumeIntelligence }) {
     <div className="col-span-1 flex min-w-0 flex-col rounded-2xl dashboard-glass-card dashboard-card-padding lg:col-span-4">
       <div className="mb-xs flex items-center gap-2.5">
         <SectionIcon color="resume" icon="analytics" />
-        <h4 className="font-headline-section text-headline-section">Resume Intelligence</h4>
+        <h4 className="font-headline-section text-headline-section">{t('resumeIntelligence.title')}</h4>
       </div>
       <p className="mb-sm font-label-md">
-        ATS Optimization Status:{' '}
+        {t('resumeIntelligence.atsStatus')}{' '}
         <span className="font-bold text-green-600">{atsOptimizationStatus}</span>
       </p>
       <div className="flex-1 space-y-sm">
         <div>
           <p className="mb-xs text-[12px] uppercase tracking-wider text-on-surface-variant">
-            Keyword Gaps Identified
+            {t('resumeIntelligence.keywordGaps')}
           </p>
           <div className="flex flex-wrap gap-xs">
             {keywordGaps?.map((keyword) => (
@@ -33,11 +36,14 @@ function ResumeIntelligenceCard({ resumeIntelligence }) {
           </div>
         </div>
         <div className="rounded-xl border-l-4 border-secondary bg-surface-container-high p-sm">
-          <p className="text-[12px] font-bold text-secondary">AI Insight</p>
+          <p className="text-[12px] font-bold text-secondary">{t('resumeIntelligence.aiInsight')}</p>
           <p className="text-[14px]">
-            Improvement potential:{' '}
-            <span className="font-bold">{aiInsight?.improvementPotential}</span> if project
-            descriptions are quantified.
+            <Trans
+              i18nKey="resumeIntelligence.improvementPotential"
+              ns="dashboard"
+              values={{ potential: aiInsight?.improvementPotential }}
+              components={{ strong: <strong /> }}
+            />
           </p>
         </div>
       </div>

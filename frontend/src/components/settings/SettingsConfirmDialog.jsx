@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppIcon from '../icons/AppIcon';
 import Button from '../ui/Button';
 
@@ -6,13 +7,17 @@ export default function SettingsConfirmDialog({
   open,
   title,
   description,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   variant = 'primary',
   loading = false,
   onConfirm,
   onCancel,
 }) {
+  const { t } = useTranslation('common');
+  const resolvedConfirmLabel = confirmLabel || t('buttons.confirm');
+  const resolvedCancelLabel = cancelLabel || t('buttons.cancel');
+
   useEffect(() => {
     if (!open) return undefined;
 
@@ -38,7 +43,7 @@ export default function SettingsConfirmDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
-        aria-label="Close dialog"
+        aria-label={t('buttons.closeDialog')}
         className="absolute inset-0 bg-on-surface/40 backdrop-blur-[2px]"
         onClick={loading ? undefined : onCancel}
         disabled={loading}
@@ -66,7 +71,7 @@ export default function SettingsConfirmDialog({
             disabled={loading}
             className="min-h-[44px] px-4 py-2.5"
           >
-            {cancelLabel}
+            {resolvedCancelLabel}
           </Button>
           <Button
             type="button"
@@ -78,10 +83,10 @@ export default function SettingsConfirmDialog({
             {loading ? (
               <>
                 <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                {confirmLabel}...
+                {resolvedConfirmLabel}...
               </>
             ) : (
-              confirmLabel
+              resolvedConfirmLabel
             )}
           </Button>
         </div>
@@ -91,6 +96,8 @@ export default function SettingsConfirmDialog({
 }
 
 export function AccountDeletedState() {
+  const { t } = useTranslation('settings');
+
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center space-y-4">
       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
@@ -98,11 +105,9 @@ export function AccountDeletedState() {
       </div>
       <div className="space-y-2 max-w-md">
         <h2 className="font-headline-section text-headline-section text-on-surface">
-          Account deleted
+          {t('account.delete.successTitle')}
         </h2>
-        <p className="font-body-md text-on-surface-variant">
-          Your account and associated data have been permanently removed. Redirecting you now…
-        </p>
+        <p className="font-body-md text-on-surface-variant">{t('account.delete.successDescription')}</p>
       </div>
       <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
     </div>
@@ -110,6 +115,8 @@ export function AccountDeletedState() {
 }
 
 export function AccountDeactivatedState() {
+  const { t } = useTranslation('settings');
+
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center space-y-4">
       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-warning/10">
@@ -117,11 +124,9 @@ export function AccountDeactivatedState() {
       </div>
       <div className="space-y-2 max-w-md">
         <h2 className="font-headline-section text-headline-section text-on-surface">
-          Account deactivated
+          {t('account.deactivate.successTitle')}
         </h2>
-        <p className="font-body-md text-on-surface-variant">
-          Your account has been paused. Sign in anytime and confirm reactivation to restore access.
-        </p>
+        <p className="font-body-md text-on-surface-variant">{t('account.deactivate.successDescription')}</p>
       </div>
       <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
     </div>

@@ -1,20 +1,25 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import useAuth from '../../hooks/useAuth';
 import AppIcon from '../icons/AppIcon';
 
-const MENU_ITEMS = [
-  { id: 'settings', label: 'Settings', icon: 'settings', type: 'route', to: '/settings' },
-  { id: 'help', label: 'Help', icon: 'help', type: 'placeholder', href: '#' },
-  { id: 'privacy', label: 'Privacy Center', icon: 'shield', type: 'placeholder', href: '#' },
-];
-
 export default function AccountIconButton({ className = '' }) {
+  const { t } = useTranslation('common');
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
+
+  const menuItems = useMemo(
+    () => [
+      { id: 'settings', label: t('accountMenu.settings'), icon: 'settings', type: 'route', to: '/settings' },
+      { id: 'help', label: t('accountMenu.help'), icon: 'help', type: 'placeholder', href: '#' },
+      { id: 'privacy', label: t('accountMenu.privacyCenter'), icon: 'shield', type: 'placeholder', href: '#' },
+    ],
+    [t]
+  );
 
   const closeMenu = useCallback(() => setOpen(false), []);
 
@@ -56,9 +61,9 @@ export default function AccountIconButton({ className = '' }) {
 
     try {
       await logout();
-      toast.success('Logout successful');
+      toast.success(t('accountMenu.logoutSuccess'));
     } catch {
-      toast.error('Logout failed. Please try again.');
+      toast.error(t('accountMenu.logoutFailed'));
     }
   };
 
@@ -67,7 +72,7 @@ export default function AccountIconButton({ className = '' }) {
       <button
         type="button"
         onClick={handleToggle}
-        aria-label="Account menu"
+        aria-label={t('accountMenu.label')}
         aria-haspopup="menu"
         aria-expanded={open}
         className={`inline-flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-high border text-on-surface-variant transition-colors ${
@@ -82,15 +87,17 @@ export default function AccountIconButton({ className = '' }) {
       {open ? (
         <div
           role="menu"
-          aria-label="Account menu"
+          aria-label={t('accountMenu.label')}
           className="absolute right-0 top-full z-50 mt-2 w-[min(260px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-outline-variant/40 bg-white py-2 shadow-level-2"
         >
           <div className="border-b border-outline-variant/30 px-4 py-3">
-            <p className="font-label-md font-bold text-on-surface truncate">{user?.email || 'Account'}</p>
+            <p className="font-label-md font-bold text-on-surface truncate">
+              {user?.email || t('accountMenu.account')}
+            </p>
           </div>
 
           <div className="py-1">
-            {MENU_ITEMS.map((item) => {
+            {menuItems.map((item) => {
               if (item.type === 'route') {
                 return (
                   <button
@@ -129,7 +136,7 @@ export default function AccountIconButton({ className = '' }) {
               className="flex w-full items-center gap-3 px-4 py-2.5 text-left font-label-md text-on-surface hover:bg-surface-container transition-colors"
             >
               <AppIcon name="logout" size="nav" className="text-on-surface-variant" />
-              Sign out
+              {t('accountMenu.signOut')}
             </button>
           </div>
         </div>

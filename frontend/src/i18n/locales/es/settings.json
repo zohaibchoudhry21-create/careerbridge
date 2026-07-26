@@ -1,1 +1,295 @@
-{}
+{
+  "hub": {
+    "title": "Cuenta",
+    "description": "Administra la información de tu cuenta, seguridad y preferencias.",
+    "cards": {
+      "personal-information": {
+        "title": "Información personal",
+        "description": "Actualiza tus datos personales e información de perfil."
+      },
+      "login-security": {
+        "title": "Inicio de sesión y seguridad",
+        "description": "Administra tu contraseña y protege tu cuenta."
+      },
+      "appearance": {
+        "title": "Apariencia e idioma",
+        "description": "Personaliza el tema, idioma y preferencias de visualización."
+      },
+      "account-management": {
+        "title": "Administración de cuenta",
+        "description": "Desactivar, eliminar, exportar datos o cerrar sesión."
+      }
+    }
+  },
+  "personal": {
+    "title": "Información personal",
+    "description": "Actualiza los detalles de tu perfil, información de contacto y enlaces profesionales.",
+    "profilePhoto": "Foto de perfil",
+    "personalDetails": "Datos personales",
+    "location": "Ubicación",
+    "professional": "Profesional",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "email": "Correo electrónico",
+    "phone": "Número de teléfono",
+    "dateOfBirth": "Fecha de nacimiento",
+    "gender": "Género",
+    "country": "País",
+    "state": "Estado/Provincia",
+    "city": "Ciudad",
+    "linkedin": "URL de LinkedIn",
+    "portfolio": "Sitio web de portafolio",
+    "headline": "Titular profesional",
+    "genderOptions": {
+      "male": "Masculino",
+      "female": "Femenino",
+      "nonBinary": "No binario",
+      "preferNotToSay": "Prefiero no decirlo"
+    },
+    "countryOptions": {
+      "unitedStates": "Estados Unidos",
+      "canada": "Canadá",
+      "unitedKingdom": "Reino Unido",
+      "india": "India",
+      "australia": "Australia"
+    },
+    "stateOptions": {
+      "california": "California",
+      "newYork": "Nueva York",
+      "texas": "Texas",
+      "washington": "Washington",
+      "illinois": "Illinois"
+    },
+    "toasts": {
+      "nameRequired": "El nombre y apellido son obligatorios.",
+      "saveSuccess": "Información personal guardada correctamente.",
+      "saveError": "No se pudieron guardar los cambios. Inténtalo de nuevo.",
+      "discarded": "Cambios descartados."
+    }
+  },
+  "loginSecurity": {
+    "title": "Inicio de sesión y seguridad",
+    "description": "Actualiza tu contraseña, administra preferencias de seguridad y revisa sesiones activas.",
+    "changePassword": "Cambiar contraseña",
+    "password": {
+      "title": "Contraseña",
+      "descriptionLocal": "Elige una contraseña segura que no uses en otros sitios.",
+      "descriptionSocial": "Tu cuenta usa inicio de sesión social. Administra tu contraseña con tu proveedor.",
+      "current": "Contraseña actual",
+      "new": "Nueva contraseña",
+      "confirm": "Confirmar contraseña",
+      "socialNote": "Sesión iniciada con {{provider}}. Los cambios de contraseña los gestiona tu proveedor de identidad, no CareerBridge."
+    },
+    "twoFactor": {
+      "title": "Autenticación de dos factores",
+      "description": "Requiere un código de aplicación autenticadora al iniciar sesión en dispositivos no confiables."
+    },
+    "securityPrefs": {
+      "title": "Preferencias de seguridad",
+      "description": "Protecciones adicionales para tu cuenta.",
+      "loginAlerts": "Alertas de inicio de sesión",
+      "loginAlertsDescription": "Recibe notificaciones cuando alguien inicie sesión desde un dispositivo o IP desconocidos.",
+      "rememberDevices": "Recordar dispositivos",
+      "rememberDevicesDescription": "Marca dispositivos de confianza para omitir correos de alerta en navegadores familiares."
+    },
+    "sessions": {
+      "title": "Sesiones activas",
+      "description": "Dispositivos con sesión iniciada en tu cuenta.",
+      "passwordNote": "Cambiar tu contraseña elimina la confianza de dispositivos y cierra sesión en otros navegadores.",
+      "loadError": "No se pudieron cargar las sesiones activas. Actualiza la página e inténtalo de nuevo.",
+      "empty": "No se encontraron sesiones activas. Inicia sesión de nuevo para actualizar esta lista.",
+      "thisDevice": "Este dispositivo",
+      "trusted": "De confianza",
+      "ip": "IP: {{ip}}",
+      "unknownIp": "Desconocida",
+      "signedIn": "Inicio de sesión: {{date}}",
+      "lastActive": "Última actividad: {{date}}",
+      "removeTrust": "Quitar confianza",
+      "trustDevice": "Confiar en dispositivo",
+      "signOut": "Cerrar sesión",
+      "signOutDevice": "Cerrar sesión en dispositivo",
+      "signOutAllOthers": "Cerrar sesión en todos los demás dispositivos"
+    },
+    "toasts": {
+      "passwordSocialOnly": "Los cambios de contraseña solo están disponibles para cuentas con correo y contraseña.",
+      "passwordFieldsRequired": "Completa todos los campos de contraseña.",
+      "passwordWeak": "Elige una contraseña más segura.",
+      "passwordMismatch": "La nueva contraseña y la confirmación no coinciden.",
+      "passwordChanged": "Contraseña cambiada correctamente.",
+      "passwordChangeError": "No se pudo cambiar la contraseña. Inténtalo de nuevo.",
+      "discarded": "Cambios descartados.",
+      "loginAlertsOn": "Alertas de inicio de sesión activadas.",
+      "loginAlertsOff": "Alertas de inicio de sesión desactivadas.",
+      "loginAlertsError": "No se pudieron actualizar las alertas de inicio de sesión.",
+      "rememberOn": "Recordar dispositivos activado.",
+      "rememberOff": "Recordar dispositivos desactivado.",
+      "rememberError": "No se pudo actualizar Recordar dispositivos.",
+      "signedOut": "Has cerrado sesión.",
+      "deviceSignedOut": "Dispositivo desconectado.",
+      "signOutDeviceError": "No se pudo cerrar sesión en ese dispositivo.",
+      "noOtherSessions": "No hay otras sesiones activas para cerrar.",
+      "othersSignedOut": "Se cerró sesión en los demás dispositivos.",
+      "signOutOthersError": "No se pudieron cerrar las demás sesiones.",
+      "trustRememberRequired": "Activa Recordar dispositivos antes de confiar en un dispositivo.",
+      "trustAdded": "Dispositivo marcado como de confianza.",
+      "trustRemoved": "Confianza del dispositivo eliminada.",
+      "trustError": "No se pudo actualizar la confianza del dispositivo."
+    }
+  },
+  "appearance": {
+    "title": "Apariencia e idioma",
+    "description": "Personaliza cómo se ve CareerBridge y cómo muestra la información.",
+    "savePreferences": "Guardar preferencias",
+    "resetToDefault": "Restablecer valores predeterminados",
+    "theme": {
+      "title": "Tema",
+      "light": "Claro",
+      "lightDescription": "Interfaz brillante para uso diurno.",
+      "dark": "Oscuro",
+      "darkDescription": "Menos deslumbramiento en entornos con poca luz.",
+      "system": "Sistema",
+      "systemDescription": "Coincidir con la configuración de tu dispositivo."
+    },
+    "languageRegion": {
+      "title": "Idioma y región",
+      "language": "Idioma",
+      "timezone": "Zona horaria",
+      "dateFormat": "Formato de fecha",
+      "timeFormat": "Formato de hora",
+      "languages": {
+        "enUS": "Inglés (EE. UU.)",
+        "enGB": "Inglés (RU)",
+        "es": "Español"
+      },
+      "timezones": {
+        "pacific": "Hora del Pacífico (PT)",
+        "eastern": "Hora del Este (ET)",
+        "central": "Hora Central (CT)",
+        "utc": "UTC",
+        "gmt": "GMT"
+      },
+      "timeFormats": {
+        "12h": "12 horas",
+        "24h": "24 horas"
+      }
+    },
+    "accessibility": {
+      "title": "Accesibilidad",
+      "largeText": "Texto grande",
+      "highContrast": "Alto contraste",
+      "reduceAnimations": "Reducir animaciones"
+    },
+    "toasts": {
+      "saveSuccess": "Preferencias de apariencia guardadas correctamente.",
+      "saveError": "No se pudieron guardar las preferencias.",
+      "reset": "Preferencias restablecidas a los valores predeterminados."
+    }
+  },
+  "account": {
+    "title": "Administración de cuenta",
+    "description": "Administra el estado de la cuenta, exportación de datos y opciones de cierre de sesión.",
+    "export": {
+      "title": "Exportar datos",
+      "description": "Descarga una copia de tu perfil, currículums y actividad de la cuenta.",
+      "archiveTitle": "Archivo portable de cuenta",
+      "archiveDescription": "Recibe un archivo ZIP con tu perfil, currículums e historial de sesiones sanitizado. Limitado a una exportación cada 24 horas.",
+      "includes": {
+        "profile": "Perfil e información personal",
+        "resumes": "Currículums creados",
+        "sessions": "Historial de sesiones sanitizado"
+      },
+      "preparing": "Preparando...",
+      "download": "Descargar mis datos",
+      "dialogTitle": "¿Descargar tus datos?",
+      "dialogDescription": "Prepararemos un archivo ZIP con tu perfil, currículums e historial de sesiones sanitizado. Excluye contraseñas y secretos de seguridad. Puedes solicitar otra exportación después de 24 horas.",
+      "downloadStarted": "Descarga iniciada ({{filename}})."
+    },
+    "deactivate": {
+      "title": "Desactivar cuenta",
+      "description": "Desactiva temporalmente tu cuenta. Tus datos se conservarán y podrás reactivarla en cualquier momento.",
+      "pauseTitle": "Pausar tu cuenta",
+      "pauseDescription": "Se cerrará sesión en todos los dispositivos. Para volver a iniciar sesión, deberás confirmar explícitamente la reactivación; no restauraremos el acceso automáticamente.",
+      "deactivating": "Desactivando...",
+      "button": "Desactivar cuenta",
+      "dialogTitle": "¿Desactivar tu cuenta?",
+      "dialogDescription": "Se cerrará sesión en todos lados. Tus datos permanecen guardados, pero volver a iniciar sesión requerirá confirmar la reactivación explícitamente.",
+      "confirm": "Desactivar",
+      "cancel": "Mantener cuenta activa",
+      "successTitle": "Cuenta desactivada",
+      "successDescription": "Tu cuenta ha sido pausada. Inicia sesión en cualquier momento y confirma la reactivación para restaurar el acceso."
+    },
+    "signOut": {
+      "title": "Cerrar sesión",
+      "description": "Cierra sesión en este dispositivo. Tu sesión terminará aquí y en el servidor.",
+      "endSession": "Finalizar esta sesión",
+      "signedInAs": "Sesión iniciada como",
+      "button": "Cerrar sesión",
+      "dialogTitle": "¿Cerrar sesión en CareerBridge?",
+      "dialogDescription": "Deberás iniciar sesión de nuevo para acceder a tu cuenta en este dispositivo.",
+      "confirm": "Cerrar sesión",
+      "cancel": "Permanecer conectado",
+      "success": "Has cerrado sesión."
+    },
+    "delete": {
+      "title": "Eliminar cuenta",
+      "description": "Elimina permanentemente tu cuenta y todos los datos asociados.",
+      "permanentTitle": "Esta acción es permanente",
+      "permanentDescription": "Todos los currículums, preferencias, sesiones e historial de {{email}} se eliminarán y no se podrán recuperar.",
+      "acknowledge": "Entiendo que esta acción no se puede deshacer y que todos mis datos se eliminarán permanentemente.",
+      "confirmPassword": "Confirma con tu contraseña",
+      "confirmEmail": "Confirma el correo de tu cuenta",
+      "confirmPhrase": "Frase de confirmación",
+      "phraseHint": "Escribe {{phrase}} exactamente. Por seguridad, debes haber iniciado sesión recientemente con tu proveedor.",
+      "requirementsMet": "Requisitos cumplidos. Puedes eliminar tu cuenta.",
+      "requirementsPending": "Completa todos los requisitos anteriores para habilitar la eliminación.",
+      "deleting": "Eliminando cuenta...",
+      "button": "Eliminar cuenta permanentemente",
+      "successTitle": "Cuenta eliminada",
+      "successDescription": "Tu cuenta y los datos asociados se eliminaron permanentemente. Redirigiendo…",
+      "errors": {
+        "acknowledge": "Confirma que entiendes que esta acción no se puede deshacer.",
+        "password": "Ingresa tu contraseña para confirmar la eliminación de la cuenta.",
+        "email": "El correo debe coincidir exactamente con el de tu cuenta.",
+        "phrase": "Escribe \"{{phrase}}\" para confirmar.",
+        "generic": "No se pudo eliminar la cuenta."
+      }
+    },
+    "toasts": {
+      "logoutFailed": "No se pudo cerrar la sesión. Inténtalo de nuevo.",
+      "deactivateError": "No se pudo desactivar la cuenta.",
+      "exportError": "No se pudieron exportar tus datos."
+    }
+  },
+  "twoFactor": {
+    "recoveryMessage": "Si pierdes tu autenticador y todos los códigos de respaldo, contacta al soporte desde tu correo registrado para que verifiquemos tu identidad y desactivemos manualmente la autenticación de dos factores.",
+    "backupCodesTitle": "Guarda estos códigos de respaldo ahora",
+    "backupCodesDescription": "Cada código funciona una vez. Guárdalos en un lugar seguro; no se mostrarán de nuevo.",
+    "enabled": "La autenticación de dos factores está <strong>activada</strong> en tu cuenta.",
+    "regenerateTitle": "Regenerar códigos de respaldo",
+    "currentPassword": "Contraseña actual",
+    "authenticatorCode": "Código del autenticador",
+    "regenerateButton": "Regenerar códigos de respaldo",
+    "disableTitle": "Desactivar autenticación de dos factores",
+    "disableButton": "Desactivar 2FA",
+    "enableButton": "Activar autenticación de dos factores",
+    "manualEntryKey": "Clave de entrada manual",
+    "scanQr": "Escanea el código QR o ingresa la clave en Google Authenticator, Authy o una app compatible.",
+    "verificationCode": "Código de verificación",
+    "confirmEnable": "Confirmar y activar",
+    "toasts": {
+      "setupStarted": "Escanea el código QR con tu aplicación autenticadora.",
+      "setupStartError": "No se pudo iniciar la configuración de dos factores.",
+      "invalidCode": "Ingresa el código de 6 dígitos de tu aplicación autenticadora.",
+      "enabled": "La autenticación de dos factores está activada.",
+      "confirmError": "No se pudo confirmar la configuración de dos factores.",
+      "disableCodeRequired": "Ingresa tu código del autenticador para desactivar 2FA.",
+      "disablePasswordRequired": "Ingresa tu contraseña para desactivar 2FA.",
+      "disabled": "Autenticación de dos factores desactivada.",
+      "disableError": "No se pudo desactivar la autenticación de dos factores.",
+      "regenCodeRequired": "Ingresa tu código actual de 6 dígitos del autenticador.",
+      "regenPasswordRequired": "Ingresa tu contraseña para regenerar los códigos de respaldo.",
+      "regenSuccess": "Nuevos códigos de respaldo generados.",
+      "regenError": "No se pudieron regenerar los códigos de respaldo."
+    }
+  }
+}

@@ -1,19 +1,22 @@
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QUICK_ACTIONS } from './dashboardConstants';
+import { useTranslation } from 'react-i18next';
+import { useQuickActions } from '../../hooks/useDashboardNav';
 import SectionIcon from '../ui/SectionIcon';
 
 function QuickActions() {
   const navigate = useNavigate();
+  const { t } = useTranslation('dashboard');
+  const quickActions = useQuickActions();
 
   return (
     <section className="min-w-0">
       <div className="mb-sm flex items-center gap-2.5">
         <SectionIcon color="settings" icon="bolt" />
-        <h3 className="font-headline-section text-headline-section">Accelerated Tools</h3>
+        <h3 className="font-headline-section text-headline-section">{t('quickActions.sectionTitle')}</h3>
       </div>
       <div className="grid w-full min-w-0 grid-cols-2 gap-xs sm:grid-cols-3 sm:gap-sm lg:grid-cols-3 xl:grid-cols-5">
-        {QUICK_ACTIONS.map(({ id, label, icon, href, color = 'resume' }) => (
+        {quickActions.map(({ id, label, icon, href, color = 'resume' }) => (
           <button
             key={id}
             type="button"

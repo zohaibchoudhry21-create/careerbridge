@@ -1,3 +1,48 @@
 {
-  "appName": "CareerBridge"
+  "appName": "CareerBridge",
+  "nav": {
+    "aiResumeParsing": "Análisis de currículum con IA",
+    "cvUpload": "Subir CV",
+    "aiSuggestions": "Sugerencias de IA",
+    "resumeBuilder": "Creador de currículum",
+    "login": "Iniciar sesión",
+    "uploadCv": "Subir CV",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú"
+  },
+  "sidebar": {
+    "dashboard": "Panel",
+    "resumeBuilder": "Creador de currículum",
+    "resumeScanner": "Escáner de currículum",
+    "interviewPrep": "Preparación para entrevistas",
+    "linkedinOptimizer": "Optimizador de LinkedIn",
+    "expandSidebar": "Expandir barra lateral",
+    "collapseSidebar": "Contraer barra lateral",
+    "openSidebar": "Abrir barra lateral",
+    "closeSidebar": "Cerrar barra lateral"
+  },
+  "accountMenu": {
+    "label": "Menú de cuenta",
+    "account": "Cuenta",
+    "settings": "Configuración",
+    "help": "Ayuda",
+    "privacyCenter": "Centro de privacidad",
+    "signOut": "Cerrar sesión",
+    "logoutSuccess": "Sesión cerrada correctamente",
+    "logoutFailed": "No se pudo cerrar la sesión. Inténtalo de nuevo."
+  },
+  "buttons": {
+    "saveChanges": "Guardar cambios",
+    "cancel": "Cancelar",
+    "saving": "Guardando...",
+    "confirm": "Confirmar",
+    "tryAgain": "Reintentar",
+    "closeDialog": "Cerrar diálogo"
+  },
+  "back": {
+    "toSettings": "Volver a configuración"
+  },
+  "errors": {
+    "somethingWentWrong": "Algo salió mal."
+  }
 }
