@@ -1,15 +1,17 @@
+import { useTranslation } from 'react-i18next';
 import { RESUME_TEMPLATES } from '../../../data/resumeTemplates';
 import { ScaledTemplatePreview } from '../../TemplatePreviewLayouts';
 import CustomizeSectionCard from '../CustomizeSectionCard';
 import { useCustomizeDispatch } from '../useCustomizeDispatch';
 
 export default function TemplatesSection() {
+  const { t } = useTranslation('resumeBuilder');
   const { templateId, dispatch } = useCustomizeDispatch();
 
   return (
     <CustomizeSectionCard
-      title="Templates"
-      description="Choose a layout. You can switch templates at any time."
+      title={t('customize.templates.title')}
+      description={t('customize.templates.description')}
     >
       <div className="grid grid-cols-2 gap-md">
         {RESUME_TEMPLATES.map((template) => {
@@ -32,7 +34,7 @@ export default function TemplatesSection() {
                   isSelected ? 'text-secondary' : 'text-on-surface'
                 }`}
               >
-                {template.name}
+                {t(`templates.${template.id}.name`, { defaultValue: template.name })}
               </p>
             </button>
           );

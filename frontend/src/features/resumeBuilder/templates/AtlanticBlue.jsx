@@ -366,6 +366,7 @@ export default function AtlanticBlue({ resumeData, className = '', customize }) 
 
   return (
     <article
+      dir="ltr"
       className={`flex min-w-0 ${className}`}
       style={{
         width: A4_WIDTH,

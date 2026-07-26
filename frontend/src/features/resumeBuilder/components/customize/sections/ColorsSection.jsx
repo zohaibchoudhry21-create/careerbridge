@@ -1,14 +1,19 @@
+import { useTranslation } from 'react-i18next';
 import { ACCENT_COLOR_PRESETS } from '../../../data/resumeCustomizeDefaults';
 import CustomizeSectionCard from '../CustomizeSectionCard';
 import { useCustomizeDispatch } from '../useCustomizeDispatch';
 
 export default function ColorsSection() {
+  const { t } = useTranslation('resumeBuilder');
   const { customize, updateCustomize } = useCustomizeDispatch();
 
   return (
-    <CustomizeSectionCard title="Colors" description="Pick an accent color for headings and highlights.">
+    <CustomizeSectionCard
+      title={t('customize.colors.title')}
+      description={t('customize.colors.description')}
+    >
       <div className="space-y-md">
-        <p className="text-on-surface-variant text-sm">Preset colors</p>
+        <p className="text-on-surface-variant text-sm">{t('customize.colors.presetColors')}</p>
         <div className="flex flex-wrap gap-3">
           {ACCENT_COLOR_PRESETS.map((preset) => {
             const isSelected = customize.accentColor === preset.value;
@@ -29,7 +34,7 @@ export default function ColorsSection() {
         </div>
 
         <label className="block space-y-2">
-          <span className="text-on-surface-variant text-sm">Custom color</span>
+          <span className="text-on-surface-variant text-sm">{t('customize.colors.customColor')}</span>
           <div className="flex items-center gap-md">
             <input
               type="color"

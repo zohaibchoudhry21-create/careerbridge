@@ -12,7 +12,7 @@ import EditorPreviewScaler from './EditorPreviewScaler';
 
 function PreviewFrame({ children }) {
   return (
-    <div className="mx-auto w-full max-w-[794px]">
+    <div className="mx-auto w-full max-w-[794px]" dir="ltr">
       <div className="rounded-xl border border-outline-variant/40 bg-white shadow-sm overflow-hidden">
         <EditorPreviewScaler>{children}</EditorPreviewScaler>
       </div>
@@ -224,6 +224,7 @@ export default function ResumePreview({ templateId, personalDetails, sections, c
     <PreviewFrame>
       <div
         id="resume-preview-document"
+        dir="ltr"
         className="min-h-[297mm]"
         style={{ background: colors.background }}
       >

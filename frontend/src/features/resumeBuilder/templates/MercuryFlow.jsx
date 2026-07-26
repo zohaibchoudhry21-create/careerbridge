@@ -340,6 +340,7 @@ export default function MercuryFlow({ resumeData, className = '', customize }) {
 
   return (
     <article
+      dir="ltr"
       className={className}
       style={{
         width: A4_WIDTH,

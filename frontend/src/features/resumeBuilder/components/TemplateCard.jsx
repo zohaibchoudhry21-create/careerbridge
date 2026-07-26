@@ -1,7 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { getTemplateById } from '../data/resumeTemplates';
 import { ScaledTemplatePreview, TemplateLargeScaledPreview } from './TemplatePreviewLayouts';
 
 export default function TemplateCard({ template, onClick }) {
+  const { t } = useTranslation('resumeBuilder');
+
   return (
     <button
       type="button"
@@ -10,7 +13,7 @@ export default function TemplateCard({ template, onClick }) {
     >
       <ScaledTemplatePreview template={template} />
       <p className="mt-3 font-label-md text-label-md text-on-surface group-hover:text-secondary transition-colors">
-        {template.name}
+        {t(`templates.${template.id}.name`, { defaultValue: template.name })}
       </p>
     </button>
   );

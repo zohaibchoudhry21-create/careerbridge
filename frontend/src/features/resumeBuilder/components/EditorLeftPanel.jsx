@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import AppIcon from '../../../components/icons/AppIcon';
 import { getPersonalPhoto } from '../utils/personalDetailsPhoto';
 import { useResumeEditor } from '../context/ResumeEditorContext';
 import { SECTION_ICONS } from '../data/resumeSectionTypes';
 import { useSuggestResumeSkills } from '../hooks/useResumeBuilder';
+import { resolveApiError } from '../../../utils/apiError';
 import PersonalDetailsEditor from './PersonalDetailsEditor';
 import EditEntryPanel from './EditEntryPanel';
 import AddContentModal from './AddContentModal';
@@ -20,6 +22,8 @@ function SectionAccordion({
   onSuggestSkills,
   suggestSkillsLoading,
 }) {
+  const { t } = useTranslation('resumeBuilder');
+
   return (
     <div className="rounded-2xl border border-outline-variant/40 bg-white overflow-hidden shadow-sm">
       <button
@@ -49,7 +53,7 @@ function SectionAccordion({
             >
               {section.entries.length > 1 && (
                 <p className="font-label-sm text-on-surface-variant mb-2">
-                  Entry {index + 1}
+                  {t('editorPanel.entryNumber', { number: index + 1 })}
                 </p>
               )}
               <EditEntryPanel
@@ -67,7 +71,7 @@ function SectionAccordion({
               onClick={onAddEntry}
               className="font-label-sm text-secondary hover:underline"
             >
-              + Add Entry
+              {t('editorPanel.addEntry')}
             </button>
             {section.type === 'expertise' && (
               <button
@@ -76,14 +80,14 @@ function SectionAccordion({
                 onClick={onSuggestSkills}
                 className="rounded-full bg-surface-container text-secondary px-sm py-1 font-label-sm hover:bg-surface-container-high disabled:opacity-50"
               >
-                AI Skill Suggestions
+                {t('editorPanel.aiSkillSuggestions')}
               </button>
             )}
             <button
               type="button"
               onClick={onDeleteSection}
               className="ml-auto text-on-surface-variant hover:text-error"
-              aria-label="Delete section"
+              aria-label={t('editorPanel.deleteSection')}
             >
               <AppIcon name="delete" size="button" />
             </button>
@@ -95,6 +99,7 @@ function SectionAccordion({
 }
 
 export default function EditorLeftPanel({ personalDetailsTrigger = 0 }) {
+  const { t } = useTranslation('resumeBuilder');
   const { state, dispatch } = useResumeEditor();
   const suggestSkills = useSuggestResumeSkills();
   const [personalOpen, setPersonalOpen] = useState(false);
@@ -114,14 +119,14 @@ export default function EditorLeftPanel({ personalDetailsTrigger = 0 }) {
       const skills = result.suggestions || [];
 
       if (!skills.length) {
-        toast.info('No new skill suggestions right now.');
+        toast.info(t('toasts.noSkillSuggestions'));
         return;
       }
 
       dispatch({ type: 'ADD_SKILLS', sectionId, skills });
-      toast.success(`Added ${skills.length} skill suggestions.`);
+      toast.success(t('toasts.skillsAdded', { count: skills.length }));
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Could not fetch skill suggestions.');
+      toast.error(resolveApiError(error, t('toasts.skillSuggestionsFailed')));
     }
   };
 
@@ -133,13 +138,13 @@ export default function EditorLeftPanel({ personalDetailsTrigger = 0 }) {
             type="button"
             onClick={() => setPersonalOpen(true)}
             className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-on-secondary hover:bg-secondary-container transition-colors shadow-sm"
-            aria-label="Edit personal details"
+            aria-label={t('editorPanel.editPersonalDetails')}
           >
             <AppIcon name="edit" size="button" />
           </button>
 
           <p className="font-headline-section text-headline-section text-on-surface pr-12">
-            {state.personalDetails.fullName || 'Your Name'}
+            {state.personalDetails.fullName || t('editorPanel.yourNamePlaceholder')}
           </p>
           {state.personalDetails.professionalTitle && (
             <p className="font-body-sm text-on-surface-variant mt-0.5">
@@ -184,7 +189,7 @@ export default function EditorLeftPanel({ personalDetailsTrigger = 0 }) {
         {state.sections.length === 0 && (
           <div className="rounded-2xl border border-dashed border-outline-variant bg-white p-4 text-center">
             <p className="font-body-sm text-on-surface-variant">
-              No sections yet. Import a CV or add content below.
+              {t('editorPanel.noSections')}
             </p>
           </div>
         )}
@@ -216,14 +221,14 @@ export default function EditorLeftPanel({ personalDetailsTrigger = 0 }) {
           onClick={() => setAddContentOpen(true)}
           className="w-full rounded-xl bg-secondary py-3 font-label-md text-on-secondary hover:bg-secondary-container transition-colors shadow-sm"
         >
-          + Add Content
+          {t('editorPanel.addContent')}
         </button>
       </div>
 
       <ResumeModal
         open={personalOpen}
         onClose={() => setPersonalOpen(false)}
-        title="Personal Details"
+        title={t('editorPanel.personalDetails')}
         size="lg"
       >
         <div className="p-md">

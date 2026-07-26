@@ -1,6 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { SIDEBAR_ITEMS } from './constants';
 
 export default function CustomizeSidebar({ activeSection, onSectionChange, showPhoto }) {
+  const { t } = useTranslation('resumeBuilder');
+
   return (
     <nav className="w-44 shrink-0 border-r border-outline-variant overflow-y-auto bg-surface py-sm">
       <ul className="space-y-0.5">
@@ -20,7 +23,7 @@ export default function CustomizeSidebar({ activeSection, onSectionChange, showP
                     : 'text-on-surface-variant border-transparent hover:text-on-surface hover:bg-surface-container-low'
                 } ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}
               >
-                {item.label}
+                {t(`customize.sidebar.${item.id}`)}
               </button>
             </li>
           );

@@ -1,36 +1,38 @@
+import { useTranslation } from 'react-i18next';
 import AppIcon from '../../../../../components/icons/AppIcon';
 import CustomizeButtonGroup from '../CustomizeButtonGroup';
 import CustomizeSectionCard from '../CustomizeSectionCard';
 import { useCustomizeDispatch } from '../useCustomizeDispatch';
 
-const PHOTO_SHAPE_OPTIONS = [
-  {
-    value: 'circle',
-    label: 'Circle',
-    preview: <AppIcon name="account_circle" size="h-[22px] w-[22px]" />,
-  },
-  {
-    value: 'square',
-    label: 'Square',
-    preview: <AppIcon name="crop_square" size="h-[22px] w-[22px]" />,
-  },
-];
-
 export default function PhotoSection() {
+  const { t } = useTranslation('resumeBuilder');
   const { customize, updateCustomize } = useCustomizeDispatch();
+
+  const photoShapeOptions = [
+    {
+      value: 'circle',
+      label: t('customize.photo.circle'),
+      preview: <AppIcon name="account_circle" size="h-[22px] w-[22px]" />,
+    },
+    {
+      value: 'square',
+      label: t('customize.photo.square'),
+      preview: <AppIcon name="crop_square" size="h-[22px] w-[22px]" />,
+    },
+  ];
 
   return (
     <div className={customize.showPhoto ? '' : 'opacity-50 pointer-events-none'}>
       <CustomizeSectionCard
-        title="Photo"
+        title={t('customize.photo.title')}
         description={
           customize.showPhoto
-            ? 'Choose how your profile photo is displayed.'
-            : 'Enable Show photo in Header to edit photo shape.'
+            ? t('customize.photo.descriptionEnabled')
+            : t('customize.photo.descriptionDisabled')
         }
       >
         <CustomizeButtonGroup
-          options={PHOTO_SHAPE_OPTIONS}
+          options={photoShapeOptions}
           value={customize.photoShape}
           onChange={(value) => updateCustomize('photoShape', value)}
         />

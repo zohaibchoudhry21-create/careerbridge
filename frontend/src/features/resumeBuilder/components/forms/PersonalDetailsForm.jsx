@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppIcon from '../../../../components/icons/AppIcon';
 import { toast } from 'react-toastify';
 import { PERSONAL_EXTRA_FIELD_OPTIONS } from '../../data/resumeSectionTypes';
@@ -20,6 +21,7 @@ function FieldRow({ label, children }) {
 }
 
 function ProfilePhotoUpload({ photo, onPhotoChange }) {
+  const { t } = useTranslation('resumeBuilder');
   const photoInputRef = useRef(null);
   const hasPhoto = Boolean(photo);
 
@@ -33,7 +35,7 @@ function ProfilePhotoUpload({ photo, onPhotoChange }) {
       const base64 = await readProfilePhotoAsBase64(file);
       onPhotoChange(base64);
     } catch (error) {
-      toast.error(error.message || 'Could not upload photo.');
+      toast.error(error.message || t('toasts.uploadPhotoFailed'));
     }
   };
 
@@ -44,12 +46,12 @@ function ProfilePhotoUpload({ photo, onPhotoChange }) {
         onClick={() => photoInputRef.current?.click()}
         className="group relative rounded-full border border-outline-variant bg-surface-container overflow-hidden shrink-0"
         style={{ width: PROFILE_PHOTO_SIZE, height: PROFILE_PHOTO_SIZE }}
-        aria-label="Upload profile photo"
+        aria-label={t('personalDetails.uploadPhoto')}
       >
         {hasPhoto ? (
           <img
             src={photo}
-            alt="Profile"
+            alt=""
             className="h-full w-full object-cover"
             style={{ borderRadius: '50%' }}
           />
@@ -76,7 +78,7 @@ function ProfilePhotoUpload({ photo, onPhotoChange }) {
         onChange={handleFileChange}
       />
 
-      <p className="font-body-sm text-on-surface-variant">Click to upload profile photo</p>
+      <p className="font-body-sm text-on-surface-variant">{t('personalDetails.uploadPhotoHint')}</p>
 
       {hasPhoto ? (
         <button
@@ -84,7 +86,7 @@ function ProfilePhotoUpload({ photo, onPhotoChange }) {
           onClick={() => onPhotoChange('')}
           className="font-label-sm text-error hover:underline"
         >
-          Remove photo
+          {t('personalDetails.removePhoto')}
         </button>
       ) : null}
     </div>
@@ -92,6 +94,7 @@ function ProfilePhotoUpload({ photo, onPhotoChange }) {
 }
 
 export default function PersonalDetailsForm({ onDone }) {
+  const { t } = useTranslation('resumeBuilder');
   const { state, dispatch } = useResumeEditor();
   const { personalDetails } = state;
 
@@ -108,18 +111,26 @@ export default function PersonalDetailsForm({ onDone }) {
     update({ photo, photoUrl: photo });
   };
 
+  const contactFields = [
+    { key: 'email', labelKey: 'personalDetails.email' },
+    { key: 'phone', labelKey: 'personalDetails.phone' },
+    { key: 'location', labelKey: 'personalDetails.location' },
+    { key: 'website', labelKey: 'personalDetails.website', link: true },
+    { key: 'linkedin', labelKey: 'personalDetails.linkedin', link: true },
+  ];
+
   return (
     <div className="space-y-md">
       <div className="flex items-center justify-between">
-        <h3 className="font-headline-sm text-headline-sm text-on-surface">Edit Personal Details</h3>
+        <h3 className="font-headline-sm text-headline-sm text-on-surface">{t('personalDetails.title')}</h3>
         <button type="button" className="font-label-sm text-secondary hover:underline">
-          Get Tips
+          {t('personalDetails.getTips')}
         </button>
       </div>
 
       <ProfilePhotoUpload photo={getPersonalPhoto(personalDetails)} onPhotoChange={handlePhotoChange} />
 
-      <FieldRow label="Full name">
+      <FieldRow label={t('personalDetails.fullName')}>
         <input
           value={personalDetails.fullName}
           onChange={(event) => update({ fullName: event.target.value })}
@@ -127,7 +138,7 @@ export default function PersonalDetailsForm({ onDone }) {
         />
       </FieldRow>
 
-      <FieldRow label="Professional title">
+      <FieldRow label={t('personalDetails.professionalTitle')}>
         <input
           value={personalDetails.professionalTitle}
           onChange={(event) => update({ professionalTitle: event.target.value })}
@@ -135,14 +146,8 @@ export default function PersonalDetailsForm({ onDone }) {
         />
       </FieldRow>
 
-      {[
-        { key: 'email', label: 'Email' },
-        { key: 'phone', label: 'Phone' },
-        { key: 'location', label: 'Location' },
-        { key: 'website', label: 'Website', link: true },
-        { key: 'linkedin', label: 'LinkedIn', link: true },
-      ].map((field) => (
-        <FieldRow key={field.key} label={field.label}>
+      {contactFields.map((field) => (
+        <FieldRow key={field.key} label={t(field.labelKey)}>
           <div className="flex gap-2">
             <input
               value={personalDetails[field.key] || ''}
@@ -193,7 +198,7 @@ export default function PersonalDetailsForm({ onDone }) {
         onClick={onDone}
         className="w-full rounded-xl bg-secondary py-sm font-label-md text-on-secondary hover:bg-secondary-container transition-colors"
       >
-        Done
+        {t('personalDetails.done')}
       </button>
     </div>
   );
