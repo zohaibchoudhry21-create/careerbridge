@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import ResumeModal from './ResumeModal';
 import Button from '../../../components/ui/Button';
 
 export default function DeleteSectionModal({ open, sectionName, onClose, onConfirm }) {
+  const { t } = useTranslation('resumeBuilder');
   const [confirmed, setConfirmed] = useState(false);
 
   const handleClose = () => {
@@ -13,7 +15,7 @@ export default function DeleteSectionModal({ open, sectionName, onClose, onConfi
   const footer = (
     <div className="flex gap-sm justify-end">
       <Button type="button" variant="secondary" onClick={handleClose} className="px-md py-sm">
-        Cancel
+        {t('deleteSection.cancel')}
       </Button>
       <Button
         type="button"
@@ -25,7 +27,7 @@ export default function DeleteSectionModal({ open, sectionName, onClose, onConfi
         }}
         className="px-md py-sm disabled:opacity-50"
       >
-        Delete Section
+        {t('deleteSection.confirm')}
       </Button>
     </div>
   );
@@ -34,13 +36,13 @@ export default function DeleteSectionModal({ open, sectionName, onClose, onConfi
     <ResumeModal
       open={open}
       onClose={handleClose}
-      title={`Delete "${sectionName}" section?`}
+      title={t('deleteSection.title', { sectionName })}
       size="sm"
       footer={footer}
     >
       <div className="p-lg space-y-md">
         <p className="font-body-md text-on-surface-variant">
-          This will permanently delete this section and all its entries. This action can&apos;t be undone.
+          {t('deleteSection.description')}
         </p>
         <label className="flex items-start gap-2 font-body-md text-on-surface cursor-pointer">
           <input
@@ -49,7 +51,7 @@ export default function DeleteSectionModal({ open, sectionName, onClose, onConfi
             onChange={(event) => setConfirmed(event.target.checked)}
             className="mt-1"
           />
-          I understand, continue.
+          {t('deleteSection.confirmLabel')}
         </label>
       </div>
     </ResumeModal>

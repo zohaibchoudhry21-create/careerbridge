@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import AppIcon from '../../../components/icons/AppIcon';
 
 export default function ResumeModal({
@@ -9,6 +10,8 @@ export default function ResumeModal({
   showClose = true,
   footer = null,
 }) {
+  const { t } = useTranslation('resumeBuilder');
+
   if (!open) return null;
 
   const sizeClass =
@@ -25,7 +28,7 @@ export default function ResumeModal({
       <button
         type="button"
         className="absolute inset-0 bg-black/40"
-        aria-label="Close dialog"
+        aria-label={t('modal.closeDialog')}
         onClick={onClose}
       />
       <div
@@ -45,7 +48,7 @@ export default function ResumeModal({
                 type="button"
                 onClick={onClose}
                 className="p-2 rounded-lg text-on-surface-variant hover:text-secondary hover:bg-surface-container transition-colors"
-                aria-label="Close"
+                aria-label={t('modal.close')}
               >
                 <AppIcon name="close" size="nav" />
               </button>

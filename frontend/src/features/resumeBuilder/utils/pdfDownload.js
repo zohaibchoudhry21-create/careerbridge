@@ -19,7 +19,7 @@ export const downloadResumePdf = (elementId = 'resume-preview-document') => {
 
   printWindow.document.write(`
     <!DOCTYPE html>
-    <html>
+    <html dir="ltr">
       <head>
         <title>Resume</title>
         ${styles}
@@ -30,7 +30,7 @@ export const downloadResumePdf = (elementId = 'resume-preview-document') => {
         </style>
       </head>
       <body>
-        <div class="resume-print-root">${element.innerHTML}</div>
+        <div class="resume-print-root" dir="ltr">${element.innerHTML}</div>
         <script>window.onload = () => { window.print(); window.onafterprint = () => window.close(); };</script>
       </body>
     </html>

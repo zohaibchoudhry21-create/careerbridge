@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import AppIcon from '../../../../../components/icons/AppIcon';
 import { SECTION_ICONS } from '../../../data/resumeSectionTypes';
 import CustomizeSectionCard from '../CustomizeSectionCard';
 import { useCustomizeDispatch } from '../useCustomizeDispatch';
 
 export default function SectionsSection() {
+  const { t } = useTranslation('resumeBuilder');
   const { sections, dispatch } = useCustomizeDispatch();
 
   const moveSection = (fromIndex, toIndex) => {
@@ -13,14 +15,20 @@ export default function SectionsSection() {
 
   if (!sections.length) {
     return (
-      <CustomizeSectionCard title="Sections" description="Reorder and show or hide resume sections.">
-        <p className="text-on-surface-variant text-sm">No sections yet. Add content from the Content tab.</p>
+      <CustomizeSectionCard
+        title={t('customize.sections.title')}
+        description={t('customize.sections.description')}
+      >
+        <p className="text-on-surface-variant text-sm">{t('customize.sections.empty')}</p>
       </CustomizeSectionCard>
     );
   }
 
   return (
-    <CustomizeSectionCard title="Sections" description="Reorder and show or hide resume sections.">
+    <CustomizeSectionCard
+      title={t('customize.sections.title')}
+      description={t('customize.sections.description')}
+    >
       <ul className="space-y-2">
         {sections.map((section, index) => (
           <li
@@ -39,7 +47,7 @@ export default function SectionsSection() {
                 disabled={index === 0}
                 onClick={() => moveSection(index, index - 1)}
                 className="p-1 rounded-md text-on-surface-variant hover:text-on-surface disabled:opacity-30"
-                aria-label="Move section up"
+                aria-label={t('customize.sections.moveUp')}
               >
                 <AppIcon name="arrow_upward" size="button" />
               </button>
@@ -48,7 +56,7 @@ export default function SectionsSection() {
                 disabled={index === sections.length - 1}
                 onClick={() => moveSection(index, index + 1)}
                 className="p-1 rounded-md text-on-surface-variant hover:text-on-surface disabled:opacity-30"
-                aria-label="Move section down"
+                aria-label={t('customize.sections.moveDown')}
               >
                 <AppIcon name="arrow_downward" size="button" />
               </button>
@@ -57,7 +65,7 @@ export default function SectionsSection() {
               type="button"
               role="switch"
               aria-checked={section.visible}
-              aria-label={`Toggle ${section.heading} visibility`}
+              aria-label={t('customize.sections.toggleVisibility', { heading: section.heading })}
               onClick={() =>
                 dispatch({ type: 'TOGGLE_SECTION_VISIBLE', sectionId: section.id })
               }

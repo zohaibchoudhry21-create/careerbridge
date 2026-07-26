@@ -306,6 +306,7 @@ export default function ClassicClear({ resumeData, className = '', customize }) 
 
   return (
     <article
+      dir="ltr"
       className={className}
       style={{
         width: A4_WIDTH,

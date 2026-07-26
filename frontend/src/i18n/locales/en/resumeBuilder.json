@@ -1,0 +1,358 @@
+{
+  "page": {
+    "templateSelection": {
+      "title": "Start building your resume",
+      "description": "Choose a design you like. You can customize or switch it later.",
+      "importButton": "Import existing resume"
+    },
+    "editor": {
+      "loading": "Loading resume editor...",
+      "notFound": "Resume not found.",
+      "backToTemplates": "Back to templates",
+      "aiToolsComingSoon": "AI Tools Coming Soon"
+    }
+  },
+  "tabs": {
+    "content": "Content",
+    "customize": "Customize",
+    "aiTools": "AI Tools"
+  },
+  "topNav": {
+    "saving": "Saving...",
+    "saved": "Saved ✓",
+    "download": "Download",
+    "moreOptions": "More options",
+    "duplicate": "Duplicate",
+    "shareLink": "Share link"
+  },
+  "categories": {
+    "all": "All Templates",
+    "simple": "Simple",
+    "modern": "Modern",
+    "creative": "Creative"
+  },
+  "templates": {
+    "classic-clear": {
+      "name": "CLASSIC CLEAR",
+      "description": "Each template has been crafted with care to make designing your resume an absolute breeze for you."
+    },
+    "atlantic-clear": {
+      "name": "ATLANTIC CLEAR",
+      "description": "Each template has been crafted with care to make designing your resume an absolute breeze for you."
+    },
+    "mercury-clear": {
+      "name": "MERCURY CLEAR",
+      "description": "Each template has been crafted with care to make designing your resume an absolute breeze for you."
+    },
+    "steady-form": {
+      "name": "STEADY FORM",
+      "description": "Each template has been crafted with care to make designing your resume an absolute breeze for you."
+    }
+  },
+  "templatePreview": {
+    "features": {
+      "pageSize": "A4 / US-Letter Size",
+      "editableText": "Editable Text",
+      "customizable": "Fully customizable",
+      "printReady": "Print ready format",
+      "shareableLink": "Online resume with shareable link"
+    },
+    "useTemplate": "Use this template"
+  },
+  "startChoice": {
+    "title": "Import your existing resume",
+    "description": "Bring in an existing resume or start with a blank canvas using your selected template.",
+    "startBlank": "Start from blank",
+    "importResume": "Import resume"
+  },
+  "import": {
+    "title": "Import Resume",
+    "tabs": {
+      "file": "Resume File",
+      "paste": "Paste Text"
+    },
+    "dropzoneTitle": "Choose a file or drag and drop it here",
+    "dropzoneHint": ".pdf, .docx",
+    "selectFile": "Select Resume",
+    "pastePlaceholder": "Paste your resume text here...",
+    "importPasted": "Import pasted text",
+    "processingTitle": "Importing your resume",
+    "processingDescription": "Processing your resume... This may take up to 60 seconds."
+  },
+  "toasts": {
+    "createFailed": "Could not create resume.",
+    "importFailed": "Import failed.",
+    "importSuccessWithSections": "Resume imported with {{count}} sections. Click a section to edit.",
+    "importSuccessEmpty": "Resume imported. Add or edit sections on the left.",
+    "selectTemplateFirst": "Select a template first, then import your resume.",
+    "autoSaveFailed": "Auto-save failed.",
+    "noSkillSuggestions": "No new skill suggestions right now.",
+    "skillsAdded": "Added {{count}} skill suggestions.",
+    "skillSuggestionsFailed": "Could not fetch skill suggestions.",
+    "uploadPhotoFailed": "Could not upload photo.",
+    "aiAddTextFirst": "Add some text before using AI.",
+    "aiUnavailable": "AI service unavailable — applied basic improvement.",
+    "aiActionFailed": "AI action failed."
+  },
+  "editorPanel": {
+    "yourNamePlaceholder": "Your Name",
+    "noSections": "No sections yet. Import a CV or add content below.",
+    "entryNumber": "Entry {{number}}",
+    "addEntry": "+ Add Entry",
+    "aiSkillSuggestions": "AI Skill Suggestions",
+    "deleteSection": "Delete section",
+    "addContent": "+ Add Content",
+    "personalDetails": "Personal Details",
+    "editPersonalDetails": "Edit personal details"
+  },
+  "deleteSection": {
+    "title": "Delete \"{{sectionName}}\" section?",
+    "description": "This will permanently delete this section and all its entries. This action can't be undone.",
+    "confirmLabel": "I understand, continue.",
+    "cancel": "Cancel",
+    "confirm": "Delete Section"
+  },
+  "addContent": {
+    "title": "Add Content"
+  },
+  "sectionTypes": {
+    "education": {
+      "label": "Education",
+      "description": "Add your degrees and schools. Include your focus, honors, or exchange terms."
+    },
+    "experience": {
+      "label": "Experience",
+      "description": "Add your professional roles and employer history including internships."
+    },
+    "expertise": {
+      "label": "Expertise",
+      "description": "Add your hard and soft skills that help you stand out from the crowd today."
+    },
+    "languages": {
+      "label": "Languages",
+      "description": "Add your languages and proficiency level to show your communication range."
+    },
+    "certificates": {
+      "label": "Certificates",
+      "description": "Add your industry certificates or licences. Include issuer and date earned."
+    },
+    "interests": {
+      "label": "Interests",
+      "description": "Add relevant personal interests that support your career story and cultural fit."
+    },
+    "projects": {
+      "label": "Projects",
+      "description": "Add key projects you participated in and highlight your challenges, role, and impact."
+    },
+    "courses": {
+      "label": "Courses",
+      "description": "Add online or in-person courses and trainings you joined and completed."
+    },
+    "awards": {
+      "label": "Awards",
+      "description": "Add your awards and recognitions from industry, competitions, or academia."
+    },
+    "organisations": {
+      "label": "Organisations",
+      "description": "Add your memberships or volunteering at organisations including your role."
+    },
+    "publications": {
+      "label": "Publications",
+      "description": "Add publications, articles, or books you wrote or contributed to."
+    },
+    "references": {
+      "label": "References",
+      "description": "Add references from managers or coworkers, including their contact details."
+    },
+    "declaration": {
+      "label": "Declaration",
+      "description": "Add your declaration by creating or uploading your personal signature."
+    },
+    "custom": {
+      "label": "Custom",
+      "description": "Add a custom section for anything else, or combine sections clearly."
+    }
+  },
+  "personalDetails": {
+    "title": "Edit Personal Details",
+    "getTips": "Get Tips",
+    "uploadPhoto": "Upload profile photo",
+    "uploadPhotoHint": "Click to upload profile photo",
+    "removePhoto": "Remove photo",
+    "fullName": "Full name",
+    "professionalTitle": "Professional title",
+    "email": "Email",
+    "phone": "Phone",
+    "location": "Location",
+    "website": "Website",
+    "linkedin": "LinkedIn",
+    "done": "Done"
+  },
+  "editEntry": {
+    "title": "Edit Entry",
+    "getTips": "Get Tips",
+    "done": "Done",
+    "clearField": "Clear {{label}}",
+    "fields": {
+      "heading": "Heading",
+      "content": "Content",
+      "jobTitle": "Job Title",
+      "employer": "Employer",
+      "startDate": "Start Date (MM/YYYY)",
+      "endDate": "End Date (MM/YYYY or Present)",
+      "location": "Location (City, Country)",
+      "description": "Description",
+      "degree": "Degree",
+      "school": "School",
+      "skill": "Skill",
+      "additionalInfo": "Additional information",
+      "language": "Language",
+      "languageLevel": "Language level",
+      "selectLanguageLevel": "Select language level",
+      "courseTitle": "Course title",
+      "institution": "Institution",
+      "title": "Title"
+    },
+    "placeholders": {
+      "educationDescription": "Add a description of your education entry...",
+      "languageInfo": "e.g. C2, 4+, TOEFL, IELTS,...",
+      "courseDescription": "Describe the course..."
+    }
+  },
+  "richText": {
+    "bold": "Bold",
+    "italic": "Italic",
+    "underline": "Underline",
+    "bulletList": "Bullet list",
+    "link": "Link",
+    "alignLeft": "Align left",
+    "alignCenter": "Align center",
+    "alignRight": "Align right",
+    "justify": "Justify",
+    "enterUrl": "Enter URL"
+  },
+  "aiActions": {
+    "improve": "Improve Writing",
+    "suggest": "Suggest Content",
+    "grammar": "Grammar Check",
+    "shorter": "Shorter",
+    "working": "Working..."
+  },
+  "modal": {
+    "closeDialog": "Close dialog",
+    "close": "Close"
+  },
+  "customize": {
+    "sidebar": {
+      "document": "Document",
+      "templates": "Templates",
+      "layout": "Layout",
+      "fontSize": "Font Size",
+      "spacing": "Spacing",
+      "entries": "Entries",
+      "headings": "Headings",
+      "font": "Font",
+      "colors": "Colors",
+      "header": "Header",
+      "photo": "Photo",
+      "links": "Links",
+      "footer": "Footer",
+      "sections": "Sections"
+    },
+    "document": {
+      "title": "Document",
+      "description": "Language and page settings for your resume.",
+      "language": "Language",
+      "dateFormat": "Date format",
+      "pageFormat": "Page format"
+    },
+    "templates": {
+      "title": "Templates",
+      "description": "Choose a layout. You can switch templates at any time."
+    },
+    "layout": {
+      "title": "Layout",
+      "description": "Control how content is arranged on the page.",
+      "singleColumn": "Single Column",
+      "twoColumn": "Two Column"
+    },
+    "fontSize": {
+      "title": "Font Size",
+      "description": "Adjust the overall text size of your resume.",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    },
+    "spacing": {
+      "title": "Spacing",
+      "description": "Fine-tune line height and space between sections.",
+      "lineHeight": "Line height",
+      "sectionSpacing": "Section spacing",
+      "compact": "Compact",
+      "normal": "Normal",
+      "relaxed": "Relaxed",
+      "medium": "Medium",
+      "spacious": "Spacious"
+    },
+    "entries": {
+      "title": "Entries",
+      "description": "Choose what details appear in experience and education entries.",
+      "showDates": "Show dates",
+      "showLocation": "Show location"
+    },
+    "headings": {
+      "title": "Headings",
+      "description": "Style section headings across your resume.",
+      "bold": "Bold",
+      "underline": "Underline",
+      "allCaps": "All Caps",
+      "previewText": "Work Experience"
+    },
+    "font": {
+      "title": "Font",
+      "description": "Select the typeface for your resume content."
+    },
+    "colors": {
+      "title": "Colors",
+      "description": "Pick an accent color for headings and highlights.",
+      "presetColors": "Preset colors",
+      "customColor": "Custom color"
+    },
+    "header": {
+      "title": "Header",
+      "description": "Control what appears in your resume header area.",
+      "showPhoto": "Show photo",
+      "showPhotoHint": "When off, the Photo section is disabled."
+    },
+    "photo": {
+      "title": "Photo",
+      "descriptionEnabled": "Choose how your profile photo is displayed.",
+      "descriptionDisabled": "Enable Show photo in Header to edit photo shape.",
+      "circle": "Circle",
+      "square": "Square"
+    },
+    "links": {
+      "title": "Links",
+      "description": "Manage contact links and social profiles.",
+      "managedInPersonalDetails": "Links are managed in your Personal Details section.",
+      "goToPersonalDetails": "Go to Personal Details"
+    },
+    "footer": {
+      "title": "Footer",
+      "description": "Footer options for printed and PDF resumes.",
+      "showPageNumbers": "Show page numbers"
+    },
+    "sections": {
+      "title": "Sections",
+      "description": "Reorder and show or hide resume sections.",
+      "empty": "No sections yet. Add content from the Content tab.",
+      "moveUp": "Move section up",
+      "moveDown": "Move section down",
+      "toggleVisibility": "Toggle {{heading}} visibility"
+    }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "done": "Done"
+  }
+}

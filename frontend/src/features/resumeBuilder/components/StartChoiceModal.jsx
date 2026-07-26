@@ -1,22 +1,25 @@
+import { useTranslation } from 'react-i18next';
 import ResumeModal from './ResumeModal';
 import Button from '../../../components/ui/Button';
 
 export default function StartChoiceModal({ open, onClose, onImport, onBlank }) {
+  const { t } = useTranslation('resumeBuilder');
+
   const footer = (
     <div className="flex flex-col sm:flex-row gap-sm">
       <Button type="button" variant="secondary" onClick={onBlank} className="flex-1 py-sm">
-        Start from blank
+        {t('startChoice.startBlank')}
       </Button>
       <Button type="button" variant="primary" onClick={onImport} className="flex-1 py-sm">
-        Import resume
+        {t('startChoice.importResume')}
       </Button>
     </div>
   );
 
   return (
-    <ResumeModal open={open} onClose={onClose} title="Import your existing resume" size="sm" footer={footer}>
+    <ResumeModal open={open} onClose={onClose} title={t('startChoice.title')} size="sm" footer={footer}>
       <p className="px-lg pb-lg font-body-md text-on-surface-variant">
-        Bring in an existing resume or start with a blank canvas using your selected template.
+        {t('startChoice.description')}
       </p>
     </ResumeModal>
   );

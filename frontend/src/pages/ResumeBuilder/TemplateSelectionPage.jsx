@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { DashboardLayout, PageContainer, PageHeader } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
@@ -13,6 +14,7 @@ import {
   useCreateBuiltResume,
   useImportBuiltResume,
 } from '../../features/resumeBuilder/hooks/useResumeBuilder';
+import { resolveApiError } from '../../utils/apiError';
 import { cn } from '../../lib/utils';
 import {
   selectedOptionClass,
@@ -21,6 +23,7 @@ import {
 import { buttonSecondaryClass } from '../../components/ui/buttonTokens';
 
 export default function TemplateSelectionPage() {
+  const { t } = useTranslation('resumeBuilder');
   const { user } = useAuth();
   const navigate = useNavigate();
   const [category, setCategory] = useState('all');
@@ -57,7 +60,7 @@ export default function TemplateSelectionPage() {
       const result = await createResume.mutateAsync({ templateId: selectedTemplate.id });
       goToEditor(result.resume.id);
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Could not create resume.');
+      toast.error(resolveApiError(error, t('toasts.createFailed')));
     }
   };
 
@@ -80,13 +83,13 @@ export default function TemplateSelectionPage() {
       goToEditor(result.resume.id);
       const sectionCount = result.resume?.sections?.length || 0;
       if (sectionCount > 0) {
-        toast.success(`Resume imported with ${sectionCount} sections. Click a section to edit.`);
+        toast.success(t('toasts.importSuccessWithSections', { count: sectionCount }));
       } else {
-        toast.success('Resume imported. Add or edit sections on the left.');
+        toast.success(t('toasts.importSuccessEmpty'));
       }
     } catch (error) {
       setProcessingOpen(false);
-      toast.error(error?.response?.data?.message || 'Import failed.');
+      toast.error(resolveApiError(error, t('toasts.importFailed')));
     }
   };
 
@@ -94,21 +97,21 @@ export default function TemplateSelectionPage() {
     <DashboardLayout user={user}>
       <PageContainer>
         <PageHeader
-          title="Start building your resume"
-          description="Choose a design you like. You can customize or switch it later."
+          title={t('page.templateSelection.title')}
+          description={t('page.templateSelection.description')}
           actions={
             <button
               type="button"
               onClick={() => {
                 if (!selectedTemplate) {
-                  toast.info('Select a template first, then import your resume.');
+                  toast.info(t('toasts.selectTemplateFirst'));
                   return;
                 }
                 setImportOpen(true);
               }}
               className={cn(buttonSecondaryClass, 'px-md py-sm')}
             >
-              Import existing resume
+              {t('page.templateSelection.importButton')}
             </button>
           }
         />
@@ -124,7 +127,7 @@ export default function TemplateSelectionPage() {
                 category === item.id ? selectedOptionClass : unselectedOptionClass
               )}
             >
-              {item.label}
+              {t(`categories.${item.id}`)}
             </button>
           ))}
         </div>
