@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import useAuth from './useAuth';
 import {
   changeUserPassword,
   deleteUserAccount,
@@ -8,10 +9,14 @@ import { dashboardKeys } from './useDashboard';
 
 export function useUpdateAccount() {
   const queryClient = useQueryClient();
+  const { updateUser } = useAuth();
 
   return useMutation({
     mutationFn: updateAccount,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (data?.user) {
+        updateUser(data.user);
+      }
       queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });

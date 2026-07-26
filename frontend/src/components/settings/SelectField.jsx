@@ -15,8 +15,8 @@ export default function SelectField({ id, label, value, onChange, options = [], 
         className={settingsInputClassName}
       >
         {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
+          <option key={option || '__empty__'} value={option}>
+            {option || '—'}
           </option>
         ))}
       </select>
