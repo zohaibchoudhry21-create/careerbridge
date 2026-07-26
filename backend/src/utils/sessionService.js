@@ -235,6 +235,47 @@ export const createUserSession = async (
   });
 };
 
+export const createUserSessionWithClientMeta = async (
+  userId,
+  clientMeta,
+  { remember = true, rememberDevicesEnabled = false, trustDevice = false } = {}
+) => {
+  await enforceSessionCap(userId);
+
+  const now = new Date();
+  const trust = await resolveSessionTrust(userId, clientMeta.deviceFingerprint, {
+    rememberDevicesEnabled,
+    trustDevice,
+  });
+
+  return UserSession.create({
+    userId,
+    sessionId: crypto.randomUUID(),
+    ...clientMeta,
+    lastActiveAt: now,
+    expiresAt: new Date(now.getTime() + getJwtExpireMs()),
+    isTrusted: trust.isTrusted,
+    trustedAt: trust.trustedAt,
+  });
+};
+
+export const shouldSkipTwoFactor = async (user, req, { trustDevice = false } = {}) => {
+  if (user?.rememberDevicesEnabled !== true) {
+    return false;
+  }
+
+  const client = parseRequestClient(req);
+
+  if (trustDevice) {
+    const trustedCount = await countTrustedActiveSessions(user._id);
+    if (trustedCount < MAX_TRUSTED_SESSIONS_PER_USER) {
+      return true;
+    }
+  }
+
+  return Boolean(await hasTrustedFingerprintHistory(user._id, client.deviceFingerprint));
+};
+
 export const issueAuthToken = (res, user, session, remember = true) => {
   const token = generateToken(user._id, user.tokenVersion, session.sessionId);
   setAuthCookie(res, token, remember);

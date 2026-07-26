@@ -1,4 +1,5 @@
 const TOKEN_COOKIE = 'cb_token';
+const TWO_FACTOR_CHALLENGE_COOKIE = 'cb_2fa_challenge';
 
 const baseCookieOptions = {
   httpOnly: true,
@@ -21,6 +22,20 @@ export const setAuthCookie = (res, token, remember = true) => {
 export const clearAuthCookie = (res) => {
   res.clearCookie(TOKEN_COOKIE, baseCookieOptions);
 };
+
+export const setTwoFactorChallengeCookie = (res, challengeId) => {
+  res.cookie(TWO_FACTOR_CHALLENGE_COOKIE, challengeId, {
+    ...baseCookieOptions,
+    maxAge: 5 * 60 * 1000,
+  });
+};
+
+export const clearTwoFactorChallengeCookie = (res) => {
+  res.clearCookie(TWO_FACTOR_CHALLENGE_COOKIE, baseCookieOptions);
+};
+
+export const getTwoFactorChallengeIdFromRequest = (req) =>
+  req.cookies?.[TWO_FACTOR_CHALLENGE_COOKIE] || null;
 
 export const getTokenFromRequest = (req) => {
   if (req.cookies?.[TOKEN_COOKIE]) {

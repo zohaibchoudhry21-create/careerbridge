@@ -7,6 +7,7 @@ import { PasswordField } from '../../components/settings/InputField';
 import ToggleSwitch from '../../components/settings/ToggleSwitch';
 import PasswordStrengthBar from '../../components/settings/PasswordStrengthBar';
 import AppIcon from '../../components/icons/AppIcon';
+import TwoFactorSettings from '../../components/settings/TwoFactorSettings';
 import { validatePassword } from '../../utils/passwordValidator';
 import useAuth from '../../hooks/useAuth';
 import {
@@ -334,22 +335,20 @@ export default function LoginSecurity() {
       </SectionCard>
 
       <SectionCard
-        title="Security"
+        title="Two-Factor Authentication"
+        description="Require an authenticator app code when signing in on untrusted devices."
+        icon="shield"
+        color="focus"
+      >
+        <TwoFactorSettings />
+      </SectionCard>
+
+      <SectionCard
+        title="Security Preferences"
         description="Additional protections for your account."
         icon="shield"
         color="focus"
       >
-        <ComingSoonNote>
-          Two-factor authentication is coming in the next phase.
-        </ComingSoonNote>
-        <ToggleSwitch
-          id="two-factor"
-          label="Two-Factor Authentication"
-          description="Require a verification code when signing in on a new device."
-          checked={false}
-          onChange={() => {}}
-          disabled
-        />
         <ToggleSwitch
           id="login-alerts"
           label="Login Alerts"

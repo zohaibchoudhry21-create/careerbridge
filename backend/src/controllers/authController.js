@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { assignVerificationToken } from './verifyEmailController.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
-import { setAuthCookie, clearAuthCookie, getTokenFromRequest } from '../utils/authCookie.js';
+import { setAuthCookie, clearAuthCookie, getTokenFromRequest, clearTwoFactorChallengeCookie } from '../utils/authCookie.js';
 import { consumeAuthCode } from '../utils/authCodeStore.js';
 import { sendPasswordResetEmail } from '../utils/emailService.js';
 import { sendWelcomeEmailIfNeeded } from '../utils/welcomeEmailService.js';
@@ -14,6 +14,10 @@ import {
   revokeSessionBySid,
 } from '../utils/sessionService.js';
 import { evaluateAndSendLoginAlert } from '../utils/loginAlertService.js';
+import {
+  finalizeLogin,
+  issueLoginChallengeIfNeeded,
+} from './twoFactorController.js';
 
 const buildResetPasswordUrl = (rawToken) => {
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
@@ -92,18 +96,30 @@ export const login = async (req, res, next) => {
 
     const remember = req.body.remember !== false;
     const trustDevice = req.body.trustDevice === true;
-    const session = await createUserSession(user._id, req, {
+
+    const requiresTwoFactor = await issueLoginChallengeIfNeeded(res, req, {
+      user,
       remember,
-      rememberDevicesEnabled: user.rememberDevicesEnabled === true,
       trustDevice,
+      source: 'login',
     });
-    issueAuthToken(res, user, session, remember);
+
+    if (requiresTwoFactor) {
+      return sendResponse(res, 200, true, 'Two-factor authentication required.', {
+        requires2FA: true,
+      });
+    }
+
+    await finalizeLogin(res, req, {
+      user,
+      remember,
+      trustDevice,
+      source: 'login',
+    });
 
     sendResponse(res, 200, true, 'Login successful', {
       user: user.toPublicJSON(),
     });
-
-    void evaluateAndSendLoginAlert({ user, session, source: 'login' });
   } catch (error) {
     next(error);
   }
@@ -135,6 +151,7 @@ export const logout = async (req, res, next) => {
     }
 
     clearAuthCookie(res);
+    clearTwoFactorChallengeCookie(res);
     sendResponse(res, 200, true, 'Logged out successfully');
   } catch (error) {
     next(error);
@@ -239,18 +256,31 @@ export const exchangeSocialCode = async (req, res, next) => {
       throw new AppError('Account is not active.', 403);
     }
 
-    const session = await createUserSession(user._id, req, {
+    const requiresTwoFactor = await issueLoginChallengeIfNeeded(res, req, {
+      user,
       remember: true,
-      rememberDevicesEnabled: user.rememberDevicesEnabled === true,
+      trustDevice: false,
+      source: 'social',
+      isNewUser,
     });
-    issueAuthToken(res, user, session, true);
+
+    if (requiresTwoFactor) {
+      return sendResponse(res, 200, true, 'Two-factor authentication required.', {
+        requires2FA: true,
+      });
+    }
+
+    await finalizeLogin(res, req, {
+      user,
+      remember: true,
+      trustDevice: false,
+      source: 'social',
+      isNewUser,
+    });
 
     sendResponse(res, 200, true, 'Login successful', {
       user: user.toPublicJSON(),
     });
-
-    void evaluateAndSendLoginAlert({ user, session, source: 'social' });
-    void sendWelcomeEmailIfNeeded(user, { isNewUser });
   } catch (error) {
     next(error);
   }

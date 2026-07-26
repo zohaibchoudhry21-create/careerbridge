@@ -1,17 +1,94 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import useAuth from '../../hooks/useAuth';
 import SocialLoginButtons from './SocialLoginButtons';
 import AppIcon from '../icons/AppIcon';
 
+const RECOVERY_HINT =
+  'Lost your authenticator and backup codes? Contact support from your registered email for manual recovery.';
+
+function TwoFactorStep({ onSubmit, submitting, useBackupCode, onToggleBackup }) {
+  const [code, setCode] = useState('');
+  const [backupCode, setBackupCode] = useState('');
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    onSubmit({
+      code: useBackupCode ? undefined : code,
+      backupCode: useBackupCode ? backupCode : undefined,
+    });
+  };
+
+  return (
+    <form className="space-y-md" onSubmit={handleSubmit} noValidate>
+      <header className="mb-6 text-center lg:text-left">
+        <h2 className="font-display-md text-on-surface mb-2">Two-factor authentication</h2>
+        <p className="font-body-md text-on-surface-variant">
+          {useBackupCode
+            ? 'Enter one of your backup codes to finish signing in.'
+            : 'Enter the 6-digit code from your authenticator app.'}
+        </p>
+      </header>
+
+      {useBackupCode ? (
+        <input
+          type="text"
+          value={backupCode}
+          onChange={(event) => setBackupCode(event.target.value)}
+          placeholder="XXXX-XXXX"
+          className="w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none uppercase"
+        />
+      ) : (
+        <input
+          type="text"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          value={code}
+          onChange={(event) => setCode(event.target.value)}
+          placeholder="123456"
+          className="w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none"
+        />
+      )}
+
+      <button
+        type="button"
+        onClick={onToggleBackup}
+        className="text-secondary font-label-md hover:underline"
+      >
+        {useBackupCode ? 'Use authenticator code instead' : 'Use a backup code instead'}
+      </button>
+
+      <p className="font-body-md text-on-surface-variant text-sm">{RECOVERY_HINT}</p>
+
+      <button
+        type="submit"
+        disabled={submitting}
+        className="w-full bg-secondary text-on-secondary font-label-md text-label-md py-4 rounded-2xl hover:opacity-95 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+      >
+        {submitting ? (
+          <>
+            <span className="w-5 h-5 border-2 border-on-secondary border-t-transparent rounded-full animate-spin" />
+            Verifying...
+          </>
+        ) : (
+          'Verify and continue'
+        )}
+      </button>
+    </form>
+  );
+}
+
 export default function LoginForm() {
-  const { login } = useAuth();
+  const { login, verifyTwoFactor } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [step, setStep] = useState(searchParams.get('twoFactor') === '1' ? '2fa' : 'credentials');
+  const [useBackupCode, setUseBackupCode] = useState(false);
 
   const {
     register,
@@ -29,7 +106,7 @@ export default function LoginForm() {
   const onSubmit = async (values) => {
     setIsSubmitting(true);
     try {
-      await login(
+      const result = await login(
         {
           email: values.email,
           password: values.password,
@@ -37,6 +114,13 @@ export default function LoginForm() {
         },
         values.remember
       );
+
+      if (result?.requires2FA) {
+        setStep('2fa');
+        toast.info('Enter your authenticator code to continue.');
+        return;
+      }
+
       toast.success('Login successful! Welcome back.');
       const redirectTo = location.state?.from?.pathname || '/dashboard';
       navigate(redirectTo, { replace: true });
@@ -55,8 +139,35 @@ export default function LoginForm() {
     }
   };
 
+  const handleTwoFactorSubmit = async ({ code, backupCode }) => {
+    setIsSubmitting(true);
+    try {
+      await verifyTwoFactor({ code, backupCode });
+      toast.success('Login successful! Welcome back.');
+      const redirectTo = location.state?.from?.pathname || '/dashboard';
+      navigate(redirectTo, { replace: true });
+    } catch (error) {
+      const message =
+        error.response?.data?.message || 'Invalid code. Please try again.';
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const inputClassName =
     'w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none';
+
+  if (step === '2fa') {
+    return (
+      <TwoFactorStep
+        onSubmit={handleTwoFactorSubmit}
+        submitting={isSubmitting}
+        useBackupCode={useBackupCode}
+        onToggleBackup={() => setUseBackupCode((value) => !value)}
+      />
+    );
+  }
 
   return (
     <>
