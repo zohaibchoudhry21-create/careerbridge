@@ -38,15 +38,15 @@ export default function InterviewPrepHub() {
             <div className="flex items-start justify-between gap-sm">
               <SectionIcon color={module.color} icon={module.icon} size="md" />
               {module.comingSoon ? (
-                <span className="rounded-full bg-surface-container-high px-2 py-0.5 font-label-sm text-on-surface-variant">
+                <span className="rounded-full bg-surface-container-high dark:bg-[#2d3a4f] px-2 py-0.5 font-label-sm app-muted">
                   {t('hub.comingSoon')}
                 </span>
               ) : null}
             </div>
-            <h2 className="font-headline-section text-headline-section text-on-surface">
+            <h2 className="font-headline-section text-headline-section app-heading">
               {t(module.titleKey)}
             </h2>
-            <p className="flex-1 font-body-md text-on-surface-variant">{t(module.descriptionKey)}</p>
+            <p className="flex-1 font-body-md app-muted">{t(module.descriptionKey)}</p>
             {!module.comingSoon ? (
               <span className="inline-flex items-center gap-1 font-label-md text-secondary">
                 {t('hub.start')}

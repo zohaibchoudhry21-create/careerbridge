@@ -189,10 +189,10 @@ export default function MockInterviewSetup() {
   return (
     <div className="min-w-0 space-y-md">
       <header className="min-w-0">
-        <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
+        <h1 className="font-headline-dashboard text-headline-dashboard app-heading">
           {t('mockSetup.title')}
         </h1>
-        <p className="font-body-md text-on-surface-variant mt-base">{t('mockSetup.description')}</p>
+        <p className="font-body-md app-muted mt-base">{t('mockSetup.description')}</p>
       </header>
 
       <RoleResumeCard
@@ -264,7 +264,7 @@ export default function MockInterviewSetup() {
       />
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end sm:gap-4 pt-2">
-        <p className="font-body-md text-on-surface-variant text-sm text-center sm:text-right">
+        <p className="font-body-md app-muted text-sm text-center sm:text-right">
           {selectionSummary}
         </p>
         <Button

@@ -93,10 +93,10 @@ export default function SkillAssessmentSetup() {
   return (
     <div className="min-w-0 space-y-md">
       <header className="min-w-0">
-        <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
+        <h1 className="font-headline-dashboard text-headline-dashboard app-heading">
           {t('skillSetup.title')}
         </h1>
-        <p className="font-body-md text-on-surface-variant mt-base">{t('skillSetup.description')}</p>
+        <p className="font-body-md app-muted mt-base">{t('skillSetup.description')}</p>
       </header>
 
       <RetryErrorPanel
