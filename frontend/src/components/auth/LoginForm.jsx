@@ -317,7 +317,7 @@ export default function LoginForm() {
               id="password"
               type={showPassword ? 'text' : 'password'}
               placeholder="Enter your password"
-              className={`${inputClassName} pr-12`}
+              className={`${inputClassName} pe-12`}
               {...register('password', {
                 required: 'Password is required',
                 minLength: { value: 6, message: 'Password must be at least 6 characters' },
@@ -326,7 +326,7 @@ export default function LoginForm() {
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-secondary"
+              className="absolute end-4 top-1/2 -translate-y-1/2 text-outline hover:text-secondary"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               <AppIcon name={showPassword ? 'visibility_off' : 'visibility'} size="h-5 w-5" />

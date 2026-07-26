@@ -15,7 +15,7 @@ export default function SaveButtons({
   const resolvedCancelLabel = cancelLabel || t('buttons.cancel');
 
   return (
-    <div className={`flex flex-col-reverse sm:flex-row sm:justify-end gap-2 ${className}`}>
+    <div className={`flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-2 rtl:sm:flex-row-reverse ${className}`}>
       <Button
         type="button"
         variant="secondary"

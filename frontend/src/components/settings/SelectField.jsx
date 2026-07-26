@@ -26,7 +26,7 @@ export default function SelectField({ id, label, value, onChange, options = [], 
         id={id}
         value={value}
         onChange={onChange}
-        className={settingsInputClassName}
+        className={`${settingsInputClassName} text-start`}
       >
         {normalizedOptions.map((option) => (
           <option key={option.value || '__empty__'} value={option.value}>
