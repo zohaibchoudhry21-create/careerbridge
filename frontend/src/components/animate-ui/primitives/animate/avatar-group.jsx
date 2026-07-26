@@ -43,9 +43,10 @@ function AvatarContainer({ children, zIndex }) {
   const group = React.useContext(AvatarGroupContext);
   const [open, setOpen] = React.useState(false);
   const [tooltipNode, setTooltipNode] = React.useState(null);
+  const itemContextValue = React.useMemo(() => ({ setTooltipNode }), [setTooltipNode]);
 
   return (
-    <AvatarItemContext.Provider value={{ setTooltipNode }}>
+    <AvatarItemContext.Provider value={itemContextValue}>
       <motion.div
         data-slot="avatar-container"
         className="relative"
