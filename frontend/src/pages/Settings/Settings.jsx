@@ -25,7 +25,7 @@ export default function Settings() {
           description="Manage your account information, security, and preferences."
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-sm min-w-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-sm min-w-0">
           {SETTINGS_DASHBOARD_CARDS.map((section) => (
             <SettingCard
               key={section.id}
