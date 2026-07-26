@@ -1,7 +1,7 @@
 import { useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'react-toastify';
-import SectionCard from './SectionCard';
 import InputField from './InputField';
 import useAuth from '../../hooks/useAuth';
 import {
@@ -12,15 +12,14 @@ import {
 } from '../../services/authService';
 import { getApiErrorMessage } from '../../features/interviewPrep/utils/apiErrorUtils';
 
-const RECOVERY_MESSAGE =
-  'If you lose your authenticator and all backup codes, contact support from your registered email so we can verify your identity and manually disable two-factor authentication on your account.';
-
 function BackupCodesList({ codes }) {
+  const { t } = useTranslation('settings');
+
   return (
     <div className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest p-4">
-      <p className="font-label-md text-on-surface mb-3">Save these backup codes now</p>
+      <p className="font-label-md text-on-surface mb-3">{t('twoFactor.backupCodesTitle')}</p>
       <p className="font-body-md text-on-surface-variant text-sm mb-4">
-        Each code works once. Store them somewhere safe — they will not be shown again.
+        {t('twoFactor.backupCodesDescription')}
       </p>
       <div className="grid grid-cols-2 gap-2 font-mono text-sm text-on-surface">
         {codes.map((code) => (
@@ -34,6 +33,7 @@ function BackupCodesList({ codes }) {
 }
 
 export default function TwoFactorSettings() {
+  const { t } = useTranslation('settings');
   const { user, refreshUser } = useAuth();
   const isLocalAccount = (user?.provider || user?.authProvider || 'local') === 'local';
   const twoFactorEnabled = user?.twoFactorEnabled === true;
@@ -54,9 +54,9 @@ export default function TwoFactorSettings() {
       setSetupData(data);
       setBackupCodes(null);
       setConfirmCode('');
-      toast.success('Scan the QR code with your authenticator app.');
+      toast.success(t('twoFactor.toasts.setupStarted'));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, 'Unable to start two-factor setup.'));
+      toast.error(getApiErrorMessage(error, t('twoFactor.toasts.setupStartError')));
     } finally {
       setBusy(false);
     }
@@ -64,7 +64,7 @@ export default function TwoFactorSettings() {
 
   const handleConfirmSetup = async () => {
     if (!/^\d{6}$/.test(confirmCode)) {
-      toast.error('Enter the 6-digit code from your authenticator app.');
+      toast.error(t('twoFactor.toasts.invalidCode'));
       return;
     }
 
@@ -75,9 +75,9 @@ export default function TwoFactorSettings() {
       setSetupData(null);
       setConfirmCode('');
       await refreshUser();
-      toast.success('Two-factor authentication is now enabled.');
+      toast.success(t('twoFactor.toasts.enabled'));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, 'Unable to confirm two-factor setup.'));
+      toast.error(getApiErrorMessage(error, t('twoFactor.toasts.confirmError')));
     } finally {
       setBusy(false);
     }
@@ -85,12 +85,12 @@ export default function TwoFactorSettings() {
 
   const handleDisable = async () => {
     if (!disableCode.trim()) {
-      toast.error('Enter your authenticator code to disable 2FA.');
+      toast.error(t('twoFactor.toasts.disableCodeRequired'));
       return;
     }
 
     if (isLocalAccount && !disablePassword) {
-      toast.error('Enter your password to disable 2FA.');
+      toast.error(t('twoFactor.toasts.disablePasswordRequired'));
       return;
     }
 
@@ -104,9 +104,9 @@ export default function TwoFactorSettings() {
       setDisableCode('');
       setBackupCodes(null);
       await refreshUser();
-      toast.success('Two-factor authentication disabled.');
+      toast.success(t('twoFactor.toasts.disabled'));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, 'Unable to disable two-factor authentication.'));
+      toast.error(getApiErrorMessage(error, t('twoFactor.toasts.disableError')));
     } finally {
       setBusy(false);
     }
@@ -114,12 +114,12 @@ export default function TwoFactorSettings() {
 
   const handleRegenerate = async () => {
     if (!/^\d{6}$/.test(regenCode)) {
-      toast.error('Enter your current 6-digit authenticator code.');
+      toast.error(t('twoFactor.toasts.regenCodeRequired'));
       return;
     }
 
     if (isLocalAccount && !regenPassword) {
-      toast.error('Enter your password to regenerate backup codes.');
+      toast.error(t('twoFactor.toasts.regenPasswordRequired'));
       return;
     }
 
@@ -132,9 +132,9 @@ export default function TwoFactorSettings() {
       setBackupCodes(data.backupCodes || []);
       setRegenPassword('');
       setRegenCode('');
-      toast.success('New backup codes generated.');
+      toast.success(t('twoFactor.toasts.regenSuccess'));
     } catch (error) {
-      toast.error(getApiErrorMessage(error, 'Unable to regenerate backup codes.'));
+      toast.error(getApiErrorMessage(error, t('twoFactor.toasts.regenError')));
     } finally {
       setBusy(false);
     }
@@ -143,21 +143,21 @@ export default function TwoFactorSettings() {
   return (
     <div className="space-y-4">
       <p className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-3 font-body-md text-sm text-on-surface-variant">
-        {RECOVERY_MESSAGE}
+        {t('twoFactor.recoveryMessage')}
       </p>
 
       {twoFactorEnabled ? (
         <div className="space-y-4">
           <p className="font-body-md text-on-surface">
-            Two-factor authentication is <strong>enabled</strong> on your account.
+            <Trans i18nKey="twoFactor.enabled" ns="settings" components={{ strong: <strong /> }} />
           </p>
 
           <div className="space-y-3 max-w-xl">
-            <p className="font-label-md text-on-surface">Regenerate backup codes</p>
+            <p className="font-label-md text-on-surface">{t('twoFactor.regenerateTitle')}</p>
             {isLocalAccount ? (
               <InputField
                 id="regen-password"
-                label="Current Password"
+                label={t('twoFactor.currentPassword')}
                 type="password"
                 value={regenPassword}
                 onChange={(event) => setRegenPassword(event.target.value)}
@@ -165,7 +165,7 @@ export default function TwoFactorSettings() {
             ) : null}
             <InputField
               id="regen-code"
-              label="Authenticator Code"
+              label={t('twoFactor.authenticatorCode')}
               value={regenCode}
               onChange={(event) => setRegenCode(event.target.value)}
               inputMode="numeric"
@@ -178,16 +178,16 @@ export default function TwoFactorSettings() {
               disabled={busy}
               className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-50"
             >
-              Regenerate backup codes
+              {t('twoFactor.regenerateButton')}
             </button>
           </div>
 
           <div className="space-y-3 max-w-xl border-t border-outline-variant/20 pt-4">
-            <p className="font-label-md text-on-surface">Disable two-factor authentication</p>
+            <p className="font-label-md text-on-surface">{t('twoFactor.disableTitle')}</p>
             {isLocalAccount ? (
               <InputField
                 id="disable-password"
-                label="Current Password"
+                label={t('twoFactor.currentPassword')}
                 type="password"
                 value={disablePassword}
                 onChange={(event) => setDisablePassword(event.target.value)}
@@ -195,7 +195,7 @@ export default function TwoFactorSettings() {
             ) : null}
             <InputField
               id="disable-code"
-              label="Authenticator Code"
+              label={t('twoFactor.authenticatorCode')}
               value={disableCode}
               onChange={(event) => setDisableCode(event.target.value)}
               inputMode="numeric"
@@ -208,7 +208,7 @@ export default function TwoFactorSettings() {
               disabled={busy}
               className="px-4 py-2.5 rounded-xl border border-error/40 font-label-md text-error hover:bg-error/5 transition-colors min-h-[44px] disabled:opacity-50"
             >
-              Disable 2FA
+              {t('twoFactor.disableButton')}
             </button>
           </div>
         </div>
@@ -221,7 +221,7 @@ export default function TwoFactorSettings() {
               disabled={busy}
               className="px-4 py-2.5 rounded-xl bg-secondary text-on-secondary font-label-md hover:opacity-95 transition-colors min-h-[44px] disabled:opacity-50"
             >
-              Enable two-factor authentication
+              {t('twoFactor.enableButton')}
             </button>
           ) : (
             <div className="space-y-4 max-w-xl">
@@ -230,19 +230,16 @@ export default function TwoFactorSettings() {
                   <QRCodeSVG value={setupData.otpauthUrl} size={180} />
                 </div>
                 <div className="space-y-2">
-                  <p className="font-label-md text-on-surface">Manual entry key</p>
+                  <p className="font-label-md text-on-surface">{t('twoFactor.manualEntryKey')}</p>
                   <p className="font-mono text-sm break-all text-on-surface-variant">
                     {setupData.manualEntryKey}
                   </p>
-                  <p className="font-body-md text-on-surface-variant text-sm">
-                    Scan the QR code or enter the key in Google Authenticator, Authy, or a
-                    compatible app.
-                  </p>
+                  <p className="font-body-md text-on-surface-variant text-sm">{t('twoFactor.scanQr')}</p>
                 </div>
               </div>
               <InputField
                 id="confirm-2fa-code"
-                label="Verification Code"
+                label={t('twoFactor.verificationCode')}
                 value={confirmCode}
                 onChange={(event) => setConfirmCode(event.target.value)}
                 inputMode="numeric"
@@ -255,7 +252,7 @@ export default function TwoFactorSettings() {
                 disabled={busy}
                 className="px-4 py-2.5 rounded-xl bg-secondary text-on-secondary font-label-md hover:opacity-95 transition-colors min-h-[44px] disabled:opacity-50"
               >
-                Confirm and enable
+                {t('twoFactor.confirmEnable')}
               </button>
             </div>
           )}

@@ -1,9 +1,12 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import SectionIcon from '../ui/SectionIcon';
 import { selectedOptionClass, unselectedOptionClass } from '../ui/colorAccentTokens';
 import { cn } from '../../lib/utils';
 
 function InterviewReadinessCard({ interviewReadiness }) {
+  const { t } = useTranslation('dashboard');
+
   if (!interviewReadiness) return null;
 
   const { score, weakAreas, strongArea } = interviewReadiness;
@@ -13,17 +16,17 @@ function InterviewReadinessCard({ interviewReadiness }) {
       <div className="mb-xs flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2.5">
           <SectionIcon color="mode" icon="mic_external_on" />
-          <h4 className="font-headline-section text-headline-section">Interview Readiness</h4>
+          <h4 className="font-headline-section text-headline-section">{t('interviewReadiness.title')}</h4>
         </div>
         <span className="font-bold text-secondary">{score}%</span>
       </div>
       <div className="mb-sm grid grid-cols-1 gap-xs sm:grid-cols-2">
         <div className="rounded-xl bg-surface-container p-sm">
-          <p className="text-[10px] uppercase text-on-surface-variant">Weak Areas</p>
+          <p className="text-[10px] uppercase text-on-surface-variant">{t('interviewReadiness.weakAreas')}</p>
           <p className="text-[12px] font-medium text-error">{weakAreas?.join(', ')}</p>
         </div>
         <div className="rounded-xl bg-surface-container p-sm">
-          <p className="text-[10px] uppercase text-on-surface-variant">Strong Area</p>
+          <p className="text-[10px] uppercase text-on-surface-variant">{t('interviewReadiness.strongArea')}</p>
           <p className="text-[12px] font-medium text-green-700">{strongArea}</p>
         </div>
       </div>
@@ -35,7 +38,7 @@ function InterviewReadinessCard({ interviewReadiness }) {
             selectedOptionClass
           )}
         >
-          Video Mode
+          {t('interviewReadiness.videoMode')}
         </button>
         <button
           type="button"
@@ -44,7 +47,7 @@ function InterviewReadinessCard({ interviewReadiness }) {
             unselectedOptionClass
           )}
         >
-          Voice Analysis
+          {t('interviewReadiness.voiceAnalysis')}
         </button>
       </div>
     </div>

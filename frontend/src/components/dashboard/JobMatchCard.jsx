@@ -1,8 +1,11 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
 import { buttonPrimaryClass, buttonSecondaryClass } from '../ui/buttonTokens';
 
 function JobMatchCard({ job }) {
+  const { t } = useTranslation('dashboard');
+
   if (!job) return null;
 
   const isPrimary = job.featured;
@@ -13,7 +16,7 @@ function JobMatchCard({ job }) {
         <div className="flex gap-sm min-w-0 flex-1">
           <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center p-xs shrink-0">
             <img
-              alt={`${job.company} logo`}
+              alt={t('jobMatches.companyLogo', { company: job.company })}
               className="w-full h-full object-contain"
               src={job.logoUrl}
               loading="lazy"
@@ -26,10 +29,10 @@ function JobMatchCard({ job }) {
             </p>
             <div className="mt-xs flex flex-wrap items-center gap-sm">
               <span className="flex items-center gap-1 text-[12px] text-secondary font-bold">
-                {job.matchPercentage}% Skill Match
+                {t('jobMatches.skillMatch', { percent: job.matchPercentage })}
               </span>
               {job.recommendedByAi ? (
-                <span className="text-[12px] text-on-surface-variant">Recommended by AI Agent</span>
+                <span className="text-[12px] text-on-surface-variant">{t('jobMatches.recommendedByAi')}</span>
               ) : null}
             </div>
           </div>
@@ -41,7 +44,7 @@ function JobMatchCard({ job }) {
             isPrimary ? buttonPrimaryClass : buttonSecondaryClass
           )}
         >
-          Quick Apply
+          {t('jobMatches.quickApply')}
         </a>
       </div>
     </div>

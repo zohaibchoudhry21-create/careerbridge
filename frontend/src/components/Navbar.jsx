@@ -1,17 +1,11 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useNavbarScroll } from '../hooks/useAnimations';
 import BrandLogo from './brand/BrandLogo';
 import AppIcon from './icons/AppIcon';
 import { buttonPrimaryClass, buttonSecondaryClass } from './ui/buttonTokens';
 import { cn } from '../lib/utils';
-
-const navLinks = [
-  { label: 'AI Resume Parsing', href: '/register' },
-  { label: 'CV Upload', href: '/register' },
-  { label: 'AI Suggestions', href: '/register' },
-  { label: 'Resume Builder', href: '/register' },
-];
 
 const linkClassName =
   'text-on-surface-variant font-medium hover:text-secondary transition-colors duration-200 whitespace-nowrap nav-link-underline text-sm';
@@ -35,9 +29,20 @@ function NavLinkItem({ href, className, children, onClick }) {
 }
 
 export default function Navbar() {
+  const { t } = useTranslation('common');
   const navRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
   useNavbarScroll(navRef);
+
+  const navLinks = useMemo(
+    () => [
+      { label: t('nav.aiResumeParsing'), href: '/register' },
+      { label: t('nav.cvUpload'), href: '/register' },
+      { label: t('nav.aiSuggestions'), href: '/register' },
+      { label: t('nav.resumeBuilder'), href: '/register' },
+    ],
+    [t]
+  );
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -69,7 +74,7 @@ export default function Navbar() {
             to="/login"
             className={cn(buttonSecondaryClass, 'px-3.5 py-1.5 text-label-md')}
           >
-            Login
+            {t('nav.login')}
           </Link>
           <Link
             to="/register"
@@ -78,7 +83,7 @@ export default function Navbar() {
               'transform whitespace-nowrap px-4 py-1.5 text-label-md shadow-level-1 hover:-translate-y-1'
             )}
           >
-            Upload CV
+            {t('nav.uploadCv')}
           </Link>
         </div>
 
@@ -86,7 +91,7 @@ export default function Navbar() {
           type="button"
           className="xl:hidden relative z-[60] flex items-center justify-center w-9 h-9 rounded-lg text-on-surface hover:bg-surface-container transition-colors shrink-0"
           onClick={() => setMenuOpen((open) => !open)}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-label={menuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
           aria-expanded={menuOpen}
         >
           <AppIcon name={menuOpen ? 'close' : 'menu'} size="dashboard" />
@@ -98,7 +103,7 @@ export default function Navbar() {
           type="button"
           className="xl:hidden fixed inset-0 top-14 z-40 bg-black/50"
           onClick={closeMenu}
-          aria-label="Close menu"
+          aria-label={t('nav.closeMenu')}
         />
       )}
 
@@ -125,7 +130,7 @@ export default function Navbar() {
               className={cn(buttonSecondaryClass, 'w-full justify-center px-4 py-3 text-label-md rounded-2xl')}
               onClick={closeMenu}
             >
-              Login
+              {t('nav.login')}
             </Link>
             <Link
               to="/register"
@@ -135,7 +140,7 @@ export default function Navbar() {
               )}
               onClick={closeMenu}
             >
-              Upload CV
+              {t('nav.uploadCv')}
             </Link>
           </div>
         </div>

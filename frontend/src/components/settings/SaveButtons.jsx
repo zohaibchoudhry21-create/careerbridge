@@ -1,14 +1,19 @@
+import { useTranslation } from 'react-i18next';
 import Button from '../ui/Button';
 
 export default function SaveButtons({
   onSave,
   onCancel,
-  saveLabel = 'Save Changes',
-  cancelLabel = 'Cancel',
+  saveLabel,
+  cancelLabel,
   saving = false,
   disabled = false,
   className = '',
 }) {
+  const { t } = useTranslation('common');
+  const resolvedSaveLabel = saveLabel || t('buttons.saveChanges');
+  const resolvedCancelLabel = cancelLabel || t('buttons.cancel');
+
   return (
     <div className={`flex flex-col-reverse sm:flex-row sm:justify-end gap-2 ${className}`}>
       <Button
@@ -18,7 +23,7 @@ export default function SaveButtons({
         disabled={saving}
         className="min-h-[44px] px-4 py-2.5"
       >
-        {cancelLabel}
+        {resolvedCancelLabel}
       </Button>
       <Button
         type="button"
@@ -30,10 +35,10 @@ export default function SaveButtons({
         {saving ? (
           <>
             <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            Saving...
+            {t('buttons.saving')}
           </>
         ) : (
-          saveLabel
+          resolvedSaveLabel
         )}
       </Button>
     </div>

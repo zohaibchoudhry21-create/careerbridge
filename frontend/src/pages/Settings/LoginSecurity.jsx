@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import SettingsPageShell from '../../components/settings/SettingsPageShell';
 import SectionCard from '../../components/settings/SectionCard';
@@ -38,6 +39,7 @@ function formatSessionDate(value) {
 }
 
 function ActiveSessionsSection({ rememberDevicesEnabled }) {
+  const { t } = useTranslation('settings');
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { data: sessions = [], isLoading, isError, refetch } = useSessions();
@@ -54,46 +56,48 @@ function ActiveSessionsSection({ rememberDevicesEnabled }) {
       const result = await revokeSession.mutateAsync(session.id);
 
       if (result?.signedOutCurrent || session.isCurrent) {
-        toast.success('You have been signed out.');
+        toast.success(t('loginSecurity.toasts.signedOut'));
         await logout();
         navigate('/login');
         return;
       }
 
-      toast.success('Device signed out.');
+      toast.success(t('loginSecurity.toasts.deviceSignedOut'));
       await refetch();
     } catch (error) {
-      toast.error(getApiErrorMessage(error, 'Unable to sign out that device.'));
+      toast.error(getApiErrorMessage(error, t('loginSecurity.toasts.signOutDeviceError')));
     }
   };
 
   const handleRevokeOthers = async () => {
     if (otherSessions.length === 0) {
-      toast.info('No other active sessions to sign out.');
+      toast.info(t('loginSecurity.toasts.noOtherSessions'));
       return;
     }
 
     try {
       const result = await revokeOthers.mutateAsync();
-      toast.success(result?.message || 'Other devices have been signed out.');
+      toast.success(result?.message || t('loginSecurity.toasts.othersSignedOut'));
       await refetch();
     } catch (error) {
-      toast.error(getApiErrorMessage(error, 'Unable to sign out other devices.'));
+      toast.error(getApiErrorMessage(error, t('loginSecurity.toasts.signOutOthersError')));
     }
   };
 
   const handleTrustChange = async (session, trusted) => {
     if (!rememberDevicesEnabled) {
-      toast.error('Enable Remember Devices before trusting a device.');
+      toast.error(t('loginSecurity.toasts.trustRememberRequired'));
       return;
     }
 
     try {
       await updateSessionTrust.mutateAsync({ sessionId: session.id, trusted });
-      toast.success(trusted ? 'Device marked as trusted.' : 'Device trust removed.');
+      toast.success(
+        trusted ? t('loginSecurity.toasts.trustAdded') : t('loginSecurity.toasts.trustRemoved')
+      );
       await refetch();
     } catch (error) {
-      toast.error(getApiErrorMessage(error, 'Unable to update device trust.'));
+      toast.error(getApiErrorMessage(error, t('loginSecurity.toasts.trustError')));
     }
   };
 
@@ -106,19 +110,11 @@ function ActiveSessionsSection({ rememberDevicesEnabled }) {
   }
 
   if (isError) {
-    return (
-      <ComingSoonNote>
-        Unable to load active sessions right now. Please refresh the page and try again.
-      </ComingSoonNote>
-    );
+    return <ComingSoonNote>{t('loginSecurity.sessions.loadError')}</ComingSoonNote>;
   }
 
   if (sessions.length === 0) {
-    return (
-      <ComingSoonNote>
-        No active sessions were found. Sign in again to refresh this list.
-      </ComingSoonNote>
-    );
+    return <ComingSoonNote>{t('loginSecurity.sessions.empty')}</ComingSoonNote>;
   }
 
   return (
@@ -135,23 +131,29 @@ function ActiveSessionsSection({ rememberDevicesEnabled }) {
                   <p className="font-label-md text-on-surface">{session.deviceLabel}</p>
                   {session.isCurrent ? (
                     <span className="rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-label-md text-secondary">
-                      This device
+                      {t('loginSecurity.sessions.thisDevice')}
                     </span>
                   ) : null}
                   {session.isTrusted ? (
                     <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-label-md text-primary">
-                      Trusted
+                      {t('loginSecurity.sessions.trusted')}
                     </span>
                   ) : null}
                 </div>
                 <p className="font-body-md text-on-surface-variant text-sm">
-                  IP: {session.ipAddress || 'Unknown'}
+                  {t('loginSecurity.sessions.ip', {
+                    ip: session.ipAddress || t('loginSecurity.sessions.unknownIp'),
+                  })}
                 </p>
                 <p className="font-body-md text-on-surface-variant text-sm">
-                  Signed in: {formatSessionDate(session.createdAt)}
+                  {t('loginSecurity.sessions.signedIn', {
+                    date: formatSessionDate(session.createdAt),
+                  })}
                 </p>
                 <p className="font-body-md text-on-surface-variant text-sm">
-                  Last active: {formatSessionDate(session.lastActiveAt)}
+                  {t('loginSecurity.sessions.lastActive', {
+                    date: formatSessionDate(session.lastActiveAt),
+                  })}
                 </p>
               </div>
 
@@ -163,7 +165,9 @@ function ActiveSessionsSection({ rememberDevicesEnabled }) {
                     disabled={isBusy}
                     className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-50"
                   >
-                    {session.isTrusted ? 'Remove trust' : 'Trust device'}
+                    {session.isTrusted
+                      ? t('loginSecurity.sessions.removeTrust')
+                      : t('loginSecurity.sessions.trustDevice')}
                   </button>
                 ) : null}
                 <button
@@ -172,7 +176,9 @@ function ActiveSessionsSection({ rememberDevicesEnabled }) {
                   disabled={isBusy}
                   className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-50"
                 >
-                  {session.isCurrent ? 'Sign out' : 'Sign out device'}
+                  {session.isCurrent
+                    ? t('loginSecurity.sessions.signOut')
+                    : t('loginSecurity.sessions.signOutDevice')}
                 </button>
               </div>
             </div>
@@ -187,7 +193,7 @@ function ActiveSessionsSection({ rememberDevicesEnabled }) {
           disabled={isBusy}
           className="px-4 py-2.5 rounded-xl border border-outline-variant font-label-md text-on-surface hover:bg-surface-container transition-colors min-h-[44px] disabled:opacity-50"
         >
-          Sign out all other devices
+          {t('loginSecurity.sessions.signOutAllOthers')}
         </button>
       ) : null}
     </div>
@@ -195,6 +201,7 @@ function ActiveSessionsSection({ rememberDevicesEnabled }) {
 }
 
 export default function LoginSecurity() {
+  const { t } = useTranslation('settings');
   const { user } = useAuth();
   const changePassword = useChangePassword();
   const updateAccount = useUpdateAccount();
@@ -211,23 +218,23 @@ export default function LoginSecurity() {
 
   const handleSave = async () => {
     if (!isLocalAccount) {
-      toast.error('Password changes are only available for email and password accounts.');
+      toast.error(t('loginSecurity.toasts.passwordSocialOnly'));
       return;
     }
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error('Please fill in all password fields.');
+      toast.error(t('loginSecurity.toasts.passwordFieldsRequired'));
       return;
     }
 
     const strength = validatePassword(newPassword);
     if (!strength.valid) {
-      toast.error(strength.errors[0] || 'Please choose a stronger password.');
+      toast.error(strength.errors[0] || t('loginSecurity.toasts.passwordWeak'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      toast.error('New password and confirmation do not match.');
+      toast.error(t('loginSecurity.toasts.passwordMismatch'));
       return;
     }
 
@@ -237,12 +244,12 @@ export default function LoginSecurity() {
         newPassword,
         confirmPassword,
       });
-      toast.success(result?.message || 'Password changed successfully.');
+      toast.success(result?.message || t('loginSecurity.toasts.passwordChanged'));
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (error) {
-      toast.error(getApiErrorMessage(error, 'Unable to change password. Please try again.'));
+      toast.error(getApiErrorMessage(error, t('loginSecurity.toasts.passwordChangeError')));
     }
   };
 
@@ -250,15 +257,17 @@ export default function LoginSecurity() {
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
-    toast.info('Changes discarded.');
+    toast.info(t('loginSecurity.toasts.discarded'));
   };
 
   const handleLoginAlertsChange = async (checked) => {
     try {
       await updateAccount.mutateAsync({ loginAlertsEnabled: checked });
-      toast.success(checked ? 'Login alerts enabled.' : 'Login alerts disabled.');
+      toast.success(
+        checked ? t('loginSecurity.toasts.loginAlertsOn') : t('loginSecurity.toasts.loginAlertsOff')
+      );
     } catch (error) {
-      toast.error(getApiErrorMessage(error, 'Unable to update login alerts.'));
+      toast.error(getApiErrorMessage(error, t('loginSecurity.toasts.loginAlertsError')));
     }
   };
 
@@ -266,29 +275,29 @@ export default function LoginSecurity() {
     try {
       await updateAccount.mutateAsync({ rememberDevicesEnabled: checked });
       toast.success(
-        checked ? 'Remember Devices enabled.' : 'Remember Devices disabled.'
+        checked ? t('loginSecurity.toasts.rememberOn') : t('loginSecurity.toasts.rememberOff')
       );
     } catch (error) {
-      toast.error(getApiErrorMessage(error, 'Unable to update Remember Devices.'));
+      toast.error(getApiErrorMessage(error, t('loginSecurity.toasts.rememberError')));
     }
   };
 
   return (
     <SettingsPageShell
-      title="Login & Security"
-      description="Update your password, manage security preferences, and review active sessions."
+      title={t('loginSecurity.title')}
+      description={t('loginSecurity.description')}
       onSave={isLocalAccount ? handleSave : undefined}
       onCancel={isLocalAccount ? handleCancel : undefined}
-      saveLabel="Change Password"
+      saveLabel={t('loginSecurity.changePassword')}
       saving={changePassword.isPending}
       showActions={isLocalAccount}
     >
       <SectionCard
-        title="Password"
+        title={t('loginSecurity.password.title')}
         description={
           isLocalAccount
-            ? 'Choose a strong password you do not use elsewhere.'
-            : 'Your account uses social sign-in. Manage your password with your provider.'
+            ? t('loginSecurity.password.descriptionLocal')
+            : t('loginSecurity.password.descriptionSocial')
         }
         icon="lock"
         color="security"
@@ -297,7 +306,7 @@ export default function LoginSecurity() {
           <div className="space-y-4 max-w-xl">
             <PasswordField
               id="current-password"
-              label="Current Password"
+              label={t('loginSecurity.password.current')}
               value={currentPassword}
               onChange={(event) => setCurrentPassword(event.target.value)}
               showPassword={showCurrent}
@@ -307,7 +316,7 @@ export default function LoginSecurity() {
             <div>
               <PasswordField
                 id="new-password"
-                label="New Password"
+                label={t('loginSecurity.password.new')}
                 value={newPassword}
                 onChange={(event) => setNewPassword(event.target.value)}
                 showPassword={showNew}
@@ -318,7 +327,7 @@ export default function LoginSecurity() {
             </div>
             <PasswordField
               id="confirm-password"
-              label="Confirm Password"
+              label={t('loginSecurity.password.confirm')}
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               showPassword={showConfirm}
@@ -328,15 +337,16 @@ export default function LoginSecurity() {
           </div>
         ) : (
           <ComingSoonNote>
-            Signed in with {user?.provider || user?.authProvider}. Password changes are managed by
-            your identity provider, not CareerBridge.
+            {t('loginSecurity.password.socialNote', {
+              provider: user?.provider || user?.authProvider,
+            })}
           </ComingSoonNote>
         )}
       </SectionCard>
 
       <SectionCard
-        title="Two-Factor Authentication"
-        description="Require an authenticator app code when signing in on untrusted devices."
+        title={t('loginSecurity.twoFactor.title')}
+        description={t('loginSecurity.twoFactor.description')}
         icon="shield"
         color="focus"
       >
@@ -344,23 +354,23 @@ export default function LoginSecurity() {
       </SectionCard>
 
       <SectionCard
-        title="Security Preferences"
-        description="Additional protections for your account."
+        title={t('loginSecurity.securityPrefs.title')}
+        description={t('loginSecurity.securityPrefs.description')}
         icon="shield"
         color="focus"
       >
         <ToggleSwitch
           id="login-alerts"
-          label="Login Alerts"
-          description="Get notified when someone signs in from an unfamiliar device or IP address."
+          label={t('loginSecurity.securityPrefs.loginAlerts')}
+          description={t('loginSecurity.securityPrefs.loginAlertsDescription')}
           checked={loginAlertsEnabled}
           onChange={handleLoginAlertsChange}
           disabled={updateAccount.isPending}
         />
         <ToggleSwitch
           id="remember-devices"
-          label="Remember Devices"
-          description="Mark trusted devices to skip login alert emails on familiar browsers."
+          label={t('loginSecurity.securityPrefs.rememberDevices')}
+          description={t('loginSecurity.securityPrefs.rememberDevicesDescription')}
           checked={rememberDevicesEnabled}
           onChange={handleRememberDevicesChange}
           disabled={updateAccount.isPending}
@@ -368,13 +378,13 @@ export default function LoginSecurity() {
       </SectionCard>
 
       <SectionCard
-        title="Active Sessions"
-        description="Devices currently signed in to your account."
+        title={t('loginSecurity.sessions.title')}
+        description={t('loginSecurity.sessions.description')}
         icon="devices"
         color="role"
       >
         <p className="font-body-md text-on-surface-variant text-sm">
-          Changing your password clears device trust and signs out other browsers using your account.
+          {t('loginSecurity.sessions.passwordNote')}
         </p>
         <ActiveSessionsSection rememberDevicesEnabled={rememberDevicesEnabled} />
       </SectionCard>

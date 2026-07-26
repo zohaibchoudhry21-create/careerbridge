@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useAuth from '../../hooks/useAuth';
 import { DashboardLayout, PageContainer, PageHeader, BackLink } from '../layout';
 import AppIcon from '../icons/AppIcon';
@@ -10,8 +11,8 @@ export default function SettingsPageShell({
   children,
   onSave,
   onCancel,
-  saveLabel = 'Save Changes',
-  cancelLabel = 'Cancel',
+  saveLabel,
+  cancelLabel,
   saving = false,
   saveDisabled = false,
   showActions = true,
@@ -19,6 +20,10 @@ export default function SettingsPageShell({
 }) {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const { t } = useTranslation(['settings', 'common']);
+
+  const resolvedSaveLabel = saveLabel || t('common:buttons.saveChanges');
+  const resolvedCancelLabel = cancelLabel || t('common:buttons.cancel');
 
   const handleBack = () => navigate('/settings');
   const handleCancel = () => {
@@ -42,7 +47,7 @@ export default function SettingsPageShell({
   return (
     <DashboardLayout user={user}>
       <PageContainer width="standard">
-        <BackLink onClick={handleBack}>Back to Settings</BackLink>
+        <BackLink onClick={handleBack}>{t('common:back.toSettings')}</BackLink>
 
         <PageHeader title={title} description={description} />
 
@@ -52,8 +57,8 @@ export default function SettingsPageShell({
           <SaveButtons
             onSave={onSave}
             onCancel={handleCancel}
-            saveLabel={saveLabel}
-            cancelLabel={cancelLabel}
+            saveLabel={resolvedSaveLabel}
+            cancelLabel={resolvedCancelLabel}
             saving={saving}
             disabled={saveDisabled}
           />

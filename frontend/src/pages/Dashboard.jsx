@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/useAuth';
 import { useDashboardOverview, useJobMatches } from '../hooks/useDashboard';
 import { DashboardLayout, PageContainer } from '../components/layout';
@@ -13,6 +14,7 @@ import DashboardLoading from '../components/dashboard/DashboardLoading';
 import DashboardError from '../components/dashboard/DashboardError';
 
 export default function Dashboard() {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
   const { data, isLoading, isError, error, refetch } = useDashboardOverview();
   const { data: jobsData } = useJobMatches();
@@ -34,7 +36,9 @@ export default function Dashboard() {
     return (
       <DashboardLayout user={user}>
         <DashboardError
-          message={error?.response?.data?.message || error?.message || 'Something went wrong.'}
+          message={
+            error?.response?.data?.message || error?.message || t('errors.somethingWentWrong')
+          }
           onRetry={refetch}
         />
       </DashboardLayout>

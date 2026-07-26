@@ -1,7 +1,10 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import SectionIcon from '../ui/SectionIcon';
 
 function ProfileStrengthCard({ profileStrength }) {
+  const { t } = useTranslation('dashboard');
+
   if (!profileStrength) return null;
 
   const { score, maxScore, atsScore, skillsMatched, skillsTotal, missingSkills } = profileStrength;
@@ -12,7 +15,7 @@ function ProfileStrengthCard({ profileStrength }) {
       <div className="mb-xs flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2.5">
           <SectionIcon color="role" icon="trending_up" />
-          <h4 className="font-headline-section text-headline-section">Profile Strength</h4>
+          <h4 className="font-headline-section text-headline-section">{t('profileStrength.title')}</h4>
         </div>
         <span className="shrink-0 font-bold text-secondary">
           {score}/{maxScore}
@@ -23,18 +26,18 @@ function ProfileStrengthCard({ profileStrength }) {
       </div>
       <div className="space-y-sm">
         <div className="flex items-center justify-between rounded-xl bg-surface-container-low p-sm">
-          <span className="font-label-md">ATS Score</span>
+          <span className="font-label-md">{t('profileStrength.atsScore')}</span>
           <span className="font-label-md text-secondary">{atsScore}%</span>
         </div>
         <div className="flex items-center justify-between rounded-xl bg-surface-container-low p-sm">
-          <span className="font-label-md">Skills Matched</span>
+          <span className="font-label-md">{t('profileStrength.skillsMatched')}</span>
           <span className="font-label-md text-secondary">
             {skillsMatched}/{skillsTotal}
           </span>
         </div>
       </div>
       <div className="mt-sm">
-        <p className="mb-xs font-label-md text-on-surface-variant">Missing Skills (Priority):</p>
+        <p className="mb-xs font-label-md text-on-surface-variant">{t('profileStrength.missingSkills')}</p>
         <div className="flex flex-wrap gap-xs">
           {missingSkills?.map((skill) => (
             <span

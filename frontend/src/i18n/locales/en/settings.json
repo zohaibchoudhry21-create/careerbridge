@@ -1,1 +1,295 @@
-{}
+{
+  "hub": {
+    "title": "Account",
+    "description": "Manage your account information, security, and preferences.",
+    "cards": {
+      "personal-information": {
+        "title": "Personal Information",
+        "description": "Update your personal details and profile information."
+      },
+      "login-security": {
+        "title": "Login & Security",
+        "description": "Manage your password and secure your account."
+      },
+      "appearance": {
+        "title": "Appearance & Language",
+        "description": "Customize theme, language, and display preferences."
+      },
+      "account-management": {
+        "title": "Account Management",
+        "description": "Deactivate, delete, export data, or sign out."
+      }
+    }
+  },
+  "personal": {
+    "title": "Personal Information",
+    "description": "Update your profile details, contact information, and professional links.",
+    "profilePhoto": "Profile photo",
+    "personalDetails": "Personal Details",
+    "location": "Location",
+    "professional": "Professional",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "dateOfBirth": "Date of Birth",
+    "gender": "Gender",
+    "country": "Country",
+    "state": "State",
+    "city": "City",
+    "linkedin": "LinkedIn URL",
+    "portfolio": "Portfolio Website",
+    "headline": "Professional Headline",
+    "genderOptions": {
+      "male": "Male",
+      "female": "Female",
+      "nonBinary": "Non-binary",
+      "preferNotToSay": "Prefer not to say"
+    },
+    "countryOptions": {
+      "unitedStates": "United States",
+      "canada": "Canada",
+      "unitedKingdom": "United Kingdom",
+      "india": "India",
+      "australia": "Australia"
+    },
+    "stateOptions": {
+      "california": "California",
+      "newYork": "New York",
+      "texas": "Texas",
+      "washington": "Washington",
+      "illinois": "Illinois"
+    },
+    "toasts": {
+      "nameRequired": "First name and last name are required.",
+      "saveSuccess": "Personal information saved successfully.",
+      "saveError": "Unable to save changes. Please try again.",
+      "discarded": "Changes discarded."
+    }
+  },
+  "loginSecurity": {
+    "title": "Login & Security",
+    "description": "Update your password, manage security preferences, and review active sessions.",
+    "changePassword": "Change Password",
+    "password": {
+      "title": "Password",
+      "descriptionLocal": "Choose a strong password you do not use elsewhere.",
+      "descriptionSocial": "Your account uses social sign-in. Manage your password with your provider.",
+      "current": "Current Password",
+      "new": "New Password",
+      "confirm": "Confirm Password",
+      "socialNote": "Signed in with {{provider}}. Password changes are managed by your identity provider, not CareerBridge."
+    },
+    "twoFactor": {
+      "title": "Two-Factor Authentication",
+      "description": "Require an authenticator app code when signing in on untrusted devices."
+    },
+    "securityPrefs": {
+      "title": "Security Preferences",
+      "description": "Additional protections for your account.",
+      "loginAlerts": "Login Alerts",
+      "loginAlertsDescription": "Get notified when someone signs in from an unfamiliar device or IP address.",
+      "rememberDevices": "Remember Devices",
+      "rememberDevicesDescription": "Mark trusted devices to skip login alert emails on familiar browsers."
+    },
+    "sessions": {
+      "title": "Active Sessions",
+      "description": "Devices currently signed in to your account.",
+      "passwordNote": "Changing your password clears device trust and signs out other browsers using your account.",
+      "loadError": "Unable to load active sessions right now. Please refresh the page and try again.",
+      "empty": "No active sessions were found. Sign in again to refresh this list.",
+      "thisDevice": "This device",
+      "trusted": "Trusted",
+      "ip": "IP: {{ip}}",
+      "unknownIp": "Unknown",
+      "signedIn": "Signed in: {{date}}",
+      "lastActive": "Last active: {{date}}",
+      "removeTrust": "Remove trust",
+      "trustDevice": "Trust device",
+      "signOut": "Sign out",
+      "signOutDevice": "Sign out device",
+      "signOutAllOthers": "Sign out all other devices"
+    },
+    "toasts": {
+      "passwordSocialOnly": "Password changes are only available for email and password accounts.",
+      "passwordFieldsRequired": "Please fill in all password fields.",
+      "passwordWeak": "Please choose a stronger password.",
+      "passwordMismatch": "New password and confirmation do not match.",
+      "passwordChanged": "Password changed successfully.",
+      "passwordChangeError": "Unable to change password. Please try again.",
+      "discarded": "Changes discarded.",
+      "loginAlertsOn": "Login alerts enabled.",
+      "loginAlertsOff": "Login alerts disabled.",
+      "loginAlertsError": "Unable to update login alerts.",
+      "rememberOn": "Remember Devices enabled.",
+      "rememberOff": "Remember Devices disabled.",
+      "rememberError": "Unable to update Remember Devices.",
+      "signedOut": "You have been signed out.",
+      "deviceSignedOut": "Device signed out.",
+      "signOutDeviceError": "Unable to sign out that device.",
+      "noOtherSessions": "No other active sessions to sign out.",
+      "othersSignedOut": "Other devices have been signed out.",
+      "signOutOthersError": "Unable to sign out other devices.",
+      "trustRememberRequired": "Enable Remember Devices before trusting a device.",
+      "trustAdded": "Device marked as trusted.",
+      "trustRemoved": "Device trust removed.",
+      "trustError": "Unable to update device trust."
+    }
+  },
+  "appearance": {
+    "title": "Appearance & Language",
+    "description": "Customize how CareerBridge looks and displays information.",
+    "savePreferences": "Save Preferences",
+    "resetToDefault": "Reset to Default",
+    "theme": {
+      "title": "Theme",
+      "light": "Light",
+      "lightDescription": "Bright interface for daytime use.",
+      "dark": "Dark",
+      "darkDescription": "Reduced glare for low-light environments.",
+      "system": "System",
+      "systemDescription": "Match your device settings automatically."
+    },
+    "languageRegion": {
+      "title": "Language & Region",
+      "language": "Language",
+      "timezone": "Timezone",
+      "dateFormat": "Date Format",
+      "timeFormat": "Time Format",
+      "languages": {
+        "enUS": "English (US)",
+        "enGB": "English (UK)",
+        "es": "Spanish"
+      },
+      "timezones": {
+        "pacific": "Pacific Time (PT)",
+        "eastern": "Eastern Time (ET)",
+        "central": "Central Time (CT)",
+        "utc": "UTC",
+        "gmt": "GMT"
+      },
+      "timeFormats": {
+        "12h": "12 Hour",
+        "24h": "24 Hour"
+      }
+    },
+    "accessibility": {
+      "title": "Accessibility",
+      "largeText": "Large Text",
+      "highContrast": "High Contrast",
+      "reduceAnimations": "Reduce Animations"
+    },
+    "toasts": {
+      "saveSuccess": "Appearance preferences saved successfully.",
+      "saveError": "Unable to save preferences.",
+      "reset": "Preferences reset to default."
+    }
+  },
+  "account": {
+    "title": "Account Management",
+    "description": "Manage account status, data export, and sign out options.",
+    "export": {
+      "title": "Export Data",
+      "description": "Download a copy of your profile, resumes, and account activity.",
+      "archiveTitle": "Portable account archive",
+      "archiveDescription": "Receive a ZIP file with your profile, resumes, and sanitized session history. Limited to one export every 24 hours.",
+      "includes": {
+        "profile": "Profile and personal information",
+        "resumes": "Built resumes",
+        "sessions": "Sanitized sign-in session history"
+      },
+      "preparing": "Preparing...",
+      "download": "Download my data",
+      "dialogTitle": "Download your data?",
+      "dialogDescription": "We will prepare a ZIP file with your profile, resumes, and sanitized session history. Excludes passwords and security secrets. You can request another export after 24 hours.",
+      "downloadStarted": "Download started ({{filename}})."
+    },
+    "deactivate": {
+      "title": "Deactivate Account",
+      "description": "Temporarily disable your account. Your data will be preserved and you can reactivate anytime.",
+      "pauseTitle": "Pause your account",
+      "pauseDescription": "You will be signed out on all devices. To sign in again, you must explicitly confirm reactivation — we will not restore access automatically.",
+      "deactivating": "Deactivating...",
+      "button": "Deactivate account",
+      "dialogTitle": "Deactivate your account?",
+      "dialogDescription": "You will be signed out everywhere. Your data stays saved, but signing in again will require an explicit reactivation confirmation.",
+      "confirm": "Deactivate",
+      "cancel": "Keep account active",
+      "successTitle": "Account deactivated",
+      "successDescription": "Your account has been paused. Sign in anytime and confirm reactivation to restore access."
+    },
+    "signOut": {
+      "title": "Sign Out",
+      "description": "Sign out of your account on this device. Your session will end here and on the server.",
+      "endSession": "End this session",
+      "signedInAs": "Signed in as",
+      "button": "Sign out",
+      "dialogTitle": "Sign out of CareerBridge?",
+      "dialogDescription": "You will need to sign in again to access your account on this device.",
+      "confirm": "Sign out",
+      "cancel": "Stay signed in",
+      "success": "You have been signed out."
+    },
+    "delete": {
+      "title": "Delete Account",
+      "description": "Permanently remove your account and all associated data.",
+      "permanentTitle": "This action is permanent",
+      "permanentDescription": "All resumes, preferences, sessions, and account history for {{email}} will be deleted and cannot be recovered.",
+      "acknowledge": "I understand this action cannot be undone and all my data will be permanently deleted.",
+      "confirmPassword": "Confirm with your password",
+      "confirmEmail": "Confirm your account email",
+      "confirmPhrase": "Confirmation phrase",
+      "phraseHint": "Type {{phrase}} exactly. For security, you must have signed in recently with your provider.",
+      "requirementsMet": "Requirements met. You can delete your account.",
+      "requirementsPending": "Complete all requirements above to enable deletion.",
+      "deleting": "Deleting account...",
+      "button": "Delete account permanently",
+      "successTitle": "Account deleted",
+      "successDescription": "Your account and associated data have been permanently removed. Redirecting you now…",
+      "errors": {
+        "acknowledge": "Please confirm that you understand this action cannot be undone.",
+        "password": "Enter your password to confirm account deletion.",
+        "email": "Email must match your account email exactly.",
+        "phrase": "Type \"{{phrase}}\" to confirm.",
+        "generic": "Unable to delete account."
+      }
+    },
+    "toasts": {
+      "logoutFailed": "Logout failed. Please try again.",
+      "deactivateError": "Unable to deactivate account.",
+      "exportError": "Unable to export your data."
+    }
+  },
+  "twoFactor": {
+    "recoveryMessage": "If you lose your authenticator and all backup codes, contact support from your registered email so we can verify your identity and manually disable two-factor authentication on your account.",
+    "backupCodesTitle": "Save these backup codes now",
+    "backupCodesDescription": "Each code works once. Store them somewhere safe — they will not be shown again.",
+    "enabled": "Two-factor authentication is <strong>enabled</strong> on your account.",
+    "regenerateTitle": "Regenerate backup codes",
+    "currentPassword": "Current Password",
+    "authenticatorCode": "Authenticator Code",
+    "regenerateButton": "Regenerate backup codes",
+    "disableTitle": "Disable two-factor authentication",
+    "disableButton": "Disable 2FA",
+    "enableButton": "Enable two-factor authentication",
+    "manualEntryKey": "Manual entry key",
+    "scanQr": "Scan the QR code or enter the key in Google Authenticator, Authy, or a compatible app.",
+    "verificationCode": "Verification Code",
+    "confirmEnable": "Confirm and enable",
+    "toasts": {
+      "setupStarted": "Scan the QR code with your authenticator app.",
+      "setupStartError": "Unable to start two-factor setup.",
+      "invalidCode": "Enter the 6-digit code from your authenticator app.",
+      "enabled": "Two-factor authentication is now enabled.",
+      "confirmError": "Unable to confirm two-factor setup.",
+      "disableCodeRequired": "Enter your authenticator code to disable 2FA.",
+      "disablePasswordRequired": "Enter your password to disable 2FA.",
+      "disabled": "Two-factor authentication disabled.",
+      "disableError": "Unable to disable two-factor authentication.",
+      "regenCodeRequired": "Enter your current 6-digit authenticator code.",
+      "regenPasswordRequired": "Enter your password to regenerate backup codes.",
+      "regenSuccess": "New backup codes generated.",
+      "regenError": "Unable to regenerate backup codes."
+    }
+  }
+}

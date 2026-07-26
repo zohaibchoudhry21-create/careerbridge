@@ -1,27 +1,16 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import SettingsPageShell, { simulateSave } from '../../components/settings/SettingsPageShell';
 import SectionCard from '../../components/settings/SectionCard';
 import RadioGroup from '../../components/settings/RadioGroup';
 import SelectField from '../../components/settings/SelectField';
 import ToggleSwitch from '../../components/settings/ToggleSwitch';
-import {
-  DATE_FORMAT_OPTIONS,
-  LANGUAGE_OPTIONS,
-  TIMEZONE_OPTIONS,
-} from '../../components/settings/settingsDummyData';
-
-const THEME_OPTIONS = [
-  { value: 'Light', label: 'Light', description: 'Bright interface for daytime use.' },
-  { value: 'Dark', label: 'Dark', description: 'Reduced glare for low-light environments.' },
-  { value: 'System', label: 'System', description: 'Match your device settings automatically.' },
-];
-
-const TIME_FORMAT_OPTIONS = ['12 Hour', '24 Hour'];
+import { DATE_FORMAT_OPTIONS } from '../../components/settings/settingsDummyData';
 
 const DEFAULT_APPEARANCE = {
   theme: 'Light',
-  language: 'English (US)',
+  language: 'en-US',
   timezone: 'Pacific Time (PT)',
   dateFormat: 'MM/DD/YYYY',
   timeFormat: '12 Hour',
@@ -31,8 +20,58 @@ const DEFAULT_APPEARANCE = {
 };
 
 export default function AppearanceSettings() {
+  const { t } = useTranslation('settings');
   const [settings, setSettings] = useState(DEFAULT_APPEARANCE);
   const [saving, setSaving] = useState(false);
+
+  const themeOptions = useMemo(
+    () => [
+      {
+        value: 'Light',
+        label: t('appearance.theme.light'),
+        description: t('appearance.theme.lightDescription'),
+      },
+      {
+        value: 'Dark',
+        label: t('appearance.theme.dark'),
+        description: t('appearance.theme.darkDescription'),
+      },
+      {
+        value: 'System',
+        label: t('appearance.theme.system'),
+        description: t('appearance.theme.systemDescription'),
+      },
+    ],
+    [t]
+  );
+
+  const languageOptions = useMemo(
+    () => [
+      { value: 'en-US', label: t('appearance.languageRegion.languages.enUS') },
+      { value: 'en-GB', label: t('appearance.languageRegion.languages.enGB') },
+      { value: 'es', label: t('appearance.languageRegion.languages.es') },
+    ],
+    [t]
+  );
+
+  const timezoneOptions = useMemo(
+    () => [
+      { value: 'Pacific Time (PT)', label: t('appearance.languageRegion.timezones.pacific') },
+      { value: 'Eastern Time (ET)', label: t('appearance.languageRegion.timezones.eastern') },
+      { value: 'Central Time (CT)', label: t('appearance.languageRegion.timezones.central') },
+      { value: 'UTC', label: t('appearance.languageRegion.timezones.utc') },
+      { value: 'GMT', label: t('appearance.languageRegion.timezones.gmt') },
+    ],
+    [t]
+  );
+
+  const timeFormatOptions = useMemo(
+    () => [
+      { value: '12 Hour', label: t('appearance.languageRegion.timeFormats.12h') },
+      { value: '24 Hour', label: t('appearance.languageRegion.timeFormats.24h') },
+    ],
+    [t]
+  );
 
   const updateField = (field) => (event) => {
     setSettings((current) => ({ ...current, [field]: event.target.value }));
@@ -42,9 +81,9 @@ export default function AppearanceSettings() {
     setSaving(true);
     try {
       await simulateSave();
-      toast.success('Appearance preferences saved successfully.');
+      toast.success(t('appearance.toasts.saveSuccess'));
     } catch {
-      toast.error('Unable to save preferences.');
+      toast.error(t('appearance.toasts.saveError'));
     } finally {
       setSaving(false);
     }
@@ -52,77 +91,77 @@ export default function AppearanceSettings() {
 
   const handleReset = () => {
     setSettings(DEFAULT_APPEARANCE);
-    toast.info('Preferences reset to default.');
+    toast.info(t('appearance.toasts.reset'));
   };
 
   return (
     <SettingsPageShell
-      title="Appearance & Language"
-      description="Customize how CareerBridge looks and displays information."
+      title={t('appearance.title')}
+      description={t('appearance.description')}
       onSave={handleSave}
       onCancel={handleReset}
-      saveLabel="Save Preferences"
-      cancelLabel="Reset to Default"
+      saveLabel={t('appearance.savePreferences')}
+      cancelLabel={t('appearance.resetToDefault')}
       saving={saving}
     >
-      <SectionCard title="Theme" icon="palette" color="mode">
+      <SectionCard title={t('appearance.theme.title')} icon="palette" color="mode">
         <RadioGroup
           name="theme"
           value={settings.theme}
           onChange={(value) => setSettings((current) => ({ ...current, theme: value }))}
-          options={THEME_OPTIONS}
+          options={themeOptions}
         />
       </SectionCard>
 
-      <SectionCard title="Language & Region" icon="language" color="role">
+      <SectionCard title={t('appearance.languageRegion.title')} icon="language" color="role">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <SelectField
             id="language"
-            label="Language"
+            label={t('appearance.languageRegion.language')}
             value={settings.language}
             onChange={updateField('language')}
-            options={LANGUAGE_OPTIONS}
+            options={languageOptions}
           />
           <SelectField
             id="timezone"
-            label="Timezone"
+            label={t('appearance.languageRegion.timezone')}
             value={settings.timezone}
             onChange={updateField('timezone')}
-            options={TIMEZONE_OPTIONS}
+            options={timezoneOptions}
           />
           <SelectField
             id="dateFormat"
-            label="Date Format"
+            label={t('appearance.languageRegion.dateFormat')}
             value={settings.dateFormat}
             onChange={updateField('dateFormat')}
             options={DATE_FORMAT_OPTIONS}
           />
           <SelectField
             id="timeFormat"
-            label="Time Format"
+            label={t('appearance.languageRegion.timeFormat')}
             value={settings.timeFormat}
             onChange={updateField('timeFormat')}
-            options={TIME_FORMAT_OPTIONS}
+            options={timeFormatOptions}
           />
         </div>
       </SectionCard>
 
-      <SectionCard title="Accessibility" icon="accessibility_new" color="focus">
+      <SectionCard title={t('appearance.accessibility.title')} icon="accessibility_new" color="focus">
         <ToggleSwitch
           id="large-text"
-          label="Large Text"
+          label={t('appearance.accessibility.largeText')}
           checked={settings.largeText}
           onChange={(value) => setSettings((current) => ({ ...current, largeText: value }))}
         />
         <ToggleSwitch
           id="high-contrast"
-          label="High Contrast"
+          label={t('appearance.accessibility.highContrast')}
           checked={settings.highContrast}
           onChange={(value) => setSettings((current) => ({ ...current, highContrast: value }))}
         />
         <ToggleSwitch
           id="reduce-animations"
-          label="Reduce Animations"
+          label={t('appearance.accessibility.reduceAnimations')}
           checked={settings.reduceAnimations}
           onChange={(value) => setSettings((current) => ({ ...current, reduceAnimations: value }))}
         />

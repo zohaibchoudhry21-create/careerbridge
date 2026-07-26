@@ -1,5 +1,6 @@
 import { NavLink, Link } from 'react-router-dom';
-import { DASHBOARD_NAV_ITEMS } from './dashboardConstants';
+import { useTranslation } from 'react-i18next';
+import { useDashboardNavItems } from '../../hooks/useDashboardNav';
 import BrandLogo from '../brand/BrandLogo';
 import AppIcon from '../icons/AppIcon';
 
@@ -111,6 +112,9 @@ function NavItem({ item, index = 0, collapsed, onNavigate }) {
 }
 
 function SidebarContent({ collapsed, onToggleCollapse, onNavigate, showCollapseToggle = true }) {
+  const { t } = useTranslation('common');
+  const navItems = useDashboardNavItems();
+
   return (
     <>
       <div
@@ -133,7 +137,7 @@ function SidebarContent({ collapsed, onToggleCollapse, onNavigate, showCollapseT
               'active:scale-95',
               'overflow-hidden',
             ].join(' ')}
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={collapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
             aria-expanded={!collapsed}
           >
             <AppIcon
@@ -163,7 +167,7 @@ function SidebarContent({ collapsed, onToggleCollapse, onNavigate, showCollapseT
       </div>
 
       <nav className="flex-1 min-h-0 space-y-1 overflow-y-auto overflow-x-hidden">
-        {DASHBOARD_NAV_ITEMS.map((item, index) => (
+        {navItems.map((item, index) => (
           <NavItem
             key={item.id}
             item={item}

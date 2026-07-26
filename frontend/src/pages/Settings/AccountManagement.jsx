@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import SettingsPageShell from '../../components/settings/SettingsPageShell';
 import SectionCard from '../../components/settings/SectionCard';
@@ -15,14 +16,8 @@ import useAuth from '../../hooks/useAuth';
 import { useDeactivateAccount, useDeleteAccount, useExportAccountData } from '../../hooks/useSettings';
 import { getApiErrorMessage } from '../../features/interviewPrep/utils/apiErrorUtils';
 
-const EXPORT_INCLUDES = [
-  'Profile and personal information',
-  'Built resumes',
-  'Sanitized sign-in session history',
-];
-
-function mapDeleteAccountErrors(error) {
-  const message = getApiErrorMessage(error, 'Unable to delete account.');
+function mapDeleteAccountErrors(error, t) {
+  const message = getApiErrorMessage(error, t('account.delete.errors.generic'));
   const lower = message.toLowerCase();
 
   if (lower.includes('password')) {
@@ -39,6 +34,7 @@ function mapDeleteAccountErrors(error) {
 }
 
 export default function AccountManagement() {
+  const { t } = useTranslation(['settings', 'common']);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const deleteAccount = useDeleteAccount();
@@ -46,6 +42,15 @@ export default function AccountManagement() {
   const exportAccountData = useExportAccountData();
 
   const isLocalAccount = (user?.provider || user?.authProvider || 'local') === 'local';
+
+  const exportIncludes = useMemo(
+    () => [
+      t('account.export.includes.profile'),
+      t('account.export.includes.resumes'),
+      t('account.export.includes.sessions'),
+    ],
+    [t]
+  );
 
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -119,10 +124,10 @@ export default function AccountManagement() {
     try {
       await logout();
       setLogoutDialogOpen(false);
-      toast.success('You have been signed out.');
+      toast.success(t('account.signOut.success'));
       navigate('/login', { replace: true });
     } catch {
-      toast.error('Logout failed. Please try again.');
+      toast.error(t('account.toasts.logoutFailed'));
     } finally {
       setLoggingOut(false);
     }
@@ -134,7 +139,7 @@ export default function AccountManagement() {
       setDeactivateDialogOpen(false);
       setDeactivateSuccess(true);
     } catch (error) {
-      toast.error(getApiErrorMessage(error, 'Unable to deactivate account.'));
+      toast.error(getApiErrorMessage(error, t('account.toasts.deactivateError')));
     }
   };
 
@@ -142,9 +147,13 @@ export default function AccountManagement() {
     try {
       const result = await exportAccountData.mutateAsync();
       setExportDialogOpen(false);
-      toast.success(`Download started (${result?.filename || 'export.zip'}).`);
+      toast.success(
+        t('account.export.downloadStarted', {
+          filename: result?.filename || 'export.zip',
+        })
+      );
     } catch (error) {
-      toast.error(getApiErrorMessage(error, 'Unable to export your data.'));
+      toast.error(getApiErrorMessage(error, t('account.toasts.exportError')));
     }
   };
 
@@ -153,16 +162,18 @@ export default function AccountManagement() {
 
     if (!deleteRequirementsMet) {
       if (!deleteAcknowledged) {
-        setDeleteErrors({ form: 'Please confirm that you understand this action cannot be undone.' });
+        setDeleteErrors({ form: t('account.delete.errors.acknowledge') });
       } else if (isLocalAccount && !deletePassword.trim()) {
-        setDeleteErrors({ password: 'Enter your password to confirm account deletion.' });
+        setDeleteErrors({ password: t('account.delete.errors.password') });
       } else if (!isLocalAccount) {
         const nextErrors = {};
         if (confirmEmail.trim().toLowerCase() !== String(user?.email || '').toLowerCase()) {
-          nextErrors.confirmEmail = 'Email must match your account email exactly.';
+          nextErrors.confirmEmail = t('account.delete.errors.email');
         }
         if (confirmPhrase.trim().toUpperCase() !== DELETE_ACCOUNT_CONFIRMATION_PHRASE) {
-          nextErrors.confirmPhrase = `Type "${DELETE_ACCOUNT_CONFIRMATION_PHRASE}" to confirm.`;
+          nextErrors.confirmPhrase = t('account.delete.errors.phrase', {
+            phrase: DELETE_ACCOUNT_CONFIRMATION_PHRASE,
+          });
         }
         setDeleteErrors(nextErrors);
       }
@@ -180,7 +191,7 @@ export default function AccountManagement() {
       await deleteAccount.mutateAsync(payload);
       setDeleteSuccess(true);
     } catch (error) {
-      const mapped = mapDeleteAccountErrors(error);
+      const mapped = mapDeleteAccountErrors(error, t);
       setDeleteErrors(mapped);
     }
   };
@@ -188,8 +199,8 @@ export default function AccountManagement() {
   if (deactivateSuccess) {
     return (
       <SettingsPageShell
-        title="Account Management"
-        description="Manage account status, data export, and sign out options."
+        title={t('account.title')}
+        description={t('account.description')}
         showActions={false}
       >
         <SectionCard color="warning" icon="pause_circle">
@@ -202,8 +213,8 @@ export default function AccountManagement() {
   if (deleteSuccess) {
     return (
       <SettingsPageShell
-        title="Account Management"
-        description="Manage account status, data export, and sign out options."
+        title={t('account.title')}
+        description={t('account.description')}
         showActions={false}
       >
         <SectionCard color="danger" icon="delete_forever">
@@ -215,25 +226,24 @@ export default function AccountManagement() {
 
   return (
     <SettingsPageShell
-      title="Account Management"
-      description="Manage account status, data export, and sign out options."
+      title={t('account.title')}
+      description={t('account.description')}
       showActions={false}
     >
       <SectionCard
-        title="Export Data"
-        description="Download a copy of your profile, resumes, and account activity."
+        title={t('account.export.title')}
+        description={t('account.export.description')}
         icon="download"
         color="resume"
       >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-4">
           <div className="space-y-2 min-w-0">
-            <p className="font-label-md text-on-surface">Portable account archive</p>
+            <p className="font-label-md text-on-surface">{t('account.export.archiveTitle')}</p>
             <p className="font-body-md text-sm text-on-surface-variant">
-              Receive a ZIP file with your profile, resumes, and sanitized session history. Limited
-              to one export every 24 hours.
+              {t('account.export.archiveDescription')}
             </p>
             <ul className="font-body-md text-xs text-on-surface-variant space-y-1">
-              {EXPORT_INCLUDES.map((item) => (
+              {exportIncludes.map((item) => (
                 <li key={item} className="flex items-center gap-2">
                   <AppIcon name="check_circle" size="h-4 w-4" className="text-secondary shrink-0" />
                   {item}
@@ -251,12 +261,12 @@ export default function AccountManagement() {
             {exportAccountData.isPending ? (
               <>
                 <span className="w-4 h-4 border-2 border-on-secondary border-t-transparent rounded-full animate-spin" />
-                Preparing...
+                {t('account.export.preparing')}
               </>
             ) : (
               <>
                 <AppIcon name="download" size="button" />
-                Download my data
+                {t('account.export.download')}
               </>
             )}
           </Button>
@@ -264,8 +274,8 @@ export default function AccountManagement() {
       </SectionCard>
 
       <SectionCard
-        title="Deactivate Account"
-        description="Temporarily disable your account. Your data will be preserved and you can reactivate anytime."
+        title={t('account.deactivate.title')}
+        description={t('account.deactivate.description')}
         icon="pause_circle"
         color="warning"
       >
@@ -275,10 +285,9 @@ export default function AccountManagement() {
               <AppIcon name="pause_circle" size="button" className="text-warning" />
             </div>
             <div className="space-y-1 min-w-0">
-              <p className="font-label-md text-on-surface">Pause your account</p>
+              <p className="font-label-md text-on-surface">{t('account.deactivate.pauseTitle')}</p>
               <p className="font-body-md text-sm text-on-surface-variant">
-                You will be signed out on all devices. To sign in again, you must explicitly confirm
-                reactivation — we will not restore access automatically.
+                {t('account.deactivate.pauseDescription')}
               </p>
             </div>
           </div>
@@ -292,26 +301,27 @@ export default function AccountManagement() {
             {deactivateAccount.isPending ? (
               <>
                 <span className="w-4 h-4 border-2 border-on-surface border-t-transparent rounded-full animate-spin" />
-                Deactivating...
+                {t('account.deactivate.deactivating')}
               </>
             ) : (
-              'Deactivate account'
+              t('account.deactivate.button')
             )}
           </Button>
         </div>
       </SectionCard>
 
       <SectionCard
-        title="Sign Out"
-        description="Sign out of your account on this device. Your session will end here and on the server."
+        title={t('account.signOut.title')}
+        description={t('account.signOut.description')}
         icon="logout"
         color="mode"
       >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-4 py-4">
           <div className="space-y-1 min-w-0">
-            <p className="font-label-md text-on-surface">End this session</p>
+            <p className="font-label-md text-on-surface">{t('account.signOut.endSession')}</p>
             <p className="font-body-md text-sm text-on-surface-variant">
-              Signed in as <span className="font-medium text-on-surface">{user?.email}</span>
+              {t('account.signOut.signedInAs')}{' '}
+              <span className="font-medium text-on-surface">{user?.email}</span>
             </p>
           </div>
           <Button
@@ -322,14 +332,14 @@ export default function AccountManagement() {
             className="min-h-[44px] gap-2 px-4 py-2.5 shrink-0"
           >
             <AppIcon name="logout" size="button" />
-            Sign out
+            {t('account.signOut.button')}
           </Button>
         </div>
       </SectionCard>
 
       <SectionCard
-        title="Delete Account"
-        description="Permanently remove your account and all associated data."
+        title={t('account.delete.title')}
+        description={t('account.delete.description')}
         icon="delete_forever"
         color="danger"
         className="border-error/25"
@@ -340,11 +350,9 @@ export default function AccountManagement() {
               <AppIcon name="warning" size="button" className="text-error" />
             </div>
             <div className="space-y-1 min-w-0">
-              <p className="font-label-md text-on-surface">This action is permanent</p>
+              <p className="font-label-md text-on-surface">{t('account.delete.permanentTitle')}</p>
               <p className="font-body-md text-sm text-on-surface-variant">
-                All resumes, preferences, sessions, and account history for{' '}
-                <span className="font-medium text-on-surface">{user?.email}</span> will be deleted
-                and cannot be recovered.
+                {t('account.delete.permanentDescription', { email: user?.email })}
               </p>
             </div>
           </div>
@@ -359,15 +367,13 @@ export default function AccountManagement() {
               }}
               className="mt-0.5 h-4 w-4 rounded border-outline-variant text-error focus:ring-error"
             />
-            <span className="font-body-md text-sm text-on-surface">
-              I understand this action cannot be undone and all my data will be permanently deleted.
-            </span>
+            <span className="font-body-md text-sm text-on-surface">{t('account.delete.acknowledge')}</span>
           </label>
 
           {isLocalAccount ? (
             <PasswordField
               id="delete-account-password"
-              label="Confirm with your password"
+              label={t('account.delete.confirmPassword')}
               value={deletePassword}
               onChange={(event) => {
                 setDeletePassword(event.target.value);
@@ -383,7 +389,7 @@ export default function AccountManagement() {
             <div className="space-y-4 max-w-xl">
               <InputField
                 id="delete-confirm-email"
-                label="Confirm your account email"
+                label={t('account.delete.confirmEmail')}
                 type="email"
                 value={confirmEmail}
                 onChange={(event) => {
@@ -398,7 +404,7 @@ export default function AccountManagement() {
               />
               <InputField
                 id="delete-confirm-phrase"
-                label="Confirmation phrase"
+                label={t('account.delete.confirmPhrase')}
                 value={confirmPhrase}
                 onChange={(event) => {
                   setConfirmPhrase(event.target.value);
@@ -411,11 +417,7 @@ export default function AccountManagement() {
                 required
               />
               <p className="font-body-md text-xs text-on-surface-variant">
-                Type{' '}
-                <span className="font-mono font-medium text-on-surface">
-                  {DELETE_ACCOUNT_CONFIRMATION_PHRASE}
-                </span>{' '}
-                exactly. For security, you must have signed in recently with your provider.
+                {t('account.delete.phraseHint', { phrase: DELETE_ACCOUNT_CONFIRMATION_PHRASE })}
               </p>
             </div>
           )}
@@ -429,8 +431,8 @@ export default function AccountManagement() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-1 border-t border-error/15">
             <p className="font-body-md text-xs text-on-surface-variant">
               {deleteRequirementsMet
-                ? 'Requirements met. You can delete your account.'
-                : 'Complete all requirements above to enable deletion.'}
+                ? t('account.delete.requirementsMet')
+                : t('account.delete.requirementsPending')}
             </p>
             <Button
               type="button"
@@ -442,12 +444,12 @@ export default function AccountManagement() {
               {deleteAccount.isPending ? (
                 <>
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Deleting account...
+                  {t('account.delete.deleting')}
                 </>
               ) : (
                 <>
                   <AppIcon name="delete_forever" size="button" />
-                  Delete account permanently
+                  {t('account.delete.button')}
                 </>
               )}
             </Button>
@@ -457,10 +459,10 @@ export default function AccountManagement() {
 
       <SettingsConfirmDialog
         open={logoutDialogOpen}
-        title="Sign out of CareerBridge?"
-        description="You will need to sign in again to access your account on this device."
-        confirmLabel="Sign out"
-        cancelLabel="Stay signed in"
+        title={t('account.signOut.dialogTitle')}
+        description={t('account.signOut.dialogDescription')}
+        confirmLabel={t('account.signOut.confirm')}
+        cancelLabel={t('account.signOut.cancel')}
         loading={loggingOut}
         onConfirm={handleLogoutConfirm}
         onCancel={() => {
@@ -470,10 +472,10 @@ export default function AccountManagement() {
 
       <SettingsConfirmDialog
         open={deactivateDialogOpen}
-        title="Deactivate your account?"
-        description="You will be signed out everywhere. Your data stays saved, but signing in again will require an explicit reactivation confirmation."
-        confirmLabel="Deactivate"
-        cancelLabel="Keep account active"
+        title={t('account.deactivate.dialogTitle')}
+        description={t('account.deactivate.dialogDescription')}
+        confirmLabel={t('account.deactivate.confirm')}
+        cancelLabel={t('account.deactivate.cancel')}
         loading={deactivateAccount.isPending}
         onConfirm={handleDeactivateConfirm}
         onCancel={() => {
@@ -483,10 +485,10 @@ export default function AccountManagement() {
 
       <SettingsConfirmDialog
         open={exportDialogOpen}
-        title="Download your data?"
-        description="We will prepare a ZIP file with your profile, resumes, and sanitized session history. Excludes passwords and security secrets. You can request another export after 24 hours."
-        confirmLabel="Download"
-        cancelLabel="Cancel"
+        title={t('account.export.dialogTitle')}
+        description={t('account.export.dialogDescription')}
+        confirmLabel={t('account.export.download')}
+        cancelLabel={t('common:buttons.cancel')}
         loading={exportAccountData.isPending}
         onConfirm={handleExportConfirm}
         onCancel={() => {
