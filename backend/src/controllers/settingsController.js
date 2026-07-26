@@ -96,6 +96,10 @@ export const updateAccount = async (req, res, next) => {
       }
     }
 
+    if (req.body.loginAlertsEnabled !== undefined) {
+      user.loginAlertsEnabled = Boolean(req.body.loginAlertsEnabled);
+    }
+
     if (emailChanged) {
       const { verificationUrl, emailResult } = await assignVerificationToken(user, {
         name: user.name,

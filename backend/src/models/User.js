@@ -143,6 +143,11 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    /** Email alerts for sign-ins from unfamiliar devices or IP addresses. */
+    loginAlertsEnabled: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );
@@ -195,6 +200,7 @@ userSchema.methods.toPublicJSON = function toPublicJSON() {
     role: this.role,
     status: this.status,
     isVerified: this.isVerified,
+    loginAlertsEnabled: this.loginAlertsEnabled !== false,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };

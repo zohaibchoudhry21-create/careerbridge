@@ -13,6 +13,7 @@ import {
   revokeAllSessionsForUser,
   revokeSessionBySid,
 } from '../utils/sessionService.js';
+import { evaluateAndSendLoginAlert } from '../utils/loginAlertService.js';
 
 const buildResetPasswordUrl = (rawToken) => {
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
@@ -96,6 +97,8 @@ export const login = async (req, res, next) => {
     sendResponse(res, 200, true, 'Login successful', {
       user: user.toPublicJSON(),
     });
+
+    void evaluateAndSendLoginAlert({ user, session, source: 'login' });
   } catch (error) {
     next(error);
   }
@@ -201,6 +204,8 @@ export const resetPassword = async (req, res, next) => {
     sendResponse(res, 200, true, 'Password reset successful', {
       user: user.toPublicJSON(),
     });
+
+    void evaluateAndSendLoginAlert({ user, session, source: 'reset_password' });
   } catch (error) {
     next(error);
   }
@@ -233,6 +238,7 @@ export const exchangeSocialCode = async (req, res, next) => {
       user: user.toPublicJSON(),
     });
 
+    void evaluateAndSendLoginAlert({ user, session, source: 'social' });
     void sendWelcomeEmailIfNeeded(user, { isNewUser });
   } catch (error) {
     next(error);

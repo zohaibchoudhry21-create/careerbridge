@@ -23,6 +23,7 @@ const PROFILE_UPDATE_FIELDS = [
   'linkedin',
   'portfolio',
   'headline',
+  'loginAlertsEnabled',
 ];
 
 const optionalTrimmedString = (field, { max, allowEmpty = true } = {}) => {
@@ -122,6 +123,10 @@ export const updateProfileValidation = [
   optionalUrlField('linkedin'),
   optionalUrlField('portfolio'),
   optionalTrimmedString('headline', { max: 200 }),
+  body('loginAlertsEnabled')
+    .optional()
+    .isBoolean()
+    .withMessage('loginAlertsEnabled must be a boolean'),
   body().custom((_value, { req }) => {
     const hasField = PROFILE_UPDATE_FIELDS.some((field) => req.body[field] !== undefined);
     if (!hasField) {

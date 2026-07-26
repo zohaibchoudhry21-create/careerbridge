@@ -46,6 +46,9 @@ export const getClientIp = (req) => {
   return req.ip || req.socket?.remoteAddress || 'Unknown';
 };
 
+export const buildDeviceFingerprint = (browser, os) =>
+  `${String(browser || 'unknown').trim().toLowerCase()}|${String(os || 'unknown').trim().toLowerCase()}`;
+
 export const parseRequestClient = (req) => {
   const userAgent = String(req.headers['user-agent'] || '').slice(0, 500);
   const parser = new UAParser(userAgent);
@@ -62,6 +65,7 @@ export const parseRequestClient = (req) => {
     osVersion: os.version || '',
     userAgent,
     ipAddress: getClientIp(req),
+    deviceFingerprint: buildDeviceFingerprint(browserName, osName),
   };
 };
 

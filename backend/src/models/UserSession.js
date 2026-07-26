@@ -55,6 +55,13 @@ const userSessionSchema = new mongoose.Schema(
       trim: true,
       maxlength: 64,
     },
+    deviceFingerprint: {
+      type: String,
+      default: '',
+      trim: true,
+      maxlength: 120,
+      index: true,
+    },
     isTrusted: {
       type: Boolean,
       default: false,
@@ -77,6 +84,8 @@ const userSessionSchema = new mongoose.Schema(
 );
 
 userSessionSchema.index({ userId: 1, revokedAt: 1, lastActiveAt: -1 });
+userSessionSchema.index({ userId: 1, deviceFingerprint: 1 });
+userSessionSchema.index({ userId: 1, ipAddress: 1 });
 userSessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 userSessionSchema.statics.isActive = function isActive(session) {
