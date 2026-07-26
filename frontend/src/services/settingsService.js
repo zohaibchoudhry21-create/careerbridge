@@ -2,6 +2,14 @@ import api from './authService';
 
 const unwrap = (response) => response.data;
 
+export const getUserSessions = () => api.get('/users/me/sessions').then(unwrap);
+
+export const revokeUserSession = (sessionId) =>
+  api.delete(`/users/me/sessions/${sessionId}`).then(unwrap);
+
+export const revokeOtherUserSessions = () =>
+  api.delete('/users/me/sessions/others').then(unwrap);
+
 export const updateAccount = (payload) => api.patch('/users/me', payload).then(unwrap);
 
 export const changeUserPassword = (payload) => api.patch('/users/me/password', payload).then(unwrap);

@@ -1,12 +1,18 @@
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import generateToken from '../utils/generateToken.js';
 import { assignVerificationToken } from './verifyEmailController.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
-import { setAuthCookie, clearAuthCookie } from '../utils/authCookie.js';
+import { setAuthCookie, clearAuthCookie, getTokenFromRequest } from '../utils/authCookie.js';
 import { consumeAuthCode } from '../utils/authCodeStore.js';
 import { sendPasswordResetEmail } from '../utils/emailService.js';
 import { sendWelcomeEmailIfNeeded } from '../utils/welcomeEmailService.js';
+import {
+  createUserSession,
+  issueAuthToken,
+  revokeAllSessionsForUser,
+  revokeSessionBySid,
+} from '../utils/sessionService.js';
 
 const buildResetPasswordUrl = (rawToken) => {
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
@@ -83,9 +89,9 @@ export const login = async (req, res, next) => {
       );
     }
 
-    const token = generateToken(user._id, user.tokenVersion);
     const remember = req.body.remember !== false;
-    setAuthCookie(res, token, remember);
+    const session = await createUserSession(user._id, req, { remember });
+    issueAuthToken(res, user, session, remember);
 
     sendResponse(res, 200, true, 'Login successful', {
       user: user.toPublicJSON(),
@@ -105,8 +111,21 @@ export const getMe = async (req, res, next) => {
   }
 };
 
-export const logout = async (_req, res, next) => {
+export const logout = async (req, res, next) => {
   try {
+    const token = getTokenFromRequest(req);
+
+    if (token && process.env.JWT_SECRET) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded?.sid && decoded?.id) {
+          await revokeSessionBySid(decoded.sid, decoded.id);
+        }
+      } catch {
+        // Allow logout even when the token is expired or invalid.
+      }
+    }
+
     clearAuthCookie(res);
     sendResponse(res, 200, true, 'Logged out successfully');
   } catch (error) {
@@ -175,8 +194,9 @@ export const resetPassword = async (req, res, next) => {
     user.tokenVersion = (Number(user.tokenVersion) || 0) + 1;
     await user.save();
 
-    const authToken = generateToken(user._id, user.tokenVersion);
-    setAuthCookie(res, authToken, true);
+    await revokeAllSessionsForUser(user._id);
+    const session = await createUserSession(user._id, req, { remember: true });
+    issueAuthToken(res, user, session, true);
 
     sendResponse(res, 200, true, 'Password reset successful', {
       user: user.toPublicJSON(),
@@ -206,8 +226,8 @@ export const exchangeSocialCode = async (req, res, next) => {
       throw new AppError('Account is not active.', 403);
     }
 
-    const token = generateToken(user._id, user.tokenVersion);
-    setAuthCookie(res, token, true);
+    const session = await createUserSession(user._id, req, { remember: true });
+    issueAuthToken(res, user, session, true);
 
     sendResponse(res, 200, true, 'Login successful', {
       user: user.toPublicJSON(),

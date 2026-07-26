@@ -4,6 +4,11 @@ import { AppError, sendResponse } from '../utils/sendResponse.js';
 import { assignVerificationToken } from './verifyEmailController.js';
 import { clearAuthCookie, setAuthCookie } from '../utils/authCookie.js';
 import generateToken from '../utils/generateToken.js';
+import {
+  issueAuthToken,
+  revokeAllSessionsForUser,
+  revokeOtherSessions,
+} from '../utils/sessionService.js';
 
 const ACCOUNT_DELETE_CONFIRMATION = 'DELETE MY ACCOUNT';
 /** OAuth destructive actions require a freshly issued session (minutes). */
@@ -97,6 +102,7 @@ export const updateAccount = async (req, res, next) => {
       });
 
       clearAuthCookie(res);
+      await revokeAllSessionsForUser(user._id);
 
       const response = {
         user: user.toPublicJSON(),
@@ -154,9 +160,15 @@ export const changePassword = async (req, res, next) => {
     user.tokenVersion = (Number(user.tokenVersion) || 0) + 1;
     await user.save();
 
-    // Invalidate every previous JWT; keep this device signed in with a fresh token.
-    const token = generateToken(user._id, user.tokenVersion);
-    setAuthCookie(res, token, true);
+    await revokeOtherSessions(user._id, req.authSessionId);
+
+    const session = req.authSession;
+    if (session) {
+      issueAuthToken(res, user, session, true);
+    } else {
+      const token = generateToken(user._id, user.tokenVersion);
+      setAuthCookie(res, token, true);
+    }
 
     sendResponse(res, 200, true, 'Password updated successfully. Other sessions have been signed out.');
   } catch (error) {
@@ -217,6 +229,7 @@ export const deleteAccount = async (req, res, next) => {
     }
 
     await BuiltResume.deleteMany({ userId: user._id });
+    await revokeAllSessionsForUser(user._id);
     await User.deleteOne({ _id: user._id });
     clearAuthCookie(res);
 
