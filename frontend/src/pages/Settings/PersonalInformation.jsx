@@ -117,10 +117,10 @@ export default function PersonalInformation() {
         <div className="flex items-center gap-4 min-w-0">
           <ProfileAvatar profile={form} fallbackUser={user} className="w-16 h-16 text-lg" />
           <div className="min-w-0">
-            <p className="font-headline-section text-headline-section text-on-surface truncate">
+            <p className="font-headline-section text-headline-section app-heading truncate">
               {getDisplayName(form, user)}
             </p>
-            <p className="font-body-md text-on-surface-variant truncate mt-1">{form.email}</p>
+            <p className="font-body-md app-muted truncate mt-1">{form.email}</p>
           </div>
         </div>
       </SectionCard>

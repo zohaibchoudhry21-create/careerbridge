@@ -4,4 +4,4 @@ export const settingsInputClassName =
 export const settingsLabelClassName = 'font-label-md text-label-md app-heading';
 
 export const settingsSectionCardClassName =
-  'rounded-2xl border border-outline-variant/40 bg-white dashboard-card-padding shadow-sm min-w-0 dark:bg-[#1a2332]/95 dark:border-[#334155]';
+  'app-surface-card dashboard-card-padding shadow-sm min-w-0';
