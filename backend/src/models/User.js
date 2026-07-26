@@ -153,6 +153,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    /** UI language preference (i18n). Partial rollout: en-US, en-GB, es. */
+    languagePreference: {
+      type: String,
+      enum: ['en-US', 'en-GB', 'es'],
+      default: 'en-US',
+    },
     twoFactorEnabled: {
       type: Boolean,
       default: false,
@@ -239,6 +245,7 @@ userSchema.methods.toPublicJSON = function toPublicJSON() {
     isVerified: this.isVerified,
     loginAlertsEnabled: this.loginAlertsEnabled !== false,
     rememberDevicesEnabled: this.rememberDevicesEnabled === true,
+    languagePreference: this.languagePreference || 'en-US',
     twoFactorEnabled: this.twoFactorEnabled === true,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,

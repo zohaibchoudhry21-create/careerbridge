@@ -17,6 +17,7 @@ import {
   cancelAccountReactivation,
 } from '../services/authService';
 import { clearStoredToken } from '../utils/tokenStorage';
+import { syncLanguageWithUser } from '../i18n/syncLanguage';
 
 const AuthContext = createContext(null);
 
@@ -59,6 +60,10 @@ export function AuthProvider({ children }) {
     restoreStartedRef.current = true;
     restoreSession();
   }, [restoreSession]);
+
+  useEffect(() => {
+    syncLanguageWithUser(user?.languagePreference);
+  }, [user?.languagePreference]);
 
   const syncSession = useCallback(async ({ preserveExistingSession = false } = {}) => {
     const generation = authGenerationRef.current;
@@ -141,6 +146,7 @@ export function AuthProvider({ children }) {
     setAuthToken(null);
     setSessionActive(false);
     setUser(null);
+    syncLanguageWithUser(null);
   }, [sessionActive]);
 
   const refreshUser = useCallback(async () => {

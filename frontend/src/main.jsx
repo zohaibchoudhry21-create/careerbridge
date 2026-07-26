@@ -6,6 +6,7 @@ import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './context/AuthContext';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import App from './App';
+import './i18n';
 import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
 
