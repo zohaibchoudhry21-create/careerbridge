@@ -1,14 +1,12 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useNavbarScroll } from '../hooks/useAnimations';
 import BrandLogo from './brand/BrandLogo';
-
-const navLinks = [
-  { label: 'AI Resume Parsing', href: '/register' },
-  { label: 'CV Upload', href: '/register' },
-  { label: 'AI Suggestions', href: '/register' },
-  { label: 'Resume Builder', href: '/register' },
-];
+import AppIcon from './icons/AppIcon';
+import { buttonPrimaryClass, buttonSecondaryClass } from './ui/buttonTokens';
+import { cn } from '../lib/utils';
+import LanguageSelector from '../i18n/components/LanguageSelector';
 
 const linkClassName =
   'text-on-surface-variant font-medium hover:text-secondary transition-colors duration-200 whitespace-nowrap nav-link-underline text-sm';
@@ -32,16 +30,27 @@ function NavLinkItem({ href, className, children, onClick }) {
 }
 
 export default function Navbar() {
+  const { t } = useTranslation('common');
   const navRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
   useNavbarScroll(navRef);
+
+  const navLinks = useMemo(
+    () => [
+      { label: t('nav.aiResumeParsing'), href: '/register' },
+      { label: t('nav.cvUpload'), href: '/register' },
+      { label: t('nav.aiSuggestions'), href: '/register' },
+      { label: t('nav.resumeBuilder'), href: '/register' },
+    ],
+    [t]
+  );
 
   const closeMenu = () => setMenuOpen(false);
 
   return (
     <nav
       ref={navRef}
-      className="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant shadow-sm"
+      className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant shadow-sm"
       id="navbar"
     >
       <div className="shell-inner flex justify-between items-center h-14 min-w-0 gap-3">
@@ -62,17 +71,21 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-2 sm:gap-3 shrink-0">
+          <LanguageSelector />
           <Link
             to="/login"
-            className="font-label-md text-label-md text-secondary border border-secondary rounded-xl px-3.5 py-1.5 hover:bg-secondary/10 transition-colors"
+            className={cn(buttonSecondaryClass, 'px-3.5 py-1.5 text-label-md')}
           >
-            Login
+            {t('nav.login')}
           </Link>
           <Link
             to="/register"
-            className="bg-secondary text-on-secondary font-label-md text-label-md rounded-xl px-4 py-1.5 hover:bg-secondary-container transition-colors shadow-level-1 hover:-translate-y-1 transform whitespace-nowrap"
+            className={cn(
+              buttonPrimaryClass,
+              'transform whitespace-nowrap px-4 py-1.5 text-label-md shadow-level-1 hover:-translate-y-1'
+            )}
           >
-            Upload CV
+            {t('nav.uploadCv')}
           </Link>
         </div>
 
@@ -80,10 +93,10 @@ export default function Navbar() {
           type="button"
           className="xl:hidden relative z-[60] flex items-center justify-center w-9 h-9 rounded-lg text-on-surface hover:bg-surface-container transition-colors shrink-0"
           onClick={() => setMenuOpen((open) => !open)}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-label={menuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
           aria-expanded={menuOpen}
         >
-          <span className="material-symbols-outlined text-2xl">{menuOpen ? 'close' : 'menu'}</span>
+          <AppIcon name={menuOpen ? 'close' : 'menu'} size="dashboard" />
         </button>
       </div>
 
@@ -92,16 +105,22 @@ export default function Navbar() {
           type="button"
           className="xl:hidden fixed inset-0 top-14 z-40 bg-black/50"
           onClick={closeMenu}
-          aria-label="Close menu"
+          aria-label={t('nav.closeMenu')}
         />
       )}
 
       <div
-        className={`xl:hidden fixed top-14 right-0 z-50 h-[calc(100vh-3.5rem)] w-full max-w-sm bg-surface border-l border-outline-variant shadow-level-2 overflow-y-auto transition-transform duration-300 ease-in-out ${
-          menuOpen ? 'translate-x-0 pointer-events-auto' : 'translate-x-full pointer-events-none'
-        }`}
+        className={cn(
+          'xl:hidden fixed top-14 end-0 z-50 h-[calc(100vh-3.5rem)] w-full max-w-sm bg-surface border-s border-outline-variant shadow-level-2 overflow-y-auto transition-transform duration-300 ease-in-out',
+          menuOpen
+            ? 'translate-x-0 pointer-events-auto'
+            : 'ltr:translate-x-full rtl:-translate-x-full pointer-events-none'
+        )}
       >
         <div className="flex flex-col gap-1 p-4">
+          <div className="px-3 py-2 flex items-center gap-2">
+            <LanguageSelector className="flex-1" />
+          </div>
           {navLinks.map((link) => (
             <NavLinkItem
               key={link.label}
@@ -116,17 +135,20 @@ export default function Navbar() {
           <div className="mt-4 pt-4 border-t border-outline-variant/30 flex flex-col gap-3">
             <Link
               to="/login"
-              className="text-center font-label-md text-label-md text-secondary border border-secondary rounded-2xl px-4 py-3 hover:bg-secondary/10 transition-colors"
+              className={cn(buttonSecondaryClass, 'w-full justify-center px-4 py-3 text-label-md rounded-2xl')}
               onClick={closeMenu}
             >
-              Login
+              {t('nav.login')}
             </Link>
             <Link
               to="/register"
-              className="text-center w-full bg-secondary text-on-secondary font-label-md text-label-md rounded-2xl px-6 py-3 hover:bg-secondary-container transition-colors shadow-level-1"
+              className={cn(
+                buttonPrimaryClass,
+                'w-full justify-center px-6 py-3 text-label-md rounded-2xl shadow-level-1'
+              )}
               onClick={closeMenu}
             >
-              Upload CV
+              {t('nav.uploadCv')}
             </Link>
           </div>
         </div>

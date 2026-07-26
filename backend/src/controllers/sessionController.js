@@ -1,0 +1,94 @@
+import mongoose from 'mongoose';
+import UserSession from '../models/UserSession.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
+import { AppError, sendResponse } from '../utils/sendResponse.js';
+import { clearAuthCookie } from '../utils/authCookie.js';
+import {
+  listActiveSessionsForUser,
+  revokeOtherSessions,
+  serializeSession,
+  setSessionTrust,
+} from '../utils/sessionService.js';
+
+export const listSessions = async (req, res, next) => {
+  try {
+    const sessions = await listActiveSessionsForUser(req.user._id);
+
+    sendResponse(res, 200, true, 'Active sessions fetched successfully', {
+      sessions: sessions.map((session) => serializeSession(session, req.authSessionId)),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const revokeSession = async (req, res, next) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      throw new AppError(ERROR_CODES.SESSION.NOT_FOUND, 404);
+    }
+
+    const session = await UserSession.findOne({
+      _id: req.params.id,
+      userId: req.user._id,
+    });
+
+    if (!session || session.revokedAt) {
+      throw new AppError(ERROR_CODES.SESSION.NOT_FOUND, 404);
+    }
+
+    session.revokedAt = new Date();
+    await session.save();
+
+    const signedOutCurrent = session.sessionId === req.authSessionId;
+
+    if (signedOutCurrent) {
+      clearAuthCookie(res);
+    }
+
+    sendResponse(
+      res,
+      200,
+      true,
+      signedOutCurrent ? 'You have been signed out.' : 'Session signed out successfully.',
+      { signedOutCurrent }
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const revokeOtherSessionsHandler = async (req, res, next) => {
+  try {
+    if (!req.authSessionId) {
+      throw new AppError(ERROR_CODES.SESSION.CURRENT_NOT_IDENTIFIED, 400);
+    }
+
+    await revokeOtherSessions(req.user._id, req.authSessionId);
+
+    sendResponse(res, 200, true, 'All other devices have been signed out.');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateSessionTrust = async (req, res, next) => {
+  try {
+    if (!req.user.rememberDevicesEnabled) {
+      throw new AppError(ERROR_CODES.SESSION.REMEMBER_DEVICES_REQUIRED, 400);
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      throw new AppError(ERROR_CODES.SESSION.NOT_FOUND, 404);
+    }
+
+    const trusted = req.body.trusted === true;
+    const session = await setSessionTrust(req.user._id, req.params.id, trusted);
+
+    sendResponse(res, 200, true, trusted ? 'Device marked as trusted.' : 'Device trust removed.', {
+      session: serializeSession(session, req.authSessionId),
+    });
+  } catch (error) {
+    next(error);
+  }
+};

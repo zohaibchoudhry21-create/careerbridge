@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
+import { resolveApiError } from '../utils/apiError';
+import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/useAuth';
 import { useDashboardOverview, useJobMatches } from '../hooks/useDashboard';
-import { DashboardLayout } from '../components/layout';
+import { DashboardLayout, PageContainer } from '../components/layout';
 import WelcomeSection from '../components/dashboard/WelcomeSection';
 import QuickActions from '../components/dashboard/QuickActions';
 import ProfileStrengthCard from '../components/dashboard/ProfileStrengthCard';
@@ -13,6 +15,7 @@ import DashboardLoading from '../components/dashboard/DashboardLoading';
 import DashboardError from '../components/dashboard/DashboardError';
 
 export default function Dashboard() {
+  const { t } = useTranslation('common');
   const { user } = useAuth();
   const { data, isLoading, isError, error, refetch } = useDashboardOverview();
   const { data: jobsData } = useJobMatches();
@@ -34,7 +37,7 @@ export default function Dashboard() {
     return (
       <DashboardLayout user={user}>
         <DashboardError
-          message={error?.response?.data?.message || error?.message || 'Something went wrong.'}
+          message={resolveApiError(error, t('errors.somethingWentWrong'))}
           onRetry={refetch}
         />
       </DashboardLayout>
@@ -43,23 +46,25 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout user={user}>
-      <WelcomeSection welcome={data?.welcome} />
-      <QuickActions />
+      <PageContainer>
+        <WelcomeSection welcome={data?.welcome} />
+        <QuickActions />
 
-      <div className="dashboard-content-grid">
-        <ProfileStrengthCard profileStrength={data?.profileStrength} />
-        <ResumeIntelligenceCard resumeIntelligence={data?.resumeIntelligence} />
+        <div className="dashboard-content-grid">
+          <ProfileStrengthCard profileStrength={data?.profileStrength} />
+          <ResumeIntelligenceCard resumeIntelligence={data?.resumeIntelligence} />
 
-        <div className="col-span-1 lg:col-span-4 space-y-dashboard-gutter min-w-0">
-          <InterviewReadinessCard interviewReadiness={data?.interviewReadiness} />
+          <div className="col-span-1 lg:col-span-4 space-y-dashboard-gutter min-w-0">
+            <InterviewReadinessCard interviewReadiness={data?.interviewReadiness} />
+          </div>
+
+          <JobMatchesSection matches={jobMatches} />
+
+          <div className="col-span-1 lg:col-span-4 space-y-dashboard-gutter min-w-0">
+            <CareerRiskCard careerRisk={data?.careerRisk} />
+          </div>
         </div>
-
-        <JobMatchesSection matches={jobMatches} />
-
-        <div className="col-span-1 lg:col-span-4 space-y-dashboard-gutter min-w-0">
-          <CareerRiskCard careerRisk={data?.careerRisk} />
-        </div>
-      </div>
+      </PageContainer>
     </DashboardLayout>
   );
 }

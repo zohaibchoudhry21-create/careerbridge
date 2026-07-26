@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import AppIcon from '../icons/AppIcon';
 
 export default function AuthPageShell({ children, wide = false }) {
   return (
@@ -34,7 +35,7 @@ export default function AuthPageShell({ children, wide = false }) {
           to="/"
           className="login-page-logo mb-8 inline-flex items-center justify-center gap-2 transition-transform duration-200 hover:scale-[1.02]"
         >
-          <span className="material-symbols-outlined text-secondary filled text-4xl">work</span>
+          <AppIcon name="work" size="h-9 w-9" className="text-secondary" />
           <span className="font-headline-md text-headline-md font-extrabold text-on-surface">
             AI CareerBridge
           </span>

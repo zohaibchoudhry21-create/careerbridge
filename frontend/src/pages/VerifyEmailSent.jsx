@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { resendVerification } from '../services/authService';
+import { resolveApiError } from '../utils/apiError';
 import { AuthLayout } from '../components/layout';
+import AppIcon from '../components/icons/AppIcon';
 
 export default function VerifyEmailSent() {
+  const { t } = useTranslation('auth');
   const location = useLocation();
   const [email, setEmail] = useState(location.state?.email || '');
   const [name] = useState(location.state?.name || '');
@@ -15,7 +19,7 @@ export default function VerifyEmailSent() {
     event.preventDefault();
 
     if (!email) {
-      toast.error('Please enter your email address.');
+      toast.error(t('toasts.enterEmail'));
       return;
     }
 
@@ -27,7 +31,7 @@ export default function VerifyEmailSent() {
         setDevLink(data.verificationUrl);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Unable to resend verification email.');
+      toast.error(resolveApiError(error, t('toasts.resendFailed')));
     } finally {
       setIsSubmitting(false);
     }
@@ -35,22 +39,28 @@ export default function VerifyEmailSent() {
 
   return (
     <AuthLayout navActive="register">
-      <header className="mb-10 text-center lg:text-left">
+      <header className="mb-10 text-center lg:text-start">
         <div className="w-16 h-16 rounded-full bg-secondary/10 text-secondary flex items-center justify-center mb-6 mx-auto lg:mx-0">
-          <span className="material-symbols-outlined text-3xl">mark_email_unread</span>
+          <AppIcon name="mark_email_unread" size="h-8 w-8" />
         </div>
         <h1 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-on-surface mb-xs">
-          Check Your Email
+          {t('verifyEmailSent.title')}
         </h1>
         <p className="font-body-md text-body-md text-on-surface-variant">
           {name ? (
-            <>
-              Hi <span className="font-semibold text-on-surface">{name}</span>, we sent a verification
-              link to <span className="font-semibold text-on-surface">{email || 'your email'}</span>.
-              The link expires in 15 minutes.
-            </>
+            <Trans
+              ns="auth"
+              i18nKey="verifyEmailSent.greeting"
+              values={{
+                name,
+                email: email || t('verifyEmailSent.yourEmail'),
+              }}
+              components={{
+                strong: <span className="font-semibold text-on-surface" />,
+              }}
+            />
           ) : (
-            <>We sent a verification link to your email. The link expires in 15 minutes.</>
+            t('verifyEmailSent.generic')
           )}
         </p>
       </header>
@@ -58,15 +68,15 @@ export default function VerifyEmailSent() {
       <form onSubmit={handleResend} className="space-y-md">
         <div className="space-y-xs">
           <label className="font-label-md text-label-md text-on-surface" htmlFor="email">
-            Email Address
+            {t('fields.email')}
           </label>
           <input
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            className="w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none"
+            placeholder={t('fields.placeholders.email')}
+            className="w-full px-4 py-4 bg-[#F1F5F9] border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-secondary transition-all outline-none text-start"
           />
         </div>
 
@@ -78,26 +88,26 @@ export default function VerifyEmailSent() {
           {isSubmitting ? (
             <>
               <span className="w-5 h-5 border-2 border-on-secondary border-t-transparent rounded-full animate-spin" />
-              Sending...
+              {t('verifyEmailSent.submitting')}
             </>
           ) : (
-            'Resend Verification Email'
+            t('verifyEmailSent.resend')
           )}
         </button>
       </form>
 
       {devLink && (
         <div className="mt-md p-4 rounded-2xl bg-surface-container-low border border-outline-variant">
-          <p className="text-sm text-on-surface-variant mb-2">Development verification link:</p>
+          <p className="text-sm text-on-surface-variant mb-2">{t('verifyEmailSent.devLinkLabel')}</p>
           <a href={devLink} className="text-sm text-secondary break-all hover:underline">
             {devLink}
           </a>
         </div>
       )}
 
-      <div className="mt-xl text-center lg:text-left">
+      <div className="mt-xl text-center lg:text-start">
         <Link to="/login" className="text-secondary font-bold hover:underline">
-          Back to Login
+          {t('verifyEmailSent.backToLogin')}
         </Link>
       </div>
     </AuthLayout>

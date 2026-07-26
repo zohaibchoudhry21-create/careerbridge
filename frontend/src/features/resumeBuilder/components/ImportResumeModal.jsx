@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import AppIcon from '../../../components/icons/AppIcon';
 import ResumeModal from './ResumeModal';
 
 const ACCEPT = '.pdf,.docx';
@@ -9,6 +11,7 @@ export default function ImportResumeModal({
   onImportFile,
   onImportPaste,
 }) {
+  const { t } = useTranslation('resumeBuilder');
   const [tab, setTab] = useState('file');
   const [pastedText, setPastedText] = useState('');
   const [dragOver, setDragOver] = useState(false);
@@ -27,17 +30,17 @@ export default function ImportResumeModal({
         onClick={() => onImportPaste(pastedText)}
         className="w-full rounded-xl bg-secondary py-sm font-label-md text-white hover:bg-secondary-container transition-colors disabled:opacity-50"
       >
-        Import pasted text
+        {t('import.importPasted')}
       </button>
     ) : null;
 
   return (
-    <ResumeModal open={open} onClose={onClose} title="Import Resume" size="lg" footer={footer}>
+    <ResumeModal open={open} onClose={onClose} title={t('import.title')} size="lg" footer={footer}>
       <div className="p-lg space-y-md">
         <div className="flex gap-2 border-b border-outline-variant/40">
           {[
-            { id: 'file', label: 'Resume File' },
-            { id: 'paste', label: 'Paste Text' },
+            { id: 'file', labelKey: 'import.tabs.file' },
+            { id: 'paste', labelKey: 'import.tabs.paste' },
           ].map((item) => (
             <button
               key={item.id}
@@ -49,7 +52,7 @@ export default function ImportResumeModal({
                   : 'border-transparent text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              {item.label}
+              {t(item.labelKey)}
             </button>
           ))}
         </div>
@@ -71,17 +74,19 @@ export default function ImportResumeModal({
                 dragOver ? 'border-secondary bg-secondary/5' : 'border-outline-variant'
               }`}
             >
-              <span className="material-symbols-outlined text-[40px] text-on-surface-variant mb-sm">
-                upload_file
-              </span>
-              <p className="font-body-md text-on-surface mb-xs">Choose a file or drag and drop it here</p>
-              <p className="font-body-sm text-on-surface-variant mb-md">.pdf, .docx</p>
+              <AppIcon
+                name="upload_file"
+                size="h-10 w-10"
+                className="text-on-surface-variant mb-sm"
+              />
+              <p className="font-body-md text-on-surface mb-xs">{t('import.dropzoneTitle')}</p>
+              <p className="font-body-sm text-on-surface-variant mb-md">{t('import.dropzoneHint')}</p>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="rounded-xl bg-secondary px-md py-sm font-label-md text-white hover:bg-secondary-container transition-colors"
               >
-                Select Resume
+                {t('import.selectFile')}
               </button>
               <input
                 ref={fileInputRef}
@@ -100,7 +105,7 @@ export default function ImportResumeModal({
             value={pastedText}
             onChange={(event) => setPastedText(event.target.value)}
             rows={12}
-            placeholder="Paste your resume text here..."
+            placeholder={t('import.pastePlaceholder')}
             className="w-full rounded-xl border border-outline-variant px-md py-sm font-body-md outline-none focus:border-secondary"
           />
         )}

@@ -1,0 +1,358 @@
+{
+  "page": {
+    "templateSelection": {
+      "title": "اپنا ریزیومے بنانا شروع کریں",
+      "description": "ایک ڈیزائن منتخب کریں جو آپ کو پسند ہو۔ بعد میں آپ اسے حسبِ ضرورت تبدیل یا بدل سکتے ہیں۔",
+      "importButton": "موجودہ ریزیومے درآمد کریں"
+    },
+    "editor": {
+      "loading": "ریزیومے ایڈیٹر لوڈ ہو رہا ہے...",
+      "notFound": "ریزیومے نہیں ملا۔",
+      "backToTemplates": "ٹیمپلیٹس پر واپس",
+      "aiToolsComingSoon": "AI ٹولز جلد آ رہے ہیں"
+    }
+  },
+  "tabs": {
+    "content": "مواد",
+    "customize": "حسبِ ضرورت",
+    "aiTools": "AI ٹولز"
+  },
+  "topNav": {
+    "saving": "محفوظ ہو رہا ہے...",
+    "saved": "محفوظ ✓",
+    "download": "ڈاؤن لوڈ",
+    "moreOptions": "مزید اختیارات",
+    "duplicate": "نقل",
+    "shareLink": "لنک شیئر کریں"
+  },
+  "categories": {
+    "all": "تمام ٹیمپلیٹس",
+    "simple": "سادہ",
+    "modern": "جدید",
+    "creative": "تخلیقی"
+  },
+  "templates": {
+    "classic-clear": {
+      "name": "کلاسک کلیئر",
+      "description": "ہر ٹیمپلیٹ احتیاط سے تیار کیا گیا ہے تاکہ آپ کا ریزیومے بنانا بہت آسان ہو۔"
+    },
+    "atlantic-clear": {
+      "name": "اٹلانٹک کلیئر",
+      "description": "ہر ٹیمپلیٹ احتیاط سے تیار کیا گیا ہے تاکہ آپ کا ریزیومے بنانا بہت آسان ہو۔"
+    },
+    "mercury-clear": {
+      "name": "مرکری کلیئر",
+      "description": "ہر ٹیمپلیٹ احتیاط سے تیار کیا گیا ہے تاکہ آپ کا ریزیومے بنانا بہت آسان ہو۔"
+    },
+    "steady-form": {
+      "name": "سٹیڈی فارم",
+      "description": "ہر ٹیمپلیٹ احتیاط سے تیار کیا گیا ہے تاکہ آپ کا ریزیومے بنانا بہت آسان ہو۔"
+    }
+  },
+  "templatePreview": {
+    "features": {
+      "pageSize": "A4 / US-Letter سائز",
+      "editableText": "قابلِ ترمیم متن",
+      "customizable": "مکمل حسبِ ضرورت",
+      "printReady": "پرنٹ کے لیے تیار فارمیٹ",
+      "shareableLink": "شیئر ایبل لنک کے ساتھ آن لائن ریزیومے"
+    },
+    "useTemplate": "یہ ٹیمپلیٹ استعمال کریں"
+  },
+  "startChoice": {
+    "title": "اپنا موجودہ ریزیومے درآمد کریں",
+    "description": "موجودہ ریزیومے لائیں یا منتخب ٹیمپلیٹ کے ساتھ خالی صفحے سے شروع کریں۔",
+    "startBlank": "خالی سے شروع کریں",
+    "importResume": "ریزیومے درآمد کریں"
+  },
+  "import": {
+    "title": "ریزیومے درآمد کریں",
+    "tabs": {
+      "file": "ریزیومے فائل",
+      "paste": "متن چسپاں کریں"
+    },
+    "dropzoneTitle": "فائل منتخب کریں یا یہاں گھسیٹ کر چھوڑیں",
+    "dropzoneHint": ".pdf, .docx",
+    "selectFile": "ریزیومے منتخب کریں",
+    "pastePlaceholder": "اپنا ریزیومے متن یہاں چسپاں کریں...",
+    "importPasted": "چسپاں متن درآمد کریں",
+    "processingTitle": "آپ کا ریزیومے درآمد ہو رہا ہے",
+    "processingDescription": "آپ کا ریزیومے پروسیس ہو رہا ہے... اس میں 60 سیکنڈ تک لگ سکتے ہیں۔"
+  },
+  "toasts": {
+    "createFailed": "ریزیومے نہیں بنایا جا سکا۔",
+    "importFailed": "درآمد ناکام۔",
+    "importSuccessWithSections": "ریزیومے {{count}} سیکشنز کے ساتھ درآمد ہوا۔ ترمیم کے لیے کسی سیکشن پر کلک کریں۔",
+    "importSuccessEmpty": "ریزیومے درآمد ہوا۔ بائیں طرف سیکشنز شامل یا ترمیم کریں۔",
+    "selectTemplateFirst": "پہلے ٹیمپلیٹ منتخب کریں، پھر اپنا ریزیومے درآمد کریں۔",
+    "autoSaveFailed": "خودکار محفوظ ناکام۔",
+    "noSkillSuggestions": "ابھی کوئی نئی مہارت کی تجاویز نہیں۔",
+    "skillsAdded": "{{count}} مہارت کی تجاویز شامل ہوئیں۔",
+    "skillSuggestionsFailed": "مہارت کی تجاویز حاصل نہیں ہو سکیں۔",
+    "uploadPhotoFailed": "تصویر اپ لوڈ نہیں ہو سکی۔",
+    "aiAddTextFirst": "AI استعمال کرنے سے پہلے کچھ متن شامل کریں۔",
+    "aiUnavailable": "AI سروس دستیاب نہیں — بنیادی بہتری لاگو کی گئی۔",
+    "aiActionFailed": "AI عمل ناکام۔"
+  },
+  "editorPanel": {
+    "yourNamePlaceholder": "آپ کا نام",
+    "noSections": "ابھی کوئی سیکشن نہیں۔ CV درآمد کریں یا نیچے مواد شامل کریں۔",
+    "entryNumber": "اندراج {{number}}",
+    "addEntry": "+ اندراج شامل کریں",
+    "aiSkillSuggestions": "AI مہارت کی تجاویز",
+    "deleteSection": "سیکشن حذف کریں",
+    "addContent": "+ مواد شامل کریں",
+    "personalDetails": "ذاتی تفصیلات",
+    "editPersonalDetails": "ذاتی تفصیلات ترمیم کریں"
+  },
+  "deleteSection": {
+    "title": "\"{{sectionName}}\" سیکشن حذف کریں؟",
+    "description": "یہ سیکشن اور اس کی تمام اندراجات مستقل طور پر حذف ہو جائیں گی۔ یہ عمل واپس نہیں لیا جا سکتا۔",
+    "confirmLabel": "میں سمجھ گیا/گی، جاری رکھیں۔",
+    "cancel": "منسوخ",
+    "confirm": "سیکشن حذف کریں"
+  },
+  "addContent": {
+    "title": "مواد شامل کریں"
+  },
+  "sectionTypes": {
+    "education": {
+      "label": "تعلیم",
+      "description": "اپنے ڈگریاں اور اسکول شامل کریں۔ فوکس، اعزازات یا ایکسچینج کی مدت شامل کریں۔"
+    },
+    "experience": {
+      "label": "تجربہ",
+      "description": "اپنے پیشہ ورانہ کردار اور ملازمت کی تاریخ شامل کریں، internship سمیت۔"
+    },
+    "expertise": {
+      "label": "مہارت",
+      "description": "اپنی ہارڈ اور سافٹ مہارتیں شامل کریں جو آپ کو نمایاں بنائیں۔"
+    },
+    "languages": {
+      "label": "زبانیں",
+      "description": "اپنی زبانیں اور مہارت کی سطح شامل کریں تاکہ آپ کی مواصلاتی وسعت ظاہر ہو۔"
+    },
+    "certificates": {
+      "label": "سرٹیفکیٹ",
+      "description": "اپنے صنعتی سرٹیفکیٹ یا لائسنس شامل کریں۔ جاری کنندہ اور تاریخ شامل کریں۔"
+    },
+    "interests": {
+      "label": "دلچسپیاں",
+      "description": "متعلقہ ذاتی دلچسپیاں شامل کریں جو آپ کی کیریئر کہانی اور ثقافتی مطابقت کو سپورٹ کریں۔"
+    },
+    "projects": {
+      "label": "پروجیکٹس",
+      "description": "اہم پروجیکٹس شامل کریں جن میں آپ نے حصہ لیا اور چیلنجز، کردار اور اثر کو نمایاں کریں۔"
+    },
+    "courses": {
+      "label": "کورسز",
+      "description": "آن لائن یا حاضری کورسز اور تربیت شامل کریں جو آپ نے مکمل کی ہیں۔"
+    },
+    "awards": {
+      "label": "ایوارڈز",
+      "description": "صنعت، مقابلوں یا academia سے اپنے ایوارڈز اور تسلیمات شامل کریں۔"
+    },
+    "organisations": {
+      "label": "تنظیمیں",
+      "description": "تنظیموں میں رکنیت یا رضاکارانہ خدمات شامل کریں، بشمول آپ کا کردار۔"
+    },
+    "publications": {
+      "label": "اشاعتیں",
+      "description": "اشاعتیں، مضامین یا کتابیں شامل کریں جن میں آپ نے لکھا یا حصہ لیا۔"
+    },
+    "references": {
+      "label": "حوالہ جات",
+      "description": "مینیجرز یا ساتھیوں کے حوالہ جات شامل کریں، ان کی رابطہ تفصیلات سمیت۔"
+    },
+    "declaration": {
+      "label": "اعلان",
+      "description": "اپنا ذاتی دستخط بنا کر یا اپ لوڈ کر کے اعلان شامل کریں۔"
+    },
+    "custom": {
+      "label": "حسبِ ضرورت",
+      "description": "کسی اور چیز کے لیے حسبِ ضرورت سیکشن شامل کریں، یا سیکشنز واضح طور پر یکجا کریں۔"
+    }
+  },
+  "personalDetails": {
+    "title": "ذاتی تفصیلات ترمیم کریں",
+    "getTips": "تجاویز حاصل کریں",
+    "uploadPhoto": "پروفائل تصویر اپ لوڈ کریں",
+    "uploadPhotoHint": "پروفائل تصویر اپ لوڈ کرنے کے لیے کلک کریں",
+    "removePhoto": "تصویر ہٹائیں",
+    "fullName": "مکمل نام",
+    "professionalTitle": "پیشہ ورانہ عنوان",
+    "email": "ای میل",
+    "phone": "فون",
+    "location": "مقام",
+    "website": "ویب سائٹ",
+    "linkedin": "LinkedIn",
+    "done": "مکمل"
+  },
+  "editEntry": {
+    "title": "اندراج ترمیم کریں",
+    "getTips": "تجاویز حاصل کریں",
+    "done": "مکمل",
+    "clearField": "{{label}} صاف کریں",
+    "fields": {
+      "heading": "سرخی",
+      "content": "مواد",
+      "jobTitle": "ملازمت کا عنوان",
+      "employer": "آجر",
+      "startDate": "شروع کی تاریخ (MM/YYYY)",
+      "endDate": "اختتام کی تاریخ (MM/YYYY یا موجود)",
+      "location": "مقام (شہر، ملک)",
+      "description": "تفصیل",
+      "degree": "ڈگری",
+      "school": "اسکول",
+      "skill": "مہارت",
+      "additionalInfo": "اضافی معلومات",
+      "language": "زبان",
+      "languageLevel": "زبان کی سطح",
+      "selectLanguageLevel": "زبان کی سطح منتخب کریں",
+      "courseTitle": "کورس کا عنوان",
+      "institution": "ادارہ",
+      "title": "عنوان"
+    },
+    "placeholders": {
+      "educationDescription": "اپنی تعلیم کی تفصیل شامل کریں...",
+      "languageInfo": "مثلاً C2, 4+, TOEFL, IELTS,...",
+      "courseDescription": "کورس کی وضاحت کریں..."
+    }
+  },
+  "richText": {
+    "bold": "موٹا",
+    "italic": "ترچھا",
+    "underline": "انڈر لائن",
+    "bulletList": "بلٹ فہرست",
+    "link": "لنک",
+    "alignLeft": "بائیں سیدھ",
+    "alignCenter": "درمیان",
+    "alignRight": "دائیں سیدھ",
+    "justify": "برابر",
+    "enterUrl": "URL درج کریں"
+  },
+  "aiActions": {
+    "improve": "تحریر بہتر بنائیں",
+    "suggest": "مواد تجویز کریں",
+    "grammar": "گرامر چیک",
+    "shorter": "مختصر",
+    "working": "کام جاری..."
+  },
+  "modal": {
+    "closeDialog": "ڈائیلاگ بند کریں",
+    "close": "بند کریں"
+  },
+  "customize": {
+    "sidebar": {
+      "document": "دستاویز",
+      "templates": "ٹیمپلیٹس",
+      "layout": "لے آؤٹ",
+      "fontSize": "فونٹ سائز",
+      "spacing": "فاصلہ",
+      "entries": "اندراجات",
+      "headings": "سرخیاں",
+      "font": "فونٹ",
+      "colors": "رنگ",
+      "header": "ہیڈر",
+      "photo": "تصویر",
+      "links": "لنکس",
+      "footer": "فوٹر",
+      "sections": "سیکشنز"
+    },
+    "document": {
+      "title": "دستاویز",
+      "description": "آپ کے ریزیومے کے لیے زبان اور صفحے کی ترتیبات۔",
+      "language": "زبان",
+      "dateFormat": "تاریخ کا فارمیٹ",
+      "pageFormat": "صفحے کا فارمیٹ"
+    },
+    "templates": {
+      "title": "ٹیمپلیٹس",
+      "description": "لے آؤٹ منتخب کریں۔ آپ کسی بھی وقت ٹیمپلیٹ بدل سکتے ہیں۔"
+    },
+    "layout": {
+      "title": "لے آؤٹ",
+      "description": "صفحے پر مواد کی ترتیب کنٹرول کریں۔",
+      "singleColumn": "ایک کالم",
+      "twoColumn": "دو کالم"
+    },
+    "fontSize": {
+      "title": "فونٹ سائز",
+      "description": "اپنے ریزیومے کے مجموعی متن کا سائز ایڈجسٹ کریں۔",
+      "small": "چھوٹا",
+      "medium": "درمیانہ",
+      "large": "بڑا"
+    },
+    "spacing": {
+      "title": "فاصلہ",
+      "description": "لائن کی اونچائی اور سیکشنز کے درمیان فاصلہ درست کریں۔",
+      "lineHeight": "لائن کی اونچائی",
+      "sectionSpacing": "سیکشن فاصلہ",
+      "compact": "تنگ",
+      "normal": "عام",
+      "relaxed": "کشادہ",
+      "medium": "درمیانہ",
+      "spacious": "وسیع"
+    },
+    "entries": {
+      "title": "اندراجات",
+      "description": "تجربہ اور تعلیم کی اندراجات میں کون سی تفصیلات ظاہر ہوں۔",
+      "showDates": "تاریخیں دکھائیں",
+      "showLocation": "مقام دکھائیں"
+    },
+    "headings": {
+      "title": "سرخیاں",
+      "description": "اپنے ریزیومے میں سیکشن سرخیوں کا انداز۔",
+      "bold": "موٹا",
+      "underline": "انڈر لائن",
+      "allCaps": "تمام بڑے",
+      "previewText": "کام کا تجربہ"
+    },
+    "font": {
+      "title": "فونٹ",
+      "description": "اپنے ریزیومے مواد کے لیے فونٹ منتخب کریں۔"
+    },
+    "colors": {
+      "title": "رنگ",
+      "description": "سرخیوں اور نمایاں حصوں کے لیے ایک نمایاں رنگ منتخب کریں۔",
+      "presetColors": "پہلے سے طے شدہ رنگ",
+      "customColor": "حسبِ ضرورت رنگ"
+    },
+    "header": {
+      "title": "ہیڈر",
+      "description": "اپنے ریزیومے کے ہیڈر ایریا میں کیا ظاہر ہو کنٹرول کریں۔",
+      "showPhoto": "تصویر دکھائیں",
+      "showPhotoHint": "بند ہونے پر تصویر سیکشن غیر فعال ہو جاتا ہے۔"
+    },
+    "photo": {
+      "title": "تصویر",
+      "descriptionEnabled": "اپنی پروفائل تصویر کیسے دکھائی جائے منتخب کریں۔",
+      "descriptionDisabled": "تصویر کی شکل ترمیم کرنے کے لیے ہیڈر میں تصویر دکھائیں فعال کریں۔",
+      "circle": "گول",
+      "square": "مربع"
+    },
+    "links": {
+      "title": "لنکس",
+      "description": "رابطہ لنکس اور سوشل پروفائلز منظم کریں۔",
+      "managedInPersonalDetails": "لنکس آپ کے ذاتی تفصیلات سیکشن میں منظم ہوتے ہیں۔",
+      "goToPersonalDetails": "ذاتی تفصیلات پر جائیں"
+    },
+    "footer": {
+      "title": "فوٹر",
+      "description": "پرنٹ اور PDF ریزیومے کے لیے فوٹر اختیارات۔",
+      "showPageNumbers": "صفحہ نمبر دکھائیں"
+    },
+    "sections": {
+      "title": "سیکشنز",
+      "description": "ریزیومے سیکشنز کو دوبارہ ترتیب دیں اور دکھائیں یا چھپائیں۔",
+      "empty": "ابھی کوئی سیکشن نہیں۔ مواد ٹیب سے مواد شامل کریں۔",
+      "moveUp": "سیکشن اوپر لے جائیں",
+      "moveDown": "سیکشن نیچے لے جائیں",
+      "toggleVisibility": "{{heading}} کی نمائش تبدیل کریں"
+    }
+  },
+  "common": {
+    "cancel": "منسوخ",
+    "done": "مکمل"
+  }
+}

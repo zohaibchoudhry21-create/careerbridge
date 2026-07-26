@@ -1,20 +1,25 @@
+import { useTranslation } from 'react-i18next';
 import CustomizeSectionCard from '../CustomizeSectionCard';
 import CustomizeToggle from '../CustomizeToggle';
 import { useCustomizeDispatch } from '../useCustomizeDispatch';
 
 export default function EntriesSection() {
+  const { t } = useTranslation('resumeBuilder');
   const { customize, updateCustomize } = useCustomizeDispatch();
 
   return (
-    <CustomizeSectionCard title="Entries" description="Choose what details appear in experience and education entries.">
+    <CustomizeSectionCard
+      title={t('customize.entries.title')}
+      description={t('customize.entries.description')}
+    >
       <div className="divide-y divide-outline-variant/40">
         <CustomizeToggle
-          label="Show dates"
+          label={t('customize.entries.showDates')}
           checked={customize.showDates}
           onChange={(value) => updateCustomize('showDates', value)}
         />
         <CustomizeToggle
-          label="Show location"
+          label={t('customize.entries.showLocation')}
           checked={customize.showLocation}
           onChange={(value) => updateCustomize('showLocation', value)}
         />

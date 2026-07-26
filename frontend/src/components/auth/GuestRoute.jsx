@@ -1,29 +1,15 @@
-import { useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 
+/**
+ * Guest-only pages. Never show a blocking spinner —
+ * render login/register immediately; bounce away only if already signed in.
+ */
 export default function GuestRoute({ children }) {
-  const { isAuthenticated, loading, syncSession } = useAuth();
-  const hasSyncedSession = useRef(false);
+  const { isAuthenticated, loading } = useAuth();
 
-  useEffect(() => {
-    if (loading || isAuthenticated || hasSyncedSession.current) {
-      return;
-    }
-
-    hasSyncedSession.current = true;
-    syncSession({ preserveExistingSession: true });
-  }, [isAuthenticated, loading, syncSession]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-10 h-10 border-4 border-secondary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (isAuthenticated) {
+  // While auth is still booting, prefer showing the guest page over an infinite spinner.
+  if (!loading && isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 

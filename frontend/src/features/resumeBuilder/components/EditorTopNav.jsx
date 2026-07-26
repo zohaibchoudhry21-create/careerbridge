@@ -1,16 +1,18 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import AppIcon from '../../../components/icons/AppIcon';
 import { downloadResumePdf } from '../utils/pdfDownload';
-
-const TABS = ['Content', 'Customize', 'AI Tools'];
+import { EDITOR_TAB_ITEMS } from '../constants/resumeEditorConstants';
 
 export default function EditorTopNav({
   resumeName,
   resumes = [],
   onRename,
-  activeTab = 'Content',
+  activeTab = EDITOR_TAB_ITEMS[0].id,
   onTabChange,
   saveStatus = 'idle',
 }) {
+  const { t } = useTranslation('resumeBuilder');
   const [menuOpen, setMenuOpen] = useState(false);
   const [nameOpen, setNameOpen] = useState(false);
 
@@ -18,28 +20,28 @@ export default function EditorTopNav({
     <header className="sticky top-0 z-20 border-b border-outline-variant/40 bg-white/95 backdrop-blur px-sm py-xs">
       <div className="flex flex-wrap items-center justify-between gap-sm">
         <div className="flex items-center gap-1 overflow-x-auto">
-          {TABS.map((tab) => (
+          {EDITOR_TAB_ITEMS.map((tab) => (
             <button
-              key={tab}
+              key={tab.id}
               type="button"
-              onClick={() => onTabChange?.(tab)}
+              onClick={() => onTabChange?.(tab.id)}
               className={`px-md py-sm rounded-lg font-label-md whitespace-nowrap transition-colors ${
-                tab === activeTab
+                tab.id === activeTab
                   ? 'bg-secondary/10 text-secondary'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              {tab}
+              {t(tab.labelKey)}
             </button>
           ))}
         </div>
 
         <div className="flex items-center gap-2">
           {saveStatus === 'saving' && (
-            <span className="font-label-sm text-on-surface-variant">Saving...</span>
+            <span className="font-label-sm text-on-surface-variant">{t('topNav.saving')}</span>
           )}
           {saveStatus === 'saved' && (
-            <span className="font-label-sm text-secondary">Saved ✓</span>
+            <span className="font-label-sm text-secondary">{t('topNav.saved')}</span>
           )}
 
           <div className="relative">
@@ -49,7 +51,7 @@ export default function EditorTopNav({
               className="flex items-center gap-1 rounded-lg border border-outline-variant px-sm py-1.5 font-label-md text-on-surface"
             >
               {resumeName}
-              <span className="material-symbols-outlined text-[18px]">expand_more</span>
+              <AppIcon name="expand_more" size="button" />
             </button>
             {nameOpen && (
               <div className="absolute right-0 mt-1 w-48 rounded-xl border border-outline-variant bg-white shadow-level-2 p-2 z-30">
@@ -75,7 +77,7 @@ export default function EditorTopNav({
             onClick={() => downloadResumePdf()}
             className="rounded-lg bg-secondary px-md py-1.5 font-label-md text-white hover:bg-secondary-container transition-colors"
           >
-            Download
+            {t('topNav.download')}
           </button>
 
           <div className="relative">
@@ -83,17 +85,17 @@ export default function EditorTopNav({
               type="button"
               onClick={() => setMenuOpen((value) => !value)}
               className="p-2 rounded-lg border border-outline-variant text-on-surface-variant hover:text-secondary"
-              aria-label="More options"
+              aria-label={t('topNav.moreOptions')}
             >
-              <span className="material-symbols-outlined">more_vert</span>
+              <AppIcon name="more_vert" size="button" />
             </button>
             {menuOpen && (
               <div className="absolute right-0 mt-1 w-40 rounded-xl border border-outline-variant bg-white shadow-level-2 p-2 z-30">
                 <button type="button" className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-container font-body-sm">
-                  Duplicate
+                  {t('topNav.duplicate')}
                 </button>
                 <button type="button" className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-surface-container font-body-sm">
-                  Share link
+                  {t('topNav.shareLink')}
                 </button>
               </div>
             )}

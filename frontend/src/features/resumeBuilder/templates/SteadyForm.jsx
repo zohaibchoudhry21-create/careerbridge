@@ -1,4 +1,6 @@
+import AppIcon from '../../../components/icons/AppIcon';
 import { stripHtml } from '../utils/resumeEditorUtils';
+import { sanitizeHtml } from '../../../utils/sanitizeHtml';
 import {
   mapAdditionalSections,
   mapCoursesSection,
@@ -210,13 +212,12 @@ function ContactItem({ icon, value }) {
 
   return (
     <span className="inline-flex items-center gap-[6px]" style={{ fontSize: 10.5, color: MUTED_COLOR, lineHeight: 1.4 }}>
-      <span
-        className="material-symbols-outlined shrink-0"
-        style={{ fontSize: 13, color: MUTED_COLOR, lineHeight: 1 }}
-        aria-hidden
-      >
-        {icon}
-      </span>
+      <AppIcon
+        name={icon}
+        size="h-[13px] w-[13px]"
+        className="shrink-0"
+        style={{ color: MUTED_COLOR }}
+      />
       <span>{value}</span>
     </span>
   );
@@ -350,6 +351,7 @@ export default function SteadyForm({ resumeData, className = '', customize }) {
 
   return (
     <article
+      dir="ltr"
       className={className}
       style={{
         width: A4_WIDTH,
@@ -420,7 +422,7 @@ export default function SteadyForm({ resumeData, className = '', customize }) {
             <SectionBar theme={theme}>Summary</SectionBar>
             <div
               style={{ fontSize: theme.bodyFontSize, lineHeight: theme.lineHeight, color: BODY_COLOR, margin: 0 }}
-              dangerouslySetInnerHTML={{ __html: summary }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(summary) }}
             />
           </section>
         ) : null}

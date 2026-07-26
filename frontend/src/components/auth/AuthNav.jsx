@@ -1,12 +1,16 @@
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import LanguageSelector from '../../i18n/components/LanguageSelector';
 
 export default function AuthNav({ active = 'login' }) {
+  const { t } = useTranslation('auth');
+
   return (
     <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm">
       <div className="shell-inner flex justify-between items-center h-20">
         <Link to="/" className="flex items-center gap-sm">
           <span className="font-display-lg-mobile text-display-lg-mobile font-extrabold text-on-surface">
-            Career Bridge
+            {t('nav.brand')}
           </span>
         </Link>
 
@@ -15,29 +19,30 @@ export default function AuthNav({ active = 'login' }) {
             className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
             href="/#features"
           >
-            Features
+            {t('nav.features')}
           </a>
           <a
             className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
             href="/#tools"
           >
-            Career Tools
+            {t('nav.careerTools')}
           </a>
           <a
             className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
             href="/#templates"
           >
-            Templates
+            {t('nav.templates')}
           </a>
           <a
             className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
             href="/#resources"
           >
-            Resources
+            {t('nav.resources')}
           </a>
         </div>
 
         <div className="flex items-center gap-md">
+          <LanguageSelector />
           <Link
             to="/login"
             className={`font-label-md text-label-md transition-colors duration-200 ${
@@ -46,13 +51,13 @@ export default function AuthNav({ active = 'login' }) {
                 : 'text-on-surface-variant hover:text-secondary'
             }`}
           >
-            Log In
+            {t('nav.logIn')}
           </Link>
           <Link
             to="/register"
             className="bg-secondary text-on-secondary px-6 py-2 rounded-2xl font-label-md text-label-md hover:opacity-90 active:scale-95 transition-all"
           >
-            Sign Up
+            {t('nav.signUp')}
           </Link>
         </div>
       </div>

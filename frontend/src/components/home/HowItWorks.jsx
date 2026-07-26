@@ -1,60 +1,33 @@
-const steps = [
-  {
-    number: 1,
-    icon: 'upload_file',
-    title: 'Upload or Speak',
-    description:
-      'Input your raw experience via CV upload, voice note, or manual entry. We handle the heavy lifting.',
-    delay: 'delay-100',
-  },
-  {
-    number: 2,
-    icon: 'model_training',
-    title: 'Generate Profile',
-    description:
-      'AI structures your data into a master profile and generates an ATS-ready resume.',
-    delay: 'delay-300',
-  },
-  {
-    number: 3,
-    title: 'Optimize & Apply',
-    description:
-      'Target specific roles. One click adjusts your CV keywords to beat ATS filters for that exact job description.',
-    delay: 'delay-500',
-  },
+import { useTranslation } from 'react-i18next';
+import SectionIcon from '../ui/SectionIcon';
+import { Sparkles } from '../animate-ui/icons/sparkles';
+import { CircleCheck } from '../animate-ui/icons/circle-check';
+import { ArrowRight } from '../animate-ui/icons/arrow-right';
+
+const STEP_META = [
+  { number: 1, icon: 'upload_file', color: 'resume', delay: 'delay-100' },
+  { number: 2, color: 'focus', AnimatedIcon: Sparkles, delay: 'delay-300' },
+  { number: 3, color: 'success', AnimatedIcon: CircleCheck, delay: 'delay-500' },
 ];
 
 const ICON_CARD_SIZE = 72;
-const ICON_SIZE = 32;
-const ICON_COLOR = '#1E3A8A';
 const BADGE_COLOR = '#2563EB';
 
-function StepIcon({ icon, number }) {
+function StepIcon({ icon, color, AnimatedIcon, number }) {
   return (
-    <div
-      className="relative z-[1] mb-6 flex shrink-0 items-center justify-center rounded-2xl bg-white"
-      style={{
-        width: ICON_CARD_SIZE,
-        height: ICON_CARD_SIZE,
-        boxShadow: '0 4px 20px rgba(0, 0, 100, 0.10)',
-      }}
-    >
-      {icon ? (
-        <span
-          className="material-symbols-outlined select-none"
-          style={{
-            fontSize: ICON_SIZE,
-            width: ICON_SIZE,
-            height: ICON_SIZE,
-            lineHeight: 1,
-            color: ICON_COLOR,
-            fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 32",
-          }}
-          aria-hidden="true"
-        >
-          {icon}
-        </span>
-      ) : null}
+    <div className="relative z-[1] mb-6 shrink-0" style={{ width: ICON_CARD_SIZE, height: ICON_CARD_SIZE }}>
+      {AnimatedIcon ? (
+        <SectionIcon color={color} size="lg" className="h-full w-full rounded-2xl shadow-[0_4px_20px_rgba(0,0,100,0.10)]">
+          <AnimatedIcon size={32} animateOnHover />
+        </SectionIcon>
+      ) : (
+        <SectionIcon
+          color={color}
+          icon={icon}
+          size="lg"
+          className="h-full w-full rounded-2xl shadow-[0_4px_20px_rgba(0,0,100,0.10)]"
+        />
+      )}
       <span
         className="absolute flex items-center justify-center rounded-full font-bold text-white"
         style={{
@@ -73,15 +46,19 @@ function StepIcon({ icon, number }) {
 }
 
 export default function HowItWorks() {
+  const { t } = useTranslation('marketing');
+  const steps = t('howItWorks.steps', { returnObjects: true });
+
   return (
-    <section className="bg-surface-container-highest py-xl">
+    <section className="bg-surface-container-highest py-xl" id="tools">
       <div className="page-container">
-        <div className="text-center mb-lg reveal is-visible">
-          <h2 className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface">
-            How It Works
+        <div className="reveal is-visible mb-lg text-center">
+          <h2 className="inline-flex flex-wrap items-center justify-center gap-2 font-headline-lg-mobile text-headline-lg-mobile text-on-surface md:font-headline-lg md:text-headline-lg">
+            {t('howItWorks.title')}
+            <ArrowRight size={28} className="hidden text-secondary sm:inline" animateOnHover />
           </h2>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-2">
-            From raw data to interview ready in minutes.
+          <p className="mt-2 font-body-md text-body-md text-on-surface-variant">
+            {t('howItWorks.subtitle')}
           </p>
         </div>
 
@@ -105,16 +82,24 @@ export default function HowItWorks() {
             </div>
           </div>
 
-          {steps.map((step) => (
-            <div
-              key={step.number}
-              className={`relative flex max-w-xs flex-col items-center text-center reveal ${step.delay} is-visible`}
-            >
-              <StepIcon icon={step.icon} number={step.number} />
-              <h3 className="font-headline-md text-headline-md text-on-surface mb-2">{step.title}</h3>
-              <p className="text-sm text-on-surface-variant px-4">{step.description}</p>
-            </div>
-          ))}
+          {STEP_META.map((meta, index) => {
+            const step = steps[index] || {};
+            return (
+              <div
+                key={meta.number}
+                className={`reveal relative flex max-w-xs flex-col items-center text-center ${meta.delay} is-visible`}
+              >
+                <StepIcon
+                  icon={meta.icon}
+                  color={meta.color}
+                  AnimatedIcon={meta.AnimatedIcon}
+                  number={meta.number}
+                />
+                <h3 className="mb-2 font-headline-md text-headline-md text-on-surface">{step.title}</h3>
+                <p className="px-4 text-sm text-on-surface-variant">{step.description}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

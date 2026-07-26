@@ -1,15 +1,61 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { motion } from 'motion/react';
+import { Trans, useTranslation } from 'react-i18next';
+import { IMAGES } from '../../config/images';
 import TextType from '../ui/TextType';
+import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
+import {
+  AvatarGroup,
+  AvatarGroupTooltip,
+} from '../animate-ui/components/animate/avatar-group';
+import { Sparkles } from '../animate-ui/icons/sparkles';
+import { buttonPrimaryClass } from '../ui/buttonTokens';
+import { cn } from '../../lib/utils';
+
+function HeroCtaButton({ label }) {
+  const [hovering, setHovering] = useState(false);
+
+  return (
+    <Link
+      to="/register"
+      className={cn(
+        buttonPrimaryClass,
+        'relative z-20 w-full gap-2 text-lg rounded-xl px-8 py-4 sm:w-auto'
+      )}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      onFocus={() => setHovering(true)}
+      onBlur={() => setHovering(false)}
+    >
+      {label}
+      <motion.span
+        className="inline-flex shrink-0"
+        animate={{ x: hovering ? 8 : 0 }}
+        transition={{ type: 'spring', stiffness: 420, damping: 22 }}
+        aria-hidden
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width={20}
+          height={20}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
+        </svg>
+      </motion.span>
+    </Link>
+  );
+}
 
 const A4_WIDTH = 794;
 const A4_HEIGHT = 1123;
-
-const heroTypingPhrases = [
-  'Yes, really',
-  'build ATS-optimized resumes.',
-  'land interviews faster.',
-  'download unlimited PDFs.',
-];
 
 const LEFT_RESUME_SCALE = 0.55;
 const RIGHT_RESUME_SCALE = 0.5;
@@ -18,12 +64,32 @@ const LEFT_SCALED_HEIGHT = A4_HEIGHT * LEFT_RESUME_SCALE;
 const RIGHT_SCALED_WIDTH = A4_WIDTH * RIGHT_RESUME_SCALE;
 const RIGHT_SCALED_HEIGHT = A4_HEIGHT * RIGHT_RESUME_SCALE;
 
-const AVATAR_URLS = [
-  'https://randomuser.me/api/portraits/women/1.jpg',
-  'https://randomuser.me/api/portraits/men/2.jpg',
-  'https://randomuser.me/api/portraits/women/3.jpg',
-  'https://randomuser.me/api/portraits/men/4.jpg',
-  'https://randomuser.me/api/portraits/women/5.jpg',
+const AVATARS = [
+  {
+    src: 'https://randomuser.me/api/portraits/women/1.jpg',
+    fallback: 'A',
+    tooltip: 'Alex',
+  },
+  {
+    src: 'https://randomuser.me/api/portraits/men/2.jpg',
+    fallback: 'J',
+    tooltip: 'Jordan',
+  },
+  {
+    src: 'https://randomuser.me/api/portraits/women/3.jpg',
+    fallback: 'S',
+    tooltip: 'Sam',
+  },
+  {
+    src: 'https://randomuser.me/api/portraits/men/4.jpg',
+    fallback: 'R',
+    tooltip: 'Riley',
+  },
+  {
+    src: 'https://randomuser.me/api/portraits/women/5.jpg',
+    fallback: 'M',
+    tooltip: 'Morgan',
+  },
 ];
 
 function TikTokIcon({ className = '' }) {
@@ -59,30 +125,34 @@ function ScaledResumeImage({ src, alt, width, height }) {
 }
 
 export default function Hero() {
+  const { t } = useTranslation('marketing');
+  const typingPhrases = t('hero.typingPhrases', { returnObjects: true });
+
   return (
     <section className="w-full bg-surface-container reveal is-visible">
       <div className="page-container py-xl xl:py-20">
         <div className="grid grid-cols-1 xl:grid-cols-[55fr_45fr] gap-lg xl:gap-12 items-center">
           <div className="flex flex-col gap-6 max-w-xl">
-            <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">
-              FREE ONLINE RESUME BUILDER
+            <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest inline-flex items-center gap-2">
+              <Sparkles size={16} className="text-secondary" animateOnHover />
+              {t('hero.badge')}
             </p>
 
             <h1
               className="text-2xl sm:text-3xl xl:text-5xl font-black leading-tight text-gray-950"
               id="hero-headline"
             >
-              Build a job-winning
+              {t('hero.headlineLine1')}
               <br />
-              resume for free
+              {t('hero.headlineLine2')}
             </h1>
 
             <div className="space-y-2 text-lg text-gray-500 leading-relaxed">
-              <p>Your first resume is 100% free forever.</p>
-              <p>Unlimited downloads. No hidden fees.</p>
+              <p>{t('hero.subline1')}</p>
+              <p>{t('hero.subline2')}</p>
               <p>
                 <TextType
-                  text={heroTypingPhrases}
+                  text={Array.isArray(typingPhrases) ? typingPhrases : []}
                   as="span"
                   className="font-semibold text-secondary"
                   typingSpeed={75}
@@ -98,27 +168,26 @@ export default function Hero() {
             </div>
 
             <div>
-              <Link
-                to="/register"
-                className="inline-flex w-full sm:w-auto items-center justify-center bg-primary-container text-on-primary text-lg rounded-xl px-8 py-4 hover:opacity-90 transition-opacity"
-              >
-                Get started for free
-              </Link>
+              <HeroCtaButton label={t('hero.cta')} />
             </div>
 
-            <div className="flex items-center gap-3 pt-2">
-              <div className="flex">
-                {AVATAR_URLS.map((url, index) => (
-                  <img
-                    key={url}
-                    src={url}
-                    alt=""
-                    className={`w-10 h-10 rounded-full border-2 border-white object-cover ${index > 0 ? '-ml-3' : ''}`}
-                  />
+            <div className="flex items-center gap-3 mt-8 pt-2">
+              <AvatarGroup>
+                {AVATARS.map((avatar, index) => (
+                  <Avatar key={index}>
+                    <AvatarImage src={avatar.src} />
+                    <AvatarFallback>{avatar.fallback}</AvatarFallback>
+                    <AvatarGroupTooltip>{avatar.tooltip}</AvatarGroupTooltip>
+                  </Avatar>
                 ))}
-              </div>
+              </AvatarGroup>
               <p className="font-body-md text-body-md text-on-surface-variant">
-                Trusted by <span className="font-semibold">5.3 million</span> users
+                <Trans
+                  i18nKey="hero.trustLine"
+                  ns="marketing"
+                  values={{ count: t('hero.trustCount') }}
+                  components={{ strong: <strong className="font-semibold" /> }}
+                />
               </p>
             </div>
           </div>
@@ -134,8 +203,8 @@ export default function Hero() {
               <div className="flex items-start gap-6">
                 <div className="relative z-10 mt-0 -rotate-2">
                   <ScaledResumeImage
-                    src="/images/resume-atlantic-blue.png"
-                    alt="Atlantic Blue resume preview"
+                    src={IMAGES.resumeAtlanticBlue}
+                    alt={t('hero.resumeAlt.atlanticBlue')}
                     width={LEFT_SCALED_WIDTH}
                     height={LEFT_SCALED_HEIGHT}
                   />
@@ -143,8 +212,8 @@ export default function Hero() {
 
                 <div className="relative z-[5] mt-16 rotate-2">
                   <ScaledResumeImage
-                    src="/images/resume-classic-clear.png"
-                    alt="Classic Clear resume preview"
+                    src={IMAGES.resumeClassicClear}
+                    alt={t('hero.resumeAlt.classicClear')}
                     width={RIGHT_SCALED_WIDTH}
                     height={RIGHT_SCALED_HEIGHT}
                   />
@@ -157,10 +226,10 @@ export default function Hero() {
                 </div>
                 <div className="min-w-0">
                   <p className="font-label-md text-label-md text-on-surface leading-tight">
-                    Andrew Irwin
+                    {t('hero.socialCard.name')}
                   </p>
                   <p className="font-body-md text-body-md text-on-surface-variant text-sm leading-tight">
-                    Product Manager
+                    {t('hero.socialCard.role')}
                   </p>
                 </div>
               </div>
@@ -169,16 +238,16 @@ export default function Hero() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="font-body-md text-body-md text-on-surface-variant text-sm leading-snug">
-                      Powerful websites I wish I knew earlier:
+                      {t('hero.socialCard.tiktokLine1')}
                     </p>
                     <p className="font-label-md text-label-md text-on-surface text-sm mt-1 leading-snug">
-                      This one is a LIFESAVER
+                      {t('hero.socialCard.tiktokLine2')}
                     </p>
                   </div>
                   <TikTokIcon className="w-7 h-7 text-on-surface shrink-0" />
                 </div>
                 <p className="font-body-md text-body-md text-on-surface-variant text-xs mt-2">
-                  @maedeh.davami | 1.8 million views
+                  {t('hero.socialCard.tiktokMeta')}
                 </p>
               </div>
             </div>

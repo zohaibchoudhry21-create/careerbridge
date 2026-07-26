@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import DashboardLayout from '../../components/layout/DashboardLayout';
+import { DashboardLayout, PageContainer, PageHeader } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
 import TemplateCard from '../../features/resumeBuilder/components/TemplateCard';
 import TemplatePreviewModal from '../../features/resumeBuilder/components/TemplatePreviewModal';
@@ -13,8 +14,16 @@ import {
   useCreateBuiltResume,
   useImportBuiltResume,
 } from '../../features/resumeBuilder/hooks/useResumeBuilder';
+import { resolveApiError } from '../../utils/apiError';
+import { cn } from '../../lib/utils';
+import {
+  selectedOptionClass,
+  unselectedOptionClass,
+} from '../../components/ui/colorAccentTokens';
+import { buttonSecondaryClass } from '../../components/ui/buttonTokens';
 
 export default function TemplateSelectionPage() {
+  const { t } = useTranslation('resumeBuilder');
   const { user } = useAuth();
   const navigate = useNavigate();
   const [category, setCategory] = useState('all');
@@ -51,7 +60,7 @@ export default function TemplateSelectionPage() {
       const result = await createResume.mutateAsync({ templateId: selectedTemplate.id });
       goToEditor(result.resume.id);
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Could not create resume.');
+      toast.error(resolveApiError(error, t('toasts.createFailed')));
     }
   };
 
@@ -74,56 +83,51 @@ export default function TemplateSelectionPage() {
       goToEditor(result.resume.id);
       const sectionCount = result.resume?.sections?.length || 0;
       if (sectionCount > 0) {
-        toast.success(`Resume imported with ${sectionCount} sections. Click a section to edit.`);
+        toast.success(t('toasts.importSuccessWithSections', { count: sectionCount }));
       } else {
-        toast.success('Resume imported. Add or edit sections on the left.');
+        toast.success(t('toasts.importSuccessEmpty'));
       }
     } catch (error) {
       setProcessingOpen(false);
-      toast.error(error?.response?.data?.message || 'Import failed.');
+      toast.error(resolveApiError(error, t('toasts.importFailed')));
     }
   };
 
   return (
     <DashboardLayout user={user}>
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-start justify-between gap-sm mb-md">
-          <div>
-            <h1 className="font-headline-dashboard text-headline-dashboard text-on-surface">
-              Start building your resume
-            </h1>
-            <p className="font-body-md text-on-surface-variant mt-1">
-              Choose a design you like. You can customize or switch it later.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              if (!selectedTemplate) {
-                toast.info('Select a template first, then import your resume.');
-                return;
-              }
-              setImportOpen(true);
-            }}
-            className="rounded-xl border border-outline-variant px-md py-sm font-label-md text-on-surface hover:border-secondary/40 hover:text-secondary transition-colors"
-          >
-            Import existing resume
-          </button>
-        </div>
+      <PageContainer>
+        <PageHeader
+          title={t('page.templateSelection.title')}
+          description={t('page.templateSelection.description')}
+          actions={
+            <button
+              type="button"
+              onClick={() => {
+                if (!selectedTemplate) {
+                  toast.info(t('toasts.selectTemplateFirst'));
+                  return;
+                }
+                setImportOpen(true);
+              }}
+              className={cn(buttonSecondaryClass, 'px-md py-sm')}
+            >
+              {t('page.templateSelection.importButton')}
+            </button>
+          }
+        />
 
-        <div className="flex flex-wrap gap-2 mb-md">
+        <div className="flex flex-wrap gap-2">
           {TEMPLATE_CATEGORIES.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => setCategory(item.id)}
-              className={`rounded-full px-md py-sm font-label-md transition-colors ${
-                category === item.id
-                  ? 'bg-secondary text-white'
-                  : 'bg-surface-container text-on-surface-variant hover:text-on-surface'
-              }`}
+              className={cn(
+                'rounded-full border-2 px-md py-sm font-label-md transition-all duration-150',
+                category === item.id ? selectedOptionClass : unselectedOptionClass
+              )}
             >
-              {item.label}
+              {t(`categories.${item.id}`)}
             </button>
           ))}
         </div>
@@ -133,7 +137,7 @@ export default function TemplateSelectionPage() {
             <TemplateCard key={template.id} template={template} onClick={openPreview} />
           ))}
         </div>
-      </div>
+      </PageContainer>
 
       <TemplatePreviewModal
         open={previewOpen}

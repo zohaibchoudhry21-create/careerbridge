@@ -1,12 +1,28 @@
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import generateToken from '../utils/generateToken.js';
 import { assignVerificationToken } from './verifyEmailController.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
-import { setAuthCookie, clearAuthCookie } from '../utils/authCookie.js';
+import { setAuthCookie, clearAuthCookie, getTokenFromRequest, clearTwoFactorChallengeCookie, clearReactivationChallengeCookie } from '../utils/authCookie.js';
 import { consumeAuthCode } from '../utils/authCodeStore.js';
 import { sendPasswordResetEmail } from '../utils/emailService.js';
 import { sendWelcomeEmailIfNeeded } from '../utils/welcomeEmailService.js';
+import {
+  createUserSession,
+  issueAuthToken,
+  revokeAllSessionsForUser,
+  revokeSessionBySid,
+} from '../utils/sessionService.js';
+import { evaluateAndSendLoginAlert } from '../utils/loginAlertService.js';
+import {
+  finalizeLogin,
+  issueLoginChallengeIfNeeded,
+} from './twoFactorController.js';
+import {
+  beginReactivationChallenge,
+  needsReactivationChallenge,
+} from '../utils/reactivationService.js';
 
 const buildResetPasswordUrl = (rawToken) => {
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
@@ -37,7 +53,7 @@ export const register = async (req, res, next) => {
         return res.status(200).json(response);
       }
 
-      throw new AppError('Email already registered. Please log in instead.', 400);
+      throw new AppError(ERROR_CODES.AUTH.EMAIL_ALREADY_REGISTERED, 400);
     }
 
     const user = await User.create({
@@ -73,23 +89,62 @@ export const login = async (req, res, next) => {
     const user = await User.findOne({ email }).select('+password');
 
     if (!user || !(await user.comparePassword(password))) {
-      throw new AppError('Invalid email or password', 401);
+      throw new AppError(ERROR_CODES.AUTH.INVALID_CREDENTIALS, 401);
     }
 
-    if (!user.isVerified || user.status !== 'active') {
-      throw new AppError(
-        'Please verify your email before logging in. Check your inbox for the verification link.',
-        403
-      );
+    if (!user.isVerified) {
+      throw new AppError(ERROR_CODES.AUTH.EMAIL_NOT_VERIFIED, 403);
     }
 
-    const token = generateToken(user._id);
+    if (user.status === 'inactive') {
+      throw new AppError(ERROR_CODES.AUTH.EMAIL_NOT_VERIFIED, 403);
+    }
+
+    if (needsReactivationChallenge(user)) {
+      const remember = req.body.remember !== false;
+      const trustDevice = req.body.trustDevice === true;
+
+      beginReactivationChallenge(res, req, {
+        user,
+        remember,
+        trustDevice,
+        source: 'login',
+      });
+
+      return sendResponse(res, 200, true, 'Account reactivation required.', {
+        requiresReactivation: true,
+      });
+    }
+
+    if (user.status !== 'active') {
+      throw new AppError(ERROR_CODES.AUTH.ACCOUNT_NOT_ACTIVE_SUPPORT, 403);
+    }
+
     const remember = req.body.remember !== false;
-    setAuthCookie(res, token, remember);
+    const trustDevice = req.body.trustDevice === true;
+
+    const requiresTwoFactor = await issueLoginChallengeIfNeeded(res, req, {
+      user,
+      remember,
+      trustDevice,
+      source: 'login',
+    });
+
+    if (requiresTwoFactor) {
+      return sendResponse(res, 200, true, 'Two-factor authentication required.', {
+        requires2FA: true,
+      });
+    }
+
+    await finalizeLogin(res, req, {
+      user,
+      remember,
+      trustDevice,
+      source: 'login',
+    });
 
     sendResponse(res, 200, true, 'Login successful', {
       user: user.toPublicJSON(),
-      token,
     });
   } catch (error) {
     next(error);
@@ -106,9 +161,24 @@ export const getMe = async (req, res, next) => {
   }
 };
 
-export const logout = async (_req, res, next) => {
+export const logout = async (req, res, next) => {
   try {
+    const token = getTokenFromRequest(req);
+
+    if (token && process.env.JWT_SECRET) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded?.sid && decoded?.id) {
+          await revokeSessionBySid(decoded.sid, decoded.id);
+        }
+      } catch {
+        // Allow logout even when the token is expired or invalid.
+      }
+    }
+
     clearAuthCookie(res);
+    clearTwoFactorChallengeCookie(res);
+    clearReactivationChallengeCookie(res);
     sendResponse(res, 200, true, 'Logged out successfully');
   } catch (error) {
     next(error);
@@ -167,21 +237,27 @@ export const resetPassword = async (req, res, next) => {
     }).select('+password');
 
     if (!user) {
-      throw new AppError('Invalid or expired reset token', 400);
+      throw new AppError(ERROR_CODES.AUTH.RESET_TOKEN_INVALID, 400);
     }
 
     user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
+    user.tokenVersion = (Number(user.tokenVersion) || 0) + 1;
     await user.save();
 
-    const authToken = generateToken(user._id);
-    setAuthCookie(res, authToken, true);
+    await revokeAllSessionsForUser(user._id);
+    const session = await createUserSession(user._id, req, {
+      remember: true,
+      rememberDevicesEnabled: user.rememberDevicesEnabled === true,
+    });
+    issueAuthToken(res, user, session, true);
 
     sendResponse(res, 200, true, 'Password reset successful', {
       user: user.toPublicJSON(),
-      token: authToken,
     });
+
+    void evaluateAndSendLoginAlert({ user, session, source: 'reset_password' });
   } catch (error) {
     next(error);
   }
@@ -193,29 +269,63 @@ export const exchangeSocialCode = async (req, res, next) => {
     const authPayload = consumeAuthCode(code);
 
     if (!authPayload?.userId) {
-      throw new AppError('Invalid or expired authorization code', 400);
+      throw new AppError(ERROR_CODES.AUTH.AUTH_CODE_INVALID, 400);
     }
 
     const { userId, isNewUser } = authPayload;
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new AppError('User no longer exists.', 401);
+      throw new AppError(ERROR_CODES.ACCOUNT.USER_NOT_FOUND, 401);
     }
 
-    if (!user.isVerified || user.status !== 'active') {
-      throw new AppError('Account is not active.', 403);
+    if (!user.isVerified) {
+      throw new AppError(ERROR_CODES.AUTH.ACCOUNT_NOT_ACTIVE, 403);
     }
 
-    const token = generateToken(user._id);
-    setAuthCookie(res, token, true);
+    if (needsReactivationChallenge(user)) {
+      beginReactivationChallenge(res, req, {
+        user,
+        remember: true,
+        trustDevice: false,
+        source: 'social',
+        isNewUser,
+      });
+
+      return sendResponse(res, 200, true, 'Account reactivation required.', {
+        requiresReactivation: true,
+      });
+    }
+
+    if (user.status !== 'active') {
+      throw new AppError(ERROR_CODES.AUTH.ACCOUNT_NOT_ACTIVE, 403);
+    }
+
+    const requiresTwoFactor = await issueLoginChallengeIfNeeded(res, req, {
+      user,
+      remember: true,
+      trustDevice: false,
+      source: 'social',
+      isNewUser,
+    });
+
+    if (requiresTwoFactor) {
+      return sendResponse(res, 200, true, 'Two-factor authentication required.', {
+        requires2FA: true,
+      });
+    }
+
+    await finalizeLogin(res, req, {
+      user,
+      remember: true,
+      trustDevice: false,
+      source: 'social',
+      isNewUser,
+    });
 
     sendResponse(res, 200, true, 'Login successful', {
       user: user.toPublicJSON(),
-      token,
     });
-
-    void sendWelcomeEmailIfNeeded(user, { isNewUser });
   } catch (error) {
     next(error);
   }

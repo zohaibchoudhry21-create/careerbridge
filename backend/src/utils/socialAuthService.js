@@ -1,4 +1,6 @@
 import User from '../models/User.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
+import { AppError } from './sendResponse.js';
 
 const normalizeEmail = (email) => String(email || '').toLowerCase().trim();
 
@@ -12,11 +14,11 @@ export const findOrCreateSocialUser = async ({
   const normalizedEmail = normalizeEmail(email);
 
   if (!providerId) {
-    throw new Error('Social provider did not return a user ID.');
+    throw new AppError(ERROR_CODES.SOCIAL.PROVIDER_NO_USER_ID, 400);
   }
 
   if (!normalizedEmail) {
-    throw new Error('Email permission is required to sign in with this provider.');
+    throw new AppError(ERROR_CODES.SOCIAL.EMAIL_PERMISSION_REQUIRED, 400);
   }
 
   let user = await User.findOne({ provider, providerId });
@@ -34,8 +36,12 @@ export const findOrCreateSocialUser = async ({
       shouldSave = true;
     }
 
-    if (!user.isVerified || user.status !== 'active') {
+    if (!user.isVerified) {
       user.isVerified = true;
+      shouldSave = true;
+    }
+
+    if (user.status === 'inactive') {
       user.status = 'active';
       shouldSave = true;
     }
@@ -50,30 +56,15 @@ export const findOrCreateSocialUser = async ({
   const existingByEmail = await User.findOne({ email: normalizedEmail });
 
   if (existingByEmail) {
-    if (
-      existingByEmail.provider === 'local' &&
-      (!existingByEmail.isVerified || existingByEmail.status !== 'active')
-    ) {
-      throw new Error(
-        'An unverified account already exists with this email. Please verify your email or log in with your password.'
-      );
+    if (existingByEmail.provider === 'local') {
+      throw new AppError(ERROR_CODES.SOCIAL.EMAIL_EXISTS_LOCAL, 400);
     }
 
-    if (existingByEmail.provider !== 'local' && existingByEmail.provider !== provider) {
-      throw new Error('This email is already linked to a different sign-in provider.');
+    if (existingByEmail.provider !== provider) {
+      throw new AppError(ERROR_CODES.SOCIAL.EMAIL_PROVIDER_MISMATCH, 400);
     }
 
-    existingByEmail.provider = provider;
-    existingByEmail.providerId = providerId;
-
-    if (name) existingByEmail.name = name;
-    if (avatar) existingByEmail.avatar = avatar;
-
-    existingByEmail.isVerified = true;
-    existingByEmail.status = 'active';
-
-    await existingByEmail.save({ validateBeforeSave: false });
-    return { user: existingByEmail, isNewUser: false };
+    throw new AppError(ERROR_CODES.SOCIAL.EMAIL_ALREADY_REGISTERED, 400);
   }
 
   user = await User.create({
@@ -86,6 +77,7 @@ export const findOrCreateSocialUser = async ({
     status: 'active',
   });
 
+  user._isNewSocialUser = true;
   return { user, isNewUser: true };
 };
 

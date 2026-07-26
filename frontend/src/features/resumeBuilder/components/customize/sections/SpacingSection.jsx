@@ -1,34 +1,39 @@
+import { useTranslation } from 'react-i18next';
 import CustomizeButtonGroup from '../CustomizeButtonGroup';
 import CustomizeSectionCard from '../CustomizeSectionCard';
 import { useCustomizeDispatch } from '../useCustomizeDispatch';
 
-const LINE_HEIGHT_OPTIONS = [
-  { value: 'compact', label: 'Compact' },
-  { value: 'normal', label: 'Normal' },
-  { value: 'relaxed', label: 'Relaxed' },
-];
-
-const SECTION_SPACING_OPTIONS = [
-  { value: 'compact', label: 'Compact' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'spacious', label: 'Spacious' },
-];
-
 export default function SpacingSection() {
+  const { t } = useTranslation('resumeBuilder');
   const { customize, updateCustomize } = useCustomizeDispatch();
 
+  const lineHeightOptions = [
+    { value: 'compact', label: t('customize.spacing.compact') },
+    { value: 'normal', label: t('customize.spacing.normal') },
+    { value: 'relaxed', label: t('customize.spacing.relaxed') },
+  ];
+
+  const sectionSpacingOptions = [
+    { value: 'compact', label: t('customize.spacing.compact') },
+    { value: 'medium', label: t('customize.spacing.medium') },
+    { value: 'spacious', label: t('customize.spacing.spacious') },
+  ];
+
   return (
-    <CustomizeSectionCard title="Spacing" description="Fine-tune line height and space between sections.">
+    <CustomizeSectionCard
+      title={t('customize.spacing.title')}
+      description={t('customize.spacing.description')}
+    >
       <div className="space-y-lg">
         <CustomizeButtonGroup
-          label="Line height"
-          options={LINE_HEIGHT_OPTIONS}
+          label={t('customize.spacing.lineHeight')}
+          options={lineHeightOptions}
           value={customize.lineHeight}
           onChange={(value) => updateCustomize('lineHeight', value)}
         />
         <CustomizeButtonGroup
-          label="Section spacing"
-          options={SECTION_SPACING_OPTIONS}
+          label={t('customize.spacing.sectionSpacing')}
+          options={sectionSpacingOptions}
           value={customize.sectionSpacing}
           onChange={(value) => updateCustomize('sectionSpacing', value)}
         />

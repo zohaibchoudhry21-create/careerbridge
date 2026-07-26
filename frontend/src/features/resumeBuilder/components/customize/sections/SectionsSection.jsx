@@ -1,8 +1,11 @@
+import { useTranslation } from 'react-i18next';
+import AppIcon from '../../../../../components/icons/AppIcon';
 import { SECTION_ICONS } from '../../../data/resumeSectionTypes';
 import CustomizeSectionCard from '../CustomizeSectionCard';
 import { useCustomizeDispatch } from '../useCustomizeDispatch';
 
 export default function SectionsSection() {
+  const { t } = useTranslation('resumeBuilder');
   const { sections, dispatch } = useCustomizeDispatch();
 
   const moveSection = (fromIndex, toIndex) => {
@@ -12,23 +15,31 @@ export default function SectionsSection() {
 
   if (!sections.length) {
     return (
-      <CustomizeSectionCard title="Sections" description="Reorder and show or hide resume sections.">
-        <p className="text-on-surface-variant text-sm">No sections yet. Add content from the Content tab.</p>
+      <CustomizeSectionCard
+        title={t('customize.sections.title')}
+        description={t('customize.sections.description')}
+      >
+        <p className="text-on-surface-variant text-sm">{t('customize.sections.empty')}</p>
       </CustomizeSectionCard>
     );
   }
 
   return (
-    <CustomizeSectionCard title="Sections" description="Reorder and show or hide resume sections.">
+    <CustomizeSectionCard
+      title={t('customize.sections.title')}
+      description={t('customize.sections.description')}
+    >
       <ul className="space-y-2">
         {sections.map((section, index) => (
           <li
             key={section.id}
             className="flex items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-sm py-2"
           >
-            <span className="material-symbols-outlined text-on-surface-variant text-[20px]">
-              {SECTION_ICONS[section.type] || 'article'}
-            </span>
+            <AppIcon
+              name={SECTION_ICONS[section.type] || 'article'}
+              size="nav"
+              className="text-on-surface-variant"
+            />
             <span className="flex-1 text-on-surface font-label-sm truncate">{section.heading}</span>
             <div className="flex items-center gap-1 shrink-0">
               <button
@@ -36,25 +47,25 @@ export default function SectionsSection() {
                 disabled={index === 0}
                 onClick={() => moveSection(index, index - 1)}
                 className="p-1 rounded-md text-on-surface-variant hover:text-on-surface disabled:opacity-30"
-                aria-label="Move section up"
+                aria-label={t('customize.sections.moveUp')}
               >
-                <span className="material-symbols-outlined text-[18px]">arrow_upward</span>
+                <AppIcon name="arrow_upward" size="button" />
               </button>
               <button
                 type="button"
                 disabled={index === sections.length - 1}
                 onClick={() => moveSection(index, index + 1)}
                 className="p-1 rounded-md text-on-surface-variant hover:text-on-surface disabled:opacity-30"
-                aria-label="Move section down"
+                aria-label={t('customize.sections.moveDown')}
               >
-                <span className="material-symbols-outlined text-[18px]">arrow_downward</span>
+                <AppIcon name="arrow_downward" size="button" />
               </button>
             </div>
             <button
               type="button"
               role="switch"
               aria-checked={section.visible}
-              aria-label={`Toggle ${section.heading} visibility`}
+              aria-label={t('customize.sections.toggleVisibility', { heading: section.heading })}
               onClick={() =>
                 dispatch({ type: 'TOGGLE_SECTION_VISIBLE', sectionId: section.id })
               }

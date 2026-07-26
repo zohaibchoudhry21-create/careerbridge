@@ -161,6 +161,81 @@ export const sendSocialWelcomeEmail = async ({ to, name, dashboardUrl }) => {
   }
 };
 
+const formatLoginAlertTimestamp = (value) => {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return new Date().toUTCString();
+  }
+
+  return date.toUTCString();
+};
+
+export const sendLoginAlertEmail = async ({
+  to,
+  name,
+  deviceLabel,
+  ipAddress,
+  signedInAt,
+  securityUrl,
+}) => {
+  const recipientName = resolveRecipientName(name, to);
+  const safeName = escapeHtml(recipientName);
+  const safeDevice = escapeHtml(deviceLabel || 'Unknown device');
+  const safeIp = escapeHtml(ipAddress || 'Unknown');
+  const safeTime = escapeHtml(formatLoginAlertTimestamp(signedInAt));
+  const safeSecurityUrl = escapeHtml(
+    securityUrl || `${process.env.CLIENT_URL || 'http://localhost:5173'}/settings/login-security`
+  );
+  const subject = 'New sign-in to your CareerBridge account';
+  const html = `
+    <div style="font-family: Inter, Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #0b1c30;">
+      <h2 style="color: #0b1c30;">New sign-in detected</h2>
+      <p>Hi ${safeName},</p>
+      <p>We noticed a sign-in to your CareerBridge account from an unfamiliar device or network.</p>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin:20px 0;">
+        <p style="margin:0 0 8px;"><strong>Device:</strong> ${safeDevice}</p>
+        <p style="margin:0 0 8px;"><strong>IP address:</strong> ${safeIp}</p>
+        <p style="margin:0;"><strong>Time (UTC):</strong> ${safeTime}</p>
+      </div>
+      <p>If this was you, no action is needed.</p>
+      <p>If you do not recognize this activity, change your password and review your active sessions.</p>
+      <p style="margin: 24px 0;">
+        <a href="${safeSecurityUrl}"
+           style="background:#0058be;color:#ffffff;padding:12px 24px;border-radius:12px;text-decoration:none;display:inline-block;">
+          Review Login &amp; Security
+        </a>
+      </p>
+      <p style="color:#76777d;font-size:12px;">You can turn off login alerts in Settings → Login &amp; Security.</p>
+    </div>
+  `;
+
+  const transporter = createTransporter();
+
+  if (!transporter) {
+    console.warn('[Email] Login alert (dev mode):');
+    console.warn(`  to: ${to}`);
+    console.warn(`  device: ${deviceLabel || 'Unknown device'}`);
+    console.warn(`  ip: ${ipAddress || 'Unknown'}`);
+    console.warn(`  time: ${formatLoginAlertTimestamp(signedInAt)}`);
+    console.warn(`  security: ${securityUrl}`);
+    return { sent: false, devMode: true };
+  }
+
+  try {
+    await transporter.sendMail({
+      from: getEmailConfig().emailFrom,
+      to,
+      subject,
+      html,
+    });
+    console.log(`[Email] Login alert sent to ${to}`);
+    return { sent: true, devMode: false };
+  } catch (error) {
+    console.error('[Email] Failed to send login alert:', error.message);
+    throw error;
+  }
+};
+
 export const sendPasswordResetEmail = async ({ to, name, resetUrl }) => {
   const recipientName = resolveRecipientName(name, to);
   const safeName = escapeHtml(recipientName);

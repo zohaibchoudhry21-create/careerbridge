@@ -22,49 +22,42 @@ const RULES = [
   {
     id: 'length',
     test: (password) => password.length >= 8,
-    message: 'Must be at least 8 characters long',
   },
   {
     id: 'uppercase',
     test: (password) => /[A-Z]/.test(password),
-    message: 'Must include at least one uppercase letter (A-Z)',
   },
   {
     id: 'lowercase',
     test: (password) => /[a-z]/.test(password),
-    message: 'Must include at least one lowercase letter (a-z)',
   },
   {
     id: 'number',
     test: (password) => /[0-9]/.test(password),
-    message: 'Must include at least one number (0-9)',
   },
   {
     id: 'special',
     test: (password) => /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(password),
-    message: 'Must include at least one special character (e.g. !@#$%^&*)',
   },
 ];
 
 export const validatePassword = (password = '') => {
   const value = String(password);
-  const failedRules = RULES.filter((rule) => !rule.test(value)).map((rule) => rule.message);
+  const failedRules = RULES.filter((rule) => !rule.test(value)).map((rule) => rule.id);
   const isCommon = Boolean(value && COMMON_PASSWORDS.has(value.toLowerCase()));
 
   if (isCommon) {
-    failedRules.push('Password is too common. Choose a stronger password');
+    failedRules.push('tooCommon');
   }
 
   const rules = RULES.map((rule) => ({
     id: rule.id,
-    message: rule.message,
     passed: rule.test(value),
   }));
 
   if (value) {
     rules.push({
       id: 'common',
-      message: 'Must not be a common password',
       passed: !isCommon,
     });
   }

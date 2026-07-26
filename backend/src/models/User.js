@@ -30,6 +30,71 @@ const userSchema = new mongoose.Schema(
       default: '',
       alias: 'profileImage',
     },
+    /** Settings → Personal Information (optional profile details). */
+    firstName: {
+      type: String,
+      trim: true,
+      maxlength: [50, 'First name cannot exceed 50 characters'],
+      default: '',
+    },
+    lastName: {
+      type: String,
+      trim: true,
+      maxlength: [50, 'Last name cannot exceed 50 characters'],
+      default: '',
+    },
+    phone: {
+      type: String,
+      trim: true,
+      maxlength: [30, 'Phone number cannot exceed 30 characters'],
+      default: '',
+    },
+    dateOfBirth: {
+      type: Date,
+      default: null,
+    },
+    gender: {
+      type: String,
+      trim: true,
+      maxlength: [40, 'Gender cannot exceed 40 characters'],
+      default: '',
+    },
+    country: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Country cannot exceed 100 characters'],
+      default: '',
+    },
+    state: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'State cannot exceed 100 characters'],
+      default: '',
+    },
+    city: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'City cannot exceed 100 characters'],
+      default: '',
+    },
+    linkedin: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'LinkedIn URL cannot exceed 500 characters'],
+      default: '',
+    },
+    portfolio: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Portfolio URL cannot exceed 500 characters'],
+      default: '',
+    },
+    headline: {
+      type: String,
+      trim: true,
+      maxlength: [200, 'Headline cannot exceed 200 characters'],
+      default: '',
+    },
     provider: {
       type: String,
       enum: ['local', 'google', 'facebook', 'linkedin'],
@@ -54,7 +119,7 @@ const userSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['inactive', 'active'],
+      enum: ['inactive', 'active', 'deactivated'],
       default: 'inactive',
     },
     role: {
@@ -72,6 +137,59 @@ const userSchema = new mongoose.Schema(
     welcomeEmailSent: {
       type: Boolean,
       default: false,
+    },
+    /** Incremented on password change/reset so older JWTs fail in `protect`. */
+    tokenVersion: {
+      type: Number,
+      default: 0,
+    },
+    /** Email alerts for sign-ins from unfamiliar devices or IP addresses. */
+    loginAlertsEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    /** Opt-in trusted-device flow for fewer security prompts on known devices. */
+    rememberDevicesEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    /** UI language preference (i18n). Supports en-US, en-GB, es, ur. */
+    languagePreference: {
+      type: String,
+      enum: ['en-US', 'en-GB', 'es', 'ur'],
+      default: 'en-US',
+    },
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    twoFactorSecret: {
+      type: String,
+      select: false,
+      default: null,
+    },
+    twoFactorPendingSecret: {
+      type: String,
+      select: false,
+      default: null,
+    },
+    twoFactorBackupCodes: {
+      type: [
+        {
+          hash: { type: String, required: true },
+          usedAt: { type: Date, default: null },
+        },
+      ],
+      select: false,
+      default: [],
+    },
+    twoFactorConfirmedAt: {
+      type: Date,
+      default: null,
+    },
+    lastDataExportAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }
@@ -106,12 +224,29 @@ userSchema.methods.toPublicJSON = function toPublicJSON() {
     name: this.name,
     email: this.email,
     avatar: this.avatar,
+    firstName: this.firstName || '',
+    lastName: this.lastName || '',
+    phone: this.phone || '',
+    dateOfBirth: this.dateOfBirth
+      ? this.dateOfBirth.toISOString().slice(0, 10)
+      : '',
+    gender: this.gender || '',
+    country: this.country || '',
+    state: this.state || '',
+    city: this.city || '',
+    linkedin: this.linkedin || '',
+    portfolio: this.portfolio || '',
+    headline: this.headline || '',
     provider: this.provider,
     profileImage: this.avatar,
     authProvider: this.provider,
     role: this.role,
     status: this.status,
     isVerified: this.isVerified,
+    loginAlertsEnabled: this.loginAlertsEnabled !== false,
+    rememberDevicesEnabled: this.rememberDevicesEnabled === true,
+    languagePreference: this.languagePreference || 'en-US',
+    twoFactorEnabled: this.twoFactorEnabled === true,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };

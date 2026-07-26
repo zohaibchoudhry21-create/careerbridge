@@ -1,0 +1,358 @@
+{
+  "page": {
+    "templateSelection": {
+      "title": "Empieza a crear tu currículum",
+      "description": "Elige un diseño que te guste. Podrás personalizarlo o cambiarlo más adelante.",
+      "importButton": "Importar currículum existente"
+    },
+    "editor": {
+      "loading": "Cargando el editor de currículum...",
+      "notFound": "Currículum no encontrado.",
+      "backToTemplates": "Volver a plantillas",
+      "aiToolsComingSoon": "Herramientas de IA próximamente"
+    }
+  },
+  "tabs": {
+    "content": "Contenido",
+    "customize": "Personalizar",
+    "aiTools": "Herramientas de IA"
+  },
+  "topNav": {
+    "saving": "Guardando...",
+    "saved": "Guardado ✓",
+    "download": "Descargar",
+    "moreOptions": "Más opciones",
+    "duplicate": "Duplicar",
+    "shareLink": "Compartir enlace"
+  },
+  "categories": {
+    "all": "Todas las plantillas",
+    "simple": "Simple",
+    "modern": "Moderno",
+    "creative": "Creativo"
+  },
+  "templates": {
+    "classic-clear": {
+      "name": "CLÁSICO CLARO",
+      "description": "Cada plantilla ha sido diseñada con cuidado para que crear tu currículum sea muy sencillo."
+    },
+    "atlantic-clear": {
+      "name": "ATLÁNTICO CLARO",
+      "description": "Cada plantilla ha sido diseñada con cuidado para que crear tu currículum sea muy sencillo."
+    },
+    "mercury-clear": {
+      "name": "MERCURIO CLARO",
+      "description": "Cada plantilla ha sido diseñada con cuidado para que crear tu currículum sea muy sencillo."
+    },
+    "steady-form": {
+      "name": "FORMA ESTABLE",
+      "description": "Cada plantilla ha sido diseñada con cuidado para que crear tu currículum sea muy sencillo."
+    }
+  },
+  "templatePreview": {
+    "features": {
+      "pageSize": "Tamaño A4 / Carta US",
+      "editableText": "Texto editable",
+      "customizable": "Totalmente personalizable",
+      "printReady": "Formato listo para imprimir",
+      "shareableLink": "Currículum en línea con enlace compartible"
+    },
+    "useTemplate": "Usar esta plantilla"
+  },
+  "startChoice": {
+    "title": "Importa tu currículum existente",
+    "description": "Trae un currículum existente o empieza con un lienzo en blanco usando la plantilla seleccionada.",
+    "startBlank": "Empezar en blanco",
+    "importResume": "Importar currículum"
+  },
+  "import": {
+    "title": "Importar currículum",
+    "tabs": {
+      "file": "Archivo de currículum",
+      "paste": "Pegar texto"
+    },
+    "dropzoneTitle": "Elige un archivo o arrástralo y suéltalo aquí",
+    "dropzoneHint": ".pdf, .docx",
+    "selectFile": "Seleccionar currículum",
+    "pastePlaceholder": "Pega aquí el texto de tu currículum...",
+    "importPasted": "Importar texto pegado",
+    "processingTitle": "Importando tu currículum",
+    "processingDescription": "Procesando tu currículum... Esto puede tardar hasta 60 segundos."
+  },
+  "toasts": {
+    "createFailed": "No se pudo crear el currículum.",
+    "importFailed": "Error al importar.",
+    "importSuccessWithSections": "Currículum importado con {{count}} secciones. Haz clic en una sección para editarla.",
+    "importSuccessEmpty": "Currículum importado. Añade o edita secciones a la izquierda.",
+    "selectTemplateFirst": "Selecciona primero una plantilla y luego importa tu currículum.",
+    "autoSaveFailed": "Error al guardar automáticamente.",
+    "noSkillSuggestions": "No hay sugerencias de habilidades nuevas por ahora.",
+    "skillsAdded": "Se añadieron {{count}} sugerencias de habilidades.",
+    "skillSuggestionsFailed": "No se pudieron obtener sugerencias de habilidades.",
+    "uploadPhotoFailed": "No se pudo subir la foto.",
+    "aiAddTextFirst": "Añade algo de texto antes de usar la IA.",
+    "aiUnavailable": "Servicio de IA no disponible — se aplicó una mejora básica.",
+    "aiActionFailed": "Error en la acción de IA."
+  },
+  "editorPanel": {
+    "yourNamePlaceholder": "Tu nombre",
+    "noSections": "Aún no hay secciones. Importa un CV o añade contenido abajo.",
+    "entryNumber": "Entrada {{number}}",
+    "addEntry": "+ Añadir entrada",
+    "aiSkillSuggestions": "Sugerencias de habilidades con IA",
+    "deleteSection": "Eliminar sección",
+    "addContent": "+ Añadir contenido",
+    "personalDetails": "Datos personales",
+    "editPersonalDetails": "Editar datos personales"
+  },
+  "deleteSection": {
+    "title": "¿Eliminar la sección \"{{sectionName}}\"?",
+    "description": "Esto eliminará permanentemente esta sección y todas sus entradas. Esta acción no se puede deshacer.",
+    "confirmLabel": "Entiendo, continuar.",
+    "cancel": "Cancelar",
+    "confirm": "Eliminar sección"
+  },
+  "addContent": {
+    "title": "Añadir contenido"
+  },
+  "sectionTypes": {
+    "education": {
+      "label": "Educación",
+      "description": "Añade tus títulos y centros de estudio. Incluye tu especialización, honores o intercambios."
+    },
+    "experience": {
+      "label": "Experiencia",
+      "description": "Añade tus roles profesionales e historial laboral, incluidas las prácticas."
+    },
+    "expertise": {
+      "label": "Competencias",
+      "description": "Añade tus habilidades técnicas y blandas que te ayuden a destacar."
+    },
+    "languages": {
+      "label": "Idiomas",
+      "description": "Añade tus idiomas y nivel de dominio para mostrar tu alcance comunicativo."
+    },
+    "certificates": {
+      "label": "Certificados",
+      "description": "Añade tus certificados o licencias del sector. Incluye emisor y fecha de obtención."
+    },
+    "interests": {
+      "label": "Intereses",
+      "description": "Añade intereses personales relevantes que apoyen tu trayectoria y encaje cultural."
+    },
+    "projects": {
+      "label": "Proyectos",
+      "description": "Añade proyectos clave en los que participaste y destaca retos, rol e impacto."
+    },
+    "courses": {
+      "label": "Cursos",
+      "description": "Añade cursos y formaciones en línea o presenciales que hayas completado."
+    },
+    "awards": {
+      "label": "Premios",
+      "description": "Añade premios y reconocimientos del sector, competiciones o academia."
+    },
+    "organisations": {
+      "label": "Organizaciones",
+      "description": "Añade membresías o voluntariado en organizaciones, incluido tu rol."
+    },
+    "publications": {
+      "label": "Publicaciones",
+      "description": "Añade publicaciones, artículos o libros que hayas escrito o en los que hayas colaborado."
+    },
+    "references": {
+      "label": "Referencias",
+      "description": "Añade referencias de gerentes o compañeros, incluidos sus datos de contacto."
+    },
+    "declaration": {
+      "label": "Declaración",
+      "description": "Añade tu declaración creando o subiendo tu firma personal."
+    },
+    "custom": {
+      "label": "Personalizado",
+      "description": "Añade una sección personalizada para cualquier otro contenido o combina secciones con claridad."
+    }
+  },
+  "personalDetails": {
+    "title": "Editar datos personales",
+    "getTips": "Ver consejos",
+    "uploadPhoto": "Subir foto de perfil",
+    "uploadPhotoHint": "Haz clic para subir foto de perfil",
+    "removePhoto": "Eliminar foto",
+    "fullName": "Nombre completo",
+    "professionalTitle": "Título profesional",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "location": "Ubicación",
+    "website": "Sitio web",
+    "linkedin": "LinkedIn",
+    "done": "Listo"
+  },
+  "editEntry": {
+    "title": "Editar entrada",
+    "getTips": "Ver consejos",
+    "done": "Listo",
+    "clearField": "Borrar {{label}}",
+    "fields": {
+      "heading": "Encabezado",
+      "content": "Contenido",
+      "jobTitle": "Puesto",
+      "employer": "Empresa",
+      "startDate": "Fecha de inicio (MM/AAAA)",
+      "endDate": "Fecha de fin (MM/AAAA o Actual)",
+      "location": "Ubicación (Ciudad, País)",
+      "description": "Descripción",
+      "degree": "Título académico",
+      "school": "Centro de estudios",
+      "skill": "Habilidad",
+      "additionalInfo": "Información adicional",
+      "language": "Idioma",
+      "languageLevel": "Nivel de idioma",
+      "selectLanguageLevel": "Seleccionar nivel de idioma",
+      "courseTitle": "Título del curso",
+      "institution": "Institución",
+      "title": "Título"
+    },
+    "placeholders": {
+      "educationDescription": "Añade una descripción de tu formación...",
+      "languageInfo": "p. ej. C2, 4+, TOEFL, IELTS,...",
+      "courseDescription": "Describe el curso..."
+    }
+  },
+  "richText": {
+    "bold": "Negrita",
+    "italic": "Cursiva",
+    "underline": "Subrayado",
+    "bulletList": "Lista con viñetas",
+    "link": "Enlace",
+    "alignLeft": "Alinear a la izquierda",
+    "alignCenter": "Centrar",
+    "alignRight": "Alinear a la derecha",
+    "justify": "Justificar",
+    "enterUrl": "Introduce la URL"
+  },
+  "aiActions": {
+    "improve": "Mejorar redacción",
+    "suggest": "Sugerir contenido",
+    "grammar": "Revisar gramática",
+    "shorter": "Más breve",
+    "working": "Procesando..."
+  },
+  "modal": {
+    "closeDialog": "Cerrar diálogo",
+    "close": "Cerrar"
+  },
+  "customize": {
+    "sidebar": {
+      "document": "Documento",
+      "templates": "Plantillas",
+      "layout": "Diseño",
+      "fontSize": "Tamaño de fuente",
+      "spacing": "Espaciado",
+      "entries": "Entradas",
+      "headings": "Encabezados",
+      "font": "Fuente",
+      "colors": "Colores",
+      "header": "Encabezado",
+      "photo": "Foto",
+      "links": "Enlaces",
+      "footer": "Pie de página",
+      "sections": "Secciones"
+    },
+    "document": {
+      "title": "Documento",
+      "description": "Idioma y ajustes de página para tu currículum.",
+      "language": "Idioma",
+      "dateFormat": "Formato de fecha",
+      "pageFormat": "Formato de página"
+    },
+    "templates": {
+      "title": "Plantillas",
+      "description": "Elige un diseño. Puedes cambiar de plantilla en cualquier momento."
+    },
+    "layout": {
+      "title": "Diseño",
+      "description": "Controla cómo se organiza el contenido en la página.",
+      "singleColumn": "Una columna",
+      "twoColumn": "Dos columnas"
+    },
+    "fontSize": {
+      "title": "Tamaño de fuente",
+      "description": "Ajusta el tamaño general del texto de tu currículum.",
+      "small": "Pequeño",
+      "medium": "Mediano",
+      "large": "Grande"
+    },
+    "spacing": {
+      "title": "Espaciado",
+      "description": "Ajusta la altura de línea y el espacio entre secciones.",
+      "lineHeight": "Altura de línea",
+      "sectionSpacing": "Espaciado entre secciones",
+      "compact": "Compacto",
+      "normal": "Normal",
+      "relaxed": "Amplio",
+      "medium": "Medio",
+      "spacious": "Espacioso"
+    },
+    "entries": {
+      "title": "Entradas",
+      "description": "Elige qué detalles aparecen en las entradas de experiencia y educación.",
+      "showDates": "Mostrar fechas",
+      "showLocation": "Mostrar ubicación"
+    },
+    "headings": {
+      "title": "Encabezados",
+      "description": "Estilo de los encabezados de sección en tu currículum.",
+      "bold": "Negrita",
+      "underline": "Subrayado",
+      "allCaps": "Mayúsculas",
+      "previewText": "Experiencia laboral"
+    },
+    "font": {
+      "title": "Fuente",
+      "description": "Selecciona la tipografía del contenido de tu currículum."
+    },
+    "colors": {
+      "title": "Colores",
+      "description": "Elige un color de acento para encabezados y destacados.",
+      "presetColors": "Colores predefinidos",
+      "customColor": "Color personalizado"
+    },
+    "header": {
+      "title": "Encabezado",
+      "description": "Controla qué aparece en el área de encabezado de tu currículum.",
+      "showPhoto": "Mostrar foto",
+      "showPhotoHint": "Si está desactivado, la sección Foto queda deshabilitada."
+    },
+    "photo": {
+      "title": "Foto",
+      "descriptionEnabled": "Elige cómo se muestra tu foto de perfil.",
+      "descriptionDisabled": "Activa Mostrar foto en Encabezado para editar la forma de la foto.",
+      "circle": "Circular",
+      "square": "Cuadrada"
+    },
+    "links": {
+      "title": "Enlaces",
+      "description": "Gestiona enlaces de contacto y perfiles sociales.",
+      "managedInPersonalDetails": "Los enlaces se gestionan en la sección Datos personales.",
+      "goToPersonalDetails": "Ir a Datos personales"
+    },
+    "footer": {
+      "title": "Pie de página",
+      "description": "Opciones de pie de página para currículums impresos y PDF.",
+      "showPageNumbers": "Mostrar números de página"
+    },
+    "sections": {
+      "title": "Secciones",
+      "description": "Reordena y muestra u oculta las secciones del currículum.",
+      "empty": "Aún no hay secciones. Añade contenido desde la pestaña Contenido.",
+      "moveUp": "Mover sección arriba",
+      "moveDown": "Mover sección abajo",
+      "toggleVisibility": "Alternar visibilidad de {{heading}}"
+    }
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "done": "Listo"
+  }
+}

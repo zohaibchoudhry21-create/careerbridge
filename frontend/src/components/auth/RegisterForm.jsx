@@ -8,6 +8,7 @@ import SocialLoginButtons from './SocialLoginButtons';
 import PasswordRequirements from './PasswordRequirements';
 import AuthFormHeader from './AuthFormHeader';
 import AuthSubmitButton from './AuthSubmitButton';
+import AppIcon from '../icons/AppIcon';
 import {
   authInputClassName,
   authInputPasswordClassName,
@@ -111,12 +112,10 @@ export default function RegisterForm() {
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-outline transition-colors duration-200 hover:text-secondary"
+              className="absolute end-4 top-1/2 -translate-y-1/2 text-outline transition-colors duration-200 hover:text-secondary"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              <span className="material-symbols-outlined text-xl">
-                {showPassword ? 'visibility_off' : 'visibility'}
-              </span>
+              <AppIcon name={showPassword ? 'visibility_off' : 'visibility'} size="h-5 w-5" />
             </button>
           </div>
           <PasswordRequirements password={password} />

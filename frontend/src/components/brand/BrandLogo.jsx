@@ -1,6 +1,9 @@
 import { useId } from 'react';
+import { useTranslation } from 'react-i18next';
 
-export default function BrandLogo({ className = 'h-10 w-auto sm:h-8', title = 'AI CareerBridge' }) {
+export default function BrandLogo({ className = 'h-10 w-auto sm:h-8', title }) {
+  const { t } = useTranslation('marketing');
+  const brandTitle = title ?? t('brand');
   const gradId = useId();
 
   return (
@@ -8,10 +11,10 @@ export default function BrandLogo({ className = 'h-10 w-auto sm:h-8', title = 'A
       viewBox="0 0 200 44"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
-      aria-label={title}
+      aria-label={brandTitle}
       role="img"
     >
-      <title>{title}</title>
+      <title>{brandTitle}</title>
       <defs>
         <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#0058be" />

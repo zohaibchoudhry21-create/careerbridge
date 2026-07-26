@@ -1,12 +1,17 @@
+import { useTranslation } from 'react-i18next';
 import { FONT_FAMILY_OPTIONS } from '../constants';
 import CustomizeSectionCard from '../CustomizeSectionCard';
 import { useCustomizeDispatch } from '../useCustomizeDispatch';
 
 export default function FontSection() {
+  const { t } = useTranslation('resumeBuilder');
   const { customize, updateCustomize } = useCustomizeDispatch();
 
   return (
-    <CustomizeSectionCard title="Font" description="Select the typeface for your resume content.">
+    <CustomizeSectionCard
+      title={t('customize.font.title')}
+      description={t('customize.font.description')}
+    >
       <ul className="space-y-2">
         {FONT_FAMILY_OPTIONS.map((font) => {
           const isSelected = customize.fontFamily === font;

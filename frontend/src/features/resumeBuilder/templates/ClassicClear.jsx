@@ -1,5 +1,7 @@
+import AppIcon from '../../../components/icons/AppIcon';
 import { sectionStyle, resolveTemplateTheme } from '../utils/templateCustomizeStyles';
 import { stripHtml } from '../utils/resumeEditorUtils';
+import { sanitizeHtml } from '../../../utils/sanitizeHtml';
 import TemplatePageNumberFooter from '../components/TemplatePageNumberFooter';
 import {
   mapAdditionalSections,
@@ -195,13 +197,11 @@ function ContactItem({ icon, value }) {
 
   return (
     <span className="inline-flex items-center gap-[5px]">
-      <span
-        className="material-symbols-outlined"
-        style={{ fontSize: 13, color: MUTED_COLOR, lineHeight: 1 }}
-        aria-hidden
-      >
-        {icon}
-      </span>
+      <AppIcon
+        name={icon}
+        size="h-[13px] w-[13px]"
+        style={{ color: MUTED_COLOR }}
+      />
       <span>{value}</span>
     </span>
   );
@@ -306,6 +306,7 @@ export default function ClassicClear({ resumeData, className = '', customize }) 
 
   return (
     <article
+      dir="ltr"
       className={className}
       style={{
         width: A4_WIDTH,
@@ -373,7 +374,7 @@ export default function ClassicClear({ resumeData, className = '', customize }) 
             <SectionHeading theme={theme}>Summary</SectionHeading>
             <div
               style={{ fontSize: theme.bodyFontSize, lineHeight: theme.lineHeight, color: BODY_COLOR }}
-              dangerouslySetInnerHTML={{ __html: summary }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(summary) }}
             />
           </section>
         ) : null}
