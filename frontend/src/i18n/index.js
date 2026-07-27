@@ -11,6 +11,7 @@ import enErrors from './locales/en/errors.json';
 import enMarketing from './locales/en/marketing.json';
 import enInterviewPrep from './locales/en/interviewPrep.json';
 import enResumeBuilder from './locales/en/resumeBuilder.json';
+import enResumeScanner from './locales/en/resumeScanner.json';
 import esCommon from './locales/es/common.json';
 import esSettings from './locales/es/settings.json';
 import esDashboard from './locales/es/dashboard.json';
@@ -19,6 +20,7 @@ import esErrors from './locales/es/errors.json';
 import esMarketing from './locales/es/marketing.json';
 import esInterviewPrep from './locales/es/interviewPrep.json';
 import esResumeBuilder from './locales/es/resumeBuilder.json';
+import esResumeScanner from './locales/es/resumeScanner.json';
 import urCommon from './locales/ur/common.json';
 import urSettings from './locales/ur/settings.json';
 import urDashboard from './locales/ur/dashboard.json';
@@ -27,6 +29,7 @@ import urErrors from './locales/ur/errors.json';
 import urMarketing from './locales/ur/marketing.json';
 import urInterviewPrep from './locales/ur/interviewPrep.json';
 import urResumeBuilder from './locales/ur/resumeBuilder.json';
+import urResumeScanner from './locales/ur/resumeScanner.json';
 
 const resources = {
   en: {
@@ -38,6 +41,7 @@ const resources = {
     marketing: enMarketing,
     interviewPrep: enInterviewPrep,
     resumeBuilder: enResumeBuilder,
+    resumeScanner: enResumeScanner,
   },
   es: {
     common: esCommon,
@@ -48,6 +52,7 @@ const resources = {
     marketing: esMarketing,
     interviewPrep: esInterviewPrep,
     resumeBuilder: esResumeBuilder,
+    resumeScanner: esResumeScanner,
   },
   ur: {
     common: urCommon,
@@ -58,6 +63,7 @@ const resources = {
     marketing: urMarketing,
     interviewPrep: urInterviewPrep,
     resumeBuilder: urResumeBuilder,
+    resumeScanner: urResumeScanner,
   },
 };
 
@@ -66,7 +72,7 @@ i18n.use(initReactI18next).init({
   lng: DEFAULT_I18N_LANGUAGE,
   fallbackLng: DEFAULT_I18N_LANGUAGE,
   supportedLngs: I18N_LANGUAGE_CODES,
-  ns: ['common', 'settings', 'dashboard', 'auth', 'errors', 'marketing', 'interviewPrep', 'resumeBuilder'],
+  ns: ['common', 'settings', 'dashboard', 'auth', 'errors', 'marketing', 'interviewPrep', 'resumeBuilder', 'resumeScanner'],
   defaultNS: 'common',
   interpolation: {
     escapeValue: false,

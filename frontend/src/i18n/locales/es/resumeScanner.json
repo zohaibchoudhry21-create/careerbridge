@@ -1,1 +1,63 @@
-{}
+{
+  "page": {
+    "upload": {
+      "title": "Optimización con IA",
+      "description": "Analiza tu currículum frente a cualquier descripción del puesto, detecta problemas ATS, optimiza palabras clave y mejora tus posibilidades de ser preseleccionado."
+    },
+    "analysisPlaceholder": {
+      "title": "Análisis del escáner de currículum",
+      "description": "Tu análisis está listo. El espacio de trabajo ATS completo se cargará a continuación.",
+      "scoreLabel": "Puntuación ATS",
+      "loading": "Cargando análisis...",
+      "backToUpload": "Volver a subir"
+    }
+  },
+  "upload": {
+    "step1Title": "Paso 1: Seleccionar currículum",
+    "step2Title": "Paso 2: Pegar descripción del puesto",
+    "tabs": {
+      "uploadNew": "Subir nuevo",
+      "savedResumes": "Currículums guardados"
+    },
+    "dropzoneTitle": "Arrastra y suelta tu currículum",
+    "dropzoneHint": "o haz clic para buscar archivos",
+    "formats": {
+      "pdf": "PDF",
+      "docx": "DOCX",
+      "maxSize": "Máx. 10 MB"
+    },
+    "selectedFile": "Seleccionado: {{name}}",
+    "changeFile": "Cambiar archivo",
+    "savedEmpty": "Aún no hay currículums guardados. Sube uno o créalo en el Creador de currículum.",
+    "savedBuilt": "Currículum creado",
+    "savedScanned": "Currículum subido",
+    "updatedAt": "Actualizado {{date}}",
+    "jobDescriptionPlaceholder": "Pega aquí la descripción completa del puesto. La IA extraerá habilidades, requisitos y responsabilidades clave para compararlos con tu currículum...",
+    "clearText": "Borrar texto",
+    "pasteHint": "Pegar desde el portapapeles",
+    "poweredBy": "Impulsado por CareerBridge AI",
+    "analyze": "Analizar currículum",
+    "errors": {
+      "fileRequired": "Sube un archivo de currículum.",
+      "fileTooLarge": "El archivo debe ser de 10 MB o menos.",
+      "unsupportedFile": "Tipo de archivo no compatible. Usa PDF o DOCX.",
+      "jobDescriptionRequired": "Pega una descripción del puesto.",
+      "savedResumeRequired": "Selecciona un currículum guardado.",
+      "analyzeFailed": "No se pudo iniciar el análisis. Inténtalo de nuevo."
+    }
+  },
+  "overlay": {
+    "processing": "Procesando con IA...",
+    "queued": "En cola para análisis...",
+    "extracting": "Extrayendo contenido del currículum...",
+    "analyzing": "Analizando habilidades y ajuste ATS...",
+    "complete": "Habilidades extraídas correctamente",
+    "failed": "El análisis falló",
+    "progressComplete": "{{progress}}% completado",
+    "labels": {
+      "skills": "Habilidades",
+      "experience": "Experiencia",
+      "education": "Educación"
+    }
+  }
+}

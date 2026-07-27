@@ -1,1 +1,63 @@
-{}
+{
+  "page": {
+    "upload": {
+      "title": "AI Optimize",
+      "description": "Analyze your resume against any job description, identify ATS issues, optimize keywords, and improve your chances of getting shortlisted."
+    },
+    "analysisPlaceholder": {
+      "title": "Resume Scanner Analysis",
+      "description": "Your analysis is ready. The full ATS workspace is loading next.",
+      "scoreLabel": "ATS Score",
+      "loading": "Loading analysis...",
+      "backToUpload": "Back to upload"
+    }
+  },
+  "upload": {
+    "step1Title": "Step 1: Select Resume",
+    "step2Title": "Step 2: Paste Job Description",
+    "tabs": {
+      "uploadNew": "Upload New",
+      "savedResumes": "Saved Resumes"
+    },
+    "dropzoneTitle": "Drag & drop your resume",
+    "dropzoneHint": "or click to browse files",
+    "formats": {
+      "pdf": "PDF",
+      "docx": "DOCX",
+      "maxSize": "Max 10MB"
+    },
+    "selectedFile": "Selected: {{name}}",
+    "changeFile": "Change file",
+    "savedEmpty": "No saved resumes yet. Upload a resume or create one in Resume Builder.",
+    "savedBuilt": "Built resume",
+    "savedScanned": "Uploaded resume",
+    "updatedAt": "Updated {{date}}",
+    "jobDescriptionPlaceholder": "Paste the full job description here. The AI will extract key skills, requirements, and responsibilities to compare against your resume...",
+    "clearText": "Clear Text",
+    "pasteHint": "Paste from clipboard",
+    "poweredBy": "Powered by CareerBridge AI",
+    "analyze": "Analyze Resume",
+    "errors": {
+      "fileRequired": "Please upload a resume file.",
+      "fileTooLarge": "Resume file must be 10MB or smaller.",
+      "unsupportedFile": "Unsupported file type. Use PDF or DOCX.",
+      "jobDescriptionRequired": "Please paste a job description.",
+      "savedResumeRequired": "Please select a saved resume.",
+      "analyzeFailed": "Could not start resume analysis. Please try again."
+    }
+  },
+  "overlay": {
+    "processing": "AI Processing...",
+    "queued": "Queued for analysis...",
+    "extracting": "Extracting resume content...",
+    "analyzing": "Analyzing skills and ATS fit...",
+    "complete": "Skills Extracted Successfully",
+    "failed": "Analysis failed",
+    "progressComplete": "{{progress}}% Complete",
+    "labels": {
+      "skills": "Skills",
+      "experience": "Experience",
+      "education": "Education"
+    }
+  }
+}
