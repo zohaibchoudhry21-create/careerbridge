@@ -1,11 +1,18 @@
 import mongoose from 'mongoose';
 
-const scoreComponentSchema = new mongoose.Schema(
+const atsScoreBreakdownSchema = new mongoose.Schema(
   {
-    score: { type: Number, default: 0 },
-    weight: { type: Number, default: 0 },
-    weighted: { type: Number, default: 0 },
-    notes: { type: String, default: '' },
+    sectionCompleteness: { type: Number, default: 0 },
+    searchability: { type: Number, default: 0 },
+    quantifiedAchievements: { type: Number, default: 0 },
+  },
+  { _id: false }
+);
+
+const jobMatchBreakdownSchema = new mongoose.Schema(
+  {
+    keywordCoverage: { type: Number, default: 0 },
+    aiAssessedRelevance: { type: Number, default: 0 },
   },
   { _id: false }
 );
@@ -38,7 +45,11 @@ const historyEntrySchema = new mongoose.Schema(
   {
     resumeText: { type: String, default: '' },
     suggestions: { type: [suggestionSchema], default: [] },
-    score: { type: Number, default: 0 },
+    atsScore: { type: Number, default: 0, min: 0, max: 100 },
+    jobMatchScore: { type: Number, default: 0, min: 0, max: 100 },
+    atsScoreBreakdown: { type: atsScoreBreakdownSchema, default: () => ({}) },
+    jobMatchBreakdown: { type: jobMatchBreakdownSchema, default: () => ({}) },
+    score: { type: Number, default: 0, min: 0, max: 100 },
     matchedSkillIds: { type: [String], default: [] },
     missingSkillIds: { type: [String], default: [] },
     action: { type: String, default: '' },
@@ -85,18 +96,11 @@ const atsAnalysisSchema = new mongoose.Schema(
       min: 0,
       max: 100,
     },
-    score: {
-      type: Number,
-      default: 0,
-      min: 0,
-      max: 100,
-    },
-    scoreBreakdown: {
-      keywordCoverage: { type: scoreComponentSchema, default: () => ({}) },
-      sectionCompleteness: { type: scoreComponentSchema, default: () => ({}) },
-      searchability: { type: scoreComponentSchema, default: () => ({}) },
-      quantifiedAchievements: { type: scoreComponentSchema, default: () => ({}) },
-    },
+    score: { type: Number, default: 0, min: 0, max: 100 },
+    atsScore: { type: Number, default: 0, min: 0, max: 100 },
+    jobMatchScore: { type: Number, default: 0, min: 0, max: 100 },
+    atsScoreBreakdown: { type: atsScoreBreakdownSchema, default: () => ({}) },
+    jobMatchBreakdown: { type: jobMatchBreakdownSchema, default: () => ({}) },
     matchedSkillIds: {
       type: [String],
       default: [],
