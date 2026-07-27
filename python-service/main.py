@@ -13,8 +13,9 @@ except ImportError:
 
 from chunker import chunk_text
 from extractor import extract_pdf
+from resume_extractor import ALLOWED_RESUME_EXTENSIONS, extract_resume_bytes
 
-app = FastAPI(title="AI CareerBridge PDF Extractor", version="1.0.0")
+app = FastAPI(title="AI CareerBridge PDF Extractor", version="1.1.0")
 
 # Only the Node backend should call this service (server-to-server).
 ALLOWED_ORIGINS = [
@@ -58,6 +59,7 @@ async def root():
         "endpoints": {
             "health": "GET /health",
             "extract": "POST /extract (multipart: file, type=resume|job_description)",
+            "extract_resume": "POST /extract-resume (multipart: file — PDF or DOCX)",
         },
     }
 
@@ -131,3 +133,41 @@ async def extract(
         "full_text": extraction["full_text"],
         "metadata": extraction["metadata"],
     }
+
+
+@app.post("/extract-resume", dependencies=[Depends(require_service_api_key)])
+async def extract_resume(file: UploadFile = File(...)):
+    filename = (file.filename or "").strip()
+    extension = f".{filename.rsplit('.', 1)[-1].lower()}" if "." in filename else ""
+
+    if extension not in ALLOWED_RESUME_EXTENSIONS:
+        supported = ", ".join(sorted(ext.lstrip(".") for ext in ALLOWED_RESUME_EXTENSIONS))
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file type. Allowed formats: {supported}.",
+        )
+
+    file_bytes = await file.read(MAX_UPLOAD_BYTES + 1)
+    if len(file_bytes) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File exceeds maximum size of {MAX_UPLOAD_BYTES} bytes.",
+        )
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+
+    try:
+        result = extract_resume_bytes(file_bytes, filename)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Resume extraction failed: {exc}") from exc
+
+    pages = int(result.get("pages") or 0)
+    if extension == ".pdf" and pages > MAX_PAGES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"PDF has too many pages ({pages}). Maximum allowed is {MAX_PAGES}.",
+        )
+
+    return result
