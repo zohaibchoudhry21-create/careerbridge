@@ -40,7 +40,10 @@ export default function ResumeScannerAnalysisPage() {
             <p className="font-label-sm text-on-surface-variant mb-1">
               {t('page.analysisPlaceholder.scoreLabel')}
             </p>
-            <p className="font-display-lg text-display-lg text-secondary">{analysis.atsScore}</p>
+            <p className="font-display-lg text-display-lg text-secondary">{analysis.jobMatchScore}</p>
+            <p className="font-body-md text-on-surface-variant mt-sm">
+              ATS: {analysis.atsScore}
+            </p>
             {analysis.jobDescription?.title ? (
               <p className="font-body-md text-on-surface mt-sm">{analysis.jobDescription.title}</p>
             ) : null}

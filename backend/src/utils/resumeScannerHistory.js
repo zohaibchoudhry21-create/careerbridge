@@ -3,14 +3,21 @@ const cloneSuggestions = (suggestions = []) => suggestions.map((item) => ({ ...i
 export const createHistorySnapshot = ({
   resumeText,
   suggestions,
-  score,
+  atsScore,
+  jobMatchScore,
+  atsScoreBreakdown,
+  jobMatchBreakdown,
   matchedSkillIds,
   missingSkillIds,
   action,
 }) => ({
   resumeText,
   suggestions: cloneSuggestions(suggestions),
-  score,
+  atsScore,
+  jobMatchScore,
+  score: jobMatchScore,
+  atsScoreBreakdown: { ...(atsScoreBreakdown || {}) },
+  jobMatchBreakdown: { ...(jobMatchBreakdown || {}) },
   matchedSkillIds: [...(matchedSkillIds || [])],
   missingSkillIds: [...(missingSkillIds || [])],
   action: action || 'edit',
@@ -21,7 +28,10 @@ export const pushHistoryEntry = (analysis, action = 'edit') => {
   const snapshot = createHistorySnapshot({
     resumeText: analysis.resumeText,
     suggestions: analysis.suggestions,
-    score: analysis.score,
+    atsScore: analysis.atsScore,
+    jobMatchScore: analysis.jobMatchScore,
+    atsScoreBreakdown: analysis.atsScoreBreakdown,
+    jobMatchBreakdown: analysis.jobMatchBreakdown,
     matchedSkillIds: analysis.matchedSkillIds,
     missingSkillIds: analysis.missingSkillIds,
     action,
@@ -44,7 +54,11 @@ export const applyHistoryIndex = (analysis, index) => {
   analysis.historyIndex = index;
   analysis.resumeText = snapshot.resumeText;
   analysis.suggestions = cloneSuggestions(snapshot.suggestions);
-  analysis.score = snapshot.score;
+  analysis.atsScore = snapshot.atsScore;
+  analysis.jobMatchScore = snapshot.jobMatchScore;
+  analysis.score = snapshot.jobMatchScore;
+  analysis.atsScoreBreakdown = { ...(snapshot.atsScoreBreakdown || {}) };
+  analysis.jobMatchBreakdown = { ...(snapshot.jobMatchBreakdown || {}) };
   analysis.matchedSkillIds = [...snapshot.matchedSkillIds];
   analysis.missingSkillIds = [...snapshot.missingSkillIds];
 
@@ -65,7 +79,10 @@ export const initializeHistory = (analysis) => {
   const snapshot = createHistorySnapshot({
     resumeText: analysis.resumeText,
     suggestions: analysis.suggestions,
-    score: analysis.score,
+    atsScore: analysis.atsScore,
+    jobMatchScore: analysis.jobMatchScore,
+    atsScoreBreakdown: analysis.atsScoreBreakdown,
+    jobMatchBreakdown: analysis.jobMatchBreakdown,
     matchedSkillIds: analysis.matchedSkillIds,
     missingSkillIds: analysis.missingSkillIds,
     action: 'initial',

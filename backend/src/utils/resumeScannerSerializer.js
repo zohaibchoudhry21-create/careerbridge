@@ -22,6 +22,8 @@ export const serializeAtsAnalysis = (analysis, jobDescription = null) => {
   });
 
   const suggestionStats = countSuggestionStats(analysis.suggestions || []);
+  const atsScore = analysis.atsScore ?? 0;
+  const jobMatchScore = analysis.jobMatchScore ?? analysis.score ?? 0;
 
   return {
     analysisId: analysis._id,
@@ -31,8 +33,18 @@ export const serializeAtsAnalysis = (analysis, jobDescription = null) => {
     resumeSourceType: analysis.resumeSourceType,
     resumeSourceId: analysis.resumeSourceId,
     jobDescriptionId: analysis.jobDescriptionId,
-    atsScore: analysis.score,
-    scoreBreakdown: analysis.scoreBreakdown,
+    atsScore,
+    atsScoreBreakdown: analysis.atsScoreBreakdown || {
+      sectionCompleteness: 0,
+      searchability: 0,
+      quantifiedAchievements: 0,
+    },
+    jobMatchScore,
+    jobMatchBreakdown: analysis.jobMatchBreakdown || {
+      keywordCoverage: 0,
+      aiAssessedRelevance: 0,
+    },
+    score: jobMatchScore,
     matchedSkills: skills.filter((skill) => skill.matched),
     missingSkills: skills.filter((skill) => !skill.matched),
     skills: skills.map((skill) => serializeSkill(skill, jobDescription)),

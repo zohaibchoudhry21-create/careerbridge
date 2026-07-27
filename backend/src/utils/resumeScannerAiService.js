@@ -5,7 +5,7 @@ import { analyzeResumeWithClaude } from './resumeScannerClaudeService.js';
 import { analyzeResumeWithGroq } from './resumeScannerGroqService.js';
 import {
   anchorSuggestionsToResume,
-  blendAtsScore,
+  computeAnalysisScores,
   computeSkillMatches,
 } from './resumeScannerScoring.js';
 import { sanitizeResumeScannerText } from './resumeScannerTextUtils.js';
@@ -64,25 +64,27 @@ export const analyzeResumeAgainstJob = async ({
   }
 
   const skillMatch = computeSkillMatches(cleanResume, aiResult.skills);
-  const anchoredSuggestions = anchorSuggestionsToResume(cleanResume, aiResult.suggestions);
-  const { score, scoreBreakdown } = blendAtsScore({
-    aiScore: aiResult.score,
-    scoreBreakdown: aiResult.scoreBreakdown,
-    skills: skillMatch.skills,
+  const scores = computeAnalysisScores({
     resumeText: cleanResume,
     structuredSections,
     searchabilityIssues: aiResult.searchabilityIssues,
+    skills: skillMatch.skills,
+    aiAssessedRelevance: aiResult.score,
   });
+  const anchoredSuggestions = anchorSuggestionsToResume(cleanResume, aiResult.suggestions);
 
   return {
     provider,
     jobTitle: aiResult.jobTitle,
     company: aiResult.company,
-    skills: skillMatch.skills,
-    matchedSkillIds: skillMatch.matchedSkillIds,
-    missingSkillIds: skillMatch.missingSkillIds,
-    score,
-    scoreBreakdown,
+    skills: scores.skills,
+    matchedSkillIds: scores.matchedSkillIds,
+    missingSkillIds: scores.missingSkillIds,
+    atsScore: scores.atsScore,
+    atsScoreBreakdown: scores.atsScoreBreakdown,
+    jobMatchScore: scores.jobMatchScore,
+    jobMatchBreakdown: scores.jobMatchBreakdown,
+    score: scores.jobMatchScore,
     suggestions: anchoredSuggestions,
     searchabilityIssues: aiResult.searchabilityIssues,
     recruiterTips: aiResult.recruiterTips,
@@ -95,32 +97,32 @@ export const recomputeAnalysisState = ({
   structuredSections = {},
   searchabilityIssues = [],
   suggestions = [],
+  aiAssessedRelevance = 0,
 }) => {
   const cleanResume = sanitizeResumeScannerText(resumeText);
-  const skillMatch = computeSkillMatches(cleanResume, skills);
-
   const pendingSuggestions = suggestions.filter((item) => item.status === 'pending');
   const finalizedSuggestions = suggestions.filter((item) => item.status !== 'pending');
-
   const anchoredPending = anchorSuggestionsToResume(cleanResume, pendingSuggestions);
   const suggestionsWithStatus = [...finalizedSuggestions, ...anchoredPending];
 
-  const { score, scoreBreakdown } = blendAtsScore({
-    aiScore: 0,
-    scoreBreakdown: {},
-    skills: skillMatch.skills,
+  const scores = computeAnalysisScores({
     resumeText: cleanResume,
     structuredSections,
     searchabilityIssues,
+    skills,
+    aiAssessedRelevance,
   });
 
   return {
     resumeText: cleanResume,
-    skills: skillMatch.skills,
-    matchedSkillIds: skillMatch.matchedSkillIds,
-    missingSkillIds: skillMatch.missingSkillIds,
-    score,
-    scoreBreakdown,
+    skills: scores.skills,
+    matchedSkillIds: scores.matchedSkillIds,
+    missingSkillIds: scores.missingSkillIds,
+    atsScore: scores.atsScore,
+    atsScoreBreakdown: scores.atsScoreBreakdown,
+    jobMatchScore: scores.jobMatchScore,
+    jobMatchBreakdown: scores.jobMatchBreakdown,
+    score: scores.jobMatchScore,
     suggestions: suggestionsWithStatus,
   };
 };

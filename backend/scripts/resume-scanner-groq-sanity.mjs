@@ -41,12 +41,11 @@ const main = async () => {
     JSON.stringify(
       {
         provider: result.provider,
-        score: result.score,
-        matchedSkillIds: result.matchedSkillIds,
-        missingSkillIds: result.missingSkillIds,
-        suggestionCount: result.suggestions.length,
-        firstSuggestion: result.suggestions[0] || null,
-        scoreBreakdown: result.scoreBreakdown,
+        score: result.jobMatchScore,
+        atsScore: result.atsScore,
+        atsScoreBreakdown: result.atsScoreBreakdown,
+        jobMatchScore: result.jobMatchScore,
+        jobMatchBreakdown: result.jobMatchBreakdown,
       },
       null,
       2

@@ -15,6 +15,17 @@ const ACRONYM_ALIASES = {
   sql: ['structured query language'],
 };
 
+const ATS_WEIGHTS = {
+  sectionCompleteness: 0.35,
+  searchability: 0.35,
+  quantifiedAchievements: 0.3,
+};
+
+const JOB_MATCH_KEYWORD_WEIGHT = 0.85;
+const JOB_MATCH_AI_WEIGHT_DEFAULT = 0.15;
+const JOB_MATCH_AI_WEIGHT_LOW_RELEVANCE = 0.1;
+const RELEVANCE_GATE_THRESHOLD = 25;
+
 const buildSkillPatterns = (skill) => {
   const names = [skill.name, ...(skill.synonyms || [])].filter(Boolean);
   const patterns = [];
@@ -143,55 +154,119 @@ export const computeSearchabilityScore = (resumeText = '', searchabilityIssues =
   return clampScore(score);
 };
 
-export const blendAtsScore = ({
-  aiScore,
-  scoreBreakdown,
-  skills,
-  resumeText,
-  structuredSections,
-  searchabilityIssues,
+export const computeAtsScore = ({
+  resumeText = '',
+  structuredSections = {},
+  searchabilityIssues = [],
 }) => {
-  const keywordCoverage = computeKeywordCoverageScore(skills);
   const sectionCompleteness = computeSectionCompletenessScore(structuredSections, resumeText);
   const searchability = computeSearchabilityScore(resumeText, searchabilityIssues);
   const quantifiedAchievements = computeQuantifiedAchievementsScore(resumeText);
 
-  const components = {
-    keywordCoverage: {
-      score: keywordCoverage,
-      weight: 40,
-      weighted: (keywordCoverage * 40) / 100,
-      notes: scoreBreakdown?.keywordCoverage?.notes || '',
-    },
-    sectionCompleteness: {
-      score: sectionCompleteness,
-      weight: 20,
-      weighted: (sectionCompleteness * 20) / 100,
-      notes: scoreBreakdown?.sectionCompleteness?.notes || '',
-    },
-    searchability: {
-      score: searchability,
-      weight: 20,
-      weighted: (searchability * 20) / 100,
-      notes: scoreBreakdown?.searchability?.notes || '',
-    },
-    quantifiedAchievements: {
-      score: quantifiedAchievements,
-      weight: 20,
-      weighted: (quantifiedAchievements * 20) / 100,
-      notes: scoreBreakdown?.quantifiedAchievements?.notes || '',
-    },
-  };
-
-  const deterministicScore = clampScore(
-    Object.values(components).reduce((sum, item) => sum + item.weighted, 0)
+  const atsScore = clampScore(
+    sectionCompleteness * ATS_WEIGHTS.sectionCompleteness +
+      searchability * ATS_WEIGHTS.searchability +
+      quantifiedAchievements * ATS_WEIGHTS.quantifiedAchievements
   );
 
-  const blendedScore = clampScore(deterministicScore * 0.65 + clampScore(aiScore) * 0.35);
+  return {
+    atsScore,
+    atsScoreBreakdown: {
+      sectionCompleteness,
+      searchability,
+      quantifiedAchievements,
+    },
+  };
+};
+
+export const computeJobMatchScore = ({ skills = [], aiAssessedRelevance = 0 }) => {
+  const keywordCoverage = computeKeywordCoverageScore(skills);
+  const aiRelevance = clampScore(aiAssessedRelevance);
+  const aiWeight =
+    keywordCoverage < RELEVANCE_GATE_THRESHOLD
+      ? JOB_MATCH_AI_WEIGHT_LOW_RELEVANCE
+      : JOB_MATCH_AI_WEIGHT_DEFAULT;
+
+  const blended = clampScore(
+    keywordCoverage * JOB_MATCH_KEYWORD_WEIGHT + aiRelevance * aiWeight
+  );
+
+  let jobMatchScore = blended;
+  if (keywordCoverage < RELEVANCE_GATE_THRESHOLD) {
+    const gateCap = clampScore(keywordCoverage * 0.6 + 5);
+    jobMatchScore = Math.min(blended, gateCap);
+  }
 
   return {
-    score: blendedScore,
-    scoreBreakdown: components,
+    jobMatchScore,
+    jobMatchBreakdown: {
+      keywordCoverage,
+      aiAssessedRelevance: aiRelevance,
+    },
+  };
+};
+
+export const computeAnalysisScores = ({
+  resumeText = '',
+  structuredSections = {},
+  searchabilityIssues = [],
+  skills = [],
+  aiAssessedRelevance = 0,
+}) => {
+  const skillMatch = computeSkillMatches(resumeText, skills);
+  const ats = computeAtsScore({ resumeText, structuredSections, searchabilityIssues });
+  const jobMatch = computeJobMatchScore({
+    skills: skillMatch.skills,
+    aiAssessedRelevance,
+  });
+
+  return {
+    ...ats,
+    ...jobMatch,
+    skills: skillMatch.skills,
+    matchedSkillIds: skillMatch.matchedSkillIds,
+    missingSkillIds: skillMatch.missingSkillIds,
+  };
+};
+
+/** @deprecated Use computeAnalysisScores instead. */
+export const blendAtsScore = (input) => {
+  const result = computeAnalysisScores({
+    resumeText: input.resumeText,
+    structuredSections: input.structuredSections,
+    searchabilityIssues: input.searchabilityIssues,
+    skills: input.skills,
+    aiAssessedRelevance: input.aiScore,
+  });
+
+  return {
+    score: result.jobMatchScore,
+    scoreBreakdown: {
+      keywordCoverage: {
+        score: result.jobMatchBreakdown.keywordCoverage,
+        weight: 85,
+        weighted: (result.jobMatchBreakdown.keywordCoverage * 85) / 100,
+      },
+      sectionCompleteness: {
+        score: result.atsScoreBreakdown.sectionCompleteness,
+        weight: 35,
+        weighted: (result.atsScoreBreakdown.sectionCompleteness * 35) / 100,
+      },
+      searchability: {
+        score: result.atsScoreBreakdown.searchability,
+        weight: 35,
+        weighted: (result.atsScoreBreakdown.searchability * 35) / 100,
+      },
+      quantifiedAchievements: {
+        score: result.atsScoreBreakdown.quantifiedAchievements,
+        weight: 30,
+        weighted: (result.atsScoreBreakdown.quantifiedAchievements * 30) / 100,
+      },
+    },
+    atsScore: result.atsScore,
+    atsScoreBreakdown: result.atsScoreBreakdown,
+    jobMatchScore: result.jobMatchScore,
+    jobMatchBreakdown: result.jobMatchBreakdown,
   };
 };
 

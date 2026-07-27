@@ -173,8 +173,11 @@ const runAnalysisPipeline = async (analysisId, userId) => {
     analysis.status = 'completed';
     analysis.progress = 100;
     analysis.statusMessage = 'Analysis complete';
-    analysis.score = aiResult.score;
-    analysis.scoreBreakdown = aiResult.scoreBreakdown;
+    analysis.score = aiResult.jobMatchScore;
+    analysis.atsScore = aiResult.atsScore;
+    analysis.jobMatchScore = aiResult.jobMatchScore;
+    analysis.atsScoreBreakdown = aiResult.atsScoreBreakdown;
+    analysis.jobMatchBreakdown = aiResult.jobMatchBreakdown;
     analysis.matchedSkillIds = aiResult.matchedSkillIds;
     analysis.missingSkillIds = aiResult.missingSkillIds;
     analysis.suggestions = aiResult.suggestions;
@@ -347,11 +350,15 @@ export const updateSuggestionStatus = async (req, res, next) => {
       structuredSections: analysis.structuredSections,
       searchabilityIssues: analysis.searchabilityIssues,
       suggestions: analysis.suggestions,
+      aiAssessedRelevance: analysis.jobMatchBreakdown?.aiAssessedRelevance || 0,
     });
 
     analysis.resumeText = recomputed.resumeText;
-    analysis.score = recomputed.score;
-    analysis.scoreBreakdown = recomputed.scoreBreakdown;
+    analysis.atsScore = recomputed.atsScore;
+    analysis.jobMatchScore = recomputed.jobMatchScore;
+    analysis.score = recomputed.jobMatchScore;
+    analysis.atsScoreBreakdown = recomputed.atsScoreBreakdown;
+    analysis.jobMatchBreakdown = recomputed.jobMatchBreakdown;
     analysis.suggestions = recomputed.suggestions;
     refreshSkillState(analysis, jobDescription);
 
@@ -396,11 +403,15 @@ export const acceptAllSuggestions = async (req, res, next) => {
       structuredSections: analysis.structuredSections,
       searchabilityIssues: analysis.searchabilityIssues,
       suggestions: analysis.suggestions,
+      aiAssessedRelevance: analysis.jobMatchBreakdown?.aiAssessedRelevance || 0,
     });
 
     analysis.resumeText = recomputed.resumeText;
-    analysis.score = recomputed.score;
-    analysis.scoreBreakdown = recomputed.scoreBreakdown;
+    analysis.atsScore = recomputed.atsScore;
+    analysis.jobMatchScore = recomputed.jobMatchScore;
+    analysis.score = recomputed.jobMatchScore;
+    analysis.atsScoreBreakdown = recomputed.atsScoreBreakdown;
+    analysis.jobMatchBreakdown = recomputed.jobMatchBreakdown;
     analysis.suggestions = recomputed.suggestions;
     refreshSkillState(analysis, jobDescription);
 
@@ -433,11 +444,15 @@ export const updateResumeScannerText = async (req, res, next) => {
       structuredSections: analysis.structuredSections,
       searchabilityIssues: analysis.searchabilityIssues,
       suggestions: analysis.suggestions,
+      aiAssessedRelevance: analysis.jobMatchBreakdown?.aiAssessedRelevance || 0,
     });
 
     analysis.resumeText = recomputed.resumeText;
-    analysis.score = recomputed.score;
-    analysis.scoreBreakdown = recomputed.scoreBreakdown;
+    analysis.atsScore = recomputed.atsScore;
+    analysis.jobMatchScore = recomputed.jobMatchScore;
+    analysis.score = recomputed.jobMatchScore;
+    analysis.atsScoreBreakdown = recomputed.atsScoreBreakdown;
+    analysis.jobMatchBreakdown = recomputed.jobMatchBreakdown;
     analysis.suggestions = recomputed.suggestions;
     refreshSkillState(analysis, jobDescription);
 
