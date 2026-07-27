@@ -59,5 +59,78 @@
       "experience": "Experiencia",
       "education": "Educación"
     }
+  },
+  "analysis": {
+    "loading": "Cargando análisis...",
+    "backToUpload": "Volver a subir",
+    "defaultJobTitle": "Análisis de currículum",
+    "headerDescription": "Revisa sugerencias y mejora tu currículum para este puesto.",
+    "headerDescriptionWithCompany": "Optimiza tu currículum para {{company}}.",
+    "gauge": {
+      "jobMatchLabel": "Puntuación de ajuste",
+      "atsLabel": "Puntuación ATS",
+      "atsHint": "Qué tan bien los sistemas ATS pueden leer tu currículum (formato y estructura)."
+    },
+    "tabs": {
+      "skills": "Habilidades",
+      "searchability": "Buscabilidad",
+      "recruiterTips": "Consejos"
+    },
+    "skills": {
+      "matched": "Habilidades coincidentes",
+      "missing": "Habilidades faltantes",
+      "noMatched": "Aún no hay habilidades coincidentes.",
+      "noMissing": "Todas las habilidades rastreadas coinciden.",
+      "hardSkills": "Habilidades técnicas",
+      "requiredSkills": "Requeridas / blandas"
+    },
+    "searchability": {
+      "sectionCompleteness": "Completitud de secciones",
+      "searchability": "Buscabilidad",
+      "quantifiedAchievements": "Logros cuantificados",
+      "issues": "Problemas a corregir",
+      "noIssues": "No se detectaron problemas de buscabilidad."
+    },
+    "recruiterTips": {
+      "empty": "No hay consejos de reclutador para este análisis."
+    },
+    "editor": {
+      "title": "Currículum",
+      "ariaLabel": "Texto editable del currículum",
+      "saving": "Guardando...",
+      "hint": "{{count}} sugerencia(s) pendiente(s). Haz clic en el texto resaltado para revisar."
+    },
+    "popover": {
+      "title": "Sugerencia",
+      "close": "Cerrar",
+      "original": "Original",
+      "suggested": "Sugerido",
+      "impact": "+{{points}} pts de impacto potencial",
+      "accept": "Aceptar",
+      "reject": "Rechazar"
+    },
+    "suggestionTypes": {
+      "missing_keyword": "Palabra clave faltante",
+      "reword": "Reformular",
+      "remove": "Eliminar"
+    },
+    "toolbar": {
+      "accepted": "{{accepted}} / {{total}} aceptadas",
+      "pending": "{{count}} pendientes",
+      "undo": "Deshacer",
+      "redo": "Rehacer",
+      "acceptAll": "Aceptar todas",
+      "continue": "Nuevo análisis"
+    },
+    "toasts": {
+      "acceptAllSuccess": "Todas las sugerencias fueron aceptadas."
+    },
+    "errors": {
+      "suggestionFailed": "No se pudo actualizar la sugerencia.",
+      "textFailed": "No se pudo guardar el texto del currículum.",
+      "acceptAllFailed": "No se pudieron aceptar todas las sugerencias.",
+      "undoFailed": "Nada que deshacer.",
+      "redoFailed": "Nada que rehacer."
+    }
   }
 }

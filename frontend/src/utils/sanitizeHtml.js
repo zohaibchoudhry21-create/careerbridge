@@ -20,7 +20,7 @@ const ALLOWED_TAGS = [
   'div',
 ];
 
-const ALLOWED_ATTR = ['href', 'target', 'rel', 'class'];
+const ALLOWED_ATTR = ['href', 'target', 'rel', 'class', 'data-suggestion-id', 'role', 'tabindex'];
 
 /**
  * Sanitize rich-text HTML before rendering with dangerouslySetInnerHTML.

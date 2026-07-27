@@ -59,5 +59,78 @@
       "experience": "Experience",
       "education": "Education"
     }
+  },
+  "analysis": {
+    "loading": "Loading analysis...",
+    "backToUpload": "Back to upload",
+    "defaultJobTitle": "Resume Analysis",
+    "headerDescription": "Review suggestions and improve your resume for this role.",
+    "headerDescriptionWithCompany": "Optimize your resume for {{company}}.",
+    "gauge": {
+      "jobMatchLabel": "Job Match Score",
+      "atsLabel": "ATS Parse Score",
+      "atsHint": "How well ATS systems can read your resume (formatting & structure)."
+    },
+    "tabs": {
+      "skills": "Skills",
+      "searchability": "Searchability",
+      "recruiterTips": "Recruiter Tips"
+    },
+    "skills": {
+      "matched": "Matched skills",
+      "missing": "Missing skills",
+      "noMatched": "No matched skills yet.",
+      "noMissing": "All tracked skills are matched.",
+      "hardSkills": "Hard skills",
+      "requiredSkills": "Required / soft skills"
+    },
+    "searchability": {
+      "sectionCompleteness": "Section completeness",
+      "searchability": "Searchability",
+      "quantifiedAchievements": "Quantified achievements",
+      "issues": "Issues to fix",
+      "noIssues": "No searchability issues detected."
+    },
+    "recruiterTips": {
+      "empty": "No recruiter tips for this analysis."
+    },
+    "editor": {
+      "title": "Resume",
+      "ariaLabel": "Editable resume text",
+      "saving": "Saving...",
+      "hint": "{{count}} pending suggestion(s). Click highlighted text to review."
+    },
+    "popover": {
+      "title": "Suggestion",
+      "close": "Close",
+      "original": "Original",
+      "suggested": "Suggested",
+      "impact": "+{{points}} pts potential impact",
+      "accept": "Accept",
+      "reject": "Reject"
+    },
+    "suggestionTypes": {
+      "missing_keyword": "Missing keyword",
+      "reword": "Reword",
+      "remove": "Remove"
+    },
+    "toolbar": {
+      "accepted": "{{accepted}} / {{total}} accepted",
+      "pending": "{{count}} pending",
+      "undo": "Undo",
+      "redo": "Redo",
+      "acceptAll": "Accept all",
+      "continue": "New analysis"
+    },
+    "toasts": {
+      "acceptAllSuccess": "All suggestions accepted."
+    },
+    "errors": {
+      "suggestionFailed": "Could not update suggestion.",
+      "textFailed": "Could not save resume text.",
+      "acceptAllFailed": "Could not accept all suggestions.",
+      "undoFailed": "Nothing to undo.",
+      "redoFailed": "Nothing to redo."
+    }
   }
 }
