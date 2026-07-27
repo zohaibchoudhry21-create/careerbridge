@@ -121,6 +121,10 @@ const atsAnalysisSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: {},
     },
+    lineMap: {
+      type: [mongoose.Schema.Types.Mixed],
+      default: [],
+    },
     suggestions: {
       type: [suggestionSchema],
       default: [],

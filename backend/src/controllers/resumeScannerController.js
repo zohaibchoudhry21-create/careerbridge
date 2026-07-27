@@ -4,6 +4,7 @@ import JobDescription from '../models/JobDescription.js';
 import ScannedResume from '../models/ScannedResume.js';
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { serializeBuiltResumeToText } from '../utils/builtResumeTextSerializer.js';
+import { resolveCanonicalResumeText } from '../utils/resumeLineMapUtils.js';
 import { analyzeResumeAgainstJob, recomputeAnalysisState } from '../utils/resumeScannerAiService.js';
 import { extractResumeForScanner } from '../utils/resumeScannerExtractionService.js';
 import {
@@ -250,6 +251,11 @@ export const uploadAndAnalyzeResume = async (req, res, next) => {
       rawText: jobDescriptionText,
     });
 
+    const canonicalResumeText = resolveCanonicalResumeText({
+      resumeText: resumeSource.extractedText,
+      lineMap: resumeSource.lineMap,
+    });
+
     const analysis = await AtsAnalysis.create({
       userId: req.user._id,
       resumeSourceType: resumeSource.resumeSourceType,
@@ -258,9 +264,10 @@ export const uploadAndAnalyzeResume = async (req, res, next) => {
       status: 'pending',
       progress: 5,
       statusMessage: 'Queued for analysis...',
-      resumeText: resumeSource.extractedText,
-      originalResumeText: resumeSource.extractedText,
+      resumeText: canonicalResumeText,
+      originalResumeText: canonicalResumeText,
       structuredSections: resumeSource.structuredSections,
+      lineMap: resumeSource.lineMap || [],
     });
 
     setImmediate(() => {
@@ -304,6 +311,17 @@ export const getResumeScannerAnalysis = async (req, res, next) => {
     }
 
     const jobDescription = await loadJobDescription(analysis.jobDescriptionId, req.user._id);
+
+    if (!analysis.lineMap?.length && analysis.resumeSourceType === 'scanned') {
+      const scannedResume = await ScannedResume.findOne({
+        _id: analysis.resumeSourceId,
+        userId: req.user._id,
+      }).select('lineMap');
+
+      if (scannedResume?.lineMap?.length) {
+        analysis.lineMap = scannedResume.lineMap;
+      }
+    }
 
     sendResponse(res, 200, true, 'Analysis fetched successfully.', {
       analysis: serializeAtsAnalysis(analysis, jobDescription),

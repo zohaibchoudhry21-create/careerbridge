@@ -1,12 +1,25 @@
 import { countSuggestionStats } from './resumeScannerScoring.js';
 
-const serializeSkill = (skill, jobDescription) => {
-  const fromJob = jobDescription?.extractedSkills?.find((item) => item.id === skill.id);
+const toPlainSkill = (skill = {}) => {
+  const plain = typeof skill?.toObject === 'function' ? skill.toObject() : skill;
   return {
-    id: skill.id,
-    name: skill.name || fromJob?.name || '',
-    type: skill.type || fromJob?.type || 'hard',
-    synonyms: skill.synonyms || fromJob?.synonyms || [],
+    id: plain.id || '',
+    name: plain.name || plain.skillName || plain.label || plain.skill || '',
+    type: plain.type || 'hard',
+    synonyms: Array.isArray(plain.synonyms) ? plain.synonyms : [],
+  };
+};
+
+const serializeSkill = (skill, jobDescription) => {
+  const normalized = toPlainSkill(skill);
+  const fromJob = jobDescription?.extractedSkills?.find((item) => item.id === normalized.id);
+  const jobPlain = fromJob ? toPlainSkill(fromJob) : null;
+
+  return {
+    id: normalized.id,
+    name: normalized.name || jobPlain?.name || '',
+    type: normalized.type || jobPlain?.type || 'hard',
+    synonyms: normalized.synonyms.length ? normalized.synonyms : jobPlain?.synonyms || [],
     matched: Boolean(skill.matched),
     matchEvidence: skill.matchEvidence || '',
   };
@@ -14,9 +27,10 @@ const serializeSkill = (skill, jobDescription) => {
 
 export const serializeAtsAnalysis = (analysis, jobDescription = null) => {
   const skills = (jobDescription?.extractedSkills || []).map((skill) => {
-    const matched = analysis.matchedSkillIds?.includes(skill.id);
+    const plain = toPlainSkill(skill);
+    const matched = analysis.matchedSkillIds?.includes(plain.id);
     return {
-      ...skill,
+      ...plain,
       matched,
     };
   });
@@ -52,6 +66,7 @@ export const serializeAtsAnalysis = (analysis, jobDescription = null) => {
     missingSkillIds: analysis.missingSkillIds,
     resumeText: analysis.resumeText,
     originalResumeText: analysis.originalResumeText,
+    lineMap: analysis.lineMap || [],
     structuredSections: analysis.structuredSections,
     suggestions: analysis.suggestions,
     searchabilityIssues: analysis.searchabilityIssues,
