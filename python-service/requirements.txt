@@ -6,3 +6,4 @@ pdf2image
 pytesseract
 python-multipart
 python-dotenv
+python-docx
