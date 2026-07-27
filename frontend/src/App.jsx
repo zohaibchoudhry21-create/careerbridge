@@ -21,6 +21,8 @@ import MockInterviewSessionPage from './pages/InterviewPrep/MockInterviewSession
 import SkillAssessmentQuizPage from './pages/InterviewPrep/SkillAssessmentQuizPage';
 import TemplateSelectionPage from './pages/ResumeBuilder/TemplateSelectionPage';
 import ResumeEditorPage from './pages/ResumeBuilder/ResumeEditorPage';
+import ResumeScannerUploadPage from './pages/ResumeScanner/ResumeScannerUploadPage';
+import ResumeScannerAnalysisPage from './pages/ResumeScanner/ResumeScannerAnalysisPage';
 import HeroResumeCapture from './pages/dev/HeroResumeCapture';
 import GuestRoute from './components/auth/GuestRoute';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -127,6 +129,30 @@ function App() {
         element={
           <ProtectedRoute>
             <TemplateSelectionPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resume/scanner"
+        element={
+          <ProtectedRoute>
+            <ResumeScannerUploadPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resume-scanner"
+        element={
+          <ProtectedRoute>
+            <ResumeScannerUploadPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resume-scanner/:analysisId"
+        element={
+          <ProtectedRoute>
+            <ResumeScannerAnalysisPage />
           </ProtectedRoute>
         }
       />
