@@ -121,6 +121,7 @@ export default function ResumeScannerAnalysisPage() {
               <div className="lg:col-span-8 min-w-0 space-y-md">
                 <ResumeEditor
                   resumeText={analysis.resumeText}
+                  lineMap={analysis.lineMap}
                   suggestions={analysis.suggestions}
                   onTextChange={handleTextChange}
                   onSuggestionAction={handleSuggestionAction}

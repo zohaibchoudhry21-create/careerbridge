@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import AppIcon from '../../../components/icons/AppIcon';
 import { cn } from '../../../lib/utils';
+import { getSkillDisplayName } from '../utils/resumeEditorUtils';
 import AtsScoreGauge from './AtsScoreGauge';
 
 const TABS = ['skills', 'searchability', 'recruiterTips'];
@@ -24,7 +25,7 @@ function SkillTag({ skill, variant }) {
       ) : (
         <AppIcon name="alert-circle" size="sm" className="text-amber-700" />
       )}
-      {skill.name}
+      {getSkillDisplayName(skill)}
     </motion.span>
   );
 }

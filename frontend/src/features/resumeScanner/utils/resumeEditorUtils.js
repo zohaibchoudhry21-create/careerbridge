@@ -11,6 +11,30 @@ const SUGGESTION_CLASS = {
   remove: 'bg-error-container text-error border-b-2 border-error',
 };
 
+export const getSkillDisplayName = (skill = {}) =>
+  skill.name || skill.skillName || skill.label || skill.skill || skill.id || '';
+
+export const buildResumeTextFromLineMap = (lineMap = []) => {
+  if (!Array.isArray(lineMap) || lineMap.length === 0) {
+    return '';
+  }
+
+  return [...lineMap]
+    .sort((left, right) => (left.line_number ?? 0) - (right.line_number ?? 0))
+    .map((line) => (line?.text == null ? '' : String(line.text)))
+    .join('\n')
+    .trimEnd();
+};
+
+export const resolveResumeDisplayText = ({ resumeText = '', lineMap = [] } = {}) => {
+  const fromLineMap = buildResumeTextFromLineMap(lineMap);
+  if (fromLineMap) {
+    return fromLineMap;
+  }
+
+  return String(resumeText || '').trimEnd();
+};
+
 export const getScoreTone = (score = 0) => {
   if (score >= 80) return 'good';
   if (score >= 50) return 'fair';
@@ -24,18 +48,23 @@ export const getScoreColor = (score = 0) => {
   return '#ba1a1a';
 };
 
+export const partitionSuggestions = (suggestions = []) => {
+  const pending = suggestions.filter((item) => item.status === 'pending');
+  const anchored = pending.filter((item) => item.charStart >= 0 && item.charEnd > item.charStart);
+  const unanchored = pending.filter((item) => item.charStart < 0 || item.charEnd <= item.charStart);
+
+  return { pending, anchored, unanchored };
+};
+
 export const buildAnnotatedHtml = (resumeText = '', suggestions = []) => {
   const text = String(resumeText || '');
-  const pending = suggestions.filter((item) => item.status === 'pending');
-
-  const anchored = pending
-    .filter((item) => item.charStart >= 0 && item.charEnd > item.charStart)
-    .sort((a, b) => a.charStart - b.charStart);
+  const { anchored } = partitionSuggestions(suggestions);
+  const sorted = [...anchored].sort((left, right) => left.charStart - right.charStart);
 
   let cursor = 0;
   const parts = [];
 
-  for (const suggestion of anchored) {
+  for (const suggestion of sorted) {
     if (suggestion.charStart < cursor) {
       continue;
     }
@@ -47,7 +76,7 @@ export const buildAnnotatedHtml = (resumeText = '', suggestions = []) => {
     const highlighted = text.slice(suggestion.charStart, suggestion.charEnd);
     const className = SUGGESTION_CLASS[suggestion.type] || SUGGESTION_CLASS.reword;
     parts.push(
-      `<span class="ats-suggestion cursor-pointer rounded-sm px-0.5 ${className}" data-suggestion-id="${escapeHtml(suggestion.id)}" role="button" tabindex="0">${escapeHtml(highlighted || suggestion.original || suggestion.suggested)}</span>`
+      `<span contenteditable="false" class="ats-suggestion cursor-pointer rounded-sm px-0.5 ${className}" data-suggestion-id="${escapeHtml(suggestion.id)}" role="button" tabindex="0">${escapeHtml(highlighted || suggestion.original)}</span>`
     );
     cursor = suggestion.charEnd;
   }
@@ -56,22 +85,16 @@ export const buildAnnotatedHtml = (resumeText = '', suggestions = []) => {
     parts.push(escapeHtml(text.slice(cursor)));
   }
 
-  const unanchored = pending.filter(
-    (item) => item.charStart < 0 || item.charEnd <= item.charStart
-  );
-
-  for (const suggestion of unanchored) {
-    const className = SUGGESTION_CLASS[suggestion.type] || SUGGESTION_CLASS.missing_keyword;
-    const label = suggestion.suggested || suggestion.original || suggestion.reason;
-    parts.push(
-      `<p class="mt-2"><span class="ats-suggestion cursor-pointer rounded-sm px-1 ${className}" data-suggestion-id="${escapeHtml(suggestion.id)}" role="button" tabindex="0">${escapeHtml(label)}</span></p>`
-    );
-  }
-
   return parts.join('').replace(/\n/g, '<br />');
 };
 
 export const extractPlainText = (element) => {
   if (!element) return '';
-  return element.innerText.replace(/\u00a0/g, ' ').trimEnd();
+
+  const clone = element.cloneNode(true);
+  clone.querySelectorAll('[data-ats-chrome="true"], .ats-suggestion-chip').forEach((node) => {
+    node.remove();
+  });
+
+  return clone.innerText.replace(/\u00a0/g, ' ').trimEnd();
 };
