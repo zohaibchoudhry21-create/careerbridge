@@ -2,11 +2,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import sanitizeHtml from '../../../utils/sanitizeHtml';
-import { buildAnnotatedHtml, extractPlainText } from '../utils/resumeEditorUtils';
+import {
+  buildAnnotatedHtml,
+  extractPlainText,
+  partitionSuggestions,
+  resolveResumeDisplayText,
+} from '../utils/resumeEditorUtils';
 import SuggestionPopover from './SuggestionPopover';
+import { cn } from '../../../lib/utils';
 
 export default function ResumeEditor({
   resumeText = '',
+  lineMap = [],
   suggestions = [],
   onTextChange,
   onSuggestionAction,
@@ -17,24 +24,28 @@ export default function ResumeEditor({
   const editorRef = useRef(null);
   const saveTimerRef = useRef(null);
   const lastSavedTextRef = useRef(resumeText);
+  const userEditedRef = useRef(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState(null);
   const [anchorRect, setAnchorRect] = useState(null);
   const isComposingRef = useRef(false);
   const hasMountedRef = useRef(false);
 
-  const annotatedHtml = useMemo(
-    () => sanitizeHtml(buildAnnotatedHtml(resumeText, suggestions)),
-    [resumeText, suggestions]
+  const displayText = useMemo(
+    () => resolveResumeDisplayText({ resumeText, lineMap }),
+    [resumeText, lineMap]
   );
 
-  const pendingSuggestions = useMemo(
-    () => suggestions.filter((item) => item.status === 'pending'),
-    [suggestions]
+  const { pending, unanchored } = useMemo(() => partitionSuggestions(suggestions), [suggestions]);
+
+  const annotatedHtml = useMemo(
+    () => sanitizeHtml(buildAnnotatedHtml(displayText, suggestions)),
+    [displayText, suggestions]
   );
 
   useEffect(() => {
-    lastSavedTextRef.current = resumeText;
-  }, [resumeText]);
+    lastSavedTextRef.current = displayText;
+    userEditedRef.current = false;
+  }, [displayText]);
 
   useEffect(() => {
     if (!editorRef.current) return;
@@ -50,6 +61,8 @@ export default function ResumeEditor({
 
   const scheduleSave = useCallback(
     (nextText) => {
+      if (!userEditedRef.current) return;
+
       if (saveTimerRef.current) {
         clearTimeout(saveTimerRef.current);
       }
@@ -74,8 +87,14 @@ export default function ResumeEditor({
 
   const handleInput = () => {
     if (isComposingRef.current || !editorRef.current) return;
+    userEditedRef.current = true;
     const nextText = extractPlainText(editorRef.current);
     scheduleSave(nextText);
+  };
+
+  const openSuggestion = (suggestion, target) => {
+    setSelectedSuggestion(suggestion);
+    setAnchorRect(target?.getBoundingClientRect?.() || null);
   };
 
   const handleSuggestionClick = (event) => {
@@ -86,11 +105,10 @@ export default function ResumeEditor({
     event.stopPropagation();
 
     const suggestionId = target.getAttribute('data-suggestion-id');
-    const suggestion = pendingSuggestions.find((item) => item.id === suggestionId);
+    const suggestion = pending.find((item) => item.id === suggestionId);
     if (!suggestion) return;
 
-    setSelectedSuggestion(suggestion);
-    setAnchorRect(target.getBoundingClientRect());
+    openSuggestion(suggestion, target);
   };
 
   const closePopover = () => {
@@ -133,10 +151,31 @@ export default function ResumeEditor({
         />
       </div>
 
-      <footer className="px-md py-sm border-t border-outline-variant/30">
+      <footer className="px-md py-sm border-t border-outline-variant/30 space-y-sm">
         <p className="font-body-sm text-on-surface-variant">
-          {t('analysis.editor.hint', { count: pendingSuggestions.length })}
+          {t('analysis.editor.hint', { count: pending.length })}
         </p>
+
+        {unanchored.length ? (
+          <div className="space-y-2" data-ats-chrome="true">
+            <p className="font-label-sm text-on-surface-variant">{t('analysis.editor.unanchoredTitle')}</p>
+            <div className="flex flex-wrap gap-2">
+              {unanchored.map((suggestion) => (
+                <button
+                  key={suggestion.id}
+                  type="button"
+                  data-ats-chrome="true"
+                  className={cn(
+                    'ats-suggestion-chip rounded-full border border-outline-variant/50 px-3 py-1 font-label-sm text-on-surface hover:border-secondary hover:text-secondary transition-colors'
+                  )}
+                  onClick={(event) => openSuggestion(suggestion, event.currentTarget)}
+                >
+                  {t(`analysis.suggestionTypes.${suggestion.type}`)}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </footer>
 
       <AnimatePresence>

@@ -98,7 +98,8 @@
       "title": "Currículum",
       "ariaLabel": "Texto editable del currículum",
       "saving": "Guardando...",
-      "hint": "{{count}} sugerencia(s) pendiente(s). Haz clic en el texto resaltado para revisar."
+      "hint": "{{count}} sugerencia(s) pendiente(s). Haz clic en el texto resaltado para revisar.",
+      "unanchoredTitle": "Sugerencias sin coincidencia exacta (solo en el popover)"
     },
     "popover": {
       "title": "Sugerencia",

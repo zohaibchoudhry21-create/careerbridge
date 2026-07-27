@@ -98,7 +98,8 @@
       "title": "Resume",
       "ariaLabel": "Editable resume text",
       "saving": "Saving...",
-      "hint": "{{count}} pending suggestion(s). Click highlighted text to review."
+      "hint": "{{count}} pending suggestion(s). Click highlighted text to review.",
+      "unanchoredTitle": "Suggestions without an exact match (review in popover only)"
     },
     "popover": {
       "title": "Suggestion",
