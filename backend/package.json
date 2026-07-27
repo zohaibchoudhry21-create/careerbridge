@@ -14,6 +14,8 @@
     "test:skill-scoring": "vitest run src/utils/skillQuizScoring.test.js",
     "test:voice-metrics": "vitest run src/utils/voiceAnalysisMetrics.test.js",
     "test:video-metrics": "vitest run src/utils/videoAnalysisMetrics.test.js",
+    "test:resume-scanner": "vitest run src/utils/resumeScannerScoring.test.js src/utils/resumeScannerHistory.test.js src/utils/resumeScannerSchemas.test.js",
+    "test:resume-scanner-groq": "node scripts/resume-scanner-groq-sanity.mjs",
     "python:service": "cd ../python-service && .\\venv\\Scripts\\uvicorn main:app --reload --port 8000"
   },
   "dependencies": {
@@ -40,7 +42,8 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-linkedin-oauth2": "^2.0.0",
     "pdf-parse": "^2.4.5",
-    "ua-parser-js": "^2.0.10"
+    "ua-parser-js": "^2.0.10",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.9",
