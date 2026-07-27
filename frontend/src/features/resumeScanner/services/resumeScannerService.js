@@ -42,3 +42,20 @@ export const fetchResumeScannerStatus = (analysisId) =>
 
 export const fetchResumeScannerAnalysis = (analysisId) =>
   api.get(`/resume-scanner/${analysisId}`).then(unwrap);
+
+export const updateSuggestionStatus = (analysisId, suggestionId, action) =>
+  api
+    .patch(`/resume-scanner/${analysisId}/suggestion/${suggestionId}`, { action })
+    .then(unwrap);
+
+export const acceptAllSuggestions = (analysisId) =>
+  api.post(`/resume-scanner/${analysisId}/accept-all`).then(unwrap);
+
+export const updateResumeScannerText = (analysisId, resumeText) =>
+  api.patch(`/resume-scanner/${analysisId}/text`, { resumeText }).then(unwrap);
+
+export const undoResumeScannerChange = (analysisId) =>
+  api.post(`/resume-scanner/${analysisId}/undo`).then(unwrap);
+
+export const redoResumeScannerChange = (analysisId) =>
+  api.post(`/resume-scanner/${analysisId}/redo`).then(unwrap);

@@ -59,5 +59,78 @@
       "experience": "تجربہ",
       "education": "تعلیم"
     }
+  },
+  "analysis": {
+    "loading": "تجزیہ لوڈ ہو رہا ہے...",
+    "backToUpload": "اپ لوڈ پر واپس",
+    "defaultJobTitle": "ریزیومے تجزیہ",
+    "headerDescription": "تجاویز دیکھیں اور اس کردار کے لیے اپنا ریزیومے بہتر بنائیں۔",
+    "headerDescriptionWithCompany": "{{company}} کے لیے اپنا ریزیومے بہتر بنائیں۔",
+    "gauge": {
+      "jobMatchLabel": "نوکری میچ سکور",
+      "atsLabel": "ATS پارس سکور",
+      "atsHint": "ATS سسٹمز آپ کا ریزیومے کتنی اچھی طرح پڑھ سکتے ہیں (فارمیٹنگ اور ساخت)۔"
+    },
+    "tabs": {
+      "skills": "مہارتیں",
+      "searchability": "تلاش کی اہلیت",
+      "recruiterTips": "بھرتی کنندہ کے مشورے"
+    },
+    "skills": {
+      "matched": "مماثل مہارتیں",
+      "missing": "غائب مہارتیں",
+      "noMatched": "ابھی کوئی مماثل مہارت نہیں۔",
+      "noMissing": "تمام ٹریک شدہ مہارتیں مماثل ہیں۔",
+      "hardSkills": "ٹیکنیکل مہارتیں",
+      "requiredSkills": "ضروری / نرم مہارتیں"
+    },
+    "searchability": {
+      "sectionCompleteness": "سیکشن مکملیت",
+      "searchability": "تلاش کی اہلیت",
+      "quantifiedAchievements": "مقداری کامیابیاں",
+      "issues": "درست کرنے والے مسائل",
+      "noIssues": "کوئی تلاشی مسئلہ نہیں ملا۔"
+    },
+    "recruiterTips": {
+      "empty": "اس تجزیے کے لیے کوئی بھرتی مشورے نہیں۔"
+    },
+    "editor": {
+      "title": "ریزیومے",
+      "ariaLabel": "قابل ترمیم ریزیومے متن",
+      "saving": "محفوظ ہو رہا ہے...",
+      "hint": "{{count}} زیر التواء تجویز(یں)۔ جائزہ کے لیے نمایاں متن پر کلک کریں۔"
+    },
+    "popover": {
+      "title": "تجویز",
+      "close": "بند کریں",
+      "original": "اصل",
+      "suggested": "تجویز کردہ",
+      "impact": "+{{points}} ممکنہ اثر پوائنٹس",
+      "accept": "قبول",
+      "reject": "مسترد"
+    },
+    "suggestionTypes": {
+      "missing_keyword": "غائب کلیدی لفظ",
+      "reword": "دوبارہ لکھیں",
+      "remove": "ہٹائیں"
+    },
+    "toolbar": {
+      "accepted": "{{accepted}} / {{total}} قبول",
+      "pending": "{{count}} زیر التواء",
+      "undo": "واپس",
+      "redo": "دوبارہ",
+      "acceptAll": "سب قبول کریں",
+      "continue": "نیا تجزیہ"
+    },
+    "toasts": {
+      "acceptAllSuccess": "تمام تجاویز قبول ہو گئیں۔"
+    },
+    "errors": {
+      "suggestionFailed": "تجویز اپ ڈیٹ نہیں ہو سکی۔",
+      "textFailed": "ریزیومے متن محفوظ نہیں ہو سکا۔",
+      "acceptAllFailed": "تمام تجاویز قبول نہیں ہو سکیں۔",
+      "undoFailed": "واپس کرنے کے لیے کچھ نہیں۔",
+      "redoFailed": "دوبارہ کرنے کے لیے کچھ نہیں۔"
+    }
   }
 }
