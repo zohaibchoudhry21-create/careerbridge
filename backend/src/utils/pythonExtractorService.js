@@ -137,3 +137,47 @@ export const extractPdfWithPythonOrFallback = async (buffer, type = 'resume', fa
 
   return buildFallbackResult(type, '');
 };
+
+export const extractResumeWithPythonService = async (buffer, filename = 'resume.pdf') => {
+  if (!buffer?.length) {
+    throw new Error('Resume buffer is required.');
+  }
+
+  const extension = filename.toLowerCase().endsWith('.docx') ? 'docx' : 'pdf';
+  const mimeType =
+    extension === 'docx'
+      ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      : 'application/pdf';
+
+  const formData = new FormData();
+  formData.append('file', new Blob([buffer], { type: mimeType }), filename);
+
+  const headers = {};
+  const apiKey = process.env.PYTHON_SERVICE_API_KEY?.trim();
+  if (apiKey) {
+    headers['X-API-Key'] = apiKey;
+  }
+
+  const response = await fetch(`${getPythonServiceUrl()}/extract-resume`, {
+    method: 'POST',
+    body: formData,
+    headers,
+    signal: AbortSignal.timeout(EXTRACT_TIMEOUT_MS),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Python resume extractor returned ${response.status}: ${errorBody}`);
+  }
+
+  const data = await response.json();
+
+  if (!data?.success) {
+    throw new Error('Python resume extractor reported failure.');
+  }
+
+  return {
+    ...data,
+    source: 'python',
+  };
+};
