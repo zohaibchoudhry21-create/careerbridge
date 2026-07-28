@@ -2,42 +2,56 @@ import api from '../../../services/authService';
 
 const unwrap = (response) => response.data;
 
-export const fetchBuiltResumes = () => api.get('/resumes').then(unwrap);
-
-export const fetchBuiltResume = (resumeId) => api.get(`/resumes/${resumeId}`).then(unwrap);
-
-export const createBuiltResume = (payload) => api.post('/resumes', payload).then(unwrap);
-
-export const updateBuiltResume = (resumeId, payload) =>
-  api.put(`/resumes/${resumeId}`, payload).then(unwrap);
-
-export const importBuiltResume = ({ file, pastedText, templateId, mode, onUploadProgress }) => {
-  const formData = new FormData();
-  formData.append('templateId', templateId);
-  formData.append('mode', mode);
-
-  if (mode === 'paste' && pastedText) {
-    formData.append('pastedText', pastedText);
-  } else if (file) {
-    formData.append('resume', file);
-    formData.append('mode', 'file');
-  }
-
-  return api
-    .post('/resumes/import', formData, {
-      onUploadProgress,
-      transformRequest: [(data, headers) => {
-        if (data instanceof FormData) {
-          delete headers['Content-Type'];
-        }
-        return data;
-      }],
-    })
-    .then(unwrap);
+export const formatFileSize = (bytes) => {
+  if (!bytes) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  const value = bytes / 1024 ** index;
+  return `${value.toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
 };
 
-export const suggestResumeSkills = (currentSkills = []) =>
-  api.post('/resumes/suggest-skills', { currentSkills }).then(unwrap);
+export const formatDate = (value) => {
+  if (!value) return '';
+  return new Date(value).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
 
-export const runResumeAiAction = ({ action, content, context }) =>
-  api.post('/resumes/ai', { action, content, context }).then(unwrap);
+export const uploadResume = (formData, onUploadProgress) =>
+  api
+    .post('/resume/upload', formData, {
+      timeout: 120000,
+      onUploadProgress,
+      transformRequest: [
+        (data, headers) => {
+          if (data instanceof FormData) {
+            delete headers['Content-Type'];
+          }
+          return data;
+        },
+      ],
+    })
+    .then(unwrap);
+
+export const getResumeHistory = (params = {}) =>
+  api.get('/resume/history', { params }).then(unwrap);
+
+export const getResume = (id) => api.get(`/resume/${id}`).then(unwrap);
+
+export const updateResume = (id, parsedData, templateId) =>
+  api.put(`/resume/${id}`, { parsedData, templateId }).then(unwrap);
+
+export const deleteResume = (id) => api.delete(`/resume/${id}`).then(unwrap);
+
+export const reprocessResume = (id) => api.post(`/resume/${id}/reprocess`).then(unwrap);
+
+export const exportResume = (id, includeText = false) =>
+  api.get(`/resume/export/${id}`, {
+    params: { includeText: includeText ? 'true' : 'false' },
+    responseType: 'json',
+  });
+
+export const searchResumes = (query, params = {}) =>
+  api.get(`/resume/search/${encodeURIComponent(query)}`, { params }).then(unwrap);

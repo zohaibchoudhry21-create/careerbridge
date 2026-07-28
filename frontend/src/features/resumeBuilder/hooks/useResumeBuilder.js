@@ -1,63 +1,52 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  createBuiltResume,
-  fetchBuiltResume,
-  fetchBuiltResumes,
-  importBuiltResume,
-  suggestResumeSkills,
-  updateBuiltResume,
+  deleteResume,
+  exportResume,
+  getResume,
+  getResumeHistory,
+  reprocessResume,
+  updateResume,
+  uploadResume,
 } from '../services/resumeBuilderService';
 
-export const useBuiltResumes = () =>
+export const resumeHistoryQueryKey = (params) => ['parsedResumeHistory', params];
+
+export const resumeDetailQueryKey = (id) => ['parsedResume', id];
+
+export const useResumeHistory = (params) =>
   useQuery({
-    queryKey: ['built-resumes'],
-    queryFn: fetchBuiltResumes,
-    select: (data) => data.resumes || [],
+    queryKey: resumeHistoryQueryKey(params),
+    queryFn: () => getResumeHistory(params),
+    staleTime: 2 * 60 * 1000,
   });
 
-export const useBuiltResume = (resumeId, enabled = true) =>
+export const useParsedResume = (id) =>
   useQuery({
-    queryKey: ['built-resume', resumeId],
-    queryFn: () => fetchBuiltResume(resumeId),
-    select: (data) => data.resume,
-    enabled: Boolean(resumeId) && enabled,
+    queryKey: resumeDetailQueryKey(id),
+    queryFn: () => getResume(id),
+    enabled: Boolean(id),
   });
 
-export const useCreateBuiltResume = () => {
+export const useResumeBuilderActions = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: createBuiltResume,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['built-resumes'] });
+  return {
+    uploadResume,
+    updateResume: async (id, parsedData, templateId) => {
+      const result = await updateResume(id, parsedData, templateId);
+      queryClient.invalidateQueries({ queryKey: resumeDetailQueryKey(id) });
+      return result;
     },
-  });
-};
-
-export const useUpdateBuiltResume = (resumeId) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (payload) => updateBuiltResume(resumeId, payload),
-    onSuccess: (data) => {
-      queryClient.setQueryData(['built-resume', resumeId], data);
-      queryClient.invalidateQueries({ queryKey: ['built-resumes'] });
+    deleteResume: async (id) => {
+      const result = await deleteResume(id);
+      queryClient.invalidateQueries({ queryKey: ['parsedResumeHistory'] });
+      return result;
     },
-  });
-};
-
-export const useImportBuiltResume = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: importBuiltResume,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['built-resumes'] });
+    reprocessResume: async (id) => {
+      const result = await reprocessResume(id);
+      queryClient.invalidateQueries({ queryKey: resumeDetailQueryKey(id) });
+      return result;
     },
-  });
+    exportResume,
+  };
 };
-
-export const useSuggestResumeSkills = () =>
-  useMutation({
-    mutationFn: (currentSkills) => suggestResumeSkills(currentSkills),
-  });

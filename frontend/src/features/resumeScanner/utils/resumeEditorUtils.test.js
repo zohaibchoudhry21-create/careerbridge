@@ -49,7 +49,16 @@ describe('resumeEditorUtils', () => {
     ]);
 
     expect(html).not.toContain('6+ months');
-    expect(html).toBe('Led SEO campaigns');
+    expect(html).toContain('Led SEO campaigns');
+  });
+
+  it('styles section headings when line map marks them', () => {
+    const resumeText = buildResumeTextFromLineMap(lineMap);
+    const html = buildAnnotatedHtml(resumeText, [], lineMap);
+
+    expect(html).toContain('ats-section-heading');
+    expect(html).toContain('SUMMARY');
+    expect(html).toContain('EXPERIENCE');
   });
 
   it('highlights anchored suggestions without suggested text leakage', () => {

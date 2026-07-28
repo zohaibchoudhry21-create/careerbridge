@@ -1,9 +1,10 @@
 import { countSuggestionStats } from './resumeScannerScoring.js';
+import { resolveStoredSkillId } from './resumeScannerTextUtils.js';
 
 const toPlainSkill = (skill = {}) => {
-  const plain = typeof skill?.toObject === 'function' ? skill.toObject() : skill;
+  const plain = typeof skill?.toObject === 'function' ? skill.toObject({ virtuals: false }) : skill;
   return {
-    id: plain.id || '',
+    id: resolveStoredSkillId(skill) || plain.id || '',
     name: plain.name || plain.skillName || plain.label || plain.skill || '',
     type: plain.type || 'hard',
     synonyms: Array.isArray(plain.synonyms) ? plain.synonyms : [],
@@ -12,7 +13,9 @@ const toPlainSkill = (skill = {}) => {
 
 const serializeSkill = (skill, jobDescription) => {
   const normalized = toPlainSkill(skill);
-  const fromJob = jobDescription?.extractedSkills?.find((item) => item.id === normalized.id);
+  const fromJob = jobDescription?.extractedSkills?.find(
+    (item) => resolveStoredSkillId(item) === normalized.id
+  );
   const jobPlain = fromJob ? toPlainSkill(fromJob) : null;
 
   return {

@@ -20,6 +20,7 @@ export const getResumeScannerAiProvider = () => {
 export const analyzeResumeAgainstJob = async ({
   resumeText,
   jobDescriptionText,
+  jobTitle = '',
   structuredSections = {},
 }) => {
   const cleanResume = sanitizeResumeScannerText(resumeText);
@@ -41,6 +42,7 @@ export const analyzeResumeAgainstJob = async ({
       aiResult = await analyzeResumeWithGroq({
         resumeText: cleanResume.slice(0, 14000),
         jobDescriptionText: cleanJobDescription.slice(0, 12000),
+        jobTitle: jobTitle.trim(),
       });
       provider = 'groq';
     } catch (error) {
@@ -55,6 +57,7 @@ export const analyzeResumeAgainstJob = async ({
     aiResult = await analyzeResumeWithClaude({
       resumeText: cleanResume.slice(0, 14000),
       jobDescriptionText: cleanJobDescription.slice(0, 12000),
+      jobTitle: jobTitle.trim(),
     });
     provider = 'claude';
   }

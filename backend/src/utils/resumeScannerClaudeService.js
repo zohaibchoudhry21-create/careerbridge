@@ -16,7 +16,7 @@ const getClient = () => {
   return new Anthropic({ apiKey });
 };
 
-export const analyzeResumeWithClaude = async ({ resumeText, jobDescriptionText }, attempt = 0) => {
+export const analyzeResumeWithClaude = async ({ resumeText, jobDescriptionText, jobTitle = '' }, attempt = 0) => {
   if (!isAnthropicConfigured()) {
     throw new AppError(ERROR_CODES.RESUME_SCANNER.AI_NOT_CONFIGURED, 503);
   }
@@ -32,7 +32,7 @@ export const analyzeResumeWithClaude = async ({ resumeText, jobDescriptionText }
     messages: [
       {
         role: 'user',
-        content: buildResumeScannerPrompt({ resumeText, jobDescriptionText }),
+        content: buildResumeScannerPrompt({ resumeText, jobDescriptionText, jobTitle }),
       },
     ],
   });
@@ -56,7 +56,7 @@ export const analyzeResumeWithClaude = async ({ resumeText, jobDescriptionText }
     } catch (error) {
       if (attempt < MAX_RETRIES) {
         console.warn(`[resume-scanner] Claude JSON validation failed (attempt ${attempt + 1}):`, error.message);
-        return analyzeResumeWithClaude({ resumeText, jobDescriptionText }, attempt + 1);
+        return analyzeResumeWithClaude({ resumeText, jobDescriptionText, jobTitle }, attempt + 1);
       }
       throw new AppError(ERROR_CODES.RESUME_SCANNER.AI_INVALID_RESPONSE, 502);
     }

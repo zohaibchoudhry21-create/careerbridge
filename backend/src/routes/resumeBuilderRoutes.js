@@ -2,16 +2,17 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { ERROR_CODES, getErrorMessage } from '../constants/apiErrorCodes.js';
 import {
-  createBuiltResume,
-  getBuiltResume,
-  importBuiltResume,
-  listBuiltResumes,
-  resumeAiAction,
-  suggestResumeSkills,
-  updateBuiltResume,
-} from '../controllers/resumeBuilderController.js';
+  deleteParsedResume,
+  exportParsedResume,
+  getParsedResume,
+  getParsedResumeHistory,
+  reprocessParsedResume,
+  searchParsedResumes,
+  updateParsedResume,
+  uploadParsedResume,
+} from '../controllers/parsedResumeController.js';
 import { protect } from '../middleware/authMiddleware.js';
-import { handleResumeImportUpload } from '../middleware/resumeImportUploadMiddleware.js';
+import { handleResumeUpload, handleUploadError } from '../middleware/resumeUploadMiddleware.js';
 
 const router = express.Router();
 
@@ -39,18 +40,20 @@ const heavyResumeLimiter = rateLimit({
   },
 });
 
-router.get('/resumes', protect, listBuiltResumes);
-router.post('/resumes', protect, createBuiltResume);
 router.post(
-  '/resumes/import',
+  '/resume/upload',
   protect,
   heavyResumeLimiter,
-  handleResumeImportUpload,
-  importBuiltResume
+  handleResumeUpload,
+  handleUploadError,
+  uploadParsedResume
 );
-router.post('/resumes/ai', protect, heavyResumeLimiter, resumeAiAction);
-router.post('/resumes/suggest-skills', protect, heavyResumeLimiter, suggestResumeSkills);
-router.get('/resumes/:resumeId', protect, getBuiltResume);
-router.put('/resumes/:resumeId', protect, updateBuiltResume);
+router.get('/resume/history', protect, getParsedResumeHistory);
+router.get('/resume/search/:query', protect, searchParsedResumes);
+router.get('/resume/export/:id', protect, exportParsedResume);
+router.post('/resume/:id/reprocess', protect, heavyResumeLimiter, reprocessParsedResume);
+router.get('/resume/:id', protect, getParsedResume);
+router.put('/resume/:id', protect, updateParsedResume);
+router.delete('/resume/:id', protect, deleteParsedResume);
 
 export default router;

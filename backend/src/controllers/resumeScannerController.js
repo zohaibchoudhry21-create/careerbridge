@@ -139,7 +139,12 @@ const runAnalysisPipeline = async (analysisId, userId) => {
       statusMessage: 'Preparing resume text...',
     });
 
-    const resumeText = sanitizeResumeScannerText(analysis.resumeText);
+    const resumeText = sanitizeResumeScannerText(
+      resolveCanonicalResumeText({
+        resumeText: analysis.resumeText,
+        lineMap: analysis.lineMap,
+      })
+    );
     if (!resumeText) {
       throw new AppError(ERROR_CODES.RESUME_SCANNER.RESUME_TEXT_EMPTY, 400);
     }
@@ -153,6 +158,7 @@ const runAnalysisPipeline = async (analysisId, userId) => {
     const aiResult = await analyzeResumeAgainstJob({
       resumeText,
       jobDescriptionText: jobDescription.rawText,
+      jobTitle: jobDescription.title || '',
       structuredSections: analysis.structuredSections,
     });
 
@@ -202,7 +208,11 @@ const runAnalysisPipeline = async (analysisId, userId) => {
 };
 
 const refreshSkillState = (analysis, jobDescription) => {
-  const skillMatch = computeSkillMatches(analysis.resumeText, jobDescription.extractedSkills);
+  const resumeText = resolveCanonicalResumeText({
+    resumeText: analysis.resumeText,
+    lineMap: analysis.lineMap,
+  });
+  const skillMatch = computeSkillMatches(resumeText, jobDescription.extractedSkills);
   analysis.matchedSkillIds = skillMatch.matchedSkillIds;
   analysis.missingSkillIds = skillMatch.missingSkillIds;
 };
@@ -322,6 +332,8 @@ export const getResumeScannerAnalysis = async (req, res, next) => {
         analysis.lineMap = scannedResume.lineMap;
       }
     }
+
+    refreshSkillState(analysis, jobDescription);
 
     sendResponse(res, 200, true, 'Analysis fetched successfully.', {
       analysis: serializeAtsAnalysis(analysis, jobDescription),

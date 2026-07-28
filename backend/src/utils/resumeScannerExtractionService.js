@@ -28,6 +28,10 @@ export const extractResumeForScanner = async (file) => {
         source: pythonResult.source || 'python',
         pages: pythonResult.pages || 0,
         fileType: pythonResult.file_type || '',
+        rawText: pythonResult.raw_text || '',
+        atsNormalized: Boolean(pythonResult.metadata?.ats_normalized),
+        normalizationMethod: pythonResult.metadata?.normalization_method || '',
+        normalizationChanged: Boolean(pythonResult.metadata?.normalization_changed),
       },
       sourceFile: {
         filename,

@@ -347,16 +347,26 @@ def extract_resume_bytes(file_bytes: bytes, filename: str) -> dict[str, Any]:
         extraction = extract_docx(file_bytes)
 
     full_text = extraction.get("full_text", "")
-    parsed = parse_structured_sections(full_text)
+    cleaned_text = clean_text(full_text)
+    from ats_normalizer import normalize_resume_extraction
+
+    normalized = normalize_resume_extraction(cleaned_text)
 
     return {
         "success": True,
         "filename": filename,
         "file_type": extension.lstrip("."),
-        "full_text": full_text,
-        "structured_sections": parsed["structured_sections"],
-        "lines": parsed["lines"],
+        "raw_text": normalized["raw_text"],
+        "full_text": normalized["normalized_text"],
+        "structured_sections": normalized["structured_sections"],
+        "lines": normalized["lines"],
+        "normalization": normalized["normalization"],
         "pages": extraction.get("pages", 0),
         "page_texts": extraction.get("page_texts", []),
-        "metadata": extraction.get("metadata", {}),
+        "metadata": {
+            **(extraction.get("metadata") or {}),
+            "ats_normalized": normalized["normalization"]["applied"],
+            "normalization_method": normalized["normalization"]["method"],
+            "normalization_changed": normalized["normalization"]["changed"],
+        },
     }
