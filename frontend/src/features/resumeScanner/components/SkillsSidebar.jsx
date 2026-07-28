@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import AppIcon from '../../../components/icons/AppIcon';
@@ -8,25 +8,103 @@ import AtsScoreGauge from './AtsScoreGauge';
 
 const TABS = ['skills', 'searchability', 'recruiterTips'];
 
-function SkillTag({ skill, variant }) {
+function getPerSkillSuggestionCounts(skillId, suggestions = []) {
+  const linked = suggestions.filter(
+    (suggestion) =>
+      suggestion.targetSkillId === skillId &&
+      (suggestion.status === 'pending' || suggestion.status === 'accepted')
+  );
+  const accepted = linked.filter((suggestion) => suggestion.status === 'accepted').length;
+  return { accepted, total: linked.length };
+}
+
+function sortMatchedFirst(skills = []) {
+  return [...skills].sort((left, right) => Number(Boolean(right.matched)) - Number(Boolean(left.matched)));
+}
+
+function SkillRow({ skill, suggestions, t }) {
+  const { accepted, total } = getPerSkillSuggestionCounts(skill.id, suggestions);
+  const matched = Boolean(skill.matched);
+
   return (
-    <motion.span
-      layout
-      initial={{ opacity: 0, scale: 0.85 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-label-sm',
-        variant === 'matched' && 'bg-green-100 text-green-800',
-        variant === 'missing' && 'bg-amber-50 text-amber-900 border border-amber-200'
-      )}
-    >
-      {variant === 'matched' ? (
-        <AppIcon name="check" size="sm" className="text-green-700" />
-      ) : (
-        <AppIcon name="alert-circle" size="sm" className="text-amber-700" />
-      )}
-      {getSkillDisplayName(skill)}
-    </motion.span>
+    <div className="flex items-center gap-3 py-2.5 min-w-0">
+      <span
+        className={cn(
+          'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white',
+          matched ? 'bg-green-500' : 'bg-red-500'
+        )}
+        aria-hidden
+      >
+        <AppIcon name={matched ? 'check' : 'close'} size="sm" className="text-white" />
+      </span>
+
+      <div className="min-w-0 flex-1 flex items-center gap-2">
+        <p className="font-body-md text-on-surface leading-snug break-words">
+          {getSkillDisplayName(skill)}
+        </p>
+        <AppIcon name="flag" size="sm" className="text-outline/70 shrink-0" aria-hidden />
+      </div>
+
+      <span className="inline-flex items-center gap-1 rounded-full bg-secondary/10 px-2.5 py-1 font-label-sm text-secondary shrink-0">
+        <AppIcon name="sparkles" size="sm" className="text-secondary" />
+        {t('analysis.skills.aiSuggestedPerSkill', { accepted, total })}
+      </span>
+    </div>
+  );
+}
+
+function SkillCategorySection({
+  title,
+  infoLabel,
+  skills,
+  suggestions,
+  showMissingCount = false,
+  t,
+}) {
+  const orderedSkills = useMemo(() => sortMatchedFirst(skills), [skills]);
+  const matchedCount = skills.filter((skill) => skill.matched).length;
+  const missingCount = skills.length - matchedCount;
+
+  return (
+    <section>
+      <div className="mb-1 flex items-start justify-between gap-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <h3 className="font-label-sm text-label-sm uppercase tracking-wide text-on-surface-variant">
+            {title}
+          </h3>
+          <span className="inline-flex text-outline shrink-0" title={infoLabel} aria-label={infoLabel}>
+            <AppIcon name="help" size="sm" />
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-0.5 font-label-sm shrink-0">
+          <span className="text-on-surface-variant inline-flex items-center gap-1">
+            {t('analysis.skills.matchedLabel')}
+            <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-md bg-green-100 px-1.5 py-0.5 font-medium text-green-700">
+              {matchedCount}
+            </span>
+          </span>
+          {showMissingCount ? (
+            <span className="text-on-surface-variant inline-flex items-center gap-1">
+              {t('analysis.skills.missingLabel')}
+              <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-md bg-error-container px-1.5 py-0.5 font-medium text-error">
+                {missingCount}
+              </span>
+            </span>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="divide-y divide-outline-variant/30">
+        {orderedSkills.length ? (
+          orderedSkills.map((skill) => (
+            <SkillRow key={skill.id} skill={skill} suggestions={suggestions} t={t} />
+          ))
+        ) : (
+          <p className="font-body-sm text-on-surface-variant py-2">{t('analysis.skills.emptyCategory')}</p>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -55,12 +133,17 @@ export default function SkillsSidebar({ analysis }) {
   const { t } = useTranslation('resumeScanner');
   const [activeTab, setActiveTab] = useState('skills');
 
-  const matchedSkills = analysis?.matchedSkills || [];
-  const missingSkills = analysis?.missingSkills || [];
-  const hardSkills = (analysis?.skills || []).filter((skill) => skill.type === 'hard');
-  const requiredSkills = (analysis?.skills || []).filter(
-    (skill) => skill.type === 'required' || skill.type === 'soft'
+  const allSkills = analysis?.skills || [];
+  const suggestions = analysis?.suggestions || [];
+  const requiredSkills = useMemo(
+    () => allSkills.filter((skill) => skill.type === 'required'),
+    [allSkills]
   );
+  const hardSkills = useMemo(
+    () => allSkills.filter((skill) => skill.type === 'hard'),
+    [allSkills]
+  );
+
   const breakdown = analysis?.atsScoreBreakdown || {};
   const issues = analysis?.searchabilityIssues || [];
   const tips = analysis?.recruiterTips || [];
@@ -100,73 +183,21 @@ export default function SkillsSidebar({ analysis }) {
               exit={{ opacity: 0, y: -6 }}
               className="space-y-md"
             >
-              <section>
-                <h3 className="font-label-md text-on-surface mb-sm">
-                  {t('analysis.skills.matched')}
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {matchedSkills.length ? (
-                    matchedSkills.map((skill) => (
-                      <SkillTag key={skill.id} skill={skill} variant="matched" />
-                    ))
-                  ) : (
-                    <p className="font-body-sm text-on-surface-variant">
-                      {t('analysis.skills.noMatched')}
-                    </p>
-                  )}
-                </div>
-              </section>
-
-              <section>
-                <h3 className="font-label-md text-on-surface mb-sm">
-                  {t('analysis.skills.missing')}
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {missingSkills.length ? (
-                    missingSkills.map((skill) => (
-                      <SkillTag key={skill.id} skill={skill} variant="missing" />
-                    ))
-                  ) : (
-                    <p className="font-body-sm text-on-surface-variant">
-                      {t('analysis.skills.noMissing')}
-                    </p>
-                  )}
-                </div>
-              </section>
-
-              {hardSkills.length ? (
-                <section>
-                  <h3 className="font-label-md text-on-surface mb-sm">
-                    {t('analysis.skills.hardSkills')}
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {hardSkills.map((skill) => (
-                      <SkillTag
-                        key={skill.id}
-                        skill={skill}
-                        variant={skill.matched ? 'matched' : 'missing'}
-                      />
-                    ))}
-                  </div>
-                </section>
-              ) : null}
-
-              {requiredSkills.length ? (
-                <section>
-                  <h3 className="font-label-md text-on-surface mb-sm">
-                    {t('analysis.skills.requiredSkills')}
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {requiredSkills.map((skill) => (
-                      <SkillTag
-                        key={skill.id}
-                        skill={skill}
-                        variant={skill.matched ? 'matched' : 'missing'}
-                      />
-                    ))}
-                  </div>
-                </section>
-              ) : null}
+              <SkillCategorySection
+                title={t('analysis.skills.requiredSkills')}
+                infoLabel={t('analysis.skills.requiredInfo')}
+                skills={requiredSkills}
+                suggestions={suggestions}
+                t={t}
+              />
+              <SkillCategorySection
+                title={t('analysis.skills.hardSkills')}
+                infoLabel={t('analysis.skills.hardInfo')}
+                skills={hardSkills}
+                suggestions={suggestions}
+                showMissingCount
+                t={t}
+              />
             </motion.div>
           ) : null}
 

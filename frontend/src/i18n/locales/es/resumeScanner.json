@@ -82,7 +82,15 @@
       "noMatched": "Aún no hay habilidades coincidentes.",
       "noMissing": "Todas las habilidades rastreadas coinciden.",
       "hardSkills": "Habilidades técnicas",
-      "requiredSkills": "Requeridas / blandas"
+      "requiredSkills": "Habilidades requeridas",
+      "matchedLabel": "Coincidentes",
+      "missingLabel": "Faltantes",
+      "matchedPlain": "Coincidentes {{count}}",
+      "missingPlain": "Faltantes {{count}}",
+      "aiSuggestedPerSkill": "IA sugerida {{accepted}}/{{total}}",
+      "requiredInfo": "Habilidades imprescindibles de la descripción del puesto.",
+      "hardInfo": "Habilidades técnicas específicas del rol.",
+      "emptyCategory": "No hay habilidades en esta categoría."
     },
     "searchability": {
       "sectionCompleteness": "Completitud de secciones",
