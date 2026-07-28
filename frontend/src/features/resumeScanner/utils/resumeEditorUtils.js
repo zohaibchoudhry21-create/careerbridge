@@ -14,6 +14,51 @@ const SUGGESTION_CLASS = {
 export const getSkillDisplayName = (skill = {}) =>
   skill.name || skill.skillName || skill.label || skill.skill || skill.id || '';
 
+const SECTION_HEADING_RE =
+  /^(PROFESSIONAL SUMMARY|WORK EXPERIENCE|EDUCATION|SKILLS|CERTIFICATIONS|PROJECTS|LANGUAGES|AWARDS|VOLUNTEER EXPERIENCE|INTERESTS|REFERENCES|SUMMARY|EXPERIENCE|CORE COMPETENCIES)$/i;
+
+const isSectionHeadingLine = (line = '') => {
+  const trimmed = String(line || '').trim();
+  return Boolean(trimmed) && SECTION_HEADING_RE.test(trimmed);
+};
+
+const renderTextSegment = (segment, suggestions, segmentStart) => {
+  const segmentEnd = segmentStart + segment.length;
+  const active = suggestions.filter(
+    (item) => item.charStart < segmentEnd && item.charEnd > segmentStart
+  );
+
+  if (!active.length) {
+    return escapeHtml(segment);
+  }
+
+  let cursor = 0;
+  const parts = [];
+
+  for (const suggestion of active) {
+    const start = Math.max(0, suggestion.charStart - segmentStart);
+    const end = Math.min(segment.length, suggestion.charEnd - segmentStart);
+    if (end <= start) continue;
+
+    if (start > cursor) {
+      parts.push(escapeHtml(segment.slice(cursor, start)));
+    }
+
+    const highlighted = segment.slice(start, end);
+    const className = SUGGESTION_CLASS[suggestion.type] || SUGGESTION_CLASS.reword;
+    parts.push(
+      `<span contenteditable="false" class="ats-suggestion cursor-pointer rounded-sm px-0.5 ${className}" data-suggestion-id="${escapeHtml(suggestion.id)}" role="button" tabindex="0">${escapeHtml(highlighted || suggestion.original)}</span>`
+    );
+    cursor = end;
+  }
+
+  if (cursor < segment.length) {
+    parts.push(escapeHtml(segment.slice(cursor)));
+  }
+
+  return parts.join('');
+};
+
 export const buildResumeTextFromLineMap = (lineMap = []) => {
   if (!Array.isArray(lineMap) || lineMap.length === 0) {
     return '';
@@ -56,36 +101,45 @@ export const partitionSuggestions = (suggestions = []) => {
   return { pending, anchored, unanchored };
 };
 
-export const buildAnnotatedHtml = (resumeText = '', suggestions = []) => {
+export const buildAnnotatedHtml = (resumeText = '', suggestions = [], lineMap = []) => {
   const text = String(resumeText || '');
   const { anchored } = partitionSuggestions(suggestions);
   const sorted = [...anchored].sort((left, right) => left.charStart - right.charStart);
+  const headingLines = new Set(
+    (lineMap || [])
+      .filter((line) => line.section_type && line.section_type !== 'contact')
+      .map((line) => String(line.text || '').trim().toLowerCase())
+      .filter((line) => SECTION_HEADING_RE.test(line))
+  );
 
-  let cursor = 0;
+  const lines = text.split('\n');
+  let offset = 0;
   const parts = [];
 
-  for (const suggestion of sorted) {
-    if (suggestion.charStart < cursor) {
-      continue;
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const lineHtml = renderTextSegment(line, sorted, offset);
+    const normalized = line.trim().toLowerCase();
+    const isHeading = isSectionHeadingLine(line) || headingLines.has(normalized);
+
+    if (isHeading) {
+      parts.push(
+        `<div class="ats-section-heading font-label-md uppercase tracking-wide text-secondary mt-3 mb-1">${lineHtml}</div>`
+      );
+    } else if (line.length) {
+      parts.push(`<div class="ats-section-line">${lineHtml}</div>`);
+    } else {
+      parts.push('<div class="h-2" aria-hidden="true"></div>');
     }
 
-    if (suggestion.charStart > cursor) {
-      parts.push(escapeHtml(text.slice(cursor, suggestion.charStart)));
-    }
-
-    const highlighted = text.slice(suggestion.charStart, suggestion.charEnd);
-    const className = SUGGESTION_CLASS[suggestion.type] || SUGGESTION_CLASS.reword;
-    parts.push(
-      `<span contenteditable="false" class="ats-suggestion cursor-pointer rounded-sm px-0.5 ${className}" data-suggestion-id="${escapeHtml(suggestion.id)}" role="button" tabindex="0">${escapeHtml(highlighted || suggestion.original)}</span>`
-    );
-    cursor = suggestion.charEnd;
+    offset += line.length + 1;
   }
 
-  if (cursor < text.length) {
-    parts.push(escapeHtml(text.slice(cursor)));
+  if (!parts.length) {
+    return renderTextSegment(text, sorted, 0).replace(/\n/g, '<br />');
   }
 
-  return parts.join('').replace(/\n/g, '<br />');
+  return parts.join('');
 };
 
 export const extractPlainText = (element) => {

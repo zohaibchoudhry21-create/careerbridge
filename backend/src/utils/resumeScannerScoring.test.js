@@ -98,6 +98,13 @@ describe('resumeScannerScoring', () => {
     expect(skillMatchesResume(resumeText, skills[2]).matched).toBe(false);
   });
 
+  it('matches compound SEO skills when resume lists variants separately', () => {
+    const resumeText =
+      'SEO & Digital Marketing: On-Page, Off-Page, Technical SEO, Keyword Research, Analytics';
+    expect(skillMatchesResume(resumeText, { name: 'On-Page SEO' }).matched).toBe(true);
+    expect(skillMatchesResume(resumeText, { name: 'Technical SEO' }).matched).toBe(true);
+  });
+
   it('computes matched and missing skill ids', () => {
     const resumeText = 'Experienced with React.js and GA4 analytics.';
     const result = computeSkillMatches(resumeText, skills);

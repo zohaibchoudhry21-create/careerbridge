@@ -24,7 +24,7 @@ const parseModelJson = (content) => {
   }
 };
 
-export const analyzeResumeWithGroq = async ({ resumeText, jobDescriptionText }, attempt = 0) => {
+export const analyzeResumeWithGroq = async ({ resumeText, jobDescriptionText, jobTitle = '' }, attempt = 0) => {
   if (!isGroqConfigured()) {
     throw new AppError(ERROR_CODES.RESUME_SCANNER.AI_NOT_CONFIGURED, 503);
   }
@@ -40,7 +40,7 @@ export const analyzeResumeWithGroq = async ({ resumeText, jobDescriptionText }, 
       { role: 'system', content: RESUME_SCANNER_SYSTEM_PROMPT },
       {
         role: 'user',
-        content: buildResumeScannerPrompt({ resumeText, jobDescriptionText }),
+        content: buildResumeScannerPrompt({ resumeText, jobDescriptionText, jobTitle }),
       },
     ],
   });
@@ -56,7 +56,7 @@ export const analyzeResumeWithGroq = async ({ resumeText, jobDescriptionText }, 
   } catch (error) {
     if (attempt < MAX_RETRIES) {
       console.warn(`[resume-scanner] Groq JSON validation failed (attempt ${attempt + 1}):`, error.message);
-      return analyzeResumeWithGroq({ resumeText, jobDescriptionText }, attempt + 1);
+      return analyzeResumeWithGroq({ resumeText, jobDescriptionText, jobTitle }, attempt + 1);
     }
     throw new AppError(ERROR_CODES.RESUME_SCANNER.AI_INVALID_RESPONSE, 502);
   }

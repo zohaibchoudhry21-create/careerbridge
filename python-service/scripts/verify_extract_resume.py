@@ -53,6 +53,8 @@ def main() -> int:
         "skills_count": len(result["structured_sections"].get("skills", {}).get("items", [])),
         "metadata": result.get("metadata", {}),
         "full_text_preview": result["full_text"][: args.preview_chars],
+        "normalization": result.get("normalization", {}),
+        "raw_text_preview": (result.get("raw_text") or "")[: args.preview_chars],
     }
 
     print(json.dumps(summary, indent=2))

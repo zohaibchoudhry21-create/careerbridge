@@ -38,8 +38,8 @@ export default function ResumeEditor({
   const { pending, unanchored } = useMemo(() => partitionSuggestions(suggestions), [suggestions]);
 
   const annotatedHtml = useMemo(
-    () => sanitizeHtml(buildAnnotatedHtml(displayText, suggestions)),
-    [displayText, suggestions]
+    () => sanitizeHtml(buildAnnotatedHtml(displayText, suggestions, lineMap)),
+    [displayText, suggestions, lineMap]
   );
 
   useEffect(() => {

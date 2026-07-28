@@ -1,13 +1,13 @@
 export const DASHBOARD_NAV_DEFS = [
   { id: 'dashboard', icon: 'dashboard', href: '/dashboard' },
-  { id: 'resumeBuilder', icon: 'description', href: '/resume/templates' },
+  { id: 'resumeBuilder', icon: 'description', href: '/resume/upload' },
   { id: 'resumeScanner', icon: 'document_scanner', href: '/resume-scanner' },
   { id: 'interviewPrep', icon: 'mic_external_on', href: '/interview-prep' },
   { id: 'linkedinOptimizer', icon: 'share_reviews', href: '#' },
 ];
 
 export const QUICK_ACTION_DEFS = [
-  { id: 'build-resume', icon: 'description', href: '/resume/templates', color: 'resume' },
+  { id: 'build-resume', icon: 'description', href: '/resume/upload', color: 'resume' },
   { id: 'optimize-resume', icon: 'document_scanner', href: '/resume-scanner', color: 'scanner' },
   { id: 'cover-letter', icon: 'edit_note', color: 'skills' },
 ];

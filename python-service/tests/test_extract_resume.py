@@ -10,6 +10,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from resume_extractor import extract_resume_bytes, parse_structured_sections  # noqa: E402
+from extractor import _merge_wrapped_lines  # noqa: E402
 
 
 SAMPLE_RESUME_TEXT = """Jane Jobscan
@@ -56,6 +57,19 @@ class ResumeExtractorTests(unittest.TestCase):
 
         experience_lines = [line for line in lines if line.get("section_type") == "experience"]
         self.assertTrue(any("ACME" in line["text"] for line in experience_lines))
+
+    def test_merge_wrapped_lines_collapses_mid_sentence_wraps(self):
+        wrapped = (
+            "SEO Specialist with 6+ months of experience, focused on\n"
+            "off-page SEO techniques like backlink building.\n"
+            "- Executing full-spectrum off-page SEO strategies.\n"
+            "- Conducting keyword research using Ahrefs."
+        )
+        merged = _merge_wrapped_lines(wrapped)
+
+        self.assertIn("experience, focused on off-page SEO", merged)
+        self.assertIn("- Executing full-spectrum", merged)
+        self.assertIn("- Conducting keyword research", merged)
 
     def test_extract_resume_bytes_from_generated_pdf(self):
         doc = fitz.open()

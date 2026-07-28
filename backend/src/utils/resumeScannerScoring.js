@@ -4,6 +4,7 @@ import {
   createSuggestionId,
   escapeRegExp,
   normalizeSkillToken,
+  resolveStoredSkillId,
 } from './resumeScannerTextUtils.js';
 
 const ACRONYM_ALIASES = {
@@ -43,6 +44,19 @@ const buildSkillPatterns = (skill) => {
     const aliasList = ACRONYM_ALIASES[normalized] || [];
     for (const alias of aliasList) {
       patterns.push(new RegExp(`\\b${escapeRegExp(alias).replace(/\s+/g, '\\s+')}\\b`, 'i'));
+    }
+
+    // Compound skills like "On-Page SEO" may appear as "On-Page, Off-Page, Technical SEO".
+    const tokens = normalized.split(/\s+/).filter(Boolean);
+    if (tokens.length >= 2) {
+      const [head, ...tail] = tokens;
+      const tailPhrase = tail.join('\\s+');
+      patterns.push(
+        new RegExp(
+          `\\b${escapeRegExp(head).replace(/\s+/g, '\\s+')}[\\s,/&-]+(?:\\w+[\\s,/&-]+){0,4}${tailPhrase}\\b`,
+          'i'
+        )
+      );
     }
   }
 
@@ -89,7 +103,7 @@ export const computeSkillMatches = (resumeText, skills = []) => {
   const enrichedSkills = skills.map((skill, index) => {
     const withId = {
       ...skill,
-      id: skill.id || createSkillId(skill.name, index),
+      id: resolveStoredSkillId(skill) || skill.id || createSkillId(skill.name, index),
     };
     const { matched, evidence } = skillMatchesResume(resumeText, withId);
 
