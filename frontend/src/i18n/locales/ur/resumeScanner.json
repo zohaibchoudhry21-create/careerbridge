@@ -82,7 +82,15 @@
       "noMatched": "ابھی کوئی مماثل مہارت نہیں۔",
       "noMissing": "تمام ٹریک شدہ مہارتیں مماثل ہیں۔",
       "hardSkills": "ٹیکنیکل مہارتیں",
-      "requiredSkills": "ضروری / نرم مہارتیں"
+      "requiredSkills": "ضروری مہارتیں",
+      "matchedLabel": "مماثل مہارتیں",
+      "missingLabel": "غائب مہارتیں",
+      "matchedPlain": "مماثل مہارتیں {{count}}",
+      "missingPlain": "غائب مہارتیں {{count}}",
+      "aiSuggestedPerSkill": "AI تجاویز {{accepted}}/{{total}}",
+      "requiredInfo": "جاب ڈسکرپشن میں بیان کردہ لازمی مہارتیں۔",
+      "hardInfo": "رول سے متعلق ٹیکنیکل مہارتیں۔",
+      "emptyCategory": "اس زمرے میں کوئی مہارت نہیں۔"
     },
     "searchability": {
       "sectionCompleteness": "سیکشن مکملیت",

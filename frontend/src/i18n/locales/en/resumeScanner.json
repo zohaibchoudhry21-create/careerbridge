@@ -81,8 +81,16 @@
       "missing": "Missing skills",
       "noMatched": "No matched skills yet.",
       "noMissing": "All tracked skills are matched.",
-      "hardSkills": "Hard skills",
-      "requiredSkills": "Required / soft skills"
+      "hardSkills": "Hard Skills",
+      "requiredSkills": "Required Skills",
+      "matchedLabel": "Matched skills",
+      "missingLabel": "Missing skills",
+      "matchedPlain": "Matched skills {{count}}",
+      "missingPlain": "Missing skills {{count}}",
+      "aiSuggestedPerSkill": "AI Suggested {{accepted}}/{{total}}",
+      "requiredInfo": "Must-have skills called out in the job description.",
+      "hardInfo": "Technical and role-specific skills from the job description.",
+      "emptyCategory": "No skills in this category."
     },
     "searchability": {
       "sectionCompleteness": "Section completeness",
