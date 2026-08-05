@@ -1,7 +1,7 @@
 import { body, param } from 'express-validator';
 import {
   INTERVIEW_FOCUS_AREAS,
-  INTERVIEW_SETUP_MODES,
+  INTERVIEW_SETUP_MODES_SELECTABLE,
   INTERVIEWER_PERSONAS,
   MOCK_INTERVIEW_DIFFICULTIES,
   MOCK_INTERVIEW_DURATION_OPTIONS,
@@ -84,7 +84,7 @@ export const startLiveInterviewValidation = [
     .withMessage(ERROR_CODES.INTERVIEW_PREP.FOCUS_AREA_INVALID),
   body('interviewMode')
     .optional()
-    .isIn(INTERVIEW_SETUP_MODES)
+    .isIn(INTERVIEW_SETUP_MODES_SELECTABLE)
     .withMessage(ERROR_CODES.INTERVIEW_PREP.INTERVIEW_MODE_INVALID),
   body('interviewerPersona')
     .optional()
