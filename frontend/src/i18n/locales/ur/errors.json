@@ -190,7 +190,9 @@
     "VOICE_INPUT_REQUIRED": "آواز کے تجزیے کے لیے آڈیو فائل یا ٹرانسکرپٹ فراہم کریں۔",
     "FRAME_SAMPLES_ARRAY": "frameSamples غیر خالی array ہونا چاہیے",
     "ASSISTANT_CREATE_FAILED": "وائس انٹرویوئر شروع نہیں ہو سکا۔ براہ کرم کچھ دیر بعد دوبارہ کوشش کریں۔",
-    "TRANSCRIPT_TOO_LONG": "انٹرویو ٹرانسکرپٹ {{max}} حروف کی حد سے زیادہ ہے۔"
+    "TRANSCRIPT_TOO_LONG": "انٹرویو ٹرانسکرپٹ {{max}} حروف کی حد سے زیادہ ہے۔",
+    "AI_SERVICE_UNAVAILABLE": "ہمارا AI سروس عارضی طور پر مصروف ہے۔ براہ کرم کچھ دیر بعد دوبارہ کوشش کریں۔",
+    "AUDIO_TOO_LONG": "آڈیو ریکارڈنگ بہت لمبی ہے۔ جوابات {{maxMinutes}} منٹ سے کم رکھیں۔"
   },
   "RESUME_BUILDER": {
     "RESUME_NOT_FOUND": "ریزیومے نہیں ملا۔",
