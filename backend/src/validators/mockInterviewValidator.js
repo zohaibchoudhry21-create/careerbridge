@@ -114,12 +114,18 @@ export const roleSuggestionsValidation = [
 export const submitLiveInterviewValidation = [
   body('sessionId').isMongoId().withMessage(ERROR_CODES.VALIDATION.SESSION_ID_INVALID),
   body('transcript')
-    .isArray({ min: 1 })
+    .isArray({ min: 1, max: 400 })
     .withMessage(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_ARRAY),
   body('transcript.*.role').optional().isString(),
   body('transcript.*.content')
     .isString()
-    .withMessage(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_CONTENT_REQUIRED),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_CONTENT_REQUIRED)
+    .isLength({ max: MAX_INTERVIEW_CONTEXT_TEXT_LENGTH })
+    .withMessage(
+      formatValidationCode(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_TOO_LONG, {
+        max: MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
+      })
+    ),
   body('liveAudioHints').optional().isObject(),
   body('liveVideoMetrics').optional(),
   body('durationMs')

@@ -1,3 +1,10 @@
+import {
+  clampScore,
+  detectTranscriptInjectionMarkers,
+  sanitizeAiReportPayload,
+  sanitizeStringList,
+} from './interviewScoreUtils.js';
+
 const average = (values) => {
   const nums = values.filter((v) => Number.isFinite(Number(v)));
   if (!nums.length) return 0;
@@ -40,6 +47,9 @@ const buildTranscriptBasedSnapshot = (session, mode) => {
     summary.averageEngagementScore = Math.round(callVideoMetrics.engagementScore || 0);
   }
 
+  const fullTranscript = session.voiceCallTranscript || [];
+  const flaggedForReview = detectTranscriptInjectionMarkers(fullTranscript);
+
   return {
     mode,
     role: session.roleLabel || session.role,
@@ -48,7 +58,8 @@ const buildTranscriptBasedSnapshot = (session, mode) => {
     targetQuestionCount: session.targetQuestionCount,
     summary,
     qa,
-    fullTranscript: session.voiceCallTranscript || [],
+    fullTranscript,
+    flaggedForReview,
   };
 };
 
@@ -85,6 +96,10 @@ export const buildMockInterviewSnapshot = (session) => {
     averageEngagementScore: Math.round(average(videoRows.map((v) => v.engagementScore))),
   };
 
+  const flaggedForReview = detectTranscriptInjectionMarkers(
+    qa.map((row) => ({ content: row.transcript }))
+  );
+
   return {
     role: session.roleLabel || session.role,
     difficulty: session.difficulty,
@@ -92,28 +107,50 @@ export const buildMockInterviewSnapshot = (session) => {
     targetQuestionCount: session.targetQuestionCount,
     summary,
     qa,
+    flaggedForReview,
   };
 };
 
-export const mergeReportWithSummary = (aiReport, summary) => {
-  const sections = { ...(aiReport.sections || {}) };
+export const mergeReportWithSummary = (aiReport, summary, { flaggedForReview = false } = {}) => {
+  const sanitized = sanitizeAiReportPayload(aiReport);
+  const sections = { ...sanitized.sections };
 
   sections.voiceAnalysis = {
-    ...(sections.voiceAnalysis || {}),
-    wpm: sections.voiceAnalysis?.wpm ?? summary.averageWpm,
-    confidenceScore: sections.voiceAnalysis?.confidenceScore ?? summary.averageConfidenceScore,
-    fillerWords: sections.voiceAnalysis?.fillerWords ?? summary.totalFillerWords,
+    ...sections.voiceAnalysis,
+    wpm: Number.isFinite(Number(sections.voiceAnalysis?.wpm))
+      ? Math.max(0, Number(sections.voiceAnalysis.wpm))
+      : summary.averageWpm,
+    confidenceScore: clampScore(
+      sections.voiceAnalysis?.confidenceScore ?? summary.averageConfidenceScore,
+      0
+    ),
+    fillerWords: Number.isFinite(Number(sections.voiceAnalysis?.fillerWords))
+      ? Math.max(0, Math.round(Number(sections.voiceAnalysis.fillerWords)))
+      : summary.totalFillerWords,
   };
 
   sections.videoAnalysis = {
-    ...(sections.videoAnalysis || {}),
-    eyeContactPercent:
+    ...sections.videoAnalysis,
+    eyeContactPercent: clampScore(
       sections.videoAnalysis?.eyeContactPercent ?? summary.averageEyeContactPercent,
-    engagementScore: sections.videoAnalysis?.engagementScore ?? summary.averageEngagementScore,
+      0
+    ),
+    engagementScore: clampScore(
+      sections.videoAnalysis?.engagementScore ?? summary.averageEngagementScore,
+      0
+    ),
   };
 
+  if (sections.contentQuality) {
+    sections.contentQuality.score = clampScore(sections.contentQuality.score, 0);
+  }
+
   return {
-    ...aiReport,
+    overallScore: clampScore(sanitized.overallScore, 0),
     sections,
+    strengths: sanitizeStringList(sanitized.strengths),
+    improvementAreas: sanitizeStringList(sanitized.improvementAreas),
+    recommendedNextSteps: sanitizeStringList(sanitized.recommendedNextSteps),
+    flaggedForReview: Boolean(flaggedForReview),
   };
 };

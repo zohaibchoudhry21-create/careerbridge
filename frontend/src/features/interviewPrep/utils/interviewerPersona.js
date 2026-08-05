@@ -1,14 +1,14 @@
-/** Persona instructions injected into the Vapi system prompt via {{interviewerPersona}}. */
-export const INTERVIEWER_PERSONA_PROMPTS = {
-  friendly:
-    'Be warm, encouraging, and supportive. Acknowledge good points, use positive reinforcement, and help the candidate feel comfortable while still assessing them fairly.',
-  neutral:
-    'Be professional and balanced. Stay courteous but neither overly warm nor harsh. Ask clear questions and move the interview forward efficiently.',
-  strict:
-    'Be formal and demanding. Expect concise, high-quality answers, probe vague responses directly, and maintain a rigorous evaluation tone throughout.',
-  panel:
-    'Simulate a panel of three interviewers (technical lead, hiring manager, and HR). Briefly indicate which panelist is asking when you switch topics or perspectives.',
+/**
+ * UI labels for interviewer persona options.
+ * Prompt text is assembled server-side only (see backend/src/utils/interviewerPersona.js).
+ */
+
+export const INTERVIEWER_PERSONA_LABELS = {
+  friendly: 'Friendly',
+  neutral: 'Neutral',
+  strict: 'Strict',
+  panel: 'Panel of 3',
 };
 
-export const getInterviewerPersonaPrompt = (personaId) =>
-  INTERVIEWER_PERSONA_PROMPTS[personaId] || INTERVIEWER_PERSONA_PROMPTS.neutral;
+export const getInterviewerPersonaLabel = (personaId) =>
+  INTERVIEWER_PERSONA_LABELS[personaId] || INTERVIEWER_PERSONA_LABELS.neutral;

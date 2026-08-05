@@ -17,6 +17,15 @@ const reportSectionSchema = new mongoose.Schema(
   { _id: false, strict: false }
 );
 
+const listField = (label) => ({
+  type: [String],
+  default: [],
+  validate: {
+    validator: (arr) => Array.isArray(arr) && arr.length <= 10,
+    message: `${label} supports at most 10 items`,
+  },
+});
+
 const interviewReportSchema = new mongoose.Schema(
   {
     userId: {
@@ -48,17 +57,14 @@ const interviewReportSchema = new mongoose.Schema(
       videoAnalysis: { type: reportSectionSchema, default: undefined },
       skillAssessment: { type: reportSectionSchema, default: undefined },
     },
-    strengths: {
-      type: [String],
-      default: [],
-    },
-    improvementAreas: {
-      type: [String],
-      default: [],
-    },
-    recommendedNextSteps: {
-      type: [String],
-      default: [],
+    strengths: listField('strengths'),
+    improvementAreas: listField('improvementAreas'),
+    recommendedNextSteps: listField('recommendedNextSteps'),
+    /** Heuristic: transcript contained prompt-injection-like phrases. */
+    flaggedForReview: {
+      type: Boolean,
+      default: false,
+      index: true,
     },
     rawMetricsSnapshot: {
       type: mongoose.Schema.Types.Mixed,

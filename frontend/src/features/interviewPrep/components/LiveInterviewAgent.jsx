@@ -3,18 +3,16 @@ import { useTranslation } from 'react-i18next';
 import {
   getVapiClient,
   formatVapiError,
-  getInterviewStartTarget,
   isNonFatalVapiError,
   getCallEndedReason,
   logVapiDiagnostic,
 } from '../lib/vapi.sdk';
-import { interviewerAssistant } from '../constants/voiceCallAssistant';
+import { LIVE_INTERVIEWER_DISPLAY_NAME } from '../constants/voiceCallAssistant';
 import { useLiveAudioMonitor } from '../hooks/useLiveAudioMonitor';
 import { useFaceVideoAnalysis } from '../hooks/useFaceVideoAnalysis';
 import { useLiveInterview } from '../hooks/useLiveInterview';
 import LiveInterview from './LiveInterview';
 import LiveVideoIndicator from './LiveVideoIndicator';
-import { getInterviewerPersonaPrompt } from '../utils/interviewerPersona';
 import { DEFAULT_INTERVIEW_SETUP_MODE } from '../constants/interviewPrepConstants';
 
 const CallStatus = {
@@ -33,15 +31,10 @@ const UI_STATUS_BY_CALL_STATUS = {
 
 export default function LiveInterviewAgent({
   userName,
-  aiName = 'AI Interviewer',
+  aiName = LIVE_INTERVIEWER_DISPLAY_NAME,
   sessionId,
-  questions,
-  roleLabel,
-  difficulty,
-  durationMinutes,
-  interviewerPersona = 'neutral',
+  assistantId,
   interviewMode = DEFAULT_INTERVIEW_SETUP_MODE,
-  focusAreas,
   stream,
   onFinished,
   submitError,
@@ -316,26 +309,17 @@ export default function LiveInterviewAgent({
 
     try {
       const vapi = getVapiClient();
-      const formattedQuestions = (questions || []).map((q) => `- ${q}`).join('\n');
-      const variableValues = {
-        questions: formattedQuestions,
-        username: userName,
-        roleLabel: roleLabel || 'this role',
-        difficulty: difficulty || 'medium',
-        durationMinutes: String(durationMinutes || 15),
-        interviewerPersona: getInterviewerPersonaPrompt(interviewerPersona),
-        focusAreas: (Array.isArray(focusAreas) ? focusAreas : []).join(', ') || 'General',
-      };
+
+      // Server-created assistant only — never pass model.messages / system prompt
+      // from the browser (trust boundary). Public web token establishes the call.
+      if (!assistantId) {
+        throw new Error('Missing server assistantId for this interview session.');
+      }
 
       // Do NOT stop our mic track here. Vapi/Daily opens its own capture of the
       // same device; killing the track leaves the call with no customer audio,
       // which Vapi then ejects as "Meeting has ended".
-      const assistantId = getInterviewStartTarget();
-      if (assistantId) {
-        await vapi.start(assistantId, { variableValues });
-      } else {
-        await vapi.start(interviewerAssistant, { variableValues });
-      }
+      await vapi.start(assistantId);
 
       if (!isMicOn) {
         vapi.setMuted(true);

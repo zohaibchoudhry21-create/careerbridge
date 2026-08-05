@@ -188,7 +188,9 @@
     "QUESTION_ID_REQUIRED": "Each answer needs a questionId",
     "SELECTED_INDEX_INVALID": "selectedIndex must be a valid option index",
     "VOICE_INPUT_REQUIRED": "Provide an audio file or transcript for voice analysis.",
-    "FRAME_SAMPLES_ARRAY": "frameSamples must be a non-empty array"
+    "FRAME_SAMPLES_ARRAY": "frameSamples must be a non-empty array",
+    "ASSISTANT_CREATE_FAILED": "Could not start the voice interviewer. Please try again in a moment.",
+    "TRANSCRIPT_TOO_LONG": "Interview transcript exceeds the maximum length of {{max}} characters."
   },
   "RESUME_BUILDER": {
     "RESUME_NOT_FOUND": "Resume not found.",

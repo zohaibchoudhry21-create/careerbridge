@@ -3,6 +3,7 @@ import InterviewReport from '../models/InterviewReport.js';
 import {
   DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES,
   INTERVIEWER_PERSONAS,
+  MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
   MOCK_INTERVIEW_ROLES,
   durationMinutesToQuestionCount,
 } from '../constants/interviewPrepConstants.js';
@@ -23,6 +24,7 @@ import { generateOpeningQuestion } from '../utils/mockInterviewGroqService.js';
 import { fetchRoleSuggestionsWithGroq } from '../utils/roleSuggestionsGroqService.js';
 import { analyzeResumeForInterview } from '../utils/interviewResumeAnalysisGroqService.js';
 import { extractResumeTextFromFile } from '../utils/resumeFileExtractor.js';
+import { createVapiAssistantForSession } from '../utils/vapiAssistantService.js';
 
 const findRoleMeta = (roleId) => MOCK_INTERVIEW_ROLES.find((r) => r.id === roleId);
 
@@ -180,7 +182,9 @@ const persistMockInterviewReport = async (session, userId) => {
 
   const snapshot = buildMockInterviewSnapshot(session);
   const aiReport = await generateMockInterviewReportWithGroq(snapshot);
-  const merged = mergeReportWithSummary(aiReport, snapshot.summary);
+  const merged = mergeReportWithSummary(aiReport, snapshot.summary, {
+    flaggedForReview: Boolean(snapshot.flaggedForReview),
+  });
 
   const report = await InterviewReport.create({
     userId,
@@ -191,6 +195,7 @@ const persistMockInterviewReport = async (session, userId) => {
     strengths: merged.strengths,
     improvementAreas: merged.improvementAreas,
     recommendedNextSteps: merged.recommendedNextSteps,
+    flaggedForReview: merged.flaggedForReview,
     rawMetricsSnapshot: snapshot,
   });
 
@@ -310,13 +315,21 @@ export const startLiveInterview = async (req, res, next) => {
       ...customization,
     });
 
+    // Assemble interviewer system prompt server-side; browser only gets assistantId.
+    const vapiAssistantId = await createVapiAssistantForSession(session);
+    session.vapiAssistantId = vapiAssistantId;
+    await session.save();
+
     sendResponse(res, 201, true, 'Live interview started.', {
       sessionId: String(session._id),
-      questions: [openingText],
+      assistantId: vapiAssistantId,
       mode: 'live',
       durationMinutes,
       roleLabel: resolvedRole.roleLabel,
       difficulty,
+      interviewMode: session.interviewMode || 'video_voice',
+      interviewerPersona: session.interviewerPersona || 'neutral',
+      focusAreas: session.focusAreas || [],
     });
   } catch (error) {
     next(error);
@@ -340,6 +353,16 @@ export const submitLiveInterview = async (req, res, next) => {
 
     if (!normalized.length) {
       throw new AppError(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_EMPTY, 400);
+    }
+
+    const transcriptChars = normalized.reduce(
+      (sum, turn) => sum + String(turn.content || '').length,
+      0
+    );
+    if (transcriptChars > MAX_INTERVIEW_CONTEXT_TEXT_LENGTH) {
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_TOO_LONG, 400, {
+        max: MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
+      });
     }
 
     const liveAudioHints = parseJsonBodyField(req.body.liveAudioHints);
@@ -407,6 +430,9 @@ export const getMockInterviewSession = async (req, res, next) => {
   try {
     const session = await loadSessionForUser(req.params.sessionId, req.user._id);
 
+    // Live sessions: do not expose question bank / prompt-reconstruction fields to the client.
+    const isLive = session.mode === 'live';
+
     sendResponse(res, 200, true, 'Session fetched.', {
       session: {
         sessionId: String(session._id),
@@ -417,6 +443,7 @@ export const getMockInterviewSession = async (req, res, next) => {
         status: session.status,
         durationMinutes: session.durationMinutes,
         targetQuestionCount: session.targetQuestionCount,
+        assistantId: session.vapiAssistantId || null,
         resumeText: session.resumeText,
         jobDescriptionText: session.jobDescriptionText,
         targetCompany: session.targetCompany,
@@ -428,12 +455,14 @@ export const getMockInterviewSession = async (req, res, next) => {
         interviewerPersona: session.interviewerPersona || 'neutral',
         answerTimeLimitSeconds: session.answerTimeLimitSeconds,
         currentQuestionIndex: session.currentQuestionIndex,
-        questions: session.questions.map((q) => ({
-          questionId: q.questionId,
-          text: q.text,
-          order: q.order,
-        })),
-        questionTexts: session.questions.map((q) => q.text),
+        questions: isLive
+          ? []
+          : session.questions.map((q) => ({
+              questionId: q.questionId,
+              text: q.text,
+              order: q.order,
+            })),
+        questionTexts: isLive ? [] : session.questions.map((q) => q.text),
         answers: session.answers.map((a) => ({
           questionId: a.questionId,
           transcript: a.transcript,
