@@ -188,7 +188,9 @@
     "QUESTION_ID_REQUIRED": "Cada respuesta necesita un questionId",
     "SELECTED_INDEX_INVALID": "selectedIndex debe ser un índice de opción válido",
     "VOICE_INPUT_REQUIRED": "Proporciona un archivo de audio o transcripción para el análisis de voz.",
-    "FRAME_SAMPLES_ARRAY": "frameSamples debe ser un array no vacío"
+    "FRAME_SAMPLES_ARRAY": "frameSamples debe ser un array no vacío",
+    "ASSISTANT_CREATE_FAILED": "No se pudo iniciar el entrevistador de voz. Inténtalo de nuevo en un momento.",
+    "TRANSCRIPT_TOO_LONG": "La transcripción de la entrevista supera el máximo de {{max}} caracteres."
   },
   "RESUME_BUILDER": {
     "RESUME_NOT_FOUND": "Currículum no encontrado.",

@@ -151,9 +151,9 @@ export default function MockInterviewSetup() {
       }
 
       const sessionId = result?.sessionId != null ? String(result.sessionId) : '';
-      const questions = Array.isArray(result?.questions) ? result?.questions : [];
+      const assistantId = result?.assistantId != null ? String(result.assistantId) : '';
 
-      if (!sessionId || !questions.length) {
+      if (!sessionId || !assistantId) {
         const message = result?.message || t('mockSetup.startFailed');
         setStartError(message);
         toast.error(message);
@@ -162,7 +162,7 @@ export default function MockInterviewSetup() {
 
       navigate(`/interview-prep/mock/${sessionId}`, {
         state: {
-          questions,
+          assistantId,
           roleLabel: roleTrimmed,
           difficulty,
           durationMinutes: Number(durationMinutes),

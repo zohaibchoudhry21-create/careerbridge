@@ -6,5 +6,6 @@ export const serializeInterviewReport = (report, sessionId) => ({
   strengths: report.strengths || [],
   improvementAreas: report.improvementAreas || [],
   recommendedNextSteps: report.recommendedNextSteps || [],
+  flaggedForReview: Boolean(report.flaggedForReview),
   createdAt: report.createdAt,
 });

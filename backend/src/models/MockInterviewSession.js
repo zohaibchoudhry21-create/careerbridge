@@ -217,6 +217,12 @@ const mockInterviewSessionSchema = new mongoose.Schema(
       enum: ['friendly', 'neutral', 'strict', 'panel'],
       default: 'neutral',
     },
+    /** Server-created Vapi assistant — browser only receives this id. */
+    vapiAssistantId: {
+      type: String,
+      trim: true,
+      default: undefined,
+    },
   },
   { timestamps: true }
 );
