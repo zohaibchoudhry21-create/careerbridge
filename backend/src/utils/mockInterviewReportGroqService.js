@@ -4,6 +4,7 @@ import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { extractJsonFromText } from './resumeAiPrompts.js';
 import { sanitizeAiReportPayload } from './interviewScoreUtils.js';
+import { withGroqRetry } from './withGroqRetry.js';
 
 const getClient = () => {
   const { apiKey } = getGroqConfig();
@@ -88,12 +89,22 @@ Use the measured metrics for numeric fields where applicable. Judge answer subst
 All scores MUST be numbers between 0 and 100 inclusive.
 `;
 
-  const completion = await client.chat.completions.create({
-    model,
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.35,
-    response_format: { type: 'json_object' },
-  });
+  let completion;
+  try {
+    completion = await withGroqRetry(
+      () =>
+        client.chat.completions.create({
+          model,
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.35,
+          response_format: { type: 'json_object' },
+        }),
+      { label: 'mock-interview-report' }
+    );
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.AI_SERVICE_UNAVAILABLE, 503);
+  }
 
   const content = completion.choices?.[0]?.message?.content?.trim();
 

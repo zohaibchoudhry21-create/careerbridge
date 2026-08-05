@@ -9,11 +9,15 @@ export const analyzeVoice = async (req, res, next) => {
     let duration = req.body?.duration ? Number(req.body.duration) : undefined;
     let segments;
 
+    const durationMs = req.body?.durationMs ? Number(req.body.durationMs) : undefined;
+    const durationSeconds = req.body?.duration ? Number(req.body.duration) : undefined;
+
     if (req.file?.buffer) {
       const transcription = await transcribeAudioWithGroq(
         req.file.buffer,
         req.file.originalname || 'audio.webm',
-        req.file.mimetype
+        req.file.mimetype,
+        { durationMs, durationSeconds }
       );
 
       transcript = transcription.text;
@@ -24,8 +28,6 @@ export const analyzeVoice = async (req, res, next) => {
     if (!transcript) {
       throw new AppError(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_OR_AUDIO_REQUIRED, 400);
     }
-
-    const durationMs = req.body?.durationMs ? Number(req.body.durationMs) : undefined;
 
     const voiceMetrics = await analyzeVoiceFromTranscription({
       transcript,

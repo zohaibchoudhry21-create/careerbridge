@@ -195,6 +195,8 @@ export const ERROR_CODES = {
     FRAME_SAMPLES_ARRAY: 'INTERVIEW_PREP.FRAME_SAMPLES_ARRAY',
     ASSISTANT_CREATE_FAILED: 'INTERVIEW_PREP.ASSISTANT_CREATE_FAILED',
     TRANSCRIPT_TOO_LONG: 'INTERVIEW_PREP.TRANSCRIPT_TOO_LONG',
+    AI_SERVICE_UNAVAILABLE: 'INTERVIEW_PREP.AI_SERVICE_UNAVAILABLE',
+    AUDIO_TOO_LONG: 'INTERVIEW_PREP.AUDIO_TOO_LONG',
   },
   RESUME_BUILDER: {
     RESUME_NOT_FOUND: 'RESUME_BUILDER.RESUME_NOT_FOUND',
@@ -478,6 +480,10 @@ export const ERROR_MESSAGES = {
     'Could not start the voice interviewer. Please try again in a moment.',
   [ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_TOO_LONG]:
     'Interview transcript exceeds the maximum length of {{max}} characters.',
+  [ERROR_CODES.INTERVIEW_PREP.AI_SERVICE_UNAVAILABLE]:
+    'Our AI service is temporarily busy. Please try again in a moment.',
+  [ERROR_CODES.INTERVIEW_PREP.AUDIO_TOO_LONG]:
+    'Audio recording is too long. Please keep answers under {{maxMinutes}} minutes.',
 
   [ERROR_CODES.RESUME_BUILDER.RESUME_NOT_FOUND]: 'Resume not found.',
   [ERROR_CODES.RESUME_BUILDER.TEMPLATE_REQUIRED]: 'Template is required.',
@@ -529,7 +535,8 @@ export const ERROR_MESSAGES = {
     'PDF download is available only after the resume is finalized.',
 };
 
-const CODE_PATTERN = /^[A-Z][A-Z0-9]*(?:\.[A-Z][A-Z0-9_]*)+$/;
+// Allow underscores in each segment (e.g. INTERVIEW_PREP.AUDIO_TOO_LONG).
+const CODE_PATTERN = /^[A-Z][A-Z0-9_]*(?:\.[A-Z][A-Z0-9_]*)+$/;
 
 export const isErrorCode = (value) => typeof value === 'string' && CODE_PATTERN.test(value);
 

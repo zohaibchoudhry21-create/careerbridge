@@ -190,7 +190,9 @@
     "VOICE_INPUT_REQUIRED": "Provide an audio file or transcript for voice analysis.",
     "FRAME_SAMPLES_ARRAY": "frameSamples must be a non-empty array",
     "ASSISTANT_CREATE_FAILED": "Could not start the voice interviewer. Please try again in a moment.",
-    "TRANSCRIPT_TOO_LONG": "Interview transcript exceeds the maximum length of {{max}} characters."
+    "TRANSCRIPT_TOO_LONG": "Interview transcript exceeds the maximum length of {{max}} characters.",
+    "AI_SERVICE_UNAVAILABLE": "Our AI service is temporarily busy. Please try again in a moment.",
+    "AUDIO_TOO_LONG": "Audio recording is too long. Please keep answers under {{maxMinutes}} minutes."
   },
   "RESUME_BUILDER": {
     "RESUME_NOT_FOUND": "Resume not found.",

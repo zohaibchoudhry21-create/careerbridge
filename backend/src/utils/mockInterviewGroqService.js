@@ -1,8 +1,10 @@
 import Groq from 'groq-sdk';
 import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
+import { resolveFallbackOpeningQuestion } from '../constants/interviewPrepConstants.js';
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { extractJsonFromText } from './resumeAiPrompts.js';
+import { withGroqRetry } from './withGroqRetry.js';
 
 const getClient = () => {
   const { apiKey } = getGroqConfig();
@@ -18,12 +20,16 @@ const callGroqJson = async (prompt) => {
   const { model } = getGroqConfig();
   const client = getClient();
 
-  const completion = await client.chat.completions.create({
-    model,
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.5,
-    response_format: { type: 'json_object' },
-  });
+  const completion = await withGroqRetry(
+    () =>
+      client.chat.completions.create({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.5,
+        response_format: { type: 'json_object' },
+      }),
+    { label: 'mock-interview-opener' }
+  );
 
   const content = completion.choices?.[0]?.message?.content?.trim();
 
@@ -83,8 +89,11 @@ export const generateOpeningQuestion = async ({
   targetCompany,
   focusAreas,
 } = {}) => {
+  const fallback = resolveFallbackOpeningQuestion(roleLabel);
+
   if (!isGroqConfigured()) {
-    throw new AppError(ERROR_CODES.INTERVIEW_PREP.GROQ_NOT_CONFIGURED, 503);
+    console.warn('[mock-interview-opener] Groq not configured — using fallback opener');
+    return fallback;
   }
 
   const candidateContext = buildCandidateContext({
@@ -95,7 +104,8 @@ export const generateOpeningQuestion = async ({
     focusAreas,
   });
 
-  const parsed = await callGroqJson(`
+  try {
+    const parsed = await callGroqJson(`
 You are a professional interviewer conducting a ${difficulty} difficulty interview for a ${roleLabel} role.
 ${candidateContext ? `\nCandidate background (use it to make the opener relevant, but keep it a natural opening question):\n${candidateContext}\n` : ''}
 Generate ONE opening interview question (warm-up / tell-me-about-yourself style or role-specific opener).
@@ -104,12 +114,15 @@ Return JSON only:
 { "question": "string" }
 `);
 
-  const text = String(parsed.question || '').trim();
-
-  if (!text) {
-    throw new AppError(ERROR_CODES.INTERVIEW_PREP.OPENING_QUESTION_FAILED, 502);
+    const text = String(parsed.question || '').trim();
+    if (!text) {
+      console.warn('[mock-interview-opener] Empty AI opener — using fallback');
+      return fallback;
+    }
+    return text;
+  } catch (error) {
+    console.warn('[mock-interview-opener] Groq failed after retries — using fallback:', error.message);
+    return fallback;
   }
-
-  return text;
 };
 
