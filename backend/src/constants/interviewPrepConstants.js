@@ -42,8 +42,14 @@ export const INTERVIEW_FOCUS_AREAS = [
   'Communication',
 ];
 
-/** Optional interview delivery modes (stored on session; full text_only support is future scope). */
+/**
+ * Delivery modes stored on session.
+ * `text_only` is reserved for a future turn-by-turn Groq path — do not expose in UI
+ * until that flow is implemented (see docs/interview-prep-architecture.md).
+ */
 export const INTERVIEW_SETUP_MODES = ['video_voice', 'voice_only', 'text_only'];
+/** Modes accepted on new live starts / shown as working. */
+export const INTERVIEW_SETUP_MODES_SELECTABLE = ['video_voice', 'voice_only'];
 export const DEFAULT_INTERVIEW_SETUP_MODE = 'video_voice';
 
 /** Interviewer tone for live Vapi sessions. */
