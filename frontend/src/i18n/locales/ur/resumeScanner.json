@@ -1,8 +1,8 @@
 {
   "page": {
     "upload": {
-      "title": "AI سے بہتر بنائیں",
-      "description": "کسی بھی نوکری کی تفصیل کے خلاف اپنے ریزیومے کا تجزیہ کریں، ATS مسائل پہچانیں، کلیدی الفاظ بہتر بنائیں، اور شارٹ لسٹ ہونے کے امکانات بڑھائیں۔"
+      "title": "ریزیومے اسکینر",
+      "description": "اپنا ریزیومے اور جاب ڈسکرپشن اپ لوڈ کریں۔ ہم میچ کا تجزیہ کریں گے اور Improve → Finalize → Done کے ذریعے رہنمائی کریں گے۔"
     },
     "analysisPlaceholder": {
       "title": "ریزیومے اسکینر تجزیہ",
@@ -13,11 +13,12 @@
     }
   },
   "upload": {
-    "step1Title": "مرحلہ 1: ریزیومے منتخب کریں",
-    "step2Title": "مرحلہ 2: نوکری کی تفصیل پیسٹ کریں",
+    "step1Title": "سیٹ اپ: ریزیومے منتخب کریں",
+    "step2Title": "سیٹ اپ: نوکری کی تفصیل پیسٹ کریں",
+    "progressReady": "{{progress}}% تیار",
+    "phaseLabel": "سیٹ اپ",
     "tabs": {
-      "uploadNew": "نیا اپ لوڈ",
-      "savedResumes": "محفوظ ریزیومے"
+      "uploadNew": "نیا اپ لوڈ"
     },
     "dropzoneTitle": "اپنا ریزیومے ڈریگ اور ڈراپ کریں",
     "dropzoneHint": "یا فائلیں براؤز کرنے کے لیے کلک کریں",
@@ -28,10 +29,6 @@
     },
     "selectedFile": "منتخب: {{name}}",
     "changeFile": "فائل بدلیں",
-    "savedEmpty": "ابھی کوئی محفوظ ریزیومے نہیں۔ ریزیومے اپ لوڈ کریں یا ریزیومے بلڈر میں بنائیں۔",
-    "savedBuilt": "بنایا ہوا ریزیومے",
-    "savedScanned": "اپ لوڈ شدہ ریزیومے",
-    "updatedAt": "اپ ڈیٹ {{date}}",
     "jobDescriptionPlaceholder": "مکمل نوکری کی تفصیل یہاں پیسٹ کریں۔ AI کلیدی مہارتیں، ضروریات اور ذمہ داریاں نکال کر آپ کے ریزیومے سے موازنہ کرے گا...",
     "clearText": "متن صاف کریں",
     "pasteHint": "کلپ بورڈ سے پیسٹ کریں",
@@ -42,17 +39,17 @@
       "fileTooLarge": "ریزیومے فائل 10MB یا اس سے چھوٹی ہونی چاہیے۔",
       "unsupportedFile": "غیر معاون فائل کی قسم۔ PDF یا DOCX استعمال کریں۔",
       "jobDescriptionRequired": "براہ کرم نوکری کی تفصیل پیسٹ کریں۔",
-      "savedResumeRequired": "براہ کرم محفوظ ریزیومے منتخب کریں۔",
       "analyzeFailed": "ریزیومے تجزیہ شروع نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
     }
   },
   "overlay": {
-    "processing": "AI پروسیسنگ...",
+    "processing": "آپ کا ریزیومے پروسیس ہو رہا ہے...",
     "queued": "تجزیہ کی قطار میں...",
     "extracting": "ریزیومے مواد نکالا جا رہا ہے...",
     "analyzing": "مہارتیں اور ATS موازنہ کیا جا رہا ہے...",
-    "complete": "مہارتیں کامیابی سے نکالی گئیں",
+    "complete": "تجزیہ تیار ہے — ورک اسپیس کھل رہا ہے...",
     "failed": "تجزیہ ناکام ہوا",
+    "phaseLabel": "پروسیسنگ",
     "progressComplete": "{{progress}}% مکمل",
     "labels": {
       "skills": "مہارتیں",
@@ -64,17 +61,76 @@
     "loading": "تجزیہ لوڈ ہو رہا ہے...",
     "backToUpload": "اپ لوڈ پر واپس",
     "defaultJobTitle": "ریزیومے تجزیہ",
-    "headerDescription": "تجاویز دیکھیں اور اس کردار کے لیے اپنا ریزیومے بہتر بنائیں۔",
+    "headerDescription": "تجاویز بہتر بنائیں، ریزیومے حتمی کریں، پھر مکمل کریں۔",
     "headerDescriptionWithCompany": "{{company}} کے لیے اپنا ریزیومے بہتر بنائیں۔",
+    "phases": {
+      "ariaLabel": "ریزیومے اسکینر ورک فلو",
+      "rewriteGate": "دوبارہ تحریر کا جائزہ",
+      "improve": "بہتری",
+      "finalize": "حتمی",
+      "done": "مکمل"
+    },
+    "viewMode": {
+      "edit": "ترمیم",
+      "preview": "پیش نظارہ"
+    },
+    "done": {
+      "title": "ریزیومے تیار ہے",
+      "description": "{{jobTitle}} کے لیے آپ کا بہتر ریزیومے حتمی ہے۔ جب چاہیں نیا تجزیہ شروع کریں۔",
+      "backToFinalize": "حتمی پر واپس",
+      "toasts": {
+        "finished": "ریزیومے حتمی ہے اور ڈاؤن لوڈ کے لیے تیار ہے۔"
+      }
+    },
     "gauge": {
       "jobMatchLabel": "نوکری میچ سکور",
-      "atsLabel": "ATS پارس سکور",
-      "atsHint": "ATS سسٹمز آپ کا ریزیومے کتنی اچھی طرح پڑھ سکتے ہیں (فارمیٹنگ اور ساخت)۔"
+      "atsLabel": "ATS سکور",
+      "atsHint": "ATS سسٹمز آپ کا ریزیومے کتنی اچھی طرح پڑھ سکتے ہیں (فارمیٹنگ اور ساخت)۔",
+      "viewBreakdown": "تفصیل دیکھیں"
     },
+    "jobMatch": {
+      "keywordCoverage": "کی ورڈ کوریج",
+      "aiRelevance": "AI مطابقت"
+    },
+    "warnings": {
+      "fieldMismatch": "یہ ریزیومے اس نوکری سے مماثل نہیں لگتا — لگتا ہے مختلف شعبہ ہے۔",
+      "jdRequirementsUnclear": "اس جاب ڈسکرپشن سے ضروریات واضح طور پر نکالی نہیں جا سکیں۔",
+      "lowExtractionQuality": "استخراج کا معیار کم ہے — اسکور کم درست ہو سکتے ہیں۔"
+    },
+    "rewrite": {
+      "bannerTitle": "آپ کے ریزیومے کا اس جاب ڈسکرپشن سے بہت کم میچ ہے۔",
+      "bannerDescription": "ہر شناخت شدہ سیکشن کو ATS آپٹمائزیشن کے لیے از سر نو لکھا گیا ہے، صرف آپ کے حقیقی تجربے کے ساتھ۔ موازنہ دیکھیں۔",
+      "gateRequired": "جاری رکھنے کے لیے نیچے ایک اختیار منتخب کریں۔ فیصلے تک بہتری اور حتمی مقفل رہیں گے۔",
+      "sectionsRewritten": "{{count}} سیکشن دوبارہ لکھے گئے:",
+      "originalLabel": "اصل ریزیومے",
+      "originalBadge": "موجودہ",
+      "rewrittenLabel": "AI دوبارہ لکھا ہوا ریزیومے",
+      "rewrittenBadge": "ATS آپٹمائزڈ",
+      "useRewritten": "AI دوبارہ لکھا ہوا ریزیومے استعمال کریں",
+      "keepOriginal": "اصل رکھیں",
+      "applying": "دوبارہ تحریر لاگو ہو رہی ہے...",
+      "rejecting": "بحال ہو رہا ہے...",
+      "toasts": {
+        "accepted": "AI دوبارہ لکھا ہوا ریزیومے لاگو ہو گیا۔ آپٹمائزیشن تجاویز اب دستیاب ہیں۔",
+        "rejected": "اصل ریزیومے برقرار ہے۔ مرحلہ وار تجاویز بحال ہو گئیں۔"
+      },
+      "errors": {
+        "acceptFailed": "دوبارہ لکھا ہوا ریزیومے لاگو نہیں ہو سکا۔",
+        "rejectFailed": "اصل ریزیومے فلو بحال نہیں ہو سکا۔"
+      }
+    },
+    "atsTipBadge": "✨ ATS مشورہ",
     "tabs": {
       "skills": "مہارتیں",
       "searchability": "تلاش کی اہلیت",
       "recruiterTips": "بھرتی کنندہ کے مشورے"
+    },
+    "workspaceTabs": {
+      "resume": "ریزیومے",
+      "jobDescription": "جاب ڈسکرپشن"
+    },
+    "workspaceEmpty": {
+      "jobDescription": "جاب ڈسکرپشن دستیاب نہیں۔"
     },
     "skills": {
       "matched": "مماثل مہارتیں",
@@ -102,21 +158,37 @@
     "recruiterTips": {
       "empty": "اس تجزیے کے لیے کوئی بھرتی مشورے نہیں۔"
     },
+    "steps": {
+      "ariaLabel": "تجزیہ کے مراحل",
+      "suggestions": "AI تجاویز ({{count}} زیر التواء)",
+      "edit": "ترمیم",
+      "suggestionsProgress": "AI تجاویز ({{accepted}}/{{total}})"
+    },
     "editor": {
       "title": "ریزیومے",
       "ariaLabel": "قابل ترمیم ریزیومے متن",
       "saving": "محفوظ ہو رہا ہے...",
       "hint": "{{count}} زیر التواء تجویز(یں)۔ جائزہ کے لیے نمایاں متن پر کلک کریں۔",
-      "unanchoredTitle": "بغیر عین مماثلت کی تجاویز (صرف پوپ اوور میں)"
+      "editHint": "اپنا ریزیومے آزادانہ ترمیم کریں۔ تبدیلیاں خود بخود محفوظ ہوتی ہیں۔",
+      "unanchoredTitle": "بغیر عین مماثلت کی تجاویز (صرف پوپ اوور میں)",
+      "unappliableTitle": "خودکار لاگو نہیں ہو سکا",
+      "unappliableHint": "ان تجاویز کے لیے فیلڈز دستی ترمیم کریں۔"
     },
     "popover": {
-      "title": "تجویز",
+      "title": "AI تجویز",
       "close": "بند کریں",
       "original": "اصل",
       "suggested": "تجویز کردہ",
+      "currentText": "موجودہ متن",
+      "suggestedChange": "تجویز کردہ تبدیلی",
+      "removeText": "(متن ہٹائیں)",
       "impact": "+{{points}} ممکنہ اثر پوائنٹس",
-      "accept": "قبول",
-      "reject": "مسترد"
+      "impactShort": "+{{points}} Score",
+      "accept": "تبدیلی قبول کریں",
+      "reject": "مسترد",
+      "unappliable": "لاگو نہیں ہو سکا — مماثل مواد نہیں ملا",
+      "unappliableMessage": "ریزیومے متن بدل گیا اور یہ تجویز مماثل نہیں۔ فیلڈ خود ترمیم کریں۔",
+      "unappliableNoMatch": "لاگو نہیں ہو سکا — ریزیومے میں مماثل مواد نہیں ملا۔"
     },
     "suggestionTypes": {
       "missing_keyword": "غائب کلیدی لفظ",
@@ -129,17 +201,71 @@
       "undo": "واپس",
       "redo": "دوبارہ",
       "acceptAll": "سب قبول کریں",
-      "continue": "نیا تجزیہ"
+      "continueToEdit": "حتمی کی طرف جاری رکھیں",
+      "continueToFinalize": "حتمی کی طرف جاری رکھیں",
+      "backToImprove": "بہتری پر واپس",
+      "finish": "مکمل کریں",
+      "downloadPdf": "PDF ڈاؤن لوڈ",
+      "downloadingPdf": "PDF تیار ہو رہا ہے...",
+      "newAnalysis": "نیا تجزیہ",
+      "continue": "حتمی کی طرف جاری رکھیں",
+      "suggestionProgressAria": "تجویز کی پیشرفت {{accepted}} از {{total}}"
     },
     "toasts": {
-      "acceptAllSuccess": "تمام تجاویز قبول ہو گئیں۔"
+      "acceptAllSuccess": "تمام تجاویز قبول ہو گئیں۔",
+      "pdfDownloaded": "PDF ڈاؤن لوڈ ہو گیا。"
+    },
+    "sectionEditor": {
+      "hint": "Resume Builder کی طرح سیکشنز ترمیم کریں۔ تبدیلیاں خود محفوظ ہوتی ہیں۔",
+      "save": "محفوظ کریں",
+      "namePlaceholder": "آپ کا نام",
+      "contactPlaceholder": "رابطے کی معلومات",
+      "template": "ٹیمپلیٹ",
+      "templateHint": "ڈیزائن منتخب کریں۔ پیش نظارہ فوری اپ ڈیٹ ہوتا ہے۔",
+      "header": "ہیڈر",
+      "fullName": "پورا نام",
+      "email": "ای میل",
+      "phone": "فون",
+      "address": "پتہ",
+      "linkedin": "LinkedIn",
+      "github": "GitHub",
+      "summary": "خلاصہ",
+      "summaryPlaceholder": "پیشہ ورانہ خلاصہ...",
+      "experience": "کام کا تجربہ",
+      "experienceN": "تجربہ {{n}}",
+      "position": "عہدہ",
+      "company": "کمپنی",
+      "start": "شروع",
+      "end": "اختتام",
+      "bulletsPlaceholder": "ہر لائن پر ایک نکتہ...",
+      "addExperience": "تجربہ شامل کریں",
+      "education": "تعلیم",
+      "educationN": "تعلیم {{n}}",
+      "degree": "ڈگری",
+      "institution": "ادارہ",
+      "fieldOfStudy": "شعبہ تعلیم",
+      "gpa": "GPA",
+      "addEducation": "تعلیم شامل کریں",
+      "skills": "مہارتیں",
+      "skillsPlaceholder": "SEO, React, JavaScript...",
+      "projects": "پروجیکٹس",
+      "projectN": "پروجیکٹ {{n}}",
+      "projectName": "نام",
+      "addProject": "پروجیکٹ شامل کریں",
+      "languages": "زبانیں",
+      "languagesPlaceholder": "English, Urdu...",
+      "certifications": "سرٹیفیکیشنز",
+      "certificationsPlaceholder": "AWS CCP, PMP...",
+      "livePreview": "لائیو پیش نظارہ"
     },
     "errors": {
       "suggestionFailed": "تجویز اپ ڈیٹ نہیں ہو سکی۔",
       "textFailed": "ریزیومے متن محفوظ نہیں ہو سکا۔",
       "acceptAllFailed": "تمام تجاویز قبول نہیں ہو سکیں۔",
       "undoFailed": "واپس کرنے کے لیے کچھ نہیں۔",
-      "redoFailed": "دوبارہ کرنے کے لیے کچھ نہیں۔"
+      "redoFailed": "دوبارہ کرنے کے لیے کچھ نہیں۔",
+      "finalizeFailed": "ریزیومے حتمی نہیں ہو سکا۔",
+      "pdfFailed": "PDF ڈاؤن لوڈ نہیں ہو سکا۔ پہلے ریزیومے حتمی کریں۔"
     }
   }
 }

@@ -1,0 +1,309 @@
+{
+  "generatedAt": "2026-08-05T20:32:49.293Z",
+  "scoringLogicVersion": 6,
+  "note": "Baseline from assembleInterviewReport with optimistic Groq narrative + high delivery metrics. No live Groq calls.",
+  "fixtures": {
+    "all_empty": {
+      "fixtureId": "all_empty",
+      "description": "Every answer blank / near-empty",
+      "questionReviews": [
+        {
+          "questionId": "q1",
+          "score": 0,
+          "feedback": "No answer provided.",
+          "relevanceGate": "empty"
+        },
+        {
+          "questionId": "q2",
+          "score": 0,
+          "feedback": "No answer provided.",
+          "relevanceGate": "empty"
+        },
+        {
+          "questionId": "q3",
+          "score": 0,
+          "feedback": "No answer provided.",
+          "relevanceGate": "empty"
+        }
+      ],
+      "dimensions": {
+        "communication": {
+          "score": 2,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "technicalSkills": {
+          "score": 2,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "behavior": {
+          "score": 2,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "confidence": {
+          "score": 15,
+          "feedback": "Sounds confident."
+        },
+        "leadership": {
+          "score": 2,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "problemSolving": {
+          "score": 2,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "criticalThinking": {
+          "score": 2,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        }
+      },
+      "overallScore": 2,
+      "hiringDecision": "no_hire",
+      "hiringProbability": 2,
+      "strengths": []
+    },
+    "all_gibberish": {
+      "fixtureId": "all_gibberish",
+      "description": "Every answer random / off-topic gibberish",
+      "questionReviews": [
+        {
+          "questionId": "q1",
+          "score": 1,
+          "feedback": "Answer does not appear to address the question.",
+          "relevanceGate": "gibberish"
+        },
+        {
+          "questionId": "q2",
+          "score": 1,
+          "feedback": "Answer does not appear to address the question.",
+          "relevanceGate": "gibberish"
+        },
+        {
+          "questionId": "q3",
+          "score": 1,
+          "feedback": "Answer does not appear to address the question.",
+          "relevanceGate": "off_topic"
+        }
+      ],
+      "dimensions": {
+        "communication": {
+          "score": 3,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "technicalSkills": {
+          "score": 3,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "behavior": {
+          "score": 3,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "confidence": {
+          "score": 15,
+          "feedback": "Sounds confident."
+        },
+        "leadership": {
+          "score": 3,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "problemSolving": {
+          "score": 3,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "criticalThinking": {
+          "score": 3,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        }
+      },
+      "overallScore": 3,
+      "hiringDecision": "no_hire",
+      "hiringProbability": 3,
+      "strengths": []
+    },
+    "all_strong": {
+      "fixtureId": "all_strong",
+      "description": "Every answer relevant and detailed",
+      "questionReviews": [
+        {
+          "questionId": "q1",
+          "score": 70,
+          "feedback": "Generally solid answer.",
+          "relevanceGate": null
+        },
+        {
+          "questionId": "q2",
+          "score": 70,
+          "feedback": "Generally solid answer.",
+          "relevanceGate": null
+        },
+        {
+          "questionId": "q3",
+          "score": 70,
+          "feedback": "Generally solid answer.",
+          "relevanceGate": null
+        }
+      ],
+      "dimensions": {
+        "communication": {
+          "score": 78,
+          "feedback": "Clear delivery overall."
+        },
+        "technicalSkills": {
+          "score": 72,
+          "feedback": "Solid technical framing."
+        },
+        "behavior": {
+          "score": 74,
+          "feedback": "Engaged presence."
+        },
+        "confidence": {
+          "score": 87,
+          "feedback": "Sounds confident."
+        },
+        "leadership": {
+          "score": 68,
+          "feedback": "Some ownership signals."
+        },
+        "problemSolving": {
+          "score": 70,
+          "feedback": "Reasonable problem framing."
+        },
+        "criticalThinking": {
+          "score": 69,
+          "feedback": "Thoughtful structure."
+        }
+      },
+      "overallScore": 80,
+      "hiringDecision": "lean_hire",
+      "hiringProbability": 80,
+      "strengths": [
+        "Strong communication (78/100)",
+        "Strong technical skills (72/100)",
+        "Strong behavior (74/100)",
+        "Strong problem solving (70/100)",
+        "Strong confidence (87/100)",
+        "Clear spoken delivery",
+        "Strong communication"
+      ]
+    },
+    "mixed": {
+      "fixtureId": "mixed",
+      "description": "Some good answers, some bad",
+      "questionReviews": [
+        {
+          "questionId": "q1",
+          "score": 70,
+          "feedback": "Generally solid answer.",
+          "relevanceGate": null
+        },
+        {
+          "questionId": "q2",
+          "score": 1,
+          "feedback": "Answer does not appear to address the question.",
+          "relevanceGate": "gibberish"
+        },
+        {
+          "questionId": "q3",
+          "score": 0,
+          "feedback": "No answer provided.",
+          "relevanceGate": "empty"
+        }
+      ],
+      "dimensions": {
+        "communication": {
+          "score": 34,
+          "feedback": "Clear delivery overall."
+        },
+        "technicalSkills": {
+          "score": 34,
+          "feedback": "Solid technical framing."
+        },
+        "behavior": {
+          "score": 34,
+          "feedback": "Engaged presence."
+        },
+        "confidence": {
+          "score": 87,
+          "feedback": "Sounds confident."
+        },
+        "leadership": {
+          "score": 34,
+          "feedback": "Some ownership signals."
+        },
+        "problemSolving": {
+          "score": 34,
+          "feedback": "Reasonable problem framing."
+        },
+        "criticalThinking": {
+          "score": 34,
+          "feedback": "Thoughtful structure."
+        }
+      },
+      "overallScore": 42,
+      "hiringDecision": "no_hire",
+      "hiringProbability": 42,
+      "strengths": [
+        "Strong confidence (87/100)",
+        "Clear spoken delivery",
+        "Strong communication"
+      ]
+    },
+    "question_echo": {
+      "fixtureId": "question_echo",
+      "description": "Answers that just repeat the question text",
+      "questionReviews": [
+        {
+          "questionId": "q1",
+          "score": 1,
+          "feedback": "Answer restates the question without providing a substantive response.",
+          "relevanceGate": "question_echo"
+        },
+        {
+          "questionId": "q2",
+          "score": 1,
+          "feedback": "Answer restates the question without providing a substantive response.",
+          "relevanceGate": "question_echo"
+        },
+        {
+          "questionId": "q3",
+          "score": 1,
+          "feedback": "Answer restates the question without providing a substantive response.",
+          "relevanceGate": "question_echo"
+        }
+      ],
+      "dimensions": {
+        "communication": {
+          "score": 3,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "technicalSkills": {
+          "score": 3,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "behavior": {
+          "score": 3,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "confidence": {
+          "score": 15,
+          "feedback": "Sounds confident."
+        },
+        "leadership": {
+          "score": 3,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "problemSolving": {
+          "score": 3,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        },
+        "criticalThinking": {
+          "score": 3,
+          "feedback": "No relevant answers were provided to demonstrate this skill."
+        }
+      },
+      "overallScore": 3,
+      "hiringDecision": "no_hire",
+      "hiringProbability": 3,
+      "strengths": []
+    }
+  }
+}

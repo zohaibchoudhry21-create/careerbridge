@@ -6,6 +6,7 @@ import {
   normalizeSkillToken,
   resolveStoredSkillId,
 } from './resumeScannerTextUtils.js';
+import { findPathForOriginal, getFieldByPath, findOriginalInText } from './structuredResume.js';
 
 const ACRONYM_ALIASES = {
   ga4: ['google analytics 4', 'google analytics'],
@@ -64,19 +65,10 @@ const buildSkillPatterns = (skill) => {
 };
 
 export const findTextOffset = (haystack, needle) => {
-  if (!needle) return { charStart: -1, charEnd: -1 };
-
-  const directIndex = haystack.indexOf(needle);
-  if (directIndex >= 0) {
-    return { charStart: directIndex, charEnd: directIndex + needle.length };
-  }
-
-  const pattern = new RegExp(escapeRegExp(needle).replace(/\s+/g, '\\s+'), 'i');
-  const match = pattern.exec(haystack);
+  const match = findOriginalInText(haystack, needle);
   if (match) {
-    return { charStart: match.index, charEnd: match.index + match[0].length };
+    return { charStart: match.start, charEnd: match.end };
   }
-
   return { charStart: -1, charEnd: -1 };
 };
 
@@ -132,6 +124,22 @@ export const computeKeywordCoverageScore = (skills = []) => {
   if (!relevant.length) return 0;
   const matched = relevant.filter((skill) => skill.matched).length;
   return clampScore((matched / relevant.length) * 100);
+};
+
+/** Near-zero coverage used for unrelated CV/JD UI banner (not empty-JD-skills). */
+export const FIELD_MISMATCH_COVERAGE_THRESHOLD = 5;
+
+export const hasExtractableJobSkills = (skills = []) => {
+  const list = Array.isArray(skills) ? skills : [];
+  return list.some((skill) => {
+    const type = skill?.type || 'hard';
+    return type === 'required' || type === 'hard' || type === 'soft';
+  });
+};
+
+export const isFieldMismatchCoverage = (keywordCoverage, skills = []) => {
+  if (!hasExtractableJobSkills(skills)) return false;
+  return clampScore(keywordCoverage) < FIELD_MISMATCH_COVERAGE_THRESHOLD;
 };
 
 export const computeQuantifiedAchievementsScore = (resumeText = '') => {
@@ -243,52 +251,29 @@ export const computeAnalysisScores = ({
   };
 };
 
-/** @deprecated Use computeAnalysisScores instead. */
-export const blendAtsScore = (input) => {
-  const result = computeAnalysisScores({
-    resumeText: input.resumeText,
-    structuredSections: input.structuredSections,
-    searchabilityIssues: input.searchabilityIssues,
-    skills: input.skills,
-    aiAssessedRelevance: input.aiScore,
-  });
-
-  return {
-    score: result.jobMatchScore,
-    scoreBreakdown: {
-      keywordCoverage: {
-        score: result.jobMatchBreakdown.keywordCoverage,
-        weight: 85,
-        weighted: (result.jobMatchBreakdown.keywordCoverage * 85) / 100,
-      },
-      sectionCompleteness: {
-        score: result.atsScoreBreakdown.sectionCompleteness,
-        weight: 35,
-        weighted: (result.atsScoreBreakdown.sectionCompleteness * 35) / 100,
-      },
-      searchability: {
-        score: result.atsScoreBreakdown.searchability,
-        weight: 35,
-        weighted: (result.atsScoreBreakdown.searchability * 35) / 100,
-      },
-      quantifiedAchievements: {
-        score: result.atsScoreBreakdown.quantifiedAchievements,
-        weight: 30,
-        weighted: (result.atsScoreBreakdown.quantifiedAchievements * 30) / 100,
-      },
-    },
-    atsScore: result.atsScore,
-    atsScoreBreakdown: result.atsScoreBreakdown,
-    jobMatchScore: result.jobMatchScore,
-    jobMatchBreakdown: result.jobMatchBreakdown,
-  };
-};
-
-export const anchorSuggestionsToResume = (resumeText, suggestions = []) =>
+export const anchorSuggestionsToResume = (resumeText, suggestions = [], structuredResume = null) =>
   suggestions
     .map((suggestion, index) => {
-      const { charStart, charEnd } = findTextOffset(resumeText, suggestion.original);
-      if (charStart < 0 && suggestion.type !== 'missing_keyword') {
+      let fieldPath = String(suggestion.fieldPath || '').trim();
+      if (!fieldPath && structuredResume) {
+        fieldPath = findPathForOriginal(structuredResume, suggestion.original);
+      }
+
+      let charStart = -1;
+      let charEnd = -1;
+
+      if (fieldPath && structuredResume) {
+        const fieldValue = String(getFieldByPath(structuredResume, fieldPath) ?? '');
+        const offsets = findTextOffset(fieldValue, suggestion.original);
+        charStart = offsets.charStart;
+        charEnd = offsets.charEnd;
+      } else {
+        const offsets = findTextOffset(resumeText, suggestion.original);
+        charStart = offsets.charStart;
+        charEnd = offsets.charEnd;
+      }
+
+      if (charStart < 0 && suggestion.type !== 'missing_keyword' && !fieldPath) {
         return null;
       }
 
@@ -296,34 +281,13 @@ export const anchorSuggestionsToResume = (resumeText, suggestions = []) =>
         ...suggestion,
         id: suggestion.id || createSuggestionId(index),
         status: 'pending',
+        fieldPath,
         charStart,
         charEnd,
         targetSkillId: suggestion.targetSkillId || null,
       };
     })
     .filter(Boolean);
-
-export const applySuggestionToText = (resumeText, suggestion) => {
-  const text = String(resumeText || '');
-
-  if (suggestion.charStart >= 0 && suggestion.charEnd > suggestion.charStart) {
-    const before = text.slice(0, suggestion.charStart);
-    const after = text.slice(suggestion.charEnd);
-    const replacement = suggestion.type === 'remove' ? '' : suggestion.suggested;
-    return `${before}${replacement}${after}`;
-  }
-
-  if (suggestion.original && text.includes(suggestion.original)) {
-    const replacement = suggestion.type === 'remove' ? '' : suggestion.suggested;
-    return text.replace(suggestion.original, replacement);
-  }
-
-  if (suggestion.type === 'missing_keyword' && suggestion.suggested) {
-    return `${text}\n${suggestion.suggested}`.trim();
-  }
-
-  return text;
-};
 
 export const countSuggestionStats = (suggestions = []) => {
   const pending = suggestions.filter((item) => item.status === 'pending');

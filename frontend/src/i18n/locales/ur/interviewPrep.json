@@ -98,7 +98,8 @@
     "description": "موضوع اور مشکل منتخب کریں۔ سوالات AI بناتا ہے اور سرور پر اسکور ہوتے ہیں۔",
     "topic": {
       "title": "موضوع",
-      "description": "وہ مہارت منتخب کریں جسے جانچنا ہے۔"
+      "description": "وہ مہارت یا موضوع لکھیں جسے آپ جانچنا چاہتے ہیں۔",
+      "placeholder": "مثال: React Hooks، MongoDB، System Design"
     },
     "difficulty": {
       "title": "مشکل",
@@ -109,7 +110,7 @@
       "description": "کتنے سوالات شامل ہوں۔",
       "questions": "{{count}} سوالات"
     },
-    "selectTopic": "براہ کرم موضوع منتخب کریں۔",
+    "selectTopic": "براہ کرم موضوع درج کریں۔",
     "startFailed": "کوئز شروع نہیں ہو سکا۔",
     "generateFailed": "کوئز نہیں بن سکا۔ کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
     "topicsLoadFailed": "موضوعات لوڈ نہیں ہوئے",
@@ -177,6 +178,7 @@
     "turns": "ٹرنز",
     "endInterview": "انٹرویو ختم کریں",
     "startInterview": "انٹرویو شروع کریں",
+    "missingAssistant": "انٹرویو اسسٹنٹ تیار نہیں۔ واپس جا کر دوبارہ شروع کریں۔",
     "waitingMic": "مائیکروفون کا انتظار…",
     "waitingCamera": "کیمرے کا انتظار…",
     "loadingFaceModels": "چہرے کے ماڈلز لوڈ ہو رہے ہیں…",
@@ -209,7 +211,36 @@
     "progressTitle": "آپ کی پیش رفت",
     "progressDescription": "حالیہ ماک انٹرویوز میں مجموعی اسکور کا رجحان۔",
     "chartLabel": "مجموعی اسکور",
-    "chartTooltip": "اسکور: {{score}}"
+    "chartTooltip": "اسکور: {{score}}",
+    "enterprise": {
+      "executiveSummary": "ایگزیکٹو خلاصہ",
+      "hiringRecommendation": "ہائرنگ کی سفارش",
+      "hiringProbability": "ہائرنگ امکان",
+      "bodyLanguage": "باڈی لینگویج",
+      "questionReview": "سوال بہ سوال جائزہ",
+      "weaknesses": "کمزوریاں",
+      "learningRoadmap": "سیکھنے کا روڈمیپ",
+      "careerSuggestions": "کیریئر تجاویز",
+      "timeline": "سیشن ٹائم لائن",
+      "dimensionRadar": "مہارت ریڈار",
+      "scoreBreakdown": "اسکور تفصیل",
+      "scores": "اسکورز",
+      "decision": {
+        "hire": "ہائر کی سفارش",
+        "leanHire": "ہائر کی طرف مائل",
+        "hold": "روکیں / مزید سگنلز",
+        "noHire": "سفارش نہیں"
+      },
+      "dimensions": {
+        "communication": "مواصلات",
+        "technicalSkills": "تکنیکی مہارتیں",
+        "behavior": "رویہ",
+        "confidence": "اعتماد",
+        "leadership": "قیادت",
+        "problemSolving": "مسئلہ حل",
+        "criticalThinking": "تنقیدی سوچ"
+      }
+    }
   },
   "quiz": {
     "questionOf": "سوال {{current}} از {{total}}",

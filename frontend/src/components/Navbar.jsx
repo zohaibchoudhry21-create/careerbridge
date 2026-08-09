@@ -1,31 +1,112 @@
-import { useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavbarScroll } from '../hooks/useAnimations';
 import BrandLogo from './brand/BrandLogo';
 import AppIcon from './icons/AppIcon';
-import { buttonPrimaryClass, buttonSecondaryClass } from './ui/buttonTokens';
+import { buttonSecondaryClass } from './ui/buttonTokens';
 import { cn } from '../lib/utils';
 import LanguageSelector from '../i18n/components/LanguageSelector';
 
-const linkClassName =
-  'text-on-surface-variant font-medium hover:text-secondary transition-colors duration-200 whitespace-nowrap nav-link-underline text-sm';
+const triggerClassName =
+  'inline-flex items-center gap-1 py-1 text-sm font-medium text-on-surface-variant whitespace-nowrap transition-colors duration-200 hover:text-secondary';
 
-function NavLinkItem({ href, className, children, onClick }) {
-  const isInternal = href.startsWith('/');
+const navActionClass =
+  'px-3.5 py-1.5 text-label-md transition-transform duration-200 hover:-translate-y-0.5';
 
-  if (isInternal) {
-    return (
-      <Link to={href} className={className} onClick={onClick}>
-        {children}
-      </Link>
-    );
-  }
+function NavFeatureDropdown({ id, label, items, openId, setOpenId }) {
+  const open = openId === id;
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onPointerDown = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setOpenId(null);
+      }
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    return () => document.removeEventListener('mousedown', onPointerDown);
+  }, [open, setOpenId]);
 
   return (
-    <a href={href} className={className} onClick={onClick}>
-      {children}
-    </a>
+    <div
+      ref={containerRef}
+      className="relative"
+      onMouseEnter={() => setOpenId(id)}
+      onMouseLeave={() => setOpenId(null)}
+    >
+      <button
+        type="button"
+        className={cn(triggerClassName, open && 'text-secondary')}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpenId(open ? null : id)}
+      >
+        {label}
+        <AppIcon
+          name="expand_more"
+          size="h-4 w-4"
+          className={cn('transition-transform duration-200', open && 'rotate-180')}
+        />
+      </button>
+
+      {open ? (
+        <div className="absolute start-0 top-full z-50 pt-1">
+          <ul
+            role="menu"
+            className="min-w-[13.5rem] overflow-hidden rounded-xl border border-outline-variant/40 bg-white py-1 shadow-level-2"
+          >
+            {items.map((item) => (
+              <li key={item.href} role="none">
+                <Link
+                  role="menuitem"
+                  to={item.href}
+                  className="flex w-full items-center px-3.5 py-2.5 text-start text-sm font-medium text-on-surface transition-colors hover:bg-surface-container hover:text-secondary"
+                  onClick={() => setOpenId(null)}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function MobileFeatureGroup({ label, items, open, onToggle, onNavigate }) {
+  return (
+    <div className="rounded-xl">
+      <button
+        type="button"
+        className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-start font-medium text-on-surface-variant hover:bg-surface-container hover:text-secondary transition-colors"
+        aria-expanded={open}
+        onClick={onToggle}
+      >
+        {label}
+        <AppIcon
+          name="expand_more"
+          size="h-4 w-4"
+          className={cn('transition-transform duration-200', open && 'rotate-180')}
+        />
+      </button>
+      {open ? (
+        <div className="mb-1 ms-2 flex flex-col gap-0.5 border-s border-outline-variant/40 ps-2">
+          {items.map((item) => (
+            <Link
+              key={item.href}
+              to={item.href}
+              className="rounded-lg px-3 py-2.5 text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-secondary transition-colors"
+              onClick={onNavigate}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -33,19 +114,46 @@ export default function Navbar() {
   const { t } = useTranslation('common');
   const navRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [mobileOpenId, setMobileOpenId] = useState(null);
   useNavbarScroll(navRef);
 
-  const navLinks = useMemo(
+  const featureMenus = useMemo(
     () => [
-      { label: t('nav.aiResumeParsing'), href: '/register' },
-      { label: t('nav.cvUpload'), href: '/register' },
-      { label: t('nav.aiSuggestions'), href: '/register' },
-      { label: t('nav.resumeBuilder'), href: '/register' },
+      {
+        id: 'resumeBuilder',
+        label: t('nav.resumeBuilder'),
+        items: [
+          { label: t('nav.dropdowns.resumeBuilder.upload'), href: '/resume/upload' },
+          { label: t('nav.dropdowns.resumeBuilder.history'), href: '/resume/history' },
+          { label: t('nav.dropdowns.resumeBuilder.templates'), href: '/resume/templates' },
+        ],
+      },
+      {
+        id: 'resumeScanner',
+        label: t('nav.resumeScanner'),
+        items: [
+          { label: t('nav.dropdowns.resumeScanner.scan'), href: '/resume-scanner' },
+        ],
+      },
+      {
+        id: 'interviewPrep',
+        label: t('nav.interviewPrep'),
+        items: [
+          { label: t('nav.dropdowns.interviewPrep.overview'), href: '/interview-prep' },
+          { label: t('nav.dropdowns.interviewPrep.mock'), href: '/interview-prep/mock' },
+          { label: t('nav.dropdowns.interviewPrep.skills'), href: '/interview-prep/skills' },
+        ],
+      },
     ],
     [t]
   );
 
-  const closeMenu = () => setMenuOpen(false);
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    setMobileOpenId(null);
+    setOpenDropdownId(null);
+  }, []);
 
   return (
     <nav
@@ -62,28 +170,27 @@ export default function Navbar() {
           <BrandLogo className="h-7 w-auto" />
         </Link>
 
-        <div className="hidden xl:flex items-center gap-4 2xl:gap-5 flex-1 justify-center min-w-0 overflow-x-auto px-2">
-          {navLinks.map((link) => (
-            <NavLinkItem key={link.label} href={link.href} className={linkClassName}>
-              {link.label}
-            </NavLinkItem>
+        <div className="hidden xl:flex flex-1 items-center justify-center gap-6 min-w-0 px-2 overflow-visible">
+          {featureMenus.map((menu) => (
+            <NavFeatureDropdown
+              key={menu.id}
+              id={menu.id}
+              label={menu.label}
+              items={menu.items}
+              openId={openDropdownId}
+              setOpenId={setOpenDropdownId}
+            />
           ))}
         </div>
 
         <div className="hidden md:flex items-center gap-2 sm:gap-3 shrink-0">
           <LanguageSelector />
-          <Link
-            to="/login"
-            className={cn(buttonSecondaryClass, 'px-3.5 py-1.5 text-label-md')}
-          >
+          <Link to="/login" className={cn(buttonSecondaryClass, navActionClass)}>
             {t('nav.login')}
           </Link>
           <Link
-            to="/register"
-            className={cn(
-              buttonPrimaryClass,
-              'transform whitespace-nowrap px-4 py-1.5 text-label-md shadow-level-1 hover:-translate-y-1'
-            )}
+            to="/resume/upload"
+            className={cn(buttonSecondaryClass, navActionClass, 'whitespace-nowrap')}
           >
             {t('nav.uploadCv')}
           </Link>
@@ -121,15 +228,18 @@ export default function Navbar() {
           <div className="px-3 py-2 flex items-center gap-2">
             <LanguageSelector className="flex-1" />
           </div>
-          {navLinks.map((link) => (
-            <NavLinkItem
-              key={link.label}
-              href={link.href}
-              className="px-3 py-3 rounded-xl text-on-surface-variant font-medium hover:text-secondary hover:bg-surface-container transition-colors"
-              onClick={closeMenu}
-            >
-              {link.label}
-            </NavLinkItem>
+
+          {featureMenus.map((menu) => (
+            <MobileFeatureGroup
+              key={menu.id}
+              label={menu.label}
+              items={menu.items}
+              open={mobileOpenId === menu.id}
+              onToggle={() =>
+                setMobileOpenId((current) => (current === menu.id ? null : menu.id))
+              }
+              onNavigate={closeMenu}
+            />
           ))}
 
           <div className="mt-4 pt-4 border-t border-outline-variant/30 flex flex-col gap-3">
@@ -141,9 +251,9 @@ export default function Navbar() {
               {t('nav.login')}
             </Link>
             <Link
-              to="/register"
+              to="/resume/upload"
               className={cn(
-                buttonPrimaryClass,
+                buttonSecondaryClass,
                 'w-full justify-center px-6 py-3 text-label-md rounded-2xl shadow-level-1'
               )}
               onClick={closeMenu}

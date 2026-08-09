@@ -24,6 +24,7 @@ const suggestionSchema = z.object({
   reason: z.string().min(1),
   impact: z.number().min(0).max(10),
   targetSkillId: z.string().nullable().optional(),
+  fieldPath: z.string().optional().default(''),
 });
 
 export const resumeScannerAnalysisSchema = z.object({

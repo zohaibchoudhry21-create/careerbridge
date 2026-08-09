@@ -25,7 +25,7 @@ const callGroq = async (modelName, prompt) => {
         {
           role: 'system',
           content:
-            'You are a resume parser. Extract structured data and respond with valid JSON only. No markdown fences.',
+            'You are a resume parser. Extact structured data and respond with valid JSON only. No markdown fences.',
         },
         { role: 'user', content: prompt },
       ],

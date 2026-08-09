@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { DashboardLayout, PageContainer, BackLink } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
-import AppIcon from '../../components/icons/AppIcon';
+import Skeleton from '../../components/Skeleton';
 import SkillAssessmentSetup from '../../features/interviewPrep/components/SkillAssessmentSetup';
 
 export default function SkillAssessmentSetupPage() {
@@ -11,9 +11,9 @@ export default function SkillAssessmentSetupPage() {
   if (loading || !user) {
     return (
       <DashboardLayout user={user}>
-        <div className="flex items-center justify-center py-xl">
-          <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
-        </div>
+        <PageContainer width="standard">
+          <Skeleton type="card" count={3} withMedia={false} lines={4} columnsGrid={1} label="Loading skill assessment setup" />
+        </PageContainer>
       </DashboardLayout>
     );
   }

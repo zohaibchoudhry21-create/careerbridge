@@ -71,6 +71,28 @@ class ResumeExtractorTests(unittest.TestCase):
         self.assertIn("- Executing full-spectrum", merged)
         self.assertIn("- Conducting keyword research", merged)
 
+    def test_merge_wrapped_lines_preserves_section_headings(self):
+        wrapped = (
+            "PROFESSIONAL SUMMARY\n"
+            "Results-oriented SEO specialist with experience.\n"
+            "WORK EXPERIENCE\n"
+            "Senior SEO Specialist, ACME\n"
+            "EDUCATION\n"
+            "B.S. Marketing, State University\n"
+            "SKILLS\n"
+            "SEO, Google Analytics"
+        )
+        merged = _merge_wrapped_lines(wrapped)
+        lines = [line for line in merged.split("\n") if line.strip()]
+
+        self.assertIn("PROFESSIONAL SUMMARY", lines)
+        self.assertIn("WORK EXPERIENCE", lines)
+        self.assertIn("EDUCATION", lines)
+        self.assertIn("SKILLS", lines)
+        self.assertTrue(lines.index("PROFESSIONAL SUMMARY") < lines.index("WORK EXPERIENCE"))
+        self.assertNotIn("PROFESSIONAL SUMMARY Results-oriented", merged)
+        self.assertNotIn("WORK EXPERIENCE Senior SEO", merged)
+
     def test_extract_resume_bytes_from_generated_pdf(self):
         doc = fitz.open()
         page = doc.new_page()

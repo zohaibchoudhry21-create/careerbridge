@@ -63,69 +63,84 @@
   },
   "solution": {
     "badge": "La solución",
-    "title": "Conoce AI Career OS",
-    "descriptionHighlight": "Un sistema integral de automatización de carrera",
-    "descriptionBody": "diseñado para eliminar la fricción entre tú y tu próxima oferta.",
-    "mockupAriaLabel": "Maqueta de la solución",
+    "titleLine1": "Conoce tu",
+    "titleLine2": "AI Career OS",
+    "description": "Un sistema integral de automatización de carrera creado para acortar la distancia entre tú y tu próxima oferta.",
+    "cta": "Sube tu CV",
+    "optimizedBadge": "Optimizado y listo para ATS",
+    "mockupAriaLabel": "Vista previa de currículum y puntuación ATS",
+    "atsScoreLabel": "Puntuación ATS",
+    "matchLabel": "Coincidencia",
     "points": [
       {
-        "title": "Sube tu CV → la IA construye tu perfil",
-        "description": "Extracción y estructuración instantánea de datos."
+        "title": "Sube tu CV",
+        "description": "La IA lee cada línea y construye un perfil estructurado en segundos."
       },
       {
-        "title": "Optimización de CV con un clic",
-        "description": "Adaptado a la perfección para cualquier descripción de puesto."
+        "title": "Adáptalo al puesto",
+        "description": "Un clic reescribe tus viñetas para coincidir con cualquier descripción de puesto."
       },
       {
-        "title": "Descarga currículum listo para ATS",
-        "description": "Exporta plantillas PDF pulidas y optimizadas para sistemas de seguimiento de candidatos."
+        "title": "Exporta, listo para ATS",
+        "description": "Descarga un PDF pulido diseñado para superar los sistemas de seguimiento de candidatos."
       }
     ]
   },
   "features": {
     "title": "Herramientas potentes para el crecimiento profesional",
+    "subtitle": "Todo lo que necesitas para crear, optimizar y practicar — en un solo Career OS.",
     "items": [
       {
-        "title": "Creador de CV con OCR",
-        "description": "Sube cualquier PDF o imagen. Nuestro OCR lo convierte al instante en un perfil digital estructurado y editable."
+        "title": "Creador de currículum",
+        "description": "Sube o crea un currículum, edita cada sección y exporta PDFs pulidos y compatibles con ATS."
       },
       {
-        "title": "Entrada de perfil por voz",
-        "description": "¿Sin tiempo para escribir? Dicta tu experiencia y deja que nuestra IA la estructure en puntos profesionales."
+        "title": "Escáner de currículum",
+        "description": "Compara tu currículum con cualquier descripción de puesto, detecta huecos ATS y optimiza palabras clave con un clic."
       },
       {
-        "title": "Optimización con 1 clic",
-        "description": "Pega una descripción de puesto. Reescribimos tus puntos para coincidir con palabras clave y destacar experiencia relevante al instante."
-      },
-      {
-        "title": "Generador de PDF de currículum",
-        "description": "Exporta a plantillas PDF bellamente diseñadas y compatibles con ATS que lucen premium y pasan la selección."
-      },
-      {
-        "title": "Emparejamiento inteligente de empleo",
-        "description": "Obtén coincidencias de empleo clasificadas por IA según tus habilidades, experiencia y objetivos de carrera."
-      },
-      {
-        "title": "Inteligencia salarial",
-        "description": "Obtén datos de mercado en tiempo real sobre lo que deberías ganar según tus habilidades, ubicación y nivel de experiencia."
+        "title": "Preparación de entrevistas",
+        "description": "Practica entrevistas simuladas y evaluaciones de habilidades con feedback de IA sobre contenido, voz y entrega."
       }
     ]
   },
   "howItWorks": {
+    "eyebrow": "Flujo simple",
     "title": "Cómo funciona",
-    "subtitle": "De datos en bruto a listo para la entrevista en minutos.",
+    "subtitle": "Crea, optimiza y practica — tres pasos del currículum a listo para la entrevista.",
+    "cta": "Empieza gratis",
     "steps": [
       {
-        "title": "Sube o habla",
-        "description": "Introduce tu experiencia en bruto mediante carga de CV, nota de voz o entrada manual. Nosotros hacemos el trabajo pesado."
+        "title": "Crea tu currículum",
+        "description": "Sube un CV o empieza de cero, edita cada sección y exporta un PDF pulido y compatible con ATS."
       },
       {
-        "title": "Genera el perfil",
-        "description": "La IA estructura tus datos en un perfil maestro y genera un currículum listo para ATS."
+        "title": "Escanea y optimiza",
+        "description": "Compara tu currículum con cualquier oferta, detecta huecos ATS y corrige palabras clave con un clic."
       },
       {
-        "title": "Optimiza y aplica",
-        "description": "Apunta a roles concretos. Un clic ajusta las palabras clave de tu CV para superar los filtros ATS de esa oferta exacta."
+        "title": "Practica entrevistas",
+        "description": "Haz entrevistas simuladas y evaluaciones de habilidades con feedback de IA sobre contenido, voz y entrega."
+      }
+    ]
+  },
+  "interviewPrepSteps": {
+    "eyebrow": "Preparación de entrevistas",
+    "title": "Cómo funciona la práctica de entrevistas",
+    "subtitle": "Desde la configuración hasta el feedback de IA — practica entrevistas simuladas y evaluaciones en tres pasos.",
+    "cta": "Empezar preparación",
+    "steps": [
+      {
+        "title": "Elige tu modo",
+        "description": "Selecciona una entrevista simulada con IA en vivo o un cuestionario de habilidades por tema."
+      },
+      {
+        "title": "Personaliza la sesión",
+        "description": "Define rol, dificultad, duración, áreas de enfoque y modo de voz o video."
+      },
+      {
+        "title": "Practica y recibe feedback",
+        "description": "Responde en vivo y revisa la puntuación de IA sobre contenido, voz y presencia."
       }
     ]
   },
@@ -163,39 +178,38 @@
     "secondary": "Sube tu CV"
   },
   "footer": {
-    "tagline": "Plataforma de carrera impulsada por IA para crear currículums, optimizar perfiles, practicar entrevistas y hacer crecer tu futuro profesional.",
+    "tagline": "Plataforma de carrera impulsada por IA para crear currículums, detectar huecos ATS, practicar entrevistas y conseguir tu próxima oferta.",
     "columns": [
       {
         "title": "Enlaces rápidos",
-        "links": ["Inicio", "Funciones", "Herramientas de carrera", "Plantillas", "Precios", "Recursos"]
-      },
-      {
-        "title": "Funciones de IA",
         "links": [
-          "Creador de currículum con IA",
-          "Escáner de CV con OCR",
-          "Creador de perfil por voz",
-          "Análisis de entrevistas",
-          "Predictor salarial"
+          { "label": "Inicio", "href": "/" },
+          { "label": "Funciones", "href": "/#features" },
+          { "label": "Cómo funciona", "href": "/#tools" },
+          { "label": "Preparación de entrevistas", "href": "/#interview-prep" },
+          { "label": "Empezar", "href": "/register" }
         ]
       },
       {
-        "title": "Herramientas de carrera",
+        "title": "Creador de currículum",
         "links": [
-          "Optimizador de LinkedIn",
-          "Análisis a prueba de IA",
-          "Análisis de brecha de habilidades",
-          "Emparejamiento inteligente de empleo"
+          { "label": "Subir currículum", "href": "/resume/upload" },
+          { "label": "Historial", "href": "/resume/history" },
+          { "label": "Ver plantillas", "href": "/resume/templates" }
         ]
       },
       {
-        "title": "Recursos",
+        "title": "Escáner de currículum",
         "links": [
-          "Blog de carrera",
-          "Consejos para entrevistas",
-          "Guías de currículum",
-          "Tendencias de carrera con IA",
-          "Centro de ayuda"
+          { "label": "Escanear currículum", "href": "/resume-scanner" }
+        ]
+      },
+      {
+        "title": "Preparación de entrevistas",
+        "links": [
+          { "label": "Resumen", "href": "/interview-prep" },
+          { "label": "Entrevista simulada", "href": "/interview-prep/mock" },
+          { "label": "Evaluación de habilidades", "href": "/interview-prep/skills" }
         ]
       }
     ],

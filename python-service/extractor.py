@@ -32,12 +32,47 @@ OCR_TIMEOUT = 30
 
 # Matches bullet markers: -, •, *, ‣, ▪, ◦, or numbered/lettered lists (1. / 1) / a.)
 BULLET_RE = re.compile(r"^(?:[-•*‣▪◦]|\d+[.)]|[a-zA-Z][.)])\s+")
+SECTION_HEADING_NAMES = (
+    "PROFESSIONAL SUMMARY",
+    "CAREER SUMMARY",
+    "EXECUTIVE SUMMARY",
+    "WORK EXPERIENCE",
+    "PROFESSIONAL EXPERIENCE",
+    "EMPLOYMENT HISTORY",
+    "CORE COMPETENCIES",
+    "TECHNICAL SKILLS",
+    "KEY SKILLS",
+    "CERTIFICATIONS",
+    "PROJECTS",
+    "LANGUAGES",
+    "EDUCATION",
+    "SUMMARY",
+    "EXPERIENCE",
+    "SKILLS",
+    "AWARDS",
+    "INTERESTS",
+    "REFERENCES",
+)
+_SECTION_HEADING_ALT = "|".join(re.escape(name) for name in SECTION_HEADING_NAMES)
 INLINE_SECTION_HEADING_RE = re.compile(
-    r"^(?P<heading>PROFESSIONAL SUMMARY|WORK EXPERIENCE|SUMMARY|EXPERIENCE|"
-    r"EDUCATION|SKILLS|CORE COMPETENCIES|CERTIFICATIONS|PROJECTS|LANGUAGES)"
-    r"\s+(?P<body>.+)$",
+    rf"^(?P<heading>{_SECTION_HEADING_ALT})\s+(?P<body>.+)$",
     re.IGNORECASE,
 )
+STANDALONE_SECTION_HEADING_RE = re.compile(
+    rf"^(?P<heading>{_SECTION_HEADING_ALT})\s*$",
+    re.IGNORECASE,
+)
+
+
+def _is_section_heading_line(line: str) -> bool:
+    """True for standalone headings or 'HEADING rest of line' inline forms."""
+    stripped = line.strip()
+    if not stripped:
+        return False
+    return bool(
+        STANDALONE_SECTION_HEADING_RE.match(stripped)
+        or INLINE_SECTION_HEADING_RE.match(stripped)
+    )
 
 
 # =========================
@@ -207,7 +242,11 @@ def _split_inline_section_headings(line: str) -> list[str]:
 
 
 def _merge_wrapped_lines_in_paragraph(text: str) -> str:
-    """Collapse visual wrap-only newlines inside a single paragraph block."""
+    """Collapse visual wrap-only newlines inside a single paragraph block.
+
+    Never merges across section headings — otherwise ATS structure collapses into
+    run-on lines like "PROFESSIONAL SUMMARY Results... WORK EXPERIENCE Acme".
+    """
     raw_lines = [line.strip() for line in text.split("\n")]
     merged: list[str] = []
 
@@ -216,7 +255,16 @@ def _merge_wrapped_lines_in_paragraph(text: str) -> str:
             continue
 
         is_bullet = bool(BULLET_RE.match(line))
-        if merged and not is_bullet and not BULLET_RE.match(merged[-1]):
+        if _is_section_heading_line(line):
+            merged.append(line)
+            continue
+
+        if (
+            merged
+            and not is_bullet
+            and not BULLET_RE.match(merged[-1])
+            and not _is_section_heading_line(merged[-1])
+        ):
             merged[-1] = f"{merged[-1]} {line}"
         else:
             merged.append(line)

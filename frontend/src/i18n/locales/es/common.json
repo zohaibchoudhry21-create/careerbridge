@@ -1,21 +1,34 @@
 {
   "appName": "CareerBridge",
   "nav": {
-    "aiResumeParsing": "Análisis de currículum con IA",
-    "cvUpload": "Subir CV",
-    "aiSuggestions": "Sugerencias de IA",
     "resumeBuilder": "Creador de currículum",
+    "resumeScanner": "Escáner de currículum",
+    "interviewPrep": "Preparación para entrevistas",
     "login": "Iniciar sesión",
     "uploadCv": "Subir CV",
     "openMenu": "Abrir menú",
-    "closeMenu": "Cerrar menú"
+    "closeMenu": "Cerrar menú",
+    "dropdowns": {
+      "resumeBuilder": {
+        "upload": "Subir currículum",
+        "history": "Historial de currículums",
+        "templates": "Ver plantillas"
+      },
+      "resumeScanner": {
+        "scan": "Escanear currículum"
+      },
+      "interviewPrep": {
+        "overview": "Resumen",
+        "mock": "Entrevista simulada",
+        "skills": "Evaluación de habilidades"
+      }
+    }
   },
   "sidebar": {
     "dashboard": "Panel",
     "resumeBuilder": "Creador de currículum",
     "resumeScanner": "Escáner de currículum",
     "interviewPrep": "Preparación para entrevistas",
-    "linkedinOptimizer": "Optimizador de LinkedIn",
     "expandSidebar": "Expandir barra lateral",
     "collapseSidebar": "Contraer barra lateral",
     "openSidebar": "Abrir barra lateral",

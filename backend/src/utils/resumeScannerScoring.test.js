@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  applySuggestionToText,
   computeAnalysisScores,
   computeSkillMatches,
   findTextOffset,
@@ -119,32 +118,6 @@ describe('resumeScannerScoring', () => {
 
     expect(offset.charStart).toBe(4);
     expect(offset.charEnd).toBe(21);
-  });
-
-  it('applies reword suggestions using anchored offsets', () => {
-    const resumeText = 'Led content marketing strategy.';
-    const updated = applySuggestionToText(resumeText, {
-      type: 'reword',
-      original: 'content marketing',
-      suggested: 'B2B content marketing',
-      charStart: 4,
-      charEnd: 21,
-    });
-
-    expect(updated).toBe('Led B2B content marketing strategy.');
-  });
-
-  it('applies remove suggestions', () => {
-    const resumeText = 'Experienced with remote work flexibility.';
-    const updated = applySuggestionToText(resumeText, {
-      type: 'remove',
-      original: 'remote work flexibility',
-      suggested: '',
-      charStart: 17,
-      charEnd: 40,
-    });
-
-    expect(updated).toBe('Experienced with .');
   });
 
   it('scores mismatched resume/JD with low job match but healthy ATS score', () => {

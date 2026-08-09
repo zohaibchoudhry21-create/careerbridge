@@ -1,7 +1,15 @@
+import { cloneStructuredResume } from './structuredResume.js';
+
 const cloneSuggestions = (suggestions = []) => suggestions.map((item) => ({ ...item }));
+
+const cloneParsedData = (parsedData) =>
+  parsedData ? JSON.parse(JSON.stringify(parsedData)) : {};
 
 export const createHistorySnapshot = ({
   resumeText,
+  structuredResume,
+  parsedData,
+  templateId,
   suggestions,
   atsScore,
   jobMatchScore,
@@ -12,6 +20,9 @@ export const createHistorySnapshot = ({
   action,
 }) => ({
   resumeText,
+  structuredResume: cloneStructuredResume(structuredResume),
+  parsedData: cloneParsedData(parsedData),
+  templateId: templateId || 'classic',
   suggestions: cloneSuggestions(suggestions),
   atsScore,
   jobMatchScore,
@@ -24,9 +35,14 @@ export const createHistorySnapshot = ({
   timestamp: new Date(),
 });
 
+const HISTORY_MAX_ENTRIES = 50;
+
 export const pushHistoryEntry = (analysis, action = 'edit') => {
   const snapshot = createHistorySnapshot({
     resumeText: analysis.resumeText,
+    structuredResume: analysis.structuredResume,
+    parsedData: analysis.parsedData,
+    templateId: analysis.templateId,
     suggestions: analysis.suggestions,
     atsScore: analysis.atsScore,
     jobMatchScore: analysis.jobMatchScore,
@@ -40,12 +56,18 @@ export const pushHistoryEntry = (analysis, action = 'edit') => {
   const truncated = analysis.history.slice(0, analysis.historyIndex + 1);
   truncated.push(snapshot);
 
+  if (truncated.length > HISTORY_MAX_ENTRIES) {
+    const overflow = truncated.length - HISTORY_MAX_ENTRIES;
+    truncated.splice(0, overflow);
+  }
+
   analysis.history = truncated;
   analysis.historyIndex = truncated.length - 1;
 };
 
 export const canUndo = (analysis) => analysis.historyIndex > 0;
-export const canRedo = (analysis) => analysis.historyIndex >= 0 && analysis.historyIndex < analysis.history.length - 1;
+export const canRedo = (analysis) =>
+  analysis.historyIndex >= 0 && analysis.historyIndex < analysis.history.length - 1;
 
 export const applyHistoryIndex = (analysis, index) => {
   const snapshot = analysis.history[index];
@@ -53,6 +75,9 @@ export const applyHistoryIndex = (analysis, index) => {
 
   analysis.historyIndex = index;
   analysis.resumeText = snapshot.resumeText;
+  analysis.structuredResume = cloneStructuredResume(snapshot.structuredResume);
+  analysis.parsedData = cloneParsedData(snapshot.parsedData);
+  analysis.templateId = snapshot.templateId || 'classic';
   analysis.suggestions = cloneSuggestions(snapshot.suggestions);
   analysis.atsScore = snapshot.atsScore;
   analysis.jobMatchScore = snapshot.jobMatchScore;
@@ -78,6 +103,9 @@ export const redoAnalysis = (analysis) => {
 export const initializeHistory = (analysis) => {
   const snapshot = createHistorySnapshot({
     resumeText: analysis.resumeText,
+    structuredResume: analysis.structuredResume,
+    parsedData: analysis.parsedData,
+    templateId: analysis.templateId,
     suggestions: analysis.suggestions,
     atsScore: analysis.atsScore,
     jobMatchScore: analysis.jobMatchScore,

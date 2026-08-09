@@ -1,5 +1,24 @@
-import { countSuggestionStats } from './resumeScannerScoring.js';
+import {
+  countSuggestionStats,
+  hasExtractableJobSkills,
+  isFieldMismatchCoverage,
+} from './resumeScannerScoring.js';
 import { resolveStoredSkillId } from './resumeScannerTextUtils.js';
+import { emptyParsedData, normalizeParsedData } from './resumeScannerParsedData.js';
+import {
+  cloneStructuredResume,
+  generateAtsText,
+  hasStructuredResumeData,
+} from './structuredResume.js';
+
+const isLowExtractionQuality = (extractionMetadata = null) => {
+  if (!extractionMetadata || typeof extractionMetadata !== 'object') return false;
+  const source = String(extractionMetadata.source || '').toLowerCase();
+  const mode = String(extractionMetadata.extraction_mode || '').toLowerCase();
+  if (source === 'node-fallback' || source === 'ocr') return true;
+  if (mode === 'scanned' || mode === 'mixed') return true;
+  return false;
+};
 
 const toPlainSkill = (skill = {}) => {
   const plain = typeof skill?.toObject === 'function' ? skill.toObject({ virtuals: false }) : skill;
@@ -28,7 +47,7 @@ const serializeSkill = (skill, jobDescription) => {
   };
 };
 
-export const serializeAtsAnalysis = (analysis, jobDescription = null) => {
+export const serializeAtsAnalysis = (analysis, jobDescription = null, options = {}) => {
   const skills = (jobDescription?.extractedSkills || []).map((skill) => {
     const plain = toPlainSkill(skill);
     const matched = analysis.matchedSkillIds?.includes(plain.id);
@@ -41,6 +60,14 @@ export const serializeAtsAnalysis = (analysis, jobDescription = null) => {
   const suggestionStats = countSuggestionStats(analysis.suggestions || []);
   const atsScore = analysis.atsScore ?? 0;
   const jobMatchScore = analysis.jobMatchScore ?? analysis.score ?? 0;
+  const jobMatchBreakdown = analysis.jobMatchBreakdown || {
+    keywordCoverage: 0,
+    aiAssessedRelevance: 0,
+  };
+  const jdSkillsUnavailable = !hasExtractableJobSkills(jobDescription?.extractedSkills || []);
+  const fieldMismatch = isFieldMismatchCoverage(jobMatchBreakdown.keywordCoverage, skills);
+  const extractionMetadata = options.extractionMetadata || null;
+  const lowExtractionQuality = isLowExtractionQuality(extractionMetadata);
 
   return {
     analysisId: analysis._id,
@@ -56,12 +83,23 @@ export const serializeAtsAnalysis = (analysis, jobDescription = null) => {
       searchability: 0,
       quantifiedAchievements: 0,
     },
-    jobMatchScore,
-    jobMatchBreakdown: analysis.jobMatchBreakdown || {
-      keywordCoverage: 0,
-      aiAssessedRelevance: 0,
+    jobMatchScore: jdSkillsUnavailable ? null : jobMatchScore,
+    jobMatchBreakdown,
+    jobMatchUnavailable: jdSkillsUnavailable,
+    warnings: {
+      fieldMismatch,
+      jdRequirementsUnclear: jdSkillsUnavailable,
+      lowExtractionQuality,
     },
-    score: jobMatchScore,
+    extractionMetadata: extractionMetadata
+      ? {
+          source: extractionMetadata.source || '',
+          extractionMode: extractionMetadata.extraction_mode || '',
+          atsNormalized: Boolean(extractionMetadata.atsNormalized ?? extractionMetadata.ats_normalized),
+          lowQuality: lowExtractionQuality,
+        }
+      : null,
+    score: jdSkillsUnavailable ? null : jobMatchScore,
     matchedSkills: skills.filter((skill) => skill.matched),
     missingSkills: skills.filter((skill) => !skill.matched),
     skills: skills.map((skill) => serializeSkill(skill, jobDescription)),
@@ -70,6 +108,9 @@ export const serializeAtsAnalysis = (analysis, jobDescription = null) => {
     resumeText: analysis.resumeText,
     originalResumeText: analysis.originalResumeText,
     lineMap: analysis.lineMap || [],
+    structuredResume: analysis.structuredResume || cloneStructuredResume({}),
+    parsedData: normalizeParsedData(analysis.parsedData || emptyParsedData()),
+    templateId: analysis.templateId || 'classic',
     structuredSections: analysis.structuredSections,
     suggestions: analysis.suggestions,
     searchabilityIssues: analysis.searchabilityIssues,
@@ -84,6 +125,21 @@ export const serializeAtsAnalysis = (analysis, jobDescription = null) => {
         }
       : null,
     suggestionStats,
+    analysisMode: analysis.analysisMode || 'optimize',
+    rewriteStatus: analysis.rewriteStatus || 'none',
+    rewriteTriggerReason: analysis.rewriteTriggerReason || '',
+    decisionContext: analysis.decisionContext || null,
+    rewrittenResume: analysis.rewrittenResume || cloneStructuredResume({}),
+    rewrittenParsedData: analysis.rewrittenParsedData || {},
+    rewriteNotes: analysis.rewriteNotes || [],
+    rewrittenText: analysis.rewrittenResume ? generateAtsText(analysis.rewrittenResume) : '',
+    finalizedAt: analysis.finalizedAt || null,
+    canDownloadPdf: Boolean(
+      analysis.status === 'completed' &&
+        analysis.rewriteStatus !== 'pending_review' &&
+        analysis.finalizedAt &&
+        hasStructuredResumeData(analysis.finalizedStructuredResume)
+    ),
     history: {
       canUndo: analysis.historyIndex > 0,
       canRedo:
@@ -91,23 +147,5 @@ export const serializeAtsAnalysis = (analysis, jobDescription = null) => {
     },
     createdAt: analysis.createdAt,
     updatedAt: analysis.updatedAt,
-  };
-};
-
-export const serializeSavedResumeOption = (resume, sourceType) => {
-  if (sourceType === 'built') {
-    return {
-      id: resume._id,
-      sourceType: 'built',
-      label: resume.name,
-      updatedAt: resume.updatedAt,
-    };
-  }
-
-  return {
-    id: resume._id,
-    sourceType: 'scanned',
-    label: resume.label || resume.sourceFile?.filename || 'Uploaded Resume',
-    updatedAt: resume.updatedAt,
   };
 };

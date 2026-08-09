@@ -54,4 +54,17 @@ describe('resumeScannerHistory', () => {
     expect(analysis.resumeText).toBe('Edited resume text');
     expect(analysis.jobMatchScore).toBe(62);
   });
+
+  it('caps history at 50 entries', () => {
+    const analysis = buildAnalysis();
+    initializeHistory(analysis);
+
+    for (let i = 0; i < 60; i += 1) {
+      analysis.resumeText = `Edit ${i}`;
+      pushHistoryEntry(analysis, 'manual-edit');
+    }
+
+    expect(analysis.history.length).toBeLessThanOrEqual(50);
+    expect(analysis.historyIndex).toBe(analysis.history.length - 1);
+  });
 });

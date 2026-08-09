@@ -14,8 +14,9 @@
     "test:skill-scoring": "vitest run src/utils/skillQuizScoring.test.js",
     "test:voice-metrics": "vitest run src/utils/voiceAnalysisMetrics.test.js",
     "test:video-metrics": "vitest run src/utils/videoAnalysisMetrics.test.js",
-    "test:resume-scanner": "vitest run src/utils/resumeScannerScoring.test.js src/utils/resumeScannerHistory.test.js src/utils/resumeScannerSchemas.test.js",
+    "test:resume-scanner": "vitest run src/utils/resumeScannerScoring.test.js src/utils/resumeScannerHistory.test.js src/utils/resumeScannerSchemas.test.js src/utils/structuredResume.test.js src/utils/resumeScannerAcceptCycle.test.js src/utils/resumeScannerPrompts.test.js src/utils/resumeScannerParsedData.test.js src/utils/resumeScannerMismatch.test.js src/utils/resumeScannerSectionDetect.test.js src/utils/resumeScannerRewriteValidation.test.js src/utils/resumeScannerPipeline/pipeline.test.js src/utils/resumeScannerPipeline/validation/validationService.test.js src/services/resumeScanner/pdfService.test.js",
     "test:resume-scanner-groq": "node scripts/resume-scanner-groq-sanity.mjs",
+    "smoke:resume-scanner": "node scripts/resume-scanner-phase6-smoke.mjs",
     "python:service": "cd ../python-service && .\\venv\\Scripts\\uvicorn main:app --reload --port 8000"
   },
   "dependencies": {
@@ -43,6 +44,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-linkedin-oauth2": "^2.0.0",
     "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.19.1",
     "ua-parser-js": "^2.0.10",
     "zod": "^4.4.3"
   },

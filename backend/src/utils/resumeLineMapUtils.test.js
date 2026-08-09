@@ -12,10 +12,19 @@ describe('resumeLineMapUtils', () => {
     expect(buildResumeTextFromLineMap(lineMap)).toBe('Jane Doe\njane@example.com\nSUMMARY');
   });
 
-  it('prefers line map text over resume text', () => {
+  it('prefers resume text over line map', () => {
     expect(
       resolveCanonicalResumeText({
         resumeText: 'SUMMARY\nJane Doe',
+        lineMap,
+      })
+    ).toBe('SUMMARY\nJane Doe');
+  });
+
+  it('falls back to line map when resume text is empty', () => {
+    expect(
+      resolveCanonicalResumeText({
+        resumeText: '',
         lineMap,
       })
     ).toBe('Jane Doe\njane@example.com\nSUMMARY');

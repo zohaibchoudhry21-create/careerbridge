@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { Download, Eye, FileText, Loader2, Pencil, RefreshCw, Search, Trash2 } from 'lucide-react';
 import { DashboardLayout, PageContainer, PageHeader } from '../../components/layout';
 import Button from '../../components/ui/Button';
+import Skeleton from '../../components/Skeleton';
 import { StatusBadge } from '../../features/resumeBuilder/components/ResumeFormFields';
 import { formatDate, formatFileSize } from '../../features/resumeBuilder/services/resumeBuilderService';
 import { useResumeBuilderActions, useResumeHistory } from '../../features/resumeBuilder/hooks/useResumeBuilder';
@@ -132,8 +133,8 @@ export default function ResumeHistoryPage() {
           </div>
 
           {isLoading ? (
-            <div className="flex justify-center py-16">
-              <Loader2 className="h-10 w-10 animate-spin text-secondary" />
+            <div className="p-5">
+              <Skeleton type="table" rows={6} columns={5} label="Loading resume history" />
             </div>
           ) : data?.resumes?.length ? (
             <>

@@ -87,6 +87,7 @@ Return JSON exactly in this shape:
 
 Use the measured metrics for numeric fields where applicable. Judge answer substance for contentQuality.
 All scores MUST be numbers between 0 and 100 inclusive.
+If the candidate's answer is empty, gibberish, off-topic, or does not substantively address the question, assign a score of 0-10 for that question and for contentQuality/technicalSkills/problemSolving dimensions, regardless of delivery, tone, or confidence. Do not give benefit of the doubt for irrelevant or missing content. Fluent delivery of an irrelevant answer must still score low.
 `;
 
   let completion;

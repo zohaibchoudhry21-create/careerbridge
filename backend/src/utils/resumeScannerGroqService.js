@@ -1,8 +1,9 @@
 import Groq from 'groq-sdk';
 import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
-import { extractJsonFromText } from './resumeAiPrompts.js';
+import { RESUME_SCANNER_LLM_TIMEOUT_MS } from './resumeScannerLlmTimeouts.js';
 import { buildResumeScannerPrompt, RESUME_SCANNER_SYSTEM_PROMPT } from './resumeScannerPrompts.js';
+import { parseModelJson } from './resumeScannerJson.js';
 import { parseResumeScannerAnalysis } from './resumeScannerSchemas.js';
 import { AppError } from './sendResponse.js';
 
@@ -13,15 +14,7 @@ const getClient = () => {
   if (!apiKey) {
     throw new AppError(ERROR_CODES.RESUME_SCANNER.AI_NOT_CONFIGURED, 503);
   }
-  return new Groq({ apiKey });
-};
-
-const parseModelJson = (content) => {
-  try {
-    return JSON.parse(content);
-  } catch {
-    return extractJsonFromText(content);
-  }
+  return new Groq({ apiKey, timeout: RESUME_SCANNER_LLM_TIMEOUT_MS });
 };
 
 export const analyzeResumeWithGroq = async ({ resumeText, jobDescriptionText, jobTitle = '' }, attempt = 0) => {

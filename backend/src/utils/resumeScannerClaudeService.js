@@ -1,7 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { getAnthropicConfig, isAnthropicConfigured } from '../config/anthropicConfig.js';
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
-import { extractJsonFromText } from './resumeAiPrompts.js';
+import { parseModelJson } from './resumeScannerJson.js';
+import { RESUME_SCANNER_LLM_TIMEOUT_MS } from './resumeScannerLlmTimeouts.js';
 import { buildResumeScannerPrompt, RESUME_SCANNER_SYSTEM_PROMPT } from './resumeScannerPrompts.js';
 import { parseResumeScannerAnalysis } from './resumeScannerSchemas.js';
 import { AppError } from './sendResponse.js';
@@ -13,7 +14,7 @@ const getClient = () => {
   if (!apiKey) {
     throw new AppError(ERROR_CODES.RESUME_SCANNER.AI_NOT_CONFIGURED, 503);
   }
-  return new Anthropic({ apiKey });
+  return new Anthropic({ apiKey, timeout: RESUME_SCANNER_LLM_TIMEOUT_MS });
 };
 
 export const analyzeResumeWithClaude = async ({ resumeText, jobDescriptionText, jobTitle = '' }, attempt = 0) => {
@@ -47,18 +48,13 @@ export const analyzeResumeWithClaude = async ({ resumeText, jobDescriptionText, 
   }
 
   try {
-    const parsed = JSON.parse(content);
+    const parsed = parseModelJson(content);
     return parseResumeScannerAnalysis(parsed);
-  } catch {
-    try {
-      const parsed = extractJsonFromText(content);
-      return parseResumeScannerAnalysis(parsed);
-    } catch (error) {
-      if (attempt < MAX_RETRIES) {
-        console.warn(`[resume-scanner] Claude JSON validation failed (attempt ${attempt + 1}):`, error.message);
-        return analyzeResumeWithClaude({ resumeText, jobDescriptionText, jobTitle }, attempt + 1);
-      }
-      throw new AppError(ERROR_CODES.RESUME_SCANNER.AI_INVALID_RESPONSE, 502);
+  } catch (error) {
+    if (attempt < MAX_RETRIES) {
+      console.warn(`[resume-scanner] Claude JSON validation failed (attempt ${attempt + 1}):`, error.message);
+      return analyzeResumeWithClaude({ resumeText, jobDescriptionText, jobTitle }, attempt + 1);
     }
+    throw new AppError(ERROR_CODES.RESUME_SCANNER.AI_INVALID_RESPONSE, 502);
   }
 };

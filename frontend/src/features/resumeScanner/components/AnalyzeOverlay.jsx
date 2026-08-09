@@ -88,6 +88,9 @@ export default function AnalyzeOverlay({
             </div>
 
             <div className="text-center w-full max-w-md">
+              <p className="font-label-md text-label-md text-secondary mb-2 uppercase tracking-wide">
+                {t('overlay.phaseLabel')}
+              </p>
               <h2
                 className={cn(
                   'font-headline-md text-headline-md text-primary mb-md',

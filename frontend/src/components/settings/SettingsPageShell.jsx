@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../../hooks/useAuth';
 import { DashboardLayout, PageContainer, PageHeader, BackLink } from '../layout';
-import AppIcon from '../icons/AppIcon';
+import Skeleton from '../Skeleton';
 import SaveButtons from './SaveButtons';
 
 export default function SettingsPageShell({
@@ -37,9 +37,13 @@ export default function SettingsPageShell({
   if (loading || !user) {
     return (
       <DashboardLayout user={user}>
-        <div className="flex items-center justify-center py-xl">
-          <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
-        </div>
+        <PageContainer width="standard">
+          <div className="space-y-4">
+            <Skeleton type="avatar" size="lg" label="Loading settings" />
+            <Skeleton type="text" lines={2} />
+            <Skeleton type="card" count={2} withMedia={false} lines={4} columnsGrid={1} />
+          </div>
+        </PageContainer>
       </DashboardLayout>
     );
   }

@@ -2,24 +2,12 @@ import api from '../../../services/authService';
 
 const unwrap = (response) => response.data;
 
-export const fetchSavedScannerResumes = () =>
-  api.get('/resume-scanner/resumes').then(unwrap);
-
-export const uploadResumeScanner = ({
-  file,
-  jobDescription,
-  mode = 'upload',
-  resumeSourceType,
-  resumeSourceId,
-}) => {
+export const uploadResumeScanner = ({ file, jobDescription }) => {
   const formData = new FormData();
   formData.append('jobDescription', jobDescription);
-  formData.append('mode', mode);
+  formData.append('mode', 'upload');
 
-  if (mode === 'saved') {
-    formData.append('resumeSourceType', resumeSourceType);
-    formData.append('resumeSourceId', resumeSourceId);
-  } else if (file) {
+  if (file) {
     formData.append('resume', file);
   }
 
@@ -51,11 +39,38 @@ export const updateSuggestionStatus = (analysisId, suggestionId, action) =>
 export const acceptAllSuggestions = (analysisId) =>
   api.post(`/resume-scanner/${analysisId}/accept-all`).then(unwrap);
 
-export const updateResumeScannerText = (analysisId, resumeText) =>
-  api.patch(`/resume-scanner/${analysisId}/text`, { resumeText }).then(unwrap);
+export const updateResumeScannerText = (analysisId, payload) => {
+  const body =
+    typeof payload === 'string'
+      ? { resumeText: payload }
+      : payload && typeof payload === 'object'
+        ? payload
+        : { resumeText: '' };
+
+  return api.patch(`/resume-scanner/${analysisId}/text`, body).then(unwrap);
+};
 
 export const undoResumeScannerChange = (analysisId) =>
   api.post(`/resume-scanner/${analysisId}/undo`).then(unwrap);
 
 export const redoResumeScannerChange = (analysisId) =>
   api.post(`/resume-scanner/${analysisId}/redo`).then(unwrap);
+
+export const updateRewriteStatus = (analysisId, action) =>
+  api.patch(`/resume-scanner/${analysisId}/rewrite`, { action }).then(unwrap);
+
+export const finalizeResumeScannerAnalysis = (analysisId) =>
+  api.post(`/resume-scanner/${analysisId}/finalize`).then(unwrap);
+
+/** Download finalized PDF bytes. Uses blob response — never suggestions/analysis JSON. */
+export const downloadResumeScannerPdf = async (analysisId) => {
+  const response = await api.get(`/resume-scanner/${analysisId}/pdf`, {
+    responseType: 'blob',
+  });
+
+  const disposition = response.headers?.['content-disposition'] || '';
+  const match = /filename="?([^"]+)"?/i.exec(disposition);
+  const filename = match?.[1] || `resume-${analysisId}.pdf`;
+
+  return { blob: response.data, filename };
+};

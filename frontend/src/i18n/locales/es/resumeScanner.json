@@ -1,8 +1,8 @@
 {
   "page": {
     "upload": {
-      "title": "Optimización con IA",
-      "description": "Analiza tu currículum frente a cualquier descripción del puesto, detecta problemas ATS, optimiza palabras clave y mejora tus posibilidades de ser preseleccionado."
+      "title": "Escáner de currículum",
+      "description": "Sube tu currículum y la descripción del puesto. Analizaremos el ajuste y te guiaremos por Mejorar → Finalizar → Listo."
     },
     "analysisPlaceholder": {
       "title": "Análisis del escáner de currículum",
@@ -13,11 +13,12 @@
     }
   },
   "upload": {
-    "step1Title": "Paso 1: Seleccionar currículum",
-    "step2Title": "Paso 2: Pegar descripción del puesto",
+    "step1Title": "Configuración: Seleccionar currículum",
+    "step2Title": "Configuración: Pegar descripción del puesto",
+    "progressReady": "{{progress}}% listo",
+    "phaseLabel": "Configuración",
     "tabs": {
-      "uploadNew": "Subir nuevo",
-      "savedResumes": "Currículums guardados"
+      "uploadNew": "Subir nuevo"
     },
     "dropzoneTitle": "Arrastra y suelta tu currículum",
     "dropzoneHint": "o haz clic para buscar archivos",
@@ -28,10 +29,6 @@
     },
     "selectedFile": "Seleccionado: {{name}}",
     "changeFile": "Cambiar archivo",
-    "savedEmpty": "Aún no hay currículums guardados. Sube uno o créalo en el Creador de currículum.",
-    "savedBuilt": "Currículum creado",
-    "savedScanned": "Currículum subido",
-    "updatedAt": "Actualizado {{date}}",
     "jobDescriptionPlaceholder": "Pega aquí la descripción completa del puesto. La IA extraerá habilidades, requisitos y responsabilidades clave para compararlos con tu currículum...",
     "clearText": "Borrar texto",
     "pasteHint": "Pegar desde el portapapeles",
@@ -42,17 +39,17 @@
       "fileTooLarge": "El archivo debe ser de 10 MB o menos.",
       "unsupportedFile": "Tipo de archivo no compatible. Usa PDF o DOCX.",
       "jobDescriptionRequired": "Pega una descripción del puesto.",
-      "savedResumeRequired": "Selecciona un currículum guardado.",
       "analyzeFailed": "No se pudo iniciar el análisis. Inténtalo de nuevo."
     }
   },
   "overlay": {
-    "processing": "Procesando con IA...",
+    "processing": "Procesando tu currículum...",
     "queued": "En cola para análisis...",
     "extracting": "Extrayendo contenido del currículum...",
     "analyzing": "Analizando habilidades y ajuste ATS...",
-    "complete": "Habilidades extraídas correctamente",
+    "complete": "Análisis listo — abriendo el espacio de trabajo...",
     "failed": "El análisis falló",
+    "phaseLabel": "Procesamiento",
     "progressComplete": "{{progress}}% completado",
     "labels": {
       "skills": "Habilidades",
@@ -64,17 +61,76 @@
     "loading": "Cargando análisis...",
     "backToUpload": "Volver a subir",
     "defaultJobTitle": "Análisis de currículum",
-    "headerDescription": "Revisa sugerencias y mejora tu currículum para este puesto.",
-    "headerDescriptionWithCompany": "Optimiza tu currículum para {{company}}.",
+    "headerDescription": "Mejora sugerencias, finaliza tu currículum y termina.",
+    "headerDescriptionWithCompany": "Mejora tu currículum para {{company}}.",
+    "phases": {
+      "ariaLabel": "Flujo del escáner de currículum",
+      "rewriteGate": "Revisión de reescritura",
+      "improve": "Mejorar",
+      "finalize": "Finalizar",
+      "done": "Listo"
+    },
+    "viewMode": {
+      "edit": "Editar",
+      "preview": "Vista previa"
+    },
+    "done": {
+      "title": "Currículum listo",
+      "description": "Tu currículum optimizado para {{jobTitle}} está finalizado. Puedes iniciar un nuevo análisis cuando quieras.",
+      "backToFinalize": "Volver a Finalizar",
+      "toasts": {
+        "finished": "Currículum finalizado y listo para descargar."
+      }
+    },
     "gauge": {
       "jobMatchLabel": "Puntuación de ajuste",
       "atsLabel": "Puntuación ATS",
-      "atsHint": "Qué tan bien los sistemas ATS pueden leer tu currículum (formato y estructura)."
+      "atsHint": "Qué tan bien los sistemas ATS pueden leer tu currículum (formato y estructura).",
+      "viewBreakdown": "Ver desglose"
     },
+    "jobMatch": {
+      "keywordCoverage": "Cobertura de palabras clave",
+      "aiRelevance": "Relevancia IA"
+    },
+    "warnings": {
+      "fieldMismatch": "Este currículum no parece coincidir con este puesto — parece de otro campo.",
+      "jdRequirementsUnclear": "No se pudieron extraer claramente los requisitos de esta descripción del puesto.",
+      "lowExtractionQuality": "La calidad de extracción es baja — las puntuaciones pueden ser menos precisas."
+    },
+    "rewrite": {
+      "bannerTitle": "Tu currículum tiene muy poca coincidencia con esta descripción del puesto.",
+      "bannerDescription": "Cada sección detectada se reescribió desde cero para optimizar ATS, usando solo tu experiencia real. Revisa la comparación.",
+      "gateRequired": "Elige una opción abajo para continuar. Mejorar y Finalizar permanecen bloqueados hasta que decidas.",
+      "sectionsRewritten": "{{count}} secciones reescritas:",
+      "originalLabel": "Currículum original",
+      "originalBadge": "Actual",
+      "rewrittenLabel": "Currículum reescrito por IA",
+      "rewrittenBadge": "Optimizado ATS",
+      "useRewritten": "Usar currículum reescrito",
+      "keepOriginal": "Mantener original",
+      "applying": "Aplicando reescritura...",
+      "rejecting": "Restaurando...",
+      "toasts": {
+        "accepted": "Currículum reescrito aplicado. Las sugerencias de optimización ya están disponibles.",
+        "rejected": "Se mantuvo el currículum original. Sugerencias incrementales restauradas."
+      },
+      "errors": {
+        "acceptFailed": "No se pudo aplicar el currículum reescrito.",
+        "rejectFailed": "No se pudo restaurar el flujo del currículum original."
+      }
+    },
+    "atsTipBadge": "✨ Consejo ATS",
     "tabs": {
       "skills": "Habilidades",
       "searchability": "Buscabilidad",
       "recruiterTips": "Consejos"
+    },
+    "workspaceTabs": {
+      "resume": "Currículum",
+      "jobDescription": "Descripción del puesto"
+    },
+    "workspaceEmpty": {
+      "jobDescription": "No hay texto de descripción del puesto disponible."
     },
     "skills": {
       "matched": "Habilidades coincidentes",
@@ -102,21 +158,37 @@
     "recruiterTips": {
       "empty": "No hay consejos de reclutador para este análisis."
     },
+    "steps": {
+      "ariaLabel": "Pasos del análisis",
+      "suggestions": "Sugerencias IA ({{count}} pendientes)",
+      "suggestionsProgress": "Sugerencias IA ({{accepted}}/{{total}})",
+      "edit": "Editar"
+    },
     "editor": {
       "title": "Currículum",
       "ariaLabel": "Texto editable del currículum",
       "saving": "Guardando...",
       "hint": "{{count}} sugerencia(s) pendiente(s). Haz clic en el texto resaltado para revisar.",
-      "unanchoredTitle": "Sugerencias sin coincidencia exacta (solo en el popover)"
+      "editHint": "Edita tu currículum libremente. Los cambios se guardan automáticamente.",
+      "unanchoredTitle": "Sugerencias sin coincidencia exacta (solo en el popover)",
+      "unappliableTitle": "No se pudo aplicar automáticamente",
+      "unappliableHint": "Edita manualmente los campos para abordar estas sugerencias."
     },
     "popover": {
-      "title": "Sugerencia",
+      "title": "Sugerencia IA",
       "close": "Cerrar",
       "original": "Original",
       "suggested": "Sugerido",
+      "currentText": "Texto actual",
+      "suggestedChange": "Cambio sugerido",
+      "removeText": "(Eliminar texto)",
       "impact": "+{{points}} pts de impacto potencial",
-      "accept": "Aceptar",
-      "reject": "Rechazar"
+      "impactShort": "+{{points}} Score",
+      "accept": "Aceptar cambio",
+      "reject": "Rechazar",
+      "unappliable": "No se pudo aplicar — no hay contenido coincidente",
+      "unappliableMessage": "El texto del currículum cambió y esta sugerencia ya no coincide. Edita el campo tú mismo.",
+      "unappliableNoMatch": "No se pudo aplicar — no se encontró contenido coincidente en el currículum."
     },
     "suggestionTypes": {
       "missing_keyword": "Palabra clave faltante",
@@ -129,17 +201,71 @@
       "undo": "Deshacer",
       "redo": "Rehacer",
       "acceptAll": "Aceptar todas",
-      "continue": "Nuevo análisis"
+      "continueToEdit": "Continuar a Finalizar",
+      "continueToFinalize": "Continuar a Finalizar",
+      "backToImprove": "Volver a Mejorar",
+      "finish": "Terminar",
+      "downloadPdf": "Descargar PDF",
+      "downloadingPdf": "Preparando PDF...",
+      "newAnalysis": "Nuevo análisis",
+      "continue": "Continuar a Finalizar",
+      "suggestionProgressAria": "Progreso de sugerencias {{accepted}} de {{total}}"
     },
     "toasts": {
-      "acceptAllSuccess": "Todas las sugerencias fueron aceptadas."
+      "acceptAllSuccess": "Todas las sugerencias fueron aceptadas.",
+      "pdfDownloaded": "PDF descargado."
+    },
+    "sectionEditor": {
+      "hint": "Edita secciones como en Resume Builder. Los cambios se guardan automáticamente.",
+      "save": "Guardar",
+      "namePlaceholder": "Tu nombre",
+      "contactPlaceholder": "Información de contacto",
+      "template": "Plantilla",
+      "templateHint": "Elige un diseño. La vista previa se actualiza al instante.",
+      "header": "Encabezado",
+      "fullName": "Nombre completo",
+      "email": "Correo",
+      "phone": "Teléfono",
+      "address": "Dirección",
+      "linkedin": "LinkedIn",
+      "github": "GitHub",
+      "summary": "Resumen",
+      "summaryPlaceholder": "Resumen profesional...",
+      "experience": "Experiencia laboral",
+      "experienceN": "Experiencia {{n}}",
+      "position": "Cargo",
+      "company": "Empresa",
+      "start": "Inicio",
+      "end": "Fin",
+      "bulletsPlaceholder": "Un punto por línea...",
+      "addExperience": "Agregar experiencia",
+      "education": "Educación",
+      "educationN": "Educación {{n}}",
+      "degree": "Título",
+      "institution": "Institución",
+      "fieldOfStudy": "Campo de estudio",
+      "gpa": "GPA",
+      "addEducation": "Agregar educación",
+      "skills": "Competencias",
+      "skillsPlaceholder": "SEO, React, JavaScript...",
+      "projects": "Proyectos",
+      "projectN": "Proyecto {{n}}",
+      "projectName": "Nombre",
+      "addProject": "Agregar proyecto",
+      "languages": "Idiomas",
+      "languagesPlaceholder": "Inglés, Español...",
+      "certifications": "Certificaciones",
+      "certificationsPlaceholder": "AWS CCP, PMP...",
+      "livePreview": "Vista previa en vivo"
     },
     "errors": {
       "suggestionFailed": "No se pudo actualizar la sugerencia.",
       "textFailed": "No se pudo guardar el texto del currículum.",
       "acceptAllFailed": "No se pudieron aceptar todas las sugerencias.",
       "undoFailed": "Nada que deshacer.",
-      "redoFailed": "Nada que rehacer."
+      "redoFailed": "Nada que rehacer.",
+      "finalizeFailed": "No se pudo finalizar el currículum.",
+      "pdfFailed": "No se pudo descargar el PDF. Finaliza el currículum primero."
     }
   }
 }

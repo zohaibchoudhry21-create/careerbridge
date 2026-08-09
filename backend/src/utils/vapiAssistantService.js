@@ -4,65 +4,97 @@
  */
 
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
+import {
+  getVapiInterviewerConfig,
+  resolveMaxDurationSeconds,
+  resolvePersonaVoiceId,
+  resolveSpeakingSpeed,
+  VAPI_VOICE_V2_IDS,
+} from '../config/vapiInterviewerConfig.js';
 import { AppError } from './sendResponse.js';
-import { getInterviewerPersonaPrompt } from './interviewerPersona.js';
+import { buildDynamicGreeting } from './interviewerGreeting.js';
+import { buildInterviewerSystemPrompt } from './interviewerPromptBuilder.js';
 
 const VAPI_ASSISTANT_URL = 'https://api.vapi.ai/assistant';
 
-const getPrivateKey = () => String(process.env.VAPI_PRIVATE_KEY || '').trim();
+/** Private key only — never the public web token (VITE_VAPI_WEB_TOKEN). */
+const getPrivateKey = () =>
+  String(process.env.VAPI_PRIVATE_KEY || process.env.VAPI_API_KEY || '').trim();
 
 export const isVapiPrivateKeyConfigured = () => Boolean(getPrivateKey());
 
+/** Re-export for existing imports/tests. */
+export { buildInterviewerSystemPrompt };
+
 /**
- * Build the full interviewer system prompt from trusted session fields (MongoDB).
+ * Build the Vapi assistant create payload for a mock interview session.
+ * Kept pure for unit testing (no network).
  */
-export const buildInterviewerSystemPrompt = (session) => {
-  const roleLabel = session.roleLabel || session.role || 'this role';
-  const difficulty = session.difficulty || 'medium';
-  const durationMinutes = session.durationMinutes || 15;
-  const focusAreas =
-    (Array.isArray(session.focusAreas) ? session.focusAreas : []).join(', ') || 'General';
-  const interviewerPersona = getInterviewerPersonaPrompt(session.interviewerPersona);
-  const questions = (session.questions || [])
-    .map((q) => `- ${q.text}`)
-    .join('\n') || '- Ask an appropriate opening question for the role.';
+export const buildVapiAssistantPayload = (session, config = getVapiInterviewerConfig()) => {
+  const sessionId = String(session._id || session.id || 'unknown');
+  const systemPrompt = buildInterviewerSystemPrompt(session);
+  const firstMessage = buildDynamicGreeting(session);
+  const voiceId = resolvePersonaVoiceId(session.interviewerPersona, config);
+  const speed = resolveSpeakingSpeed(session.difficulty, config);
 
-  return `You are a professional job interviewer conducting a real-time voice interview with a candidate. Your goal is to assess their qualifications, motivation, and fit for the role.
+  const voice = {
+    provider: config.voice.provider,
+    voiceId,
+  };
 
-Interview Guidelines:
-Role: ${roleLabel}
-Difficulty: ${difficulty}
-Target duration: about ${durationMinutes} minutes
-Emphasize these focus areas throughout your questions: ${focusAreas}
+  // Only attach version:2 for Vapi voices that support it (e.g. Rohan does not).
+  if (config.voice.provider === 'vapi' && VAPI_VOICE_V2_IDS.has(voiceId)) {
+    voice.version = config.voice.version;
+  }
 
-Interviewer persona:
-${interviewerPersona}
+  if (speed != null) {
+    voice.speed = speed;
+  }
 
-Follow this structured question flow (use as a guide; ask natural follow-ups for the full duration):
-${questions}
+  const modelMessages = [
+    {
+      role: 'system',
+      content: systemPrompt,
+    },
+  ];
 
-Engage naturally & react appropriately:
-Listen actively to responses and acknowledge them before moving forward.
-Ask brief follow-up questions if a response is vague or requires more detail.
-Keep the conversation flowing smoothly while maintaining control.
+  const model = {
+    provider: config.model.provider,
+    model: config.model.model,
+    messages: modelMessages,
+  };
 
-Be professional, yet warm and welcoming:
-Use official yet friendly language.
-Keep responses concise and to the point (like in a real voice interview).
-Avoid robotic phrasing—sound natural and conversational.
+  if (Number.isFinite(config.model.temperature)) {
+    model.temperature = config.model.temperature;
+  }
 
-Answer the candidate's questions professionally:
-If asked about the role, company, or expectations, provide a clear and relevant answer.
-If unsure, redirect the candidate to HR for more details.
+  if (Number.isFinite(config.model.maxTokens)) {
+    model.maxTokens = config.model.maxTokens;
+  }
 
-Conclude the interview properly:
-Thank the candidate for their time.
-Inform them that the company will reach out soon with feedback.
-End the conversation on a polite and positive note.
-
-- Be sure to be professional and polite.
-- Keep all your responses short and simple. Use official language, but be kind and welcoming.
-- This is a voice conversation, so keep your responses short, like in a real conversation. Don't ramble for too long.`;
+  return {
+    name: `CareerBridge Interview ${sessionId.slice(-8)}`,
+    firstMessage,
+    firstMessageMode: config.firstMessageMode,
+    firstMessageInterruptionsEnabled: false,
+    customerJoinTimeoutSeconds: config.customerJoinTimeoutSeconds,
+    backgroundSound: config.backgroundSound,
+    maxDurationSeconds: resolveMaxDurationSeconds(session.durationMinutes, config),
+    transcriber: { ...config.transcriber },
+    voice,
+    model,
+    startSpeakingPlan: {
+      waitSeconds: config.startSpeakingPlan.waitSeconds,
+      smartEndpointingPlan: { ...config.startSpeakingPlan.smartEndpointingPlan },
+      customEndpointingRules: [...config.startSpeakingPlan.customEndpointingRules],
+    },
+    stopSpeakingPlan: {
+      numWords: config.stopSpeakingPlan.numWords,
+      voiceSeconds: config.stopSpeakingPlan.voiceSeconds,
+      backoffSeconds: config.stopSpeakingPlan.backoffSeconds,
+      acknowledgementPhrases: [...config.stopSpeakingPlan.acknowledgementPhrases],
+    },
+  };
 };
 
 /**
@@ -72,38 +104,14 @@ End the conversation on a polite and positive note.
 export const createVapiAssistantForSession = async (session) => {
   const apiKey = getPrivateKey();
   if (!apiKey) {
-    throw new AppError(ERROR_CODES.INTERVIEW_PREP.ASSISTANT_CREATE_FAILED, 503);
+    console.error(
+      '[vapi] VAPI_PRIVATE_KEY is missing. Add your Private key from https://dashboard.vapi.ai (API Keys) to backend/.env — do not reuse VITE_VAPI_WEB_TOKEN.'
+    );
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.VAPI_NOT_CONFIGURED, 503);
   }
 
-  const systemPrompt = buildInterviewerSystemPrompt(session);
   const sessionId = String(session._id || session.id || 'unknown');
-
-  const body = {
-    name: `CareerBridge Interview ${sessionId.slice(-8)}`,
-    firstMessage:
-      "Hello! Thank you for taking the time to speak with me today. I'm excited to learn more about you and your experience.",
-    customerJoinTimeoutSeconds: 60,
-    transcriber: {
-      provider: 'deepgram',
-      model: 'nova-2',
-      language: 'en',
-    },
-    voice: {
-      provider: 'vapi',
-      voiceId: 'Elliot',
-      version: 2,
-    },
-    model: {
-      provider: 'openai',
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: systemPrompt,
-        },
-      ],
-    },
-  };
+  const body = buildVapiAssistantPayload(session);
 
   let response;
   try {
@@ -127,8 +135,12 @@ export const createVapiAssistantForSession = async (session) => {
       '[vapi] Assistant create failed:',
       sessionId,
       response.status,
-      payload?.message || payload?.error || 'unknown'
+      payload?.message || payload?.error || JSON.stringify(payload) || 'unknown'
     );
+    // Public web tokens return 401/403 against the Private REST API.
+    if (response.status === 401 || response.status === 403) {
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.VAPI_NOT_CONFIGURED, 503);
+    }
     throw new AppError(ERROR_CODES.INTERVIEW_PREP.ASSISTANT_CREATE_FAILED, 502);
   }
 

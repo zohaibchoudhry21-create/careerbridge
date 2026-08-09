@@ -5,7 +5,7 @@ import ProblemSection from '../components/home/ProblemSection';
 import SolutionSection from '../components/home/SolutionSection';
 import FeaturesSection from '../components/home/FeaturesSection';
 import HowItWorks from '../components/home/HowItWorks';
-import AIPower from '../components/home/AIPower';
+import InterviewPrepSteps from '../components/home/InterviewPrepSteps';
 import FinalCTA from '../components/home/FinalCTA';
 import { MarketingLayout } from '../components/layout';
 import { useRevealAnimation } from '../hooks/useAnimations';
@@ -29,8 +29,8 @@ export default function Home() {
       <SolutionSection />
       <FeaturesSection />
       <HowItWorks />
-      <AIPower />
       <FinalCTA />
+      <InterviewPrepSteps />
     </MarketingLayout>
   );
 }

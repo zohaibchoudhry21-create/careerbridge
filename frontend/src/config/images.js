@@ -7,6 +7,8 @@ import solutionImg from '../assets/images/solution.png';
 import loginHeroImg from '../assets/images/login-hero.png';
 import resumeAtlanticBlueImg from '../assets/images/resume-atlantic-blue.png';
 import resumeClassicClearImg from '../assets/images/resume-classic-clear.png';
+import resumeAtsSampleImg from '../assets/images/resume-ats-sample.png';
+import careerOsResumeImg from '../assets/images/career-os-resume.png';
 
 export const IMAGES = {
   hero: heroImg,
@@ -14,6 +16,8 @@ export const IMAGES = {
   loginHero: loginHeroImg,
   resumeAtlanticBlue: resumeAtlanticBlueImg,
   resumeClassicClear: resumeClassicClearImg,
+  resumeAtsSample: resumeAtsSampleImg,
+  careerOsResume: careerOsResumeImg,
 };
 
 export default IMAGES;

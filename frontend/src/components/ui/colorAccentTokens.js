@@ -64,9 +64,9 @@ export const accentCardClass =
   'rounded-2xl border border-[#E7EBF0] bg-white p-5 space-y-3.5 min-w-0 transition-all duration-150 hover:border-[#D4DAE2]';
 
 export const SECTION_ICON_SIZES = {
-  sm: 'h-8 w-8 rounded-lg',
-  md: 'h-10 w-10 rounded-xl',
-  lg: 'h-11 w-11 rounded-xl',
+  sm: 'h-7 w-7 rounded-lg',
+  md: 'h-8 w-8 rounded-xl',
+  lg: 'h-9 w-9 rounded-xl',
 };
 
 /**

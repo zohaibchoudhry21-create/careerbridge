@@ -92,14 +92,14 @@ Requirements: SEO, Google Analytics 4, content strategy, B2B marketing, project 
     process.exit(1);
   }
 
-  const analysisId = upload.json?.data?.analysisId;
+  const analysisId = upload.json?.analysisId;
   console.log('analysisId:', analysisId);
 
   let status = 'pending';
   for (let attempt = 0; attempt < 90; attempt += 1) {
     const poll = await api(`/resume-scanner/${analysisId}/status`, { token });
-    status = poll.json?.data?.status;
-    const progress = poll.json?.data?.progress;
+    status = poll.json?.status;
+    const progress = poll.json?.progress;
     process.stdout.write(`\rstatus: ${status} (${progress ?? 0}%)   `);
     if (status === 'completed' || status === 'failed') break;
     await sleep(2000);
@@ -113,7 +113,7 @@ Requirements: SEO, Google Analytics 4, content strategy, B2B marketing, project 
   }
 
   const analysisRes = await api(`/resume-scanner/${analysisId}`, { token });
-  const analysis = analysisRes.json?.data?.analysis;
+  const analysis = analysisRes.json?.analysis;
 
   await mongoose.connect(process.env.MONGO_URI);
   const dbAnalysis = await AtsAnalysis.findById(analysisId).lean();

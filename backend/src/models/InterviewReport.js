@@ -51,6 +51,13 @@ const interviewReportSchema = new mongoose.Schema(
       max: 100,
       required: true,
     },
+    /** Scoring/gate/ceiling logic version; mismatch forces report regeneration. */
+    scoreVersion: {
+      type: Number,
+      min: 1,
+      default: 1,
+      index: true,
+    },
     sections: {
       contentQuality: { type: reportSectionSchema, default: undefined },
       voiceAnalysis: { type: reportSectionSchema, default: undefined },
@@ -71,11 +78,17 @@ const interviewReportSchema = new mongoose.Schema(
       default: undefined,
       select: false,
     },
+    /** Enterprise report payload (additive; legacy sections remain for older clients). */
+    enterpriseReport: {
+      type: mongoose.Schema.Types.Mixed,
+      default: undefined,
+    },
   },
   { timestamps: true }
 );
 
 interviewReportSchema.index({ userId: 1, createdAt: -1 });
+interviewReportSchema.index({ userId: 1, sourceType: 1, createdAt: -1 });
 interviewReportSchema.index({ sourceType: 1, sourceId: 1 }, { unique: true });
 
 const InterviewReport = mongoose.model('InterviewReport', interviewReportSchema);
