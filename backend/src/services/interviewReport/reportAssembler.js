@@ -12,7 +12,10 @@ import { buildDimensionScores } from './builders/dimensionScoresBuilder.js';
 import { buildOverallScoreWithMeta } from './builders/overallScoreBuilder.js';
 import { buildHiringSections } from './builders/hiringBuilder.js';
 import { buildStrengthsWeaknesses } from './builders/strengthsWeaknessesBuilder.js';
-import { buildQuestionReviews } from './builders/questionReviewBuilder.js';
+import {
+  buildQuestionReviews,
+  enforceDeterministicRelevanceGate,
+} from './builders/questionReviewBuilder.js';
 import { buildRoadmapAndCareer } from './builders/roadmapBuilder.js';
 import { buildExecutiveSummary } from './builders/executiveSummaryBuilder.js';
 import { buildTimelineAndCharts } from './builders/timelineChartsBuilder.js';
@@ -28,7 +31,11 @@ export const assembleInterviewReport = (snapshot, narrative = {}) => {
   const expectedQuestionCount = (snapshot.qa || snapshot.questions || []).length;
 
   // Gated per-question scores first — dimensions + overall both depend on them.
-  const questionReviews = buildQuestionReviews(snapshot, narrative.questionReviews);
+  // enforceDeterministicRelevanceGate is also applied inside buildQuestionReviews;
+  // re-run here so a post-Groq merge can never leave inflated gated scores.
+  const questionReviews = enforceDeterministicRelevanceGate(
+    buildQuestionReviews(snapshot, narrative.questionReviews)
+  );
 
   const narrativeDims = narrative.dimensions || {};
   const dimensions = buildDimensionScores(snapshot, narrativeDims, {

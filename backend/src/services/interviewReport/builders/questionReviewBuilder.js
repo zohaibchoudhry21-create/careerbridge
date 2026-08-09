@@ -25,11 +25,41 @@ export const detectIrrelevantAnswer = (questionText, answerText) => {
   return classification === 'on_topic' ? null : classification;
 };
 
+const GATED_RELEVANCE = new Set(['empty', 'gibberish', 'question_echo', 'off_topic']);
+
+/**
+ * Hard post-merge enforcement: for any gated classification, forcibly overwrite
+ * score/feedback with the deterministic fixed outcome — even if Groq narrative
+ * (or a buggy merge) tried to invent a higher score.
+ *
+ * @param {Array<object>} reviews
+ * @returns {Array<object>}
+ */
+export const enforceDeterministicRelevanceGate = (reviews = []) =>
+  (Array.isArray(reviews) ? reviews : []).map((review) => {
+    const classification = review?.relevanceGate || review?.relevance;
+    if (!GATED_RELEVANCE.has(classification)) {
+      return review;
+    }
+    const fixed =
+      RELEVANCE_FIXED_OUTCOMES[classification] || RELEVANCE_FIXED_OUTCOMES.off_topic;
+    return {
+      ...review,
+      score: fixed.score,
+      feedback: fixed.feedback,
+      followUpNotes: '',
+      needsAiScore: false,
+      relevance: classification,
+      relevanceGate: classification,
+    };
+  });
+
 /**
  * Build question-by-question reviews.
  * 1) Pure relevance classification (no AI)
  * 2) Non-on_topic → fixed low score + feedback (AI narrative score ignored / skipped)
  * 3) on_topic → use Groq narrative score/feedback when present
+ * 4) Hard enforce step re-applies fixed outcomes (code-level, not prompt-level)
  */
 export const buildQuestionReviews = (snapshot = {}, narrativeReviews = []) => {
   const questions = snapshot.qa || snapshot.questions || [];
@@ -42,7 +72,7 @@ export const buildQuestionReviews = (snapshot = {}, narrativeReviews = []) => {
     (Array.isArray(narrativeReviews) ? narrativeReviews : []).map((r) => [String(r.questionId), r])
   );
 
-  return questions.slice(0, QUESTION_REVIEW_MAX).map((q, index) => {
+  const built = questions.slice(0, QUESTION_REVIEW_MAX).map((q, index) => {
     const narrative = byId.get(String(q.questionId)) || narrativeReviews[index] || {};
     const questionText = q.question || q.text || '';
 
@@ -72,6 +102,8 @@ export const buildQuestionReviews = (snapshot = {}, narrativeReviews = []) => {
       ...(classification !== 'on_topic' ? { relevanceGate: classification } : {}),
     };
   });
+
+  return enforceDeterministicRelevanceGate(built);
 };
 
 /**

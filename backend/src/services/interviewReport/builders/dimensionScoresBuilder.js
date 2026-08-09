@@ -29,6 +29,10 @@ export const AI_FINE_TUNE_RANGE = 10;
 const NEAR_ZERO_CONTENT_THRESHOLD = 5;
 const NEAR_ZERO_CONFIDENCE_CAP = 15;
 
+/** Shown on Confidence when delivery was reduced by the content cap. */
+export const CONFIDENCE_CAP_NOTE =
+  'Confidence score reflects your answer content, not just tone — strong delivery alone can\'t offset weak content.';
+
 const LOW_CONTENT_FEEDBACK =
   'No relevant answers were provided to demonstrate this skill.';
 
@@ -140,15 +144,26 @@ export const buildDimensionScores = (snapshot = {}, narrativeDims = {}, options 
   }
 
   // --- DELIVERY_INFLUENCED: confidence from voice, capped if content ~0 ---
+  const deliveryAlone = clamp100(confidenceMeasured, null);
   let confidenceScore = blend(confidenceMeasured, narrativeDims.confidence);
+  let confidenceCapApplied = false;
+
   if (contentIsNearZero) {
-    confidenceScore = clamp100(
+    const capped = clamp100(
       Math.min(
         confidenceScore ?? NEAR_ZERO_CONFIDENCE_CAP,
         NEAR_ZERO_CONFIDENCE_CAP
       ),
       NEAR_ZERO_CONFIDENCE_CAP
     );
+    // Only annotate when the cap actually lowered what delivery would have produced.
+    if (
+      (deliveryAlone != null && capped < deliveryAlone) ||
+      (confidenceScore != null && capped < confidenceScore)
+    ) {
+      confidenceCapApplied = true;
+    }
+    confidenceScore = capped;
   }
 
   dimensions.confidence = dimSection(
@@ -157,6 +172,10 @@ export const buildDimensionScores = (snapshot = {}, narrativeDims = {}, options 
     narrativeDims.confidenceFeedback || '',
     confidenceMeasured != null ? [`Measured delivery: ${confidenceMeasured}`] : []
   );
+
+  if (confidenceCapApplied) {
+    dimensions.confidence.scoreNote = CONFIDENCE_CAP_NOTE;
+  }
 
   return dimensions;
 };
