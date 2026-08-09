@@ -138,6 +138,9 @@
   "session": {
     "notFound": "Session not found.",
     "loadFailed": "Could not load this interview session. Start a new one from setup.",
+    "abandonedTitle": "This interview session was not completed",
+    "abandonedDescription": "The call was interrupted or timed out before submit. Start a new mock interview whenever you're ready — we don't score partial sessions.",
+    "startNewInterview": "Start a new interview",
     "completeTitle": "Interview complete",
     "completeDescription": "Your combined content, voice, and video feedback is ready.",
     "loadingReport": "Loading your report…",

@@ -8,6 +8,7 @@ import {
   getRoleSuggestions,
   startLiveInterview,
   submitLiveInterview,
+  applyLiveAdaptiveDepth,
 } from '../controllers/mockInterviewController.js';
 
 import {
@@ -22,6 +23,7 @@ import { handleInterviewContextUpload } from '../middleware/interviewContextUplo
 import { validateRequest } from '../middleware/validateRequest.js';
 
 import {
+  adaptiveDepthValidation,
   roleSuggestionsValidation,
   sessionIdBodyValidation,
   sessionIdParamValidation,
@@ -47,6 +49,15 @@ router.post(
   submitLiveInterviewValidation,
   validateRequest,
   submitLiveInterview
+);
+
+router.post(
+  '/interview/live/adaptive-depth',
+  protect,
+  interviewFlowLimiter,
+  adaptiveDepthValidation,
+  validateRequest,
+  applyLiveAdaptiveDepth
 );
 
 router.post(

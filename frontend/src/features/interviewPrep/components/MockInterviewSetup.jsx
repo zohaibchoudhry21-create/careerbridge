@@ -167,6 +167,7 @@ export default function MockInterviewSetup() {
           difficulty,
           durationMinutes: Number(durationMinutes),
           interviewerPersona: DEFAULT_INTERVIEWER_PERSONA,
+          adaptiveDepthEnabled: Boolean(result?.adaptiveDepthEnabled),
           customization: {
             resumeText: resumeText.trim() || undefined,
             resumeSkills: resumeSkills.length ? resumeSkills : undefined,

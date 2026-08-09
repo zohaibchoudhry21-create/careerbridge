@@ -139,6 +139,7 @@ export const ERROR_CODES = {
     REPORT_INCOMPLETE: 'INTERVIEW_PREP.REPORT_INCOMPLETE',
     ROLE_REQUIRED: 'INTERVIEW_PREP.ROLE_REQUIRED',
     NOT_LIVE_SESSION: 'INTERVIEW_PREP.NOT_LIVE_SESSION',
+    SESSION_ABANDONED: 'INTERVIEW_PREP.SESSION_ABANDONED',
     TRANSCRIPT_REQUIRED: 'INTERVIEW_PREP.TRANSCRIPT_REQUIRED',
     TRANSCRIPT_EMPTY: 'INTERVIEW_PREP.TRANSCRIPT_EMPTY',
     RESUME_INPUT_REQUIRED: 'INTERVIEW_PREP.RESUME_INPUT_REQUIRED',
@@ -247,7 +248,8 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.AUTH.INVALID_CREDENTIALS]: 'Invalid email or password',
   [ERROR_CODES.AUTH.EMAIL_NOT_VERIFIED]:
     'Please verify your email before logging in. Check your inbox for the verification link.',
-  [ERROR_CODES.AUTH.EMAIL_ALREADY_REGISTERED]: 'Email already registered. Please log in instead.',
+  [ERROR_CODES.AUTH.EMAIL_ALREADY_REGISTERED]:
+    'An account with this email already exists. Please log in instead.',
   [ERROR_CODES.AUTH.EMAIL_ALREADY_REGISTERED_LOGIN]:
     'Email already registered. Please use another email or log in.',
   [ERROR_CODES.AUTH.ACCOUNT_NOT_ACTIVE]: 'Account is not active.',
@@ -403,6 +405,8 @@ export const ERROR_MESSAGES = {
     'Complete the interview before generating a report.',
   [ERROR_CODES.INTERVIEW_PREP.ROLE_REQUIRED]: 'Role is required.',
   [ERROR_CODES.INTERVIEW_PREP.NOT_LIVE_SESSION]: 'This session is not a live interview.',
+  [ERROR_CODES.INTERVIEW_PREP.SESSION_ABANDONED]:
+    'This interview session was not completed and can no longer be submitted.',
   [ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_REQUIRED]: 'Transcript is required.',
   [ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_EMPTY]: 'Transcript has no usable content.',
   [ERROR_CODES.INTERVIEW_PREP.RESUME_INPUT_REQUIRED]:

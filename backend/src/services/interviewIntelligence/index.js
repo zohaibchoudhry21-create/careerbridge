@@ -15,3 +15,16 @@ export {
 export { buildAdaptiveFollowUpPolicyPrompt } from './adaptiveFollowUpPolicy.js';
 export { buildDomainFollowUpPlaybooksPrompt } from './domainFollowUpPlaybooks.js';
 export { buildMemoryAndValidationPolicyPrompt } from './memoryAndValidationPolicy.js';
+export {
+  bumpDepthHint,
+  stepDownDepthHint,
+  suggestNextDepthAdjustment,
+  applyAdaptiveDepthToQuestions,
+  evaluateAnswerForAdaptiveDepth,
+  buildAdaptiveDepthSystemNudge,
+} from './adaptiveDepth.js';
+export {
+  maybeAbandonStaleSession,
+  abandonStaleActiveSessionsForUser,
+  isSessionPastAbandonedThreshold,
+} from './abandonedSessionCleanup.js';

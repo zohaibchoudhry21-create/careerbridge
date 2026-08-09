@@ -48,3 +48,18 @@ export const submitLiveInterview = ({ sessionId, transcript, liveAudioHints, liv
       { timeout: 120000 }
     )
     .then(unwrap);
+
+export const applyLiveAdaptiveDepth = ({
+  sessionId,
+  answerText,
+  questionText,
+  answeredCount,
+  priorStrengths,
+}) =>
+  api
+    .post(
+      '/interview/live/adaptive-depth',
+      { sessionId, answerText, questionText, answeredCount, priorStrengths },
+      { timeout: 8000 }
+    )
+    .then(unwrap);

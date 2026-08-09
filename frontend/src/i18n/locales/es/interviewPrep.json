@@ -138,6 +138,9 @@
   "session": {
     "notFound": "Sesión no encontrada.",
     "loadFailed": "No se pudo cargar esta sesión. Inicia una nueva desde la configuración.",
+    "abandonedTitle": "Esta sesión de entrevista no se completó",
+    "abandonedDescription": "La llamada se interrumpió o caducó antes de enviar. Inicia una nueva entrevista cuando quieras — no puntuamos sesiones parciales.",
+    "startNewInterview": "Iniciar una nueva entrevista",
     "completeTitle": "Entrevista completada",
     "completeDescription": "Tu informe combinado de contenido, voz y vídeo está listo.",
     "loadingReport": "Cargando tu informe…",

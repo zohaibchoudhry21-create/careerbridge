@@ -25,6 +25,14 @@ import { extractResumeTextFromFile } from '../utils/resumeFileExtractor.js';
 import { createVapiAssistantForSession } from '../utils/vapiAssistantService.js';
 import { prepareInterviewIntelligence } from '../services/interviewIntelligence/index.js';
 import {
+  applyAdaptiveDepthToQuestions,
+  buildAdaptiveDepthSystemNudge,
+  evaluateAnswerForAdaptiveDepth,
+  maybeAbandonStaleSession,
+  abandonStaleActiveSessionsForUser,
+} from '../services/interviewIntelligence/index.js';
+import { ADAPTIVE_DEPTH_ENABLED } from '../config/interviewIntelligenceConfig.js';
+import {
   PERSIST_PAUSE_EVENTS_MAX,
   PERSIST_TIMELINE_EVENTS_MAX,
   RESUME_ANALYSIS_CACHE_TTL_MS,
@@ -181,6 +189,11 @@ export const generateMockInterviewReport = async (req, res, next) => {
     const { sessionId } = req.body;
     const session = await loadSessionForUser(sessionId, req.user._id);
 
+    await maybeAbandonStaleSession(session);
+    if (session.status === 'abandoned') {
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.SESSION_ABANDONED, 400);
+    }
+
     const voiceCallReady =
       (session.mode === 'voiceCall' || session.mode === 'live') &&
       Array.isArray(session.voiceCallTranscript) &&
@@ -247,6 +260,9 @@ export const startLiveInterview = async (req, res, next) => {
       throw new AppError(ERROR_CODES.INTERVIEW_PREP.ROLE_REQUIRED, 400);
     }
 
+    // Lazily clear stale active sessions so setup revisit doesn't leave orphans.
+    await abandonStaleActiveSessionsForUser(req.user._id).catch(() => 0);
+
     const difficulty = req.body.difficulty || 'medium';
     const durationMinutes = resolveDurationMinutes(req.body.durationMinutes);
     const targetQuestionCount = durationMinutesToQuestionCount(durationMinutes);
@@ -294,6 +310,7 @@ export const startLiveInterview = async (req, res, next) => {
       interviewMode: session.interviewMode || 'video_voice',
       interviewerPersona: session.interviewerPersona || 'neutral',
       focusAreas: session.focusAreas || [],
+      adaptiveDepthEnabled: ADAPTIVE_DEPTH_ENABLED,
     });
   } catch (error) {
     next(error);
@@ -307,6 +324,12 @@ export const submitLiveInterview = async (req, res, next) => {
 
     if (session.mode !== 'live') {
       throw new AppError(ERROR_CODES.INTERVIEW_PREP.NOT_LIVE_SESSION, 400);
+    }
+
+    await maybeAbandonStaleSession(session);
+
+    if (session.status === 'abandoned') {
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.SESSION_ABANDONED, 400);
     }
 
     // Idempotent submit: return cached report only when scoring version is current.
@@ -526,7 +549,8 @@ export const submitLiveInterview = async (req, res, next) => {
 
 export const getMockInterviewSession = async (req, res, next) => {
   try {
-    const session = await loadSessionForUser(req.params.sessionId, req.user._id);
+    let session = await loadSessionForUser(req.params.sessionId, req.user._id);
+    session = await maybeAbandonStaleSession(session);
 
     // Live sessions bake the prompt into a server-side Vapi assistant — do not
     // expose question texts that would let the client reconstruct the system prompt.
@@ -545,6 +569,7 @@ export const getMockInterviewSession = async (req, res, next) => {
         durationMinutes: session.durationMinutes,
         targetQuestionCount: session.targetQuestionCount,
         assistantId: session.vapiAssistantId || null,
+        adaptiveDepthEnabled: ADAPTIVE_DEPTH_ENABLED,
         resumeText: includeCustomizationText ? session.resumeText : undefined,
         jobDescriptionText: includeCustomizationText
           ? session.jobDescriptionText
@@ -577,6 +602,74 @@ export const getMockInterviewSession = async (req, res, next) => {
               submittedAt: a.submittedAt,
             })),
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Mid-call adaptive depthHint nudge. Updates next guide item when enabled;
+ * returns a system-message string the client can send to Vapi.
+ * Never regenerates the question guide. Safe no-op when flag is off.
+ */
+export const applyLiveAdaptiveDepth = async (req, res, next) => {
+  try {
+    const session = await loadSessionForUser(req.body.sessionId, req.user._id);
+
+    if (session.mode !== 'live') {
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.NOT_LIVE_SESSION, 400);
+    }
+
+    if (session.status === 'abandoned') {
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.SESSION_ABANDONED, 400);
+    }
+
+    if (!ADAPTIVE_DEPTH_ENABLED) {
+      sendResponse(res, 200, true, 'Adaptive depth disabled.', {
+        adjusted: false,
+        adaptiveDepthEnabled: false,
+      });
+      return;
+    }
+
+    const answerText = String(req.body.answerText || '').trim();
+    const questionText = String(req.body.questionText || '').trim();
+    const answeredCount = Math.max(0, Number(req.body.answeredCount) || 0);
+    const priorStrengths = Array.isArray(req.body.priorStrengths)
+      ? req.body.priorStrengths.map(String).slice(-2)
+      : [];
+
+    const { classification, strength } = evaluateAnswerForAdaptiveDepth(
+      answerText,
+      questionText
+    );
+    const lastStrengths = [...priorStrengths, strength].slice(-2);
+
+    const { questions, adjustment } = applyAdaptiveDepthToQuestions(session.questions, {
+      answeredCount,
+      lastStrengths,
+      enabled: true,
+    });
+
+    if (adjustment) {
+      session.questions = questions;
+      session.currentQuestionIndex = Math.min(
+        answeredCount,
+        Math.max(0, (session.questions || []).length - 1)
+      );
+      await session.save();
+    }
+
+    const systemNudge = buildAdaptiveDepthSystemNudge(adjustment);
+
+    sendResponse(res, 200, true, 'Adaptive depth evaluated.', {
+      adjusted: Boolean(adjustment),
+      adaptiveDepthEnabled: true,
+      classification,
+      strength,
+      adjustment,
+      systemNudge,
     });
   } catch (error) {
     next(error);

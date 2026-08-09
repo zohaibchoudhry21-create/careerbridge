@@ -50,11 +50,11 @@ export default function MockInterviewSessionPage() {
   const [interviewReport, setInterviewReport] = useState(location.state?.interviewReport || null);
   const [submitError, setSubmitError] = useState(null);
 
-  // Skip session GET when start navigation already provided assistantId (faster cold start).
-  const hasNavAssistant = Boolean(location.state?.assistantId);
+  // Always fetch session status (abandoned / completed) unless we already have a report.
+  // Nav-state assistantId still used for faster cold start.
   const { data: sessionFromApi, isLoading: sessionLoading } = useMockInterviewSession(
     sessionId,
-    !interviewReport && !hasNavAssistant
+    !interviewReport
   );
 
   const assistantId = useMemo(() => {
@@ -63,7 +63,17 @@ export default function MockInterviewSessionPage() {
     return '';
   }, [location.state?.assistantId, sessionFromApi?.assistantId]);
 
-  const canStartSession = Boolean(assistantId);
+  const adaptiveDepthEnabled = Boolean(
+    location.state?.adaptiveDepthEnabled ?? sessionFromApi?.adaptiveDepthEnabled
+  );
+
+  const isAbandoned = sessionFromApi?.status === 'abandoned';
+  // Wait for session GET so abandoned/stale status is known before starting the call.
+  const canStartSession =
+    Boolean(assistantId) &&
+    !sessionLoading &&
+    sessionFromApi != null &&
+    sessionFromApi.status === 'active';
 
   const interviewMeta = useMemo(
     () => ({
@@ -199,7 +209,22 @@ export default function MockInterviewSessionPage() {
   return (
     <DashboardLayout user={user}>
       <PageContainer width="standard">
-        {isCompletePhase ? (
+        {isAbandoned ? (
+          <div className="mx-auto max-w-lg space-y-md text-center">
+            <SessionExitLink />
+            <PageHeader
+              align="center"
+              title={t('session.abandonedTitle')}
+              description={t('session.abandonedDescription')}
+            />
+            <Link
+              to="/interview-prep/mock"
+              className={cn(buttonPrimaryClass, 'inline-flex px-6 py-2.5')}
+            >
+              {t('session.startNewInterview')}
+            </Link>
+          </div>
+        ) : isCompletePhase ? (
           <>
             <SessionExitLink />
             <PageHeader
@@ -274,6 +299,7 @@ export default function MockInterviewSessionPage() {
                     difficulty={interviewMeta.difficulty}
                     durationMinutes={interviewMeta.durationMinutes}
                     interviewMode={interviewMeta.interviewMode}
+                    adaptiveDepthEnabled={adaptiveDepthEnabled}
                     stream={stream}
                     onFinished={handleFinished}
                     submitError={submitError}

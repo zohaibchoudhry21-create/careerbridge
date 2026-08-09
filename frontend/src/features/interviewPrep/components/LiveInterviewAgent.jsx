@@ -15,6 +15,7 @@ import LiveInterview from './LiveInterview';
 import LiveVideoIndicator from './LiveVideoIndicator';
 import { DEFAULT_INTERVIEW_SETUP_MODE } from '../constants/interviewPrepConstants';
 import { prepareLiveAudioHintsForSubmit } from '../utils/prepareLiveAudioHintsForSubmit';
+import { applyLiveAdaptiveDepth } from '../services/mockInterviewService';
 
 const CallStatus = {
   INACTIVE: 'INACTIVE',
@@ -39,6 +40,7 @@ export default function LiveInterviewAgent({
   difficulty,
   durationMinutes,
   interviewMode = DEFAULT_INTERVIEW_SETUP_MODE,
+  adaptiveDepthEnabled = false,
   stream,
   onFinished,
   submitError,
@@ -61,6 +63,11 @@ export default function LiveInterviewAgent({
   const getVideoMetricsRef = useRef(() => null);
   const startInFlightRef = useRef(false);
   const endedReasonRef = useRef(null);
+  const adaptiveStrengthsRef = useRef([]);
+  const adaptiveInFlightRef = useRef(false);
+  const lastAiQuestionRef = useRef('');
+  const adaptiveDepthEnabledRef = useRef(adaptiveDepthEnabled);
+  adaptiveDepthEnabledRef.current = adaptiveDepthEnabled;
 
   const { transcript, addTurn } = useLiveInterview();
 
@@ -162,11 +169,67 @@ export default function LiveInterviewAgent({
 
     const onMessage = (message) => {
       if (message.type === 'transcript' && message.transcriptType === 'final') {
+        const role = message.role === 'user' ? 'user' : 'ai';
+        const content = String(message.transcript || '').trim();
         messagesRef.current = [
           ...messagesRef.current,
           { role: message.role, content: message.transcript },
         ];
-        addTurn(message.role === 'user' ? 'user' : 'ai', message.transcript);
+        addTurn(role, message.transcript);
+
+        if (role === 'ai' && content) {
+          lastAiQuestionRef.current = content;
+          return;
+        }
+
+        // Lightweight adaptive depth: classify last answer; nudge Vapi if server adjusts.
+        if (
+          role === 'user' &&
+          content &&
+          adaptiveDepthEnabledRef.current &&
+          sessionId &&
+          !adaptiveInFlightRef.current
+        ) {
+          const answeredCount = messagesRef.current.filter(
+            (m) => m.role === 'user' || m.role === 'candidate'
+          ).length;
+          const priorStrengths = adaptiveStrengthsRef.current.slice(-2);
+          adaptiveInFlightRef.current = true;
+          applyLiveAdaptiveDepth({
+            sessionId,
+            answerText: content,
+            questionText: lastAiQuestionRef.current || '',
+            answeredCount,
+            priorStrengths,
+          })
+            .then((data) => {
+              if (data?.strength) {
+                adaptiveStrengthsRef.current = [
+                  ...adaptiveStrengthsRef.current,
+                  data.strength,
+                ].slice(-4);
+              }
+              if (data?.systemNudge) {
+                try {
+                  getVapiClient().send({
+                    type: 'add-message',
+                    message: {
+                      role: 'system',
+                      content: data.systemNudge,
+                    },
+                  });
+                } catch {
+                  // Mid-call nudge is best-effort; never break the interview.
+                }
+              }
+            })
+            .catch(() => {
+              // Default to no change on any failure.
+            })
+            .finally(() => {
+              adaptiveInFlightRef.current = false;
+            });
+        }
       }
     };
 
@@ -205,7 +268,7 @@ export default function LiveInterviewAgent({
       vapi.off('call-start-progress', onCallStartProgress);
       vapi.off('call-start-failed', onCallStartFailed);
     };
-  }, [addTurn, captureFinalMetrics, resetFaceSamples]);
+  }, [addTurn, captureFinalMetrics, resetFaceSamples, sessionId]);
 
   // A call left running after unmount keeps billing and holds the mic.
   useEffect(

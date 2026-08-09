@@ -55,3 +55,16 @@ export const GUIDE_FOCUS_TAGS = Object.freeze([
 
 /** Depth hints for adaptive scaffolding in the guide (model improvises wording). */
 export const GUIDE_DEPTH_HINTS = Object.freeze(['warmup', 'standard', 'deep']);
+
+/**
+ * Lightweight mid-call depthHint bump/step based on recent answer relevance.
+ * Default false — enable via INTERVIEW_INTEL_ADAPTIVE_DEPTH=true after testing.
+ */
+export const ADAPTIVE_DEPTH_ENABLED =
+  String(process.env.INTERVIEW_INTEL_ADAPTIVE_DEPTH || 'false').toLowerCase() === 'true';
+
+/** Min answer length (chars) to treat an on_topic answer as "strong" for depth bumps. */
+export const ADAPTIVE_DEPTH_STRONG_MIN_CHARS = toNumber(
+  process.env.INTERVIEW_INTEL_ADAPTIVE_STRONG_CHARS,
+  120
+);

@@ -145,3 +145,20 @@ export const submitLiveInterviewValidation = [
     .isInt({ min: 0, max: 3600000 })
     .withMessage(ERROR_CODES.INTERVIEW_PREP.CALL_DURATION_INVALID),
 ];
+
+export const adaptiveDepthValidation = [
+  body('sessionId').isMongoId().withMessage(ERROR_CODES.VALIDATION.SESSION_ID_INVALID),
+  body('answerText')
+    .isString()
+    .withMessage(ERROR_CODES.VALIDATION.GENERIC)
+    .isLength({ max: MAX_INTERVIEW_CONTEXT_TEXT_LENGTH })
+    .withMessage(
+      formatValidationCode(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_TOO_LONG, {
+        max: MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
+      })
+    ),
+  body('questionText').optional().isString().isLength({ max: 2000 }),
+  body('answeredCount').optional().isInt({ min: 0, max: 20 }),
+  body('priorStrengths').optional().isArray({ max: 4 }),
+  body('priorStrengths.*').optional().isIn(['strong', 'weak', 'neutral']),
+];
