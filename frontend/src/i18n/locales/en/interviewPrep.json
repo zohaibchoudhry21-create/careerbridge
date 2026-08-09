@@ -193,6 +193,7 @@
   "report": {
     "title": "Interview report",
     "description": "AI summary based on your answers, voice delivery, and on-camera presence.",
+    "narrativeUnavailable": "Some AI-written feedback is unavailable — showing your scores.",
     "overall": "Overall",
     "eyeContact": "Eye contact",
     "speakingPace": "Speaking pace",

@@ -16,6 +16,7 @@ import {
   buildVideoFeedbackText,
 } from '../utils/videoAnalysisMetrics.js';
 import { persistMockInterviewReport } from '../services/interviewReport/index.js';
+import { evaluateClientMetricsAnomalies } from '../services/interviewReport/clientMetricsValidation.js';
 import { isCurrentScoreVersion } from '../config/interviewReportConfig.js';
 import { serializeInterviewReport } from '../utils/interviewReportSerializer.js';
 import { fetchRoleSuggestionsWithGroq } from '../utils/roleSuggestionsGroqService.js';
@@ -475,6 +476,21 @@ export const submitLiveInterview = async (req, res, next) => {
       : speechTimelineEvents;
     session.callDurationMs = durationMs ? Number(durationMs) : undefined;
 
+    const metricsFlagReasons = evaluateClientMetricsAnomalies({
+      durationMs: session.callDurationMs,
+      questionCount: (session.questions || []).length || session.targetQuestionCount || 0,
+      liveAudioHints,
+      liveVideoMetrics,
+      callVideoMetrics,
+    });
+
+    if (metricsFlagReasons.length) {
+      console.warn(
+        `[interview-submit] metrics anomalies sessionId=${sessionIdStr}:`,
+        metricsFlagReasons.join('; ')
+      );
+    }
+
     // Persist metrics before report so a report failure still keeps monitoring data.
     await withInterviewStageTiming('submit.saveMetrics', () => session.save(), {
       sessionId: sessionIdStr,
@@ -482,7 +498,10 @@ export const submitLiveInterview = async (req, res, next) => {
 
     const { report, cached } = await withInterviewStageTiming(
       'submit.report',
-      () => persistMockInterviewReport(session, req.user._id),
+      () =>
+        persistMockInterviewReport(session, req.user._id, {
+          metricsFlagReasons,
+        }),
       { sessionId: sessionIdStr }
     );
 

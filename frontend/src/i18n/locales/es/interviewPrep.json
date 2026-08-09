@@ -193,6 +193,7 @@
   "report": {
     "title": "Informe de entrevista",
     "description": "Resumen de IA basado en tus respuestas, voz y presencia en cámara.",
+    "narrativeUnavailable": "Parte del feedback escrito por IA no está disponible — mostrando tus puntuaciones.",
     "overall": "General",
     "eyeContact": "Contacto visual",
     "speakingPace": "Ritmo al hablar",

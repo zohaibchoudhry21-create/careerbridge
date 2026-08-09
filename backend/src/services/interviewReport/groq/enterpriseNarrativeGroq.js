@@ -34,6 +34,28 @@ const emptyNarrative = () => ({
   learningRoadmap: [],
   careerSuggestions: [],
   recommendedNextSteps: [],
+  narrativeGenerated: false,
+});
+
+export const NARRATIVE_FALLBACK_SUMMARY =
+  "Detailed AI feedback couldn't be generated right now, but your scores below are accurate and based on your actual answers.";
+
+/**
+ * Deterministic-only narrative shell when Groq is unavailable.
+ * Scores still come from assembleInterviewReport builders.
+ */
+export const buildDeterministicFallbackNarrative = () => ({
+  ...emptyNarrative(),
+  executiveSummary: {
+    headline: 'Your interview scores are ready',
+    summary: NARRATIVE_FALLBACK_SUMMARY,
+    keyTakeaways: [],
+  },
+  recommendedNextSteps: [
+    'Review your question-by-question scores below',
+    'Practice answering with more concrete examples and structure',
+  ],
+  narrativeGenerated: false,
 });
 
 /**
@@ -44,12 +66,19 @@ export const generateEnterpriseNarrativeWithGroq = async (snapshot, measuredFact
   const base = emptyNarrative();
 
   if (!ENTERPRISE_NARRATIVE_GROQ_ENABLED || !isGroqConfigured()) {
-    // Still need legacy AI report for old clients when Groq is configured elsewhere —
-    // if not configured, let caller handle.
     if (isGroqConfigured()) {
-      base.legacyAiReport = await generateMockInterviewReportWithGroq(snapshot);
+      try {
+        base.legacyAiReport = await generateMockInterviewReportWithGroq(snapshot);
+        return { ...base, narrativeGenerated: Boolean(base.legacyAiReport) };
+      } catch (error) {
+        console.warn(
+          '[enterprise-report] legacy-only path failed (Groq enterprise disabled):',
+          error.message
+        );
+        return buildDeterministicFallbackNarrative();
+      }
     }
-    return base;
+    return buildDeterministicFallbackNarrative();
   }
 
   const { model, apiKey } = getGroqConfig();
@@ -172,15 +201,28 @@ ${
       learningRoadmap: parsed.learningRoadmap || [],
       careerSuggestions: parsed.careerSuggestions || [],
       recommendedNextSteps: parsed.legacy?.recommendedNextSteps || [],
+      narrativeGenerated: true,
     };
   } catch (error) {
-    console.warn('[enterprise-report] narrative Groq failed — legacy fallback:', error.message);
+    console.warn('[enterprise-report] narrative Groq failed — trying legacy fallback:', error.message);
     try {
       base.legacyAiReport = await generateMockInterviewReportWithGroq(snapshot);
+      // Partial narrative (legacy sections only) — still counts as generated prose for sections.
+      return {
+        ...base,
+        executiveSummary: {
+          headline: 'Your interview scores are ready',
+          summary: NARRATIVE_FALLBACK_SUMMARY,
+          keyTakeaways: [],
+        },
+        narrativeGenerated: Boolean(base.legacyAiReport),
+      };
     } catch (legacyError) {
-      if (legacyError instanceof AppError) throw legacyError;
-      throw new AppError(ERROR_CODES.INTERVIEW_PREP.AI_SERVICE_UNAVAILABLE, 503);
+      console.error(
+        '[enterprise-report] narrative and legacy Groq both failed — deterministic scores only:',
+        legacyError.message
+      );
+      return buildDeterministicFallbackNarrative();
     }
-    return base;
   }
 };

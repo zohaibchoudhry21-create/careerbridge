@@ -73,6 +73,20 @@ const interviewReportSchema = new mongoose.Schema(
       default: false,
       index: true,
     },
+    /** Human-readable reasons when flaggedForReview is true (injection, metrics anomalies, etc.). */
+    flagReasons: {
+      type: [String],
+      default: [],
+    },
+    /**
+     * false when Groq narrative failed and the report used deterministic scores + fallback prose.
+     * true when enterprise/legacy narrative was generated successfully.
+     */
+    narrativeGenerated: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
     rawMetricsSnapshot: {
       type: mongoose.Schema.Types.Mixed,
       default: undefined,

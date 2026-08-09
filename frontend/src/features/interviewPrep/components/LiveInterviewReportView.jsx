@@ -202,6 +202,8 @@ export default function LiveInterviewReportView({ report, sessionId }) {
   const enterprise = report.enterpriseReport;
   const history = historyData?.history || [];
   const overallScore = enterprise?.overallScore ?? report.overallScore;
+  const narrativeGenerated =
+    report.narrativeGenerated !== false && enterprise?.narrativeGenerated !== false;
 
   return (
     <div className="min-w-0 space-y-md">
@@ -212,6 +214,17 @@ export default function LiveInterviewReportView({ report, sessionId }) {
         <p className="max-w-lg font-body-md app-muted">{t('report.description')}</p>
         <ScoreRing score={overallScore} overallLabel={t('report.overall')} />
       </header>
+
+      {!narrativeGenerated && (
+        <div
+          role="status"
+          className="rounded-2xl border border-outline-variant/60 bg-surface-container-low px-4 py-3 text-start"
+        >
+          <p className="font-body-md text-sm text-on-surface-variant">
+            {t('report.narrativeUnavailable')}
+          </p>
+        </div>
+      )}
 
       {historyLoading ? (
         <Skeleton type="card" count={1} withMedia lines={2} label="Loading interview history chart" />

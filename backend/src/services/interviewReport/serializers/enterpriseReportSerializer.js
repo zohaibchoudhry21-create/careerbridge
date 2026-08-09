@@ -22,6 +22,7 @@ export const serializeEnterpriseReport = (enterprise) => {
 
   return {
     version: enterprise.version || ENTERPRISE_REPORT_VERSION,
+    narrativeGenerated: enterprise.narrativeGenerated !== false,
     executiveSummary: enterprise.executiveSummary || null,
     hiringRecommendation: enterprise.hiringRecommendation || null,
     hiringProbability: enterprise.hiringProbability || null,

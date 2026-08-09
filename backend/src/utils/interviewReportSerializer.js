@@ -10,6 +10,8 @@ export const serializeInterviewReport = (report, sessionId) => ({
   improvementAreas: report.improvementAreas || [],
   recommendedNextSteps: report.recommendedNextSteps || [],
   flaggedForReview: Boolean(report.flaggedForReview),
+  flagReasons: Array.isArray(report.flagReasons) ? report.flagReasons : [],
+  narrativeGenerated: report.narrativeGenerated !== false,
   createdAt: report.createdAt,
   enterpriseReport: serializeEnterpriseReport(report.enterpriseReport),
 });
