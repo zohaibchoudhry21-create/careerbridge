@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { DashboardLayout, PageContainer, PageHeader } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
-import AppIcon from '../../components/icons/AppIcon';
+import Skeleton from '../../components/Skeleton';
 import InterviewPrepHub from '../../features/interviewPrep/components/InterviewPrepHub';
 
 export default function InterviewPrepPage() {
@@ -11,9 +11,9 @@ export default function InterviewPrepPage() {
   if (loading || !user) {
     return (
       <DashboardLayout user={user}>
-        <div className="flex items-center justify-center py-xl">
-          <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
-        </div>
+        <PageContainer>
+          <Skeleton type="card" count={2} withMedia lines={3} columnsGrid={2} label="Loading interview prep" />
+        </PageContainer>
       </DashboardLayout>
     );
   }

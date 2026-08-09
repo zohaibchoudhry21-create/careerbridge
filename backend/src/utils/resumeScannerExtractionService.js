@@ -24,14 +24,14 @@ export const extractResumeForScanner = async (file) => {
       structuredSections: pythonResult.structured_sections || {},
       lineMap: pythonResult.lines || [],
       extractionMetadata: {
-        ...(pythonResult.metadata || {}),
+        // Omit raw_text duplicate — full text lives on ScannedResume.extractedText
         source: pythonResult.source || 'python',
         pages: pythonResult.pages || 0,
         fileType: pythonResult.file_type || '',
-        rawText: pythonResult.raw_text || '',
         atsNormalized: Boolean(pythonResult.metadata?.ats_normalized),
         normalizationMethod: pythonResult.metadata?.normalization_method || '',
         normalizationChanged: Boolean(pythonResult.metadata?.normalization_changed),
+        extractionMode: pythonResult.metadata?.extraction_mode || '',
       },
       sourceFile: {
         filename,

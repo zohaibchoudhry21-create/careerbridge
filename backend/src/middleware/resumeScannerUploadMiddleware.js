@@ -25,10 +25,6 @@ const upload = multer({
 });
 
 export const handleResumeScannerUpload = (req, res, next) => {
-  if (req.body?.mode === 'saved') {
-    return next();
-  }
-
   return upload.single('resume')(req, res, (error) => {
     if (error instanceof multer.MulterError) {
       if (error.code === 'LIMIT_FILE_SIZE') {

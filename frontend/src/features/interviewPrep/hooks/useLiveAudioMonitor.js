@@ -1,11 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LIVE_AUDIO_SAMPLE_INTERVAL_MS } from '../constants/interviewPrepConstants';
-
-const SILENCE_THRESHOLD = 0.04;
-const LONG_PAUSE_MS = 1200;
+import {
+  ACOUSTIC_SAMPLES_MAX,
+  LONG_PAUSE_MIN_MS,
+  PAUSE_EVENTS_MAX,
+  SHORT_PAUSE_MIN_MS,
+  SILENCE_THRESHOLD,
+} from '../config/speechMonitoringConfig.js';
+import { estimatePitchHz } from '../utils/pitchDetectUtils.js';
 
 /**
- * Lightweight Web Audio volume / silence heuristics while recording (not transcription).
+ * Web Audio volume / silence / pitch heuristics while recording (not transcription).
+ * Legacy snapshot fields preserved for backward compatibility.
  */
 export function useLiveAudioMonitor(stream, isRecording) {
   const [snapshot, setSnapshot] = useState(null);
@@ -15,6 +21,9 @@ export function useLiveAudioMonitor(stream, isRecording) {
     silenceRatio: 0,
     longPauseCount: 0,
     inLongPause: false,
+    acousticSamples: [],
+    pauseEvents: [],
+    sampleIntervalMs: LIVE_AUDIO_SAMPLE_INTERVAL_MS,
   });
 
   const contextRef = useRef(null);
@@ -22,12 +31,20 @@ export function useLiveAudioMonitor(stream, isRecording) {
   const sourceRef = useRef(null);
   const intervalRef = useRef(null);
   const samplesRef = useRef([]);
+  const acousticSamplesRef = useRef([]);
+  const pauseEventsRef = useRef([]);
   const silentSamplesRef = useRef(0);
   const lastLoudAtRef = useRef(0);
+  const recordingStartedAtRef = useRef(0);
+  const silenceStartedAtRef = useRef(null);
   const inLongPauseRef = useRef(false);
 
   const publishSnapshot = useCallback(() => {
-    const next = { ...snapshotRef.current };
+    const next = {
+      ...snapshotRef.current,
+      acousticSamples: acousticSamplesRef.current,
+      pauseEvents: pauseEventsRef.current,
+    };
     setSnapshot(next);
     return next;
   }, []);
@@ -40,7 +57,7 @@ export function useLiveAudioMonitor(stream, isRecording) {
 
     const context = new AudioContext();
     const analyser = context.createAnalyser();
-    analyser.fftSize = 512;
+    analyser.fftSize = 2048;
     const source = context.createMediaStreamSource(stream);
     source.connect(analyser);
 
@@ -72,18 +89,40 @@ export function useLiveAudioMonitor(stream, isRecording) {
     }
 
     samplesRef.current = [];
+    acousticSamplesRef.current = [];
+    pauseEventsRef.current = [];
     silentSamplesRef.current = 0;
     lastLoudAtRef.current = Date.now();
+    recordingStartedAtRef.current = Date.now();
+    silenceStartedAtRef.current = null;
     inLongPauseRef.current = false;
     snapshotRef.current = {
       averageVolume: 0,
       silenceRatio: 0,
       longPauseCount: 0,
       inLongPause: false,
+      acousticSamples: [],
+      pauseEvents: [],
+      sampleIntervalMs: LIVE_AUDIO_SAMPLE_INTERVAL_MS,
     };
     publishSnapshot();
 
     const data = new Uint8Array(analyserRef.current.fftSize);
+
+    const flushSilencePause = (endMs) => {
+      const start = silenceStartedAtRef.current;
+      if (start == null) return;
+      const durationMs = Math.max(0, endMs - start);
+      silenceStartedAtRef.current = null;
+      if (durationMs < SHORT_PAUSE_MIN_MS) return;
+
+      const type = durationMs >= LONG_PAUSE_MIN_MS ? 'long' : 'short';
+      const relativeStart = Math.max(0, start - recordingStartedAtRef.current);
+      pauseEventsRef.current = [
+        ...pauseEventsRef.current,
+        { tMs: relativeStart, durationMs, type },
+      ].slice(-PAUSE_EVENTS_MAX);
+    };
 
     intervalRef.current = window.setInterval(() => {
       analyserRef.current.getByteTimeDomainData(data);
@@ -98,16 +137,32 @@ export function useLiveAudioMonitor(stream, isRecording) {
       samplesRef.current.push(average);
 
       const now = Date.now();
+      const tMs = Math.max(0, now - recordingStartedAtRef.current);
       let inLongPause = inLongPauseRef.current;
+
+      const sampleRate = contextRef.current?.sampleRate || 48000;
+      const pitchHz =
+        average >= SILENCE_THRESHOLD ? estimatePitchHz(data, sampleRate) : null;
+
+      const acousticPoint = { tMs, rms: Number(average.toFixed(4)) };
+      if (pitchHz != null) acousticPoint.pitchHz = pitchHz;
+
+      acousticSamplesRef.current = [...acousticSamplesRef.current, acousticPoint].slice(
+        -ACOUSTIC_SAMPLES_MAX
+      );
 
       if (average < SILENCE_THRESHOLD) {
         silentSamplesRef.current += 1;
-        if (!inLongPauseRef.current && now - lastLoudAtRef.current >= LONG_PAUSE_MS) {
+        if (silenceStartedAtRef.current == null) {
+          silenceStartedAtRef.current = now;
+        }
+        if (!inLongPauseRef.current && now - lastLoudAtRef.current >= LONG_PAUSE_MIN_MS) {
           snapshotRef.current.longPauseCount += 1;
           inLongPauseRef.current = true;
           inLongPause = true;
         }
       } else {
+        flushSilencePause(now);
         lastLoudAtRef.current = now;
         inLongPauseRef.current = false;
         inLongPause = false;
@@ -122,6 +177,9 @@ export function useLiveAudioMonitor(stream, isRecording) {
         silenceRatio: Number((silentSamplesRef.current / total).toFixed(3)),
         longPauseCount: snapshotRef.current.longPauseCount,
         inLongPause,
+        acousticSamples: acousticSamplesRef.current,
+        pauseEvents: pauseEventsRef.current,
+        sampleIntervalMs: LIVE_AUDIO_SAMPLE_INTERVAL_MS,
       };
 
       publishSnapshot();
@@ -132,10 +190,34 @@ export function useLiveAudioMonitor(stream, isRecording) {
         window.clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+      // Flush trailing silence when monitoring stops.
+      if (silenceStartedAtRef.current != null) {
+        const now = Date.now();
+        const start = silenceStartedAtRef.current;
+        const durationMs = Math.max(0, now - start);
+        if (durationMs >= SHORT_PAUSE_MIN_MS) {
+          pauseEventsRef.current = [
+            ...pauseEventsRef.current,
+            {
+              tMs: Math.max(0, start - recordingStartedAtRef.current),
+              durationMs,
+              type: durationMs >= LONG_PAUSE_MIN_MS ? 'long' : 'short',
+            },
+          ].slice(-PAUSE_EVENTS_MAX);
+        }
+        silenceStartedAtRef.current = null;
+      }
     };
   }, [isRecording, stream, publishSnapshot]);
 
-  const getSnapshot = useCallback(() => ({ ...snapshotRef.current }), []);
+  const getSnapshot = useCallback(
+    () => ({
+      ...snapshotRef.current,
+      acousticSamples: acousticSamplesRef.current,
+      pauseEvents: pauseEventsRef.current,
+    }),
+    []
+  );
 
   return { snapshot, getSnapshot };
 }

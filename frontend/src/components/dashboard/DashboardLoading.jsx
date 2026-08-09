@@ -1,12 +1,25 @@
-import { useTranslation } from 'react-i18next';
+import Skeleton from '../Skeleton';
 
 function DashboardLoading() {
-  const { t } = useTranslation('dashboard');
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-      <div className="w-10 h-10 border-4 border-secondary border-t-transparent rounded-full animate-spin" />
-      <p className="font-body-md dashboard-muted">{t('loading.message')}</p>
+    <div className="space-y-8 px-1 py-2">
+      <Skeleton type="text" lines={2} label="Loading dashboard welcome" />
+      <Skeleton type="list" count={3} label="Loading quick actions" />
+
+      <div className="space-y-4">
+        <Skeleton type="text" lines={1} label="Loading resume builder section" />
+        <Skeleton type="list" count={3} label="Loading resume builder links" />
+      </div>
+
+      <div className="space-y-4">
+        <Skeleton type="text" lines={1} label="Loading resume scanner section" />
+        <Skeleton type="card" count={1} withMedia={false} lines={5} label="Loading resume scanner" />
+      </div>
+
+      <div className="space-y-4">
+        <Skeleton type="text" lines={1} label="Loading interview prep section" />
+        <Skeleton type="card" count={1} withMedia={false} lines={3} label="Loading interview readiness" />
+      </div>
     </div>
   );
 }

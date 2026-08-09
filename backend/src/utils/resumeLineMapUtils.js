@@ -11,10 +11,12 @@ export const buildResumeTextFromLineMap = (lineMap = []) => {
 };
 
 export const resolveCanonicalResumeText = ({ resumeText = '', lineMap = [] } = {}) => {
-  const fromLineMap = buildResumeTextFromLineMap(lineMap);
-  if (fromLineMap) {
-    return fromLineMap;
+  // Prefer ATS-normalized resumeText (has intentional section newlines).
+  // lineMap is only a fallback when resumeText is missing.
+  const fromResume = String(resumeText || '').trimEnd();
+  if (fromResume) {
+    return fromResume;
   }
 
-  return String(resumeText || '').trimEnd();
+  return buildResumeTextFromLineMap(lineMap);
 };

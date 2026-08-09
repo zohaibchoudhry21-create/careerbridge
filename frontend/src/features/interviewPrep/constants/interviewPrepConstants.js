@@ -69,10 +69,26 @@ export const INTERVIEW_SETUP_MODE_OPTIONS = [
 export const DEFAULT_INTERVIEW_SETUP_MODE = 'video_voice';
 
 export const INTERVIEWER_PERSONA_OPTIONS = [
-  { value: 'friendly', label: 'Friendly', description: 'Warm and encouraging' },
-  { value: 'neutral', label: 'Neutral', description: 'Professional and balanced' },
-  { value: 'strict', label: 'Strict', description: 'Formal and demanding' },
-  { value: 'panel', label: 'Panel of 3', description: 'Multi-interviewer simulation' },
+  {
+    value: 'friendly',
+    label: 'Friendly',
+    description: 'Warm HR-style interviewer — encouraging, natural pauses, supportive follow-ups',
+  },
+  {
+    value: 'neutral',
+    label: 'Neutral',
+    description: 'Seasoned hiring manager — courteous, clear, efficient pacing',
+  },
+  {
+    value: 'strict',
+    label: 'Strict',
+    description: 'Formal rigorous interviewer — concise answers, crisp probes',
+  },
+  {
+    value: 'panel',
+    label: 'Panel of 3',
+    description: 'Technical lead + hiring manager + HR with natural hand-offs',
+  },
 ];
 
 export const DEFAULT_INTERVIEWER_PERSONA = 'neutral';

@@ -119,7 +119,6 @@ export const sendSocialWelcomeEmail = async ({ to, name, dashboardUrl }) => {
           <li><strong>Resume Scanner</strong> — get instant feedback on resume quality and gaps</li>
           <li><strong>AI Job Matching</strong> — discover roles that fit your skills and goals</li>
           <li><strong>Interview Preparation</strong> — practice with AI mock interviews and skill assessments</li>
-          <li><strong>LinkedIn Optimizer</strong> — strengthen your professional online presence</li>
         </ul>
         <p style="line-height: 1.6;">Head to your dashboard to start building your ATS-ready resume.</p>
         <p style="margin: 28px 0; text-align: center;">

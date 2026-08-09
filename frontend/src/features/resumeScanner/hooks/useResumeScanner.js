@@ -1,12 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   acceptAllSuggestions,
+  downloadResumeScannerPdf,
   fetchResumeScannerAnalysis,
   fetchResumeScannerStatus,
-  fetchSavedScannerResumes,
+  finalizeResumeScannerAnalysis,
   redoResumeScannerChange,
   undoResumeScannerChange,
   updateResumeScannerText,
+  updateRewriteStatus,
   updateSuggestionStatus,
   uploadResumeScanner,
 } from '../services/resumeScannerService';
@@ -19,24 +21,10 @@ const setAnalysisCache = (queryClient, analysisId, payload) => {
 
 const TERMINAL_STATUSES = new Set(['completed', 'failed']);
 
-export const useSavedScannerResumes = (enabled = true) =>
-  useQuery({
-    queryKey: ['resume-scanner-resumes'],
-    queryFn: fetchSavedScannerResumes,
-    select: (data) => data.resumes || [],
-    enabled,
-  });
-
-export const useUploadResumeScanner = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
+export const useUploadResumeScanner = () =>
+  useMutation({
     mutationFn: uploadResumeScanner,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['resume-scanner-resumes'] });
-    },
   });
-};
 
 export const useResumeScannerStatus = (analysisId, enabled = false) =>
   useQuery({
@@ -87,7 +75,7 @@ export const useUpdateResumeScannerText = (analysisId) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (resumeText) => updateResumeScannerText(analysisId, resumeText),
+    mutationFn: (payload) => updateResumeScannerText(analysisId, payload),
     onSuccess: (data) => {
       setAnalysisCache(queryClient, analysisId, data);
     },
@@ -115,3 +103,30 @@ export const useRedoResumeScannerChange = (analysisId) => {
     },
   });
 };
+
+export const useUpdateRewriteStatus = (analysisId) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (action) => updateRewriteStatus(analysisId, action),
+    onSuccess: (data) => {
+      setAnalysisCache(queryClient, analysisId, data);
+    },
+  });
+};
+
+export const useFinalizeResumeScanner = (analysisId) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => finalizeResumeScannerAnalysis(analysisId),
+    onSuccess: (data) => {
+      setAnalysisCache(queryClient, analysisId, data);
+    },
+  });
+};
+
+export const useDownloadResumeScannerPdf = (analysisId) =>
+  useMutation({
+    mutationFn: () => downloadResumeScannerPdf(analysisId),
+  });

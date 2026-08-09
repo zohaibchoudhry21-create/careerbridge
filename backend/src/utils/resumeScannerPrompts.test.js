@@ -21,6 +21,10 @@ describe('resumeScannerPrompts', () => {
     expect(prompt).toContain('"recruiterTips"');
   });
 
+  it('includes bullet-marker guidance for suggestion originals', () => {
+    expect(RESUME_SCANNER_SYSTEM_PROMPT).toMatch(/WITHOUT bullet markers/i);
+  });
+
   it('omits job title block when title is empty', () => {
     const prompt = buildResumeScannerPrompt({
       resumeText: 'Resume body',

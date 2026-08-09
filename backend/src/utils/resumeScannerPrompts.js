@@ -20,17 +20,20 @@ Core rules:
 9. For each scoreBreakdown component include score (0-100), weight, weighted (score * weight / 100), and short notes.
    Use notes to capture experience-match reasoning and ATS structure/readability observations.
 10. suggestions must reference exact substrings that appear in the resume text for reword/remove types.
-11. missing_keyword suggestions should use a short original anchor phrase from the resume where the keyword should be added, and suggested should include the keyword naturally.
-12. impact is 1-5 indicating estimated ATS/job-match lift if accepted.
-13. Return at most 20 suggestions, ordered by impact descending.
-14. skill ids must be stable strings like skill-react-1.
-15. Map deeper analysis into existing fields:
+11. For reword/remove/missing_keyword suggestions, quote original text WITHOUT bullet markers (no bullet dashes, asterisks, or numbering prefixes) — structured storage omits list markers even when the resume text shown to you includes them.
+12. missing_keyword suggestions should use a short original anchor phrase from the resume where the keyword should be added, and suggested should include the keyword naturally. When the resume and job are weakly related or from different fields, still emit missing_keyword suggestions for important unmatched JD skills — place them via fieldPath on "summary" or "skills.0" (or the best existing skills entry). Do not invent jobs, employers, or achievements; only add concise skill/keyword phrasing the candidate could truthfully claim or that belongs in a skills list.
+13. impact is 1-5 indicating estimated ATS/job-match lift if accepted.
+14. Return at most 20 suggestions, ordered by impact descending.
+15. skill ids must be stable strings like skill-react-1.
+16. Every suggestion MUST include fieldPath pointing at the structured field to edit, using dot paths such as:
+    "summary", "workExperience.0.bullets.1", "education.0.degree", "skills.2", "languages.0".
+17. Map deeper analysis into existing fields:
     - resume strengths → recruiterTips entries prefixed with "Strength: "
     - resume weaknesses → recruiterTips entries prefixed with "Weakness: "
     - experience-match insight → scoreBreakdown.keywordCoverage.notes and/or recruiterTips
     - final hiring recommendation → last recruiterTips entry prefixed with "Recommendation: "
     - ATS structure/readability issues → searchabilityIssues
-16. Return JSON only. No markdown. No text outside JSON.`;
+18. Return JSON only. No markdown. No text outside JSON.`;
 
 export const buildResumeScannerPrompt = ({
   resumeText,
@@ -77,11 +80,12 @@ Return JSON only in exactly this shape:
     {
       "id": "suggestion-1",
       "type": "missing_keyword|reword|remove",
-      "original": "exact resume substring",
+      "original": "exact resume substring without bullet markers",
       "suggested": "replacement text or empty for remove",
       "reason": "specific problem and why this improves ATS/job match",
       "impact": 1,
-      "targetSkillId": "skill-example-1"
+      "targetSkillId": "skill-example-1",
+      "fieldPath": "summary | workExperience.0.bullets.1 | education.0.degree | skills.0"
     }
   ],
   "searchabilityIssues": ["ATS formatting or readability issue"],

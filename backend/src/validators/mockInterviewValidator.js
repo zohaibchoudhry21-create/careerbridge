@@ -127,7 +127,19 @@ export const submitLiveInterviewValidation = [
       })
     ),
   body('liveAudioHints').optional().isObject(),
-  body('liveVideoMetrics').optional(),
+  body('liveAudioHints.acousticSamples')
+    .optional()
+    .isArray({ max: 2400 })
+    .withMessage(ERROR_CODES.VALIDATION.GENERIC),
+  body('liveAudioHints.pauseEvents')
+    .optional()
+    .isArray({ max: 200 })
+    .withMessage(ERROR_CODES.VALIDATION.GENERIC),
+  body('liveVideoMetrics').optional().isObject(),
+  body('liveVideoMetrics.frameSamples')
+    .optional()
+    .isArray({ max: 4000 })
+    .withMessage(ERROR_CODES.VALIDATION.GENERIC),
   body('durationMs')
     .optional()
     .isInt({ min: 0, max: 3600000 })

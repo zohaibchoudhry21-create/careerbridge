@@ -1,7 +1,29 @@
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AppIcon from './icons/AppIcon';
 
 const SOCIAL_ICONS = ['link', 'code', 'share'];
+
+function FooterLink({ href, children }) {
+  const className =
+    'text-sm text-on-surface-variant hover:text-secondary transition-colors cursor-pointer';
+  const isAppRoute =
+    typeof href === 'string' && href.startsWith('/') && !href.includes('#');
+
+  if (isAppRoute) {
+    return (
+      <Link to={href} className={className}>
+        {children}
+      </Link>
+    );
+  }
+
+  return (
+    <a className={className} href={href || '#'}>
+      {children}
+    </a>
+  );
+}
 
 export default function Footer() {
   const { t } = useTranslation('marketing');
@@ -31,16 +53,15 @@ export default function Footer() {
                   {column.title}
                 </h4>
                 <ul className="space-y-2">
-                  {column.links?.map((link) => (
-                    <li key={link}>
-                      <a
-                        className="text-sm text-on-surface-variant hover:text-secondary transition-colors cursor-pointer"
-                        href="#"
-                      >
-                        {link}
-                      </a>
-                    </li>
-                  ))}
+                  {column.links?.map((link) => {
+                    const label = typeof link === 'string' ? link : link.label;
+                    const href = typeof link === 'string' ? '#' : link.href;
+                    return (
+                      <li key={`${column.title}-${label}`}>
+                        <FooterLink href={href}>{label}</FooterLink>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))}
@@ -52,7 +73,12 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-center gap-2">
                 <AppIcon name="mail" size="h-4 w-4" className="text-secondary" />
-                <span className="text-sm text-on-surface-variant">{t('footer.contact.email')}</span>
+                <a
+                  href={`mailto:${t('footer.contact.email')}`}
+                  className="text-sm text-on-surface-variant hover:text-secondary transition-colors"
+                >
+                  {t('footer.contact.email')}
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <AppIcon name="location_on" size="h-4 w-4" className="text-secondary" />

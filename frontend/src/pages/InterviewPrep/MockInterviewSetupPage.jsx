@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { DashboardLayout, PageContainer, BackLink } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
-import AppIcon from '../../components/icons/AppIcon';
+import Skeleton from '../../components/Skeleton';
 import MockInterviewSetup from '../../features/interviewPrep/components/MockInterviewSetup';
 
 export default function MockInterviewSetupPage() {
@@ -11,9 +11,9 @@ export default function MockInterviewSetupPage() {
   if (loading || !user) {
     return (
       <DashboardLayout user={user}>
-        <div className="flex items-center justify-center py-xl">
-          <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
-        </div>
+        <PageContainer width="standard">
+          <Skeleton type="card" count={3} withMedia={false} lines={4} columnsGrid={1} label="Loading mock interview setup" />
+        </PageContainer>
       </DashboardLayout>
     );
   }

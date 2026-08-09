@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout';
 import Button from '../../components/ui/Button';
+import Skeleton from '../../components/Skeleton';
 import ResumePreview from '../../features/resumeBuilder/components/ResumePreview';
 import TemplatePicker from '../../features/resumeBuilder/components/TemplatePicker';
 import { ResumeTextArea, ResumeTextInput } from '../../features/resumeBuilder/components/ResumeFormFields';
@@ -127,8 +128,14 @@ export default function ResumeEditorPage() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex justify-center py-20">
-          <Loader2 className="h-10 w-10 animate-spin text-secondary" />
+        <div className="flex flex-col lg:flex-row gap-4 min-h-[calc(100vh-8rem)] p-4">
+          <div className="w-full lg:w-[420px] xl:w-[460px] shrink-0 space-y-3">
+            <Skeleton type="card" count={1} withMedia={false} lines={2} label="Loading resume editor" />
+            <Skeleton type="card" count={3} withMedia={false} lines={3} columnsGrid={1} />
+          </div>
+          <div className="flex-1 rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+            <Skeleton type="text" lines={14} />
+          </div>
         </div>
       </DashboardLayout>
     );

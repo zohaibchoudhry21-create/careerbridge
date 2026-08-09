@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import AppIcon from '../../components/icons/AppIcon';
+import { buttonSecondaryClass } from '../../components/ui/buttonTokens';
 import { cn } from '../../lib/utils';
 import { useLanguageMenu, useLanguageSwitcher } from '../../hooks/useLanguageSwitcher';
 
@@ -25,15 +26,14 @@ export default function LanguageSelector({ className = '', compact = false }) {
         aria-expanded={open}
         disabled={isSaving}
         className={cn(
-          'inline-flex items-center gap-1.5 rounded-xl border border-outline-variant/50 bg-white/80 px-2.5 py-1.5',
-          'font-label-md app-heading hover:border-secondary/40 hover:bg-white transition-colors',
-          'disabled:opacity-60 min-h-[36px]',
+          buttonSecondaryClass,
+          'gap-1.5 px-3.5 py-1.5 text-label-md',
           compact && 'px-2 py-1'
         )}
       >
-        <AppIcon name="language" size="h-4 w-4" className="app-muted" />
+        <AppIcon name="language" size="h-4 w-4" />
         <span className="tracking-wide">{currentDisplayCode}</span>
-        <AppIcon name="expand_more" size="h-4 w-4" className="app-muted" />
+        <AppIcon name="expand_more" size="h-4 w-4" />
       </button>
 
       {open ? (

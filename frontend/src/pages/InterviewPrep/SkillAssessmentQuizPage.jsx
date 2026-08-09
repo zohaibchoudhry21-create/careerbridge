@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { DashboardLayout, PageContainer, BackLink } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
-import AppIcon from '../../components/icons/AppIcon';
+import Skeleton from '../../components/Skeleton';
 import SkillQuizMcq, {
   SkillQuizNavButtons,
   SkillQuizProgress,
@@ -81,9 +81,12 @@ export default function SkillAssessmentQuizPage() {
   if (authLoading || !user) {
     return (
       <DashboardLayout user={user}>
-        <div className="flex items-center justify-center py-xl">
-          <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
-        </div>
+        <PageContainer width="narrow">
+          <Skeleton type="card" count={1} withMedia={false} lines={2} label="Loading quiz" />
+          <div className="mt-4">
+            <Skeleton type="list" count={4} />
+          </div>
+        </PageContainer>
       </DashboardLayout>
     );
   }
@@ -94,8 +97,10 @@ export default function SkillAssessmentQuizPage() {
         <BackLink to="/interview-prep/skills">{t('backLinks.newQuiz')}</BackLink>
 
         {isLoading ? (
-          <div className="flex justify-center py-xl">
-            <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
+          <div className="space-y-4 py-2">
+            <Skeleton type="text" lines={1} label="Loading skill quiz" />
+            <Skeleton type="card" count={1} withMedia={false} lines={2} />
+            <Skeleton type="list" count={4} />
           </div>
         ) : null}
 

@@ -1,5 +1,5 @@
 /**
- * Standard page title block: 26px heading + 4px-gap subtitle, with optional
+ * Standard page title block: dashboard heading + base-gap subtitle, with optional
  * right-aligned actions. Vertical spacing comes from PageContainer's space-y,
  * so this never sets its own margins.
  */

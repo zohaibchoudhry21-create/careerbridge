@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   fetchMockInterviewSession,
   generateMockInterviewReport,
@@ -11,10 +11,15 @@ export const useStartLiveInterview = () =>
     mutationFn: startLiveInterview,
   });
 
-export const useSubmitLiveInterview = () =>
-  useMutation({
+export const useSubmitLiveInterview = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
     mutationFn: submitLiveInterview,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['interview-report-history'] });
+    },
   });
+};
 
 export const useMockInterviewSession = (sessionId, enabled = true) =>
   useQuery({
@@ -22,9 +27,15 @@ export const useMockInterviewSession = (sessionId, enabled = true) =>
     queryFn: () => fetchMockInterviewSession(sessionId),
     select: (data) => data.session,
     enabled: Boolean(sessionId) && enabled,
+    staleTime: 30_000,
   });
 
-export const useGenerateMockInterviewReport = () =>
-  useMutation({
+export const useGenerateMockInterviewReport = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
     mutationFn: (sessionId) => generateMockInterviewReport(sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['interview-report-history'] });
+    },
   });
+};

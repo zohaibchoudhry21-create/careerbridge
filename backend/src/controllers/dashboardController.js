@@ -3,8 +3,8 @@ import { getDashboardOverview, getJobMatches } from '../utils/dashboardDataServi
 
 export const getDashboard = async (req, res, next) => {
   try {
-    const overview = getDashboardOverview(req.user);
-    const jobMatches = getJobMatches(req.user).slice(0, 3);
+    const overview = await getDashboardOverview(req.user);
+    const jobMatches = (await getJobMatches(req.user)).slice(0, 3);
 
     sendResponse(res, 200, true, 'Dashboard data fetched successfully', {
       ...overview,
@@ -18,7 +18,7 @@ export const getDashboard = async (req, res, next) => {
 export const getJobMatchesHandler = async (req, res, next) => {
   try {
     sendResponse(res, 200, true, 'Job matches fetched successfully', {
-      matches: getJobMatches(req.user),
+      matches: await getJobMatches(req.user),
     });
   } catch (error) {
     next(error);

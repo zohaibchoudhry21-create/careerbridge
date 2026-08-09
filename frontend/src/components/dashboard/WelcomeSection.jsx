@@ -1,7 +1,6 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import AccountIconButton from './AccountIconButton';
-import AppIcon from '../icons/AppIcon';
+import { Clock, Sparkles } from 'lucide-react';
 
 function WelcomeSection({ welcome }) {
   const { t } = useTranslation('dashboard');
@@ -9,22 +8,22 @@ function WelcomeSection({ welcome }) {
   if (!welcome) return null;
 
   return (
-    <header className="flex flex-col md:flex-row md:items-start justify-between gap-sm min-w-0">
-      <div className="min-w-0 flex-1">
-        <h1 className="font-headline-dashboard text-headline-dashboard app-heading">
+    <header className="min-w-0 space-y-4">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
           {t('welcome.title', { name: welcome.firstName })}
         </h1>
-        <p className="font-body-md app-muted mt-base">{t('welcome.subtitle')}</p>
+        <p className="mt-1 text-sm text-slate-500 sm:text-base">{t('welcome.subtitle')}</p>
       </div>
-      <div className="flex flex-wrap items-center gap-sm shrink-0 max-w-full">
-        <span className="px-sm py-xs bg-surface-container-high text-secondary rounded-full font-label-sm flex items-center gap-2 max-w-full">
-          <AppIcon name="history" size="h-4 w-4" />
+      <div className="flex flex-wrap gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600">
+          <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden />
           {t('welcome.lastActivity', { activity: welcome.lastActivity })}
         </span>
-        <span className="px-sm py-xs bg-secondary-fixed text-on-secondary-fixed-variant rounded-full font-label-sm flex items-center gap-2 border border-secondary/20 max-w-full">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+          <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden />
           {t('welcome.aiStatus', { status: welcome.aiStatus })}
         </span>
-        <AccountIconButton className="hidden lg:inline-flex" />
       </div>
     </header>
   );

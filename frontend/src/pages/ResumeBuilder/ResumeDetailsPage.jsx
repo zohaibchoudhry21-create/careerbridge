@@ -8,7 +8,6 @@ import {
   GraduationCap,
   Lightbulb,
   Link as LinkIcon,
-  Loader2,
   Mail,
   MapPin,
   Phone,
@@ -18,6 +17,7 @@ import {
 } from 'lucide-react';
 import { DashboardLayout, PageContainer, PageHeader } from '../../components/layout';
 import Button from '../../components/ui/Button';
+import Skeleton from '../../components/Skeleton';
 import ResumePreview from '../../features/resumeBuilder/components/ResumePreview';
 import { StatusBadge } from '../../features/resumeBuilder/components/ResumeFormFields';
 import { DEFAULT_TEMPLATE } from '../../features/resumeBuilder/components/templatesConfig';
@@ -68,9 +68,16 @@ export default function ResumeDetailsPage() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex justify-center py-20">
-          <Loader2 className="h-10 w-10 animate-spin text-secondary" />
-        </div>
+        <PageContainer width="wide">
+          <div className="space-y-6">
+            <Skeleton type="avatar" size="lg" label="Loading resume details" />
+            <Skeleton type="card" count={2} withMedia={false} lines={4} columnsGrid={2} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Skeleton type="card" count={1} withMedia={false} lines={6} />
+              <Skeleton type="text" lines={12} />
+            </div>
+          </div>
+        </PageContainer>
       </DashboardLayout>
     );
   }

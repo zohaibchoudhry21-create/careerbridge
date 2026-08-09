@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authInputClassName, getAuthFieldClassName } from '../../../components/auth/authUi';
-import AppIcon from '../../../components/icons/AppIcon';
+import Skeleton from '../../../components/Skeleton';
 import { fetchRoleSuggestions } from '../services/mockInterviewService';
 import { cn } from '../../../lib/utils';
 
@@ -188,9 +188,8 @@ export default function RoleAutocompleteInput({
           className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-lowest shadow-level-2"
         >
           {isLoading ? (
-            <div className="flex items-center justify-center gap-2 px-4 py-3">
-              <AppIcon name="progress_activity" size="sm" spin className="text-secondary" />
-              <span className="font-label-sm text-on-surface-variant">{t('roleAutocomplete.findingRoles')}</span>
+            <div className="px-4 py-3">
+              <Skeleton type="text" count={3} lines={1} label={t('roleAutocomplete.findingRoles')} />
             </div>
           ) : fetchError ? (
             <div className="px-4 py-3 font-label-sm text-error">{fetchError}</div>

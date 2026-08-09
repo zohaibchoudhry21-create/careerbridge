@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import AnimatedContent from '../ui/AnimatedContent';
 import SectionIcon from '../ui/SectionIcon';
+import AppIcon from '../icons/AppIcon';
 
 const PROBLEM_META = [
   {
@@ -56,14 +57,15 @@ export default function ProblemSection() {
               className="h-full"
             >
               <div
-                className={`${meta.cardClass} flex h-full flex-col items-center space-y-4 rounded-2xl p-6 text-center transition-all hover:-translate-y-2 hover:shadow-level-2`}
+                className={`${meta.cardClass} flex h-full min-h-[280px] flex-col items-center justify-center space-y-5 rounded-[2rem] px-6 py-10 text-center transition-all hover:-translate-y-2 hover:shadow-level-2 md:min-h-[300px]`}
               >
                 <SectionIcon
                   color={meta.color}
-                  icon={meta.icon}
                   size="lg"
-                  className={`mb-2 ${meta.iconAnimationClass}`}
-                />
+                  className={`mb-1 h-16 w-16 rounded-full ${meta.iconAnimationClass}`}
+                >
+                  <AppIcon name={meta.icon} size="settings" />
+                </SectionIcon>
                 <h3 className="font-headline-md text-headline-md text-on-surface">{item.title}</h3>
                 <p className="font-body-md text-body-md text-on-surface-variant">{item.description}</p>
               </div>

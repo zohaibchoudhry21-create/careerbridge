@@ -11,20 +11,20 @@ function QuickActions() {
 
   return (
     <section className="min-w-0">
-      <div className="mb-sm flex items-center gap-2.5">
-        <SectionIcon color="settings" icon="bolt" />
-        <h3 className="dashboard-section-title">{t('quickActions.sectionTitle')}</h3>
-      </div>
-      <div className="grid w-full min-w-0 grid-cols-2 gap-xs sm:grid-cols-3 sm:gap-sm lg:grid-cols-3 xl:grid-cols-5">
+      <h3 className="mb-3 text-sm font-medium uppercase tracking-wide text-slate-500">
+        {t('quickActions.sectionTitle')}
+      </h3>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         {quickActions.map(({ id, label, icon, href, color = 'resume' }) => (
           <button
             key={id}
             type="button"
             onClick={() => href && navigate(href)}
-            className="dashboard-card-hover flex min-h-[96px] min-w-0 flex-col items-center justify-center gap-xs rounded-2xl text-center transition-all dashboard-glass-card dashboard-card-padding"
+            disabled={!href}
+            className="flex min-h-[72px] items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-start transition-colors hover:border-slate-300 hover:bg-slate-50 disabled:cursor-default disabled:opacity-60"
           >
             {icon ? <SectionIcon color={color} icon={icon} size="sm" /> : null}
-            <span className="min-w-0 break-words font-label-md text-on-surface">{label}</span>
+            <span className="text-sm font-medium text-slate-800">{label}</span>
           </button>
         ))}
       </div>

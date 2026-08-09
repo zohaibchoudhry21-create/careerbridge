@@ -20,6 +20,7 @@
   "resumeIntelligence": {
     "title": "Inteligencia de currículum",
     "atsStatus": "Estado de optimización ATS:",
+    "atsStatusLabel": "optimización",
     "keywordGaps": "Brechas de palabras clave identificadas",
     "aiInsight": "Perspectiva de IA",
     "improvementPotential": "Potencial de mejora: <strong>{{potential}}</strong> si se cuantifican las descripciones de proyectos."
@@ -37,7 +38,9 @@
     "skillMatch": "{{percent}}% coincidencia de habilidades",
     "recommendedByAi": "Recomendado por agente de IA",
     "quickApply": "Aplicar rápido",
-    "companyLogo": "Logo de {{company}}"
+    "companyLogo": "Logo de {{company}}",
+    "empty": "Aún no hay coincidencias. Escanea tu currículum contra una descripción de puesto para verlas aquí.",
+    "retry": "Reintentar"
   },
   "careerRisk": {
     "title": "Nivel de riesgo profesional",
@@ -49,5 +52,42 @@
   },
   "error": {
     "title": "No se pudo cargar el panel"
+  },
+  "features": {
+    "open": "Abrir",
+    "resumeBuilder": {
+      "title": "Creador de currículum",
+      "description": "Sube, edita y exporta currículums compatibles con ATS con análisis de IA."
+    },
+    "resumeScanner": {
+      "title": "Escáner de currículum",
+      "description": "Compara tu currículum con descripciones de puesto y corrige brechas ATS."
+    },
+    "interviewPrep": {
+      "title": "Preparación para entrevistas",
+      "description": "Practica entrevistas simuladas y evaluaciones de habilidades con retroalimentación de IA."
+    }
+  },
+  "resumeBuilder": {
+    "links": {
+      "upload": "Subir currículum",
+      "history": "Historial de currículums",
+      "templates": "Ver plantillas"
+    }
+  },
+  "resumeScanner": {
+    "openScanner": "Abrir escáner de currículum",
+    "empty": {
+      "title": "Sin datos de escaneo",
+      "description": "Sube tu currículum y una descripción de puesto para ver puntuaciones ATS y brechas de habilidades.",
+      "cta": "Comenzar escaneo"
+    }
+  },
+  "interviewPrep": {
+    "empty": {
+      "title": "Sin sesiones de práctica",
+      "description": "Realiza una entrevista simulada para obtener tu puntuación de preparación y retroalimentación de IA.",
+      "cta": "Iniciar entrevista simulada"
+    }
   }
 }

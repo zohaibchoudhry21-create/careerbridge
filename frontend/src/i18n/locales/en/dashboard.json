@@ -6,7 +6,7 @@
     "aiStatus": "AI Status: {{status}}"
   },
   "quickActions": {
-    "sectionTitle": "Accelerated Tools",
+    "sectionTitle": "Quick shortcuts",
     "build-resume": "Build ATS Resume",
     "optimize-resume": "Optimize Resume",
     "cover-letter": "Create Cover Letter"
@@ -20,6 +20,7 @@
   "resumeIntelligence": {
     "title": "Resume Intelligence",
     "atsStatus": "ATS Optimization Status:",
+    "atsStatusLabel": "optimization",
     "keywordGaps": "Keyword Gaps Identified",
     "aiInsight": "AI Insight",
     "improvementPotential": "Improvement potential: <strong>{{potential}}</strong> if project descriptions are quantified."
@@ -37,7 +38,9 @@
     "skillMatch": "{{percent}}% Skill Match",
     "recommendedByAi": "Recommended by AI Agent",
     "quickApply": "Quick Apply",
-    "companyLogo": "{{company}} logo"
+    "companyLogo": "{{company}} logo",
+    "empty": "No job matches yet. Scan your resume against a job description to see matches here.",
+    "retry": "Try again"
   },
   "careerRisk": {
     "title": "Career Risk Level",
@@ -49,5 +52,42 @@
   },
   "error": {
     "title": "Unable to load dashboard"
+  },
+  "features": {
+    "open": "Open",
+    "resumeBuilder": {
+      "title": "Resume Builder",
+      "description": "Upload, edit, and export ATS-friendly resumes with AI parsing."
+    },
+    "resumeScanner": {
+      "title": "Resume Scanner",
+      "description": "Match your resume to job descriptions and fix ATS gaps."
+    },
+    "interviewPrep": {
+      "title": "Interview Prep",
+      "description": "Practice mock interviews and skill assessments with AI feedback."
+    }
+  },
+  "resumeBuilder": {
+    "links": {
+      "upload": "Upload resume",
+      "history": "Resume history",
+      "templates": "Browse templates"
+    }
+  },
+  "resumeScanner": {
+    "openScanner": "Open Resume Scanner",
+    "empty": {
+      "title": "No scan data yet",
+      "description": "Upload your resume and a job description to see ATS scores and skill gaps.",
+      "cta": "Start scanning"
+    }
+  },
+  "interviewPrep": {
+    "empty": {
+      "title": "No practice sessions yet",
+      "description": "Take a mock interview to get your readiness score and AI feedback.",
+      "cta": "Start mock interview"
+    }
   }
 }

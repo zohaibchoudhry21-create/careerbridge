@@ -98,7 +98,8 @@
     "description": "Elige un tema y la dificultad. Las preguntas las genera la IA y se puntúan en el servidor.",
     "topic": {
       "title": "Tema",
-      "description": "Elige el área que quieres evaluar."
+      "description": "Escribe cualquier habilidad o tema que quieras evaluar.",
+      "placeholder": "Ej.: React Hooks, MongoDB, System Design"
     },
     "difficulty": {
       "title": "Dificultad",
@@ -109,7 +110,7 @@
       "description": "Cuántas preguntas incluir.",
       "questions": "{{count}} preguntas"
     },
-    "selectTopic": "Selecciona un tema.",
+    "selectTopic": "Introduce un tema.",
     "startFailed": "No se pudo iniciar el cuestionario.",
     "generateFailed": "No se pudo generar el cuestionario. Comprueba tu conexión e inténtalo de nuevo.",
     "topicsLoadFailed": "No se pudieron cargar los temas",
@@ -177,6 +178,7 @@
     "turns": "turnos",
     "endInterview": "Finalizar entrevista",
     "startInterview": "Iniciar entrevista",
+    "missingAssistant": "El asistente de entrevista no está listo. Vuelve e inicia de nuevo.",
     "waitingMic": "Esperando micrófono…",
     "waitingCamera": "Esperando cámara…",
     "loadingFaceModels": "Cargando modelos de análisis facial…",
@@ -209,7 +211,36 @@
     "progressTitle": "Tu progreso",
     "progressDescription": "Tendencia de puntuación en entrevistas simuladas recientes.",
     "chartLabel": "Puntuación general",
-    "chartTooltip": "Puntuación: {{score}}"
+    "chartTooltip": "Puntuación: {{score}}",
+    "enterprise": {
+      "executiveSummary": "Resumen ejecutivo",
+      "hiringRecommendation": "Recomendación de contratación",
+      "hiringProbability": "Probabilidad de contratación",
+      "bodyLanguage": "Lenguaje corporal",
+      "questionReview": "Revisión pregunta por pregunta",
+      "weaknesses": "Debilidades",
+      "learningRoadmap": "Hoja de ruta de aprendizaje",
+      "careerSuggestions": "Sugerencias de carrera",
+      "timeline": "Línea de tiempo",
+      "dimensionRadar": "Radar de habilidades",
+      "scoreBreakdown": "Desglose de puntuación",
+      "scores": "Puntuaciones",
+      "decision": {
+        "hire": "Recomendar contratar",
+        "leanHire": "Inclinar a contratar",
+        "hold": "En espera / más señales",
+        "noHire": "No recomendar"
+      },
+      "dimensions": {
+        "communication": "Comunicación",
+        "technicalSkills": "Habilidades técnicas",
+        "behavior": "Comportamiento",
+        "confidence": "Confianza",
+        "leadership": "Liderazgo",
+        "problemSolving": "Resolución de problemas",
+        "criticalThinking": "Pensamiento crítico"
+      }
+    }
   },
   "quiz": {
     "questionOf": "Pregunta {{current}} de {{total}}",

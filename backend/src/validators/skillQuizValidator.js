@@ -3,24 +3,31 @@ import {
   MOCK_INTERVIEW_DIFFICULTIES,
   MIN_SKILL_QUIZ_QUESTIONS,
   MAX_SKILL_QUIZ_QUESTIONS,
-  SKILL_ASSESSMENT_TOPICS,
 } from '../constants/interviewPrepConstants.js';
 import { ERROR_CODES, formatValidationCode } from '../constants/apiErrorCodes.js';
 
-const topicIds = SKILL_ASSESSMENT_TOPICS.map((t) => t.id);
+const questionCountRule = body('questionCount')
+  .optional()
+  .isInt({ min: MIN_SKILL_QUIZ_QUESTIONS, max: MAX_SKILL_QUIZ_QUESTIONS })
+  .withMessage(
+    formatValidationCode(ERROR_CODES.INTERVIEW_PREP.QUESTION_COUNT_INVALID, {
+      min: MIN_SKILL_QUIZ_QUESTIONS,
+      max: MAX_SKILL_QUIZ_QUESTIONS,
+    })
+  );
 
 export const generateQuizValidation = [
   body('topic')
     .trim()
     .notEmpty()
     .withMessage(ERROR_CODES.INTERVIEW_PREP.TOPIC_REQUIRED)
-    .isIn(topicIds)
+    .isLength({ min: 2, max: 120 })
     .withMessage(ERROR_CODES.INTERVIEW_PREP.INVALID_TOPIC),
   body('difficulty')
     .optional()
     .isIn(MOCK_INTERVIEW_DIFFICULTIES)
     .withMessage(ERROR_CODES.INTERVIEW_PREP.DIFFICULTY_INVALID),
-  body('questionCount')
+  body('length')
     .optional()
     .isInt({ min: MIN_SKILL_QUIZ_QUESTIONS, max: MAX_SKILL_QUIZ_QUESTIONS })
     .withMessage(
@@ -29,6 +36,7 @@ export const generateQuizValidation = [
         max: MAX_SKILL_QUIZ_QUESTIONS,
       })
     ),
+  questionCountRule,
 ];
 
 export const submitQuizValidation = [

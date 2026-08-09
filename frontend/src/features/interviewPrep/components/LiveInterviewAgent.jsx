@@ -14,6 +14,7 @@ import { useLiveInterview } from '../hooks/useLiveInterview';
 import LiveInterview from './LiveInterview';
 import LiveVideoIndicator from './LiveVideoIndicator';
 import { DEFAULT_INTERVIEW_SETUP_MODE } from '../constants/interviewPrepConstants';
+import { prepareLiveAudioHintsForSubmit } from '../utils/prepareLiveAudioHintsForSubmit';
 
 const CallStatus = {
   INACTIVE: 'INACTIVE',
@@ -34,6 +35,9 @@ export default function LiveInterviewAgent({
   aiName = LIVE_INTERVIEWER_DISPLAY_NAME,
   sessionId,
   assistantId,
+  roleLabel,
+  difficulty,
+  durationMinutes,
   interviewMode = DEFAULT_INTERVIEW_SETUP_MODE,
   stream,
   onFinished,
@@ -85,9 +89,8 @@ export default function LiveInterviewAgent({
 
   const captureFinalMetrics = useCallback(() => {
     const audioHints = getAudioSnapshotRef.current?.() || {};
-    const { inLongPause: _inLongPause, ...liveAudioHints } = audioHints;
     finalMetricsRef.current = {
-      liveAudioHints,
+      liveAudioHints: prepareLiveAudioHintsForSubmit(audioHints),
       liveVideoMetrics: getVideoMetricsRef.current?.() || null,
     };
   }, []);
@@ -308,14 +311,13 @@ export default function LiveInterviewAgent({
     setCallStatus(CallStatus.CONNECTING);
 
     try {
-      const vapi = getVapiClient();
-
-      // Server-created assistant only — never pass model.messages / system prompt
-      // from the browser (trust boundary). Public web token establishes the call.
       if (!assistantId) {
-        throw new Error('Missing server assistantId for this interview session.');
+        throw new Error(t('live.missingAssistant'));
       }
 
+      const vapi = getVapiClient();
+
+      // Server-created assistant only — system prompt never ships to the browser.
       // Do NOT stop our mic track here. Vapi/Daily opens its own capture of the
       // same device; killing the track leaves the call with no customer audio,
       // which Vapi then ejects as "Meeting has ended".

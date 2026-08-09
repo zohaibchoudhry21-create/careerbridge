@@ -50,9 +50,11 @@ export default function MockInterviewSessionPage() {
   const [interviewReport, setInterviewReport] = useState(location.state?.interviewReport || null);
   const [submitError, setSubmitError] = useState(null);
 
+  // Skip session GET when start navigation already provided assistantId (faster cold start).
+  const hasNavAssistant = Boolean(location.state?.assistantId);
   const { data: sessionFromApi, isLoading: sessionLoading } = useMockInterviewSession(
     sessionId,
-    !interviewReport
+    !interviewReport && !hasNavAssistant
   );
 
   const assistantId = useMemo(() => {
@@ -60,6 +62,8 @@ export default function MockInterviewSessionPage() {
     if (sessionFromApi?.assistantId) return String(sessionFromApi.assistantId);
     return '';
   }, [location.state?.assistantId, sessionFromApi?.assistantId]);
+
+  const canStartSession = Boolean(assistantId);
 
   const interviewMeta = useMemo(
     () => ({
@@ -225,14 +229,14 @@ export default function MockInterviewSessionPage() {
           </>
         ) : (
           <>
-            {sessionLoading && !assistantId ? (
+            {sessionLoading && !canStartSession ? (
               <div className="space-y-4 py-2">
                 <Skeleton type="card" count={1} withMedia lines={3} label="Loading interview session" />
                 <Skeleton type="list" count={3} />
               </div>
             ) : null}
 
-            {!sessionLoading && !assistantId ? (
+            {!sessionLoading && !canStartSession ? (
               <div className="text-center space-y-md">
                 <SessionExitLink />
                 <p className="font-body-md text-on-surface-variant">
@@ -247,7 +251,7 @@ export default function MockInterviewSessionPage() {
               </div>
             ) : null}
 
-            {assistantId ? (
+            {canStartSession ? (
               <>
                 <SessionExitLink />
                 <Suspense
@@ -265,7 +269,10 @@ export default function MockInterviewSessionPage() {
                   <LiveInterviewAgent
                     userName={userName}
                     sessionId={sessionId}
-                    assistantId={assistantId}
+                    assistantId={assistantId || undefined}
+                    roleLabel={interviewMeta.roleLabel}
+                    difficulty={interviewMeta.difficulty}
+                    durationMinutes={interviewMeta.durationMinutes}
                     interviewMode={interviewMeta.interviewMode}
                     stream={stream}
                     onFinished={handleFinished}

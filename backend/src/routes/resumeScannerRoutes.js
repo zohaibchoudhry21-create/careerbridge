@@ -1,12 +1,14 @@
 import express from 'express';
 import {
   acceptAllSuggestions,
+  downloadResumeScannerPdf,
+  finalizeResumeScannerAnalysis,
   getResumeScannerAnalysis,
   getResumeScannerStatus,
-  listSavedResumesForScanner,
   redoResumeScannerChange,
   undoResumeScannerChange,
   updateResumeScannerText,
+  updateRewriteStatus,
   updateSuggestionStatus,
   uploadAndAnalyzeResume,
 } from '../controllers/resumeScannerController.js';
@@ -19,14 +21,13 @@ import {
 import { validateRequest } from '../middleware/validateRequest.js';
 import {
   analysisIdValidation,
+  rewriteActionValidation,
   suggestionActionValidation,
   updateResumeTextValidation,
   uploadResumeScannerValidation,
 } from '../validators/resumeScannerValidators.js';
 
 const router = express.Router();
-
-router.get('/resume-scanner/resumes', protect, listSavedResumesForScanner);
 
 router.post(
   '/resume-scanner/upload',
@@ -73,6 +74,15 @@ router.post(
 );
 
 router.patch(
+  '/resume-scanner/:analysisId/rewrite',
+  protect,
+  resumeScannerTextLimiter,
+  rewriteActionValidation,
+  validateRequest,
+  updateRewriteStatus
+);
+
+router.patch(
   '/resume-scanner/:analysisId/text',
   protect,
   resumeScannerTextLimiter,
@@ -97,6 +107,24 @@ router.post(
   analysisIdValidation,
   validateRequest,
   redoResumeScannerChange
+);
+
+router.post(
+  '/resume-scanner/:analysisId/finalize',
+  protect,
+  resumeScannerTextLimiter,
+  analysisIdValidation,
+  validateRequest,
+  finalizeResumeScannerAnalysis
+);
+
+router.get(
+  '/resume-scanner/:analysisId/pdf',
+  protect,
+  resumeScannerHeavyLimiter,
+  analysisIdValidation,
+  validateRequest,
+  downloadResumeScannerPdf
 );
 
 export default router;

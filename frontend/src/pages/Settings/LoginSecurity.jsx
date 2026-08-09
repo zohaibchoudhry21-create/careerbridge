@@ -7,7 +7,7 @@ import SectionCard from '../../components/settings/SectionCard';
 import { PasswordField } from '../../components/settings/InputField';
 import ToggleSwitch from '../../components/settings/ToggleSwitch';
 import PasswordStrengthBar from '../../components/settings/PasswordStrengthBar';
-import AppIcon from '../../components/icons/AppIcon';
+import Skeleton from '../../components/Skeleton';
 import TwoFactorSettings from '../../components/settings/TwoFactorSettings';
 import { validatePassword } from '../../utils/passwordValidator';
 import useAuth from '../../hooks/useAuth';
@@ -102,11 +102,7 @@ function ActiveSessionsSection({ rememberDevicesEnabled }) {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-6">
-        <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
-      </div>
-    );
+    return <Skeleton type="list" count={3} label="Loading active sessions" />;
   }
 
   if (isError) {

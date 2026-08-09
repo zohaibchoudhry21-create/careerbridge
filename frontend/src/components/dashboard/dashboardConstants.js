@@ -3,7 +3,6 @@ export const DASHBOARD_NAV_DEFS = [
   { id: 'resumeBuilder', icon: 'description', href: '/resume/upload' },
   { id: 'resumeScanner', icon: 'document_scanner', href: '/resume-scanner' },
   { id: 'interviewPrep', icon: 'mic_external_on', href: '/interview-prep' },
-  { id: 'linkedinOptimizer', icon: 'share_reviews', href: '#' },
 ];
 
 export const QUICK_ACTION_DEFS = [

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import AppIcon from '../../../components/icons/AppIcon';
 import { cn } from '../../../lib/utils';
 import { getSkillDisplayName } from '../utils/resumeEditorUtils';
-import AtsScoreGauge from './AtsScoreGauge';
+import DualScoreHeader from './DualScoreHeader';
 
 const TABS = ['skills', 'searchability', 'recruiterTips'];
 
@@ -27,28 +27,23 @@ function SkillRow({ skill, suggestions, t }) {
   const matched = Boolean(skill.matched);
 
   return (
-    <div className="flex items-center gap-3 py-2.5 min-w-0">
-      <span
-        className={cn(
-          'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white',
-          matched ? 'bg-green-500' : 'bg-red-500'
-        )}
-        aria-hidden
-      >
-        <AppIcon name={matched ? 'check' : 'close'} size="sm" className="text-white" />
-      </span>
-
-      <div className="min-w-0 flex-1 flex items-center gap-2">
-        <p className="font-body-md text-on-surface leading-snug break-words">
-          {getSkillDisplayName(skill)}
-        </p>
-        <AppIcon name="flag" size="sm" className="text-outline/70 shrink-0" aria-hidden />
+    <div className="flex items-center justify-between py-2 border-b border-slate-50 gap-2 min-w-0">
+      <div className="flex items-center gap-3 min-w-0">
+        <AppIcon
+          name={matched ? 'check_circle' : 'cancel'}
+          size="nav"
+          className={cn('shrink-0', matched ? 'text-green-600' : 'text-red-500')}
+          aria-hidden
+        />
+        <span className="text-sm text-slate-700 break-words">{getSkillDisplayName(skill)}</span>
       </div>
-
-      <span className="inline-flex items-center gap-1 rounded-full bg-secondary/10 px-2.5 py-1 font-label-sm text-secondary shrink-0">
-        <AppIcon name="sparkles" size="sm" className="text-secondary" />
-        {t('analysis.skills.aiSuggestedPerSkill', { accepted, total })}
-      </span>
+      <div className="flex items-center gap-2 shrink-0">
+        <AppIcon name="flag" size="sm" className="text-slate-300" aria-hidden />
+        <div className="flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded text-[10px] text-slate-400">
+          <AppIcon name="sparkles" size="sm" className="text-blue-500" />
+          <span>{t('analysis.skills.aiSuggestedPerSkill', { accepted, total })}</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -66,45 +61,39 @@ function SkillCategorySection({
   const missingCount = skills.length - matchedCount;
 
   return (
-    <section>
-      <div className="mb-1 flex items-start justify-between gap-2">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <h3 className="font-label-sm text-label-sm uppercase tracking-wide text-on-surface-variant">
-            {title}
-          </h3>
-          <span className="inline-flex text-outline shrink-0" title={infoLabel} aria-label={infoLabel}>
-            <AppIcon name="help" size="sm" />
+    <div>
+      <div className="flex justify-between items-center mb-3 gap-2">
+        <h3 className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
+          {title}
+          <span title={infoLabel} aria-label={infoLabel} className="inline-flex">
+            <AppIcon name="help" size="sm" className="text-slate-400" />
           </span>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-0.5 font-label-sm shrink-0">
-          <span className="text-on-surface-variant inline-flex items-center gap-1">
-            {t('analysis.skills.matchedLabel')}
-            <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-md bg-green-100 px-1.5 py-0.5 font-medium text-green-700">
+        </h3>
+        <div className="flex gap-2 text-[10px] text-slate-500 shrink-0">
+          <span>
+            {t('analysis.skills.matchedLabel')}{' '}
+            <span className="bg-green-100 text-green-600 px-1.5 py-0.5 rounded-full font-bold">
               {matchedCount}
             </span>
           </span>
           {showMissingCount ? (
-            <span className="text-on-surface-variant inline-flex items-center gap-1">
-              {t('analysis.skills.missingLabel')}
-              <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-md bg-error-container px-1.5 py-0.5 font-medium text-error">
-                {missingCount}
-              </span>
+            <span>
+              {t('analysis.skills.missingLabel')}{' '}
+              <span className="text-red-600 font-bold">{missingCount}</span>
             </span>
           ) : null}
         </div>
       </div>
-
-      <div className="divide-y divide-outline-variant/30">
+      <div className="space-y-1">
         {orderedSkills.length ? (
           orderedSkills.map((skill) => (
             <SkillRow key={skill.id} skill={skill} suggestions={suggestions} t={t} />
           ))
         ) : (
-          <p className="font-body-sm text-on-surface-variant py-2">{t('analysis.skills.emptyCategory')}</p>
+          <p className="text-sm text-slate-400 py-2">{t('analysis.skills.emptyCategory')}</p>
         )}
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -113,13 +102,13 @@ function BreakdownBar({ label, value }) {
 
   return (
     <div className="space-y-1">
-      <div className="flex items-center justify-between font-label-sm">
-        <span className="text-on-surface-variant">{label}</span>
-        <span className="text-on-surface">{score}%</span>
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-slate-500">{label}</span>
+        <span className="text-slate-800 font-medium">{score}%</span>
       </div>
-      <div className="h-1.5 rounded-full bg-surface-container-high overflow-hidden">
+      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
         <motion.div
-          className="h-full rounded-full bg-secondary"
+          className="h-full rounded-full bg-blue-600"
           initial={{ width: 0 }}
           animate={{ width: `${score}%` }}
           transition={{ type: 'spring', stiffness: 100, damping: 20 }}
@@ -129,7 +118,7 @@ function BreakdownBar({ label, value }) {
   );
 }
 
-export default function SkillsSidebar({ analysis }) {
+export default function SkillsSidebar({ analysis, scoreDeltas = { ats: 0, job: 0 } }) {
   const { t } = useTranslation('resumeScanner');
   const [activeTab, setActiveTab] = useState('skills');
 
@@ -147,33 +136,86 @@ export default function SkillsSidebar({ analysis }) {
   const breakdown = analysis?.atsScoreBreakdown || {};
   const issues = analysis?.searchabilityIssues || [];
   const tips = analysis?.recruiterTips || [];
+  const company = analysis?.jobDescription?.company || t('analysis.defaultJobTitle');
+  const jobTitle = analysis?.jobDescription?.title || '';
+  const warnings = analysis?.warnings || {};
+  const jobMatchUnavailable = Boolean(
+    analysis?.jobMatchUnavailable || warnings.jdRequirementsUnclear
+  );
+  const isRewritePending =
+    analysis?.analysisMode === 'rewrite' && analysis?.rewriteStatus === 'pending_review';
 
   return (
-    <aside className="dashboard-glass-card rounded-2xl p-md flex flex-col gap-md min-h-0 lg:sticky lg:top-4">
-      <AtsScoreGauge
-        jobMatchScore={analysis?.jobMatchScore}
-        atsScore={analysis?.atsScore}
-      />
+    <aside className="h-full flex flex-col bg-white border-r border-slate-200 min-h-0">
+      <div className="p-4 border-b border-slate-100 shrink-0">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="flex-1 min-w-0 space-y-2">
+            <DualScoreHeader
+              atsScore={analysis?.atsScore}
+              jobMatchScore={analysis?.jobMatchScore}
+              atsScoreBreakdown={analysis?.atsScoreBreakdown}
+              jobMatchBreakdown={analysis?.jobMatchBreakdown}
+              scoreDeltas={scoreDeltas}
+              jobMatchUnavailable={jobMatchUnavailable}
+            />
+            {isRewritePending ? (
+              <div
+                role="status"
+                className="rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-2 text-[11px] text-blue-800 leading-snug"
+              >
+                {t('analysis.rewrite.bannerTitle')}
+              </div>
+            ) : null}
+            {warnings.fieldMismatch && !jobMatchUnavailable && !isRewritePending ? (
+              <div
+                role="status"
+                className="rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2 text-[11px] text-amber-800 leading-snug"
+              >
+                {t('analysis.warnings.fieldMismatch')}
+              </div>
+            ) : null}
+            {warnings.lowExtractionQuality ? (
+              <div
+                role="status"
+                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-[11px] text-slate-600 leading-snug"
+              >
+                {t('analysis.warnings.lowExtractionQuality')}
+              </div>
+            ) : null}
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <div className="min-w-0">
+            <h2 className="font-bold text-slate-800 truncate">{company}</h2>
+            {jobTitle ? (
+              <p className="text-slate-500 text-sm truncate">{jobTitle}</p>
+            ) : null}
+          </div>
+          <span className="bg-amber-50 text-amber-600 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-200 shrink-0">
+            {t('analysis.atsTipBadge')}
+          </span>
+        </div>
 
-      <div className="border-b border-outline-variant/40 flex gap-1">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            onClick={() => setActiveTab(tab)}
-            className={cn(
-              'flex-1 py-2 font-label-sm border-b-2 transition-colors',
-              activeTab === tab
-                ? 'border-secondary text-secondary'
-                : 'border-transparent text-on-surface-variant hover:text-on-surface'
-            )}
-          >
-            {t(`analysis.tabs.${tab}`)}
-          </button>
-        ))}
+        <div className="flex text-sm font-medium border-b border-slate-100">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                'flex-1 py-2 transition-colors',
+                activeTab === tab
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-slate-400 hover:text-slate-600'
+              )}
+            >
+              {t(`analysis.tabs.${tab}`)}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto p-4 space-y-6 min-h-0">
         <AnimatePresence mode="wait">
           {activeTab === 'skills' ? (
             <motion.div
@@ -181,7 +223,7 @@ export default function SkillsSidebar({ analysis }) {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              className="space-y-md"
+              className="space-y-6"
             >
               <SkillCategorySection
                 title={t('analysis.skills.requiredSkills')}
@@ -207,9 +249,9 @@ export default function SkillsSidebar({ analysis }) {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              className="space-y-md"
+              className="space-y-4"
             >
-              <div className="space-y-sm">
+              <div className="space-y-3">
                 <BreakdownBar
                   label={t('analysis.searchability.sectionCompleteness')}
                   value={breakdown.sectionCompleteness}
@@ -223,27 +265,21 @@ export default function SkillsSidebar({ analysis }) {
                   value={breakdown.quantifiedAchievements}
                 />
               </div>
-
               <section>
-                <h3 className="font-label-md text-on-surface mb-sm">
+                <h3 className="text-sm font-semibold text-slate-800 mb-2">
                   {t('analysis.searchability.issues')}
                 </h3>
                 {issues.length ? (
                   <ul className="space-y-2">
                     {issues.map((issue) => (
-                      <li
-                        key={issue}
-                        className="font-body-sm text-on-surface-variant flex gap-2 items-start"
-                      >
+                      <li key={issue} className="text-sm text-slate-500 flex gap-2 items-start">
                         <AppIcon name="alert-circle" size="sm" className="text-amber-600 mt-0.5" />
                         <span>{issue}</span>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="font-body-sm text-on-surface-variant">
-                    {t('analysis.searchability.noIssues')}
-                  </p>
+                  <p className="text-sm text-slate-400">{t('analysis.searchability.noIssues')}</p>
                 )}
               </section>
             </motion.div>
@@ -255,24 +291,19 @@ export default function SkillsSidebar({ analysis }) {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              className="space-y-sm"
+              className="space-y-3"
             >
               {tips.length ? (
                 <ul className="space-y-3">
                   {tips.map((tip) => (
-                    <li
-                      key={tip}
-                      className="font-body-sm text-on-surface-variant flex gap-2 items-start"
-                    >
-                      <AppIcon name="lightbulb" size="sm" className="text-secondary mt-0.5" />
+                    <li key={tip} className="text-sm text-slate-500 flex gap-2 items-start">
+                      <AppIcon name="lightbulb" size="sm" className="text-blue-600 mt-0.5" />
                       <span>{tip}</span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="font-body-sm text-on-surface-variant">
-                  {t('analysis.recruiterTips.empty')}
-                </p>
+                <p className="text-sm text-slate-400">{t('analysis.recruiterTips.empty')}</p>
               )}
             </motion.div>
           ) : null}

@@ -69,7 +69,13 @@ def preprocess_extraction_artifacts(text: str) -> str:
 
 
 def _format_experience_lines(lines: list[str]) -> list[str]:
-    """Split long run-on experience paragraphs into readable bullet lines."""
+    """Split long run-on experience paragraphs into readable bullet lines.
+
+    Any content line that is not already bulleted, and is not a job
+    title/company/date header line, gets an explicit bullet marker added
+    so the frontend can render it as a list item instead of a flat
+    paragraph.
+    """
     formatted: list[str] = []
     for line in lines:
         stripped = line.strip()
@@ -79,13 +85,15 @@ def _format_experience_lines(lines: list[str]) -> list[str]:
             formatted.append(stripped)
             continue
         if DATE_RANGE_RE.search(stripped) or "|" in stripped:
+            # Job title / company / date header line — no bullet.
             formatted.append(stripped)
             continue
         if len(stripped) > 160 and ". " in stripped:
             parts = re.split(r"(?<=\.)\s+(?=[A-Z])", stripped)
-            formatted.extend(part.strip() for part in parts if part.strip())
+            formatted.extend(f"• {part.strip()}" for part in parts if part.strip())
             continue
-        formatted.append(stripped)
+        # Regular description/achievement line — add a bullet.
+        formatted.append(f"• {stripped}")
     return formatted
 
 
