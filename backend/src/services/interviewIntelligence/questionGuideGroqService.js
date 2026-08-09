@@ -41,6 +41,64 @@ const normalizeDepthHint = (raw) => {
   return GUIDE_DEPTH_HINTS.includes(key) ? key : 'standard';
 };
 
+/** True when the brief includes resume skills, projects, or a usable excerpt. */
+export const briefHasResumeSignals = (brief = {}) => {
+  const skills = Array.isArray(brief.skills) ? brief.skills.filter(Boolean) : [];
+  const projects = Array.isArray(brief.projects) ? brief.projects.filter(Boolean) : [];
+  const excerpt = String(brief.resumeExcerpt || '').trim();
+  return skills.length > 0 || projects.length > 0 || excerpt.length >= 40;
+};
+
+/**
+ * Build the Groq user prompt for the question guide.
+ * When resume signals are absent, rules match the historical generic prompt.
+ * Exported for unit tests + sample generation review.
+ */
+export const buildQuestionGuidePrompt = ({
+  roleLabel,
+  difficulty,
+  durationMinutes,
+  expectedCount,
+  focusAreas,
+  brief,
+} = {}) => {
+  const focusLine =
+    (Array.isArray(focusAreas) ? focusAreas : []).filter(Boolean).join(', ') || 'General';
+  const briefBlock = brief?.promptText ? `\nCandidate / JD brief:\n${brief.promptText}\n` : '';
+  const withResume = briefHasResumeSignals(brief);
+
+  const baseRules = `- First question must be a warm opening / intro style question.
+- Cover focus areas across the set; vary topics (do not repeat).
+- Ground questions in the brief when present (skills, projects, JD) without inventing facts.
+- Questions must be spoken-friendly (one clear ask each).
+- No answer keys. No markdown.`;
+
+  const resumeRules = withResume
+    ? `
+Resume personalization (REQUIRED — resume signals are present in the brief above):
+- Hard constraint: produce exactly ${expectedCount} questions total (opening included). Personalization rules must be satisfied INSIDE that count — never add extra questions to meet grounding, and never drop below ${expectedCount}.
+- At least 2 questions MUST directly reference a specific project name OR a specific technology/skill that appears in the brief (quote or paraphrase the exact name from the brief). Example shape: "You mentioned working on [Project X] — what was the hardest technical decision you made there?"
+- At least 1 question must probe a stated skill more deeply: ask for a concrete example of using that skill (not just name-dropping it).
+- If asking multiple questions about the same project, each must probe a genuinely different aspect (e.g. architecture decision vs. debugging story vs. trade-off reasoning) — never ask two questions that could be answered with overlapping content.
+- Use ONLY project names, employers, and technologies that appear in the brief. Never invent facts.
+- Remaining questions may stay role/focus-area general.`
+    : '';
+
+  return `You are designing a live voice interview guide for a ${difficulty} ${roleLabel} role.
+Target about ${durationMinutes} minutes. Generate exactly ${expectedCount} distinct interview questions.
+Focus areas to emphasize: ${focusLine}.
+${briefBlock}
+Rules:
+${baseRules}${resumeRules}
+
+Return JSON only:
+{
+  "questions": [
+    { "text": "string", "focusTag": "opening|behavioral|leadership|system_design|coding|case_study|communication|general", "depthHint": "warmup|standard|deep" }
+  ]
+}`;
+};
+
 /**
  * Deterministic fallback guide when Groq is unavailable — role-aware opener + focus scaffolds.
  * Not a fixed bank of full interviews; scaffolds instruct the live model to improvise.
@@ -176,7 +234,7 @@ export const normalizeQuestionGuide = (rawQuestions, expectedCount, fallbackCtx)
  * @param {string} params.difficulty
  * @param {number} params.durationMinutes
  * @param {string[]} [params.focusAreas]
- * @param {{ promptText?: string }} [params.brief]
+ * @param {{ promptText?: string, skills?: string[], projects?: string[], resumeExcerpt?: string }} [params.brief]
  */
 export const generateInterviewQuestionGuide = async ({
   roleLabel,
@@ -195,26 +253,14 @@ export const generateInterviewQuestionGuide = async ({
 
   const { model, apiKey } = getGroqConfig();
   const client = new Groq({ apiKey });
-  const focusLine = (Array.isArray(focusAreas) ? focusAreas : []).filter(Boolean).join(', ') || 'General';
-  const briefBlock = brief?.promptText ? `\nCandidate / JD brief:\n${brief.promptText}\n` : '';
-
-  const prompt = `You are designing a live voice interview guide for a ${difficulty} ${roleLabel} role.
-Target about ${durationMinutes} minutes. Generate exactly ${expectedCount} distinct interview questions.
-Focus areas to emphasize: ${focusLine}.
-${briefBlock}
-Rules:
-- First question must be a warm opening / intro style question.
-- Cover focus areas across the set; vary topics (do not repeat).
-- Ground questions in the brief when present (skills, projects, JD) without inventing facts.
-- Questions must be spoken-friendly (one clear ask each).
-- No answer keys. No markdown.
-
-Return JSON only:
-{
-  "questions": [
-    { "text": "string", "focusTag": "opening|behavioral|leadership|system_design|coding|case_study|communication|general", "depthHint": "warmup|standard|deep" }
-  ]
-}`;
+  const prompt = buildQuestionGuidePrompt({
+    roleLabel,
+    difficulty,
+    durationMinutes,
+    expectedCount,
+    focusAreas,
+    brief,
+  });
 
   try {
     const completion = await withGroqRetry(

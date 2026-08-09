@@ -3,6 +3,8 @@ import { buildInterviewContextBrief } from './contextBriefBuilder.js';
 import {
   buildFallbackQuestionGuide,
   normalizeQuestionGuide,
+  buildQuestionGuidePrompt,
+  briefHasResumeSignals,
 } from './questionGuideGroqService.js';
 import { buildInterviewIntelligencePoliciesPrompt } from './interviewIntelligenceService.js';
 import { buildInterviewerSystemPrompt } from '../../utils/interviewerPromptBuilder.js';
@@ -67,6 +69,48 @@ describe('question guide fallbacks', () => {
     expect(normalized[0].questionId).toBe('q1');
     expect(normalized[0].text).toContain('yourself');
     expect(normalized[0].focusTag).toBe('opening');
+  });
+});
+
+describe('question guide resume personalization prompt', () => {
+  it('adds resume personalization rules only when brief has resume signals', () => {
+    const withResume = buildQuestionGuidePrompt({
+      roleLabel: 'Backend Engineer',
+      difficulty: 'medium',
+      durationMinutes: 15,
+      expectedCount: 6,
+      focusAreas: ['Coding'],
+      brief: {
+        skills: ['Node.js', 'MongoDB'],
+        projects: ['CareerBridge realtime matcher'],
+        promptText: 'Role: Backend Engineer\nClaimed skills: Node.js, MongoDB\nClaimed projects: CareerBridge realtime matcher',
+      },
+    });
+    expect(withResume).toMatch(/Resume personalization \(REQUIRED/i);
+    expect(withResume).toMatch(/At least 2 questions MUST directly reference/i);
+    expect(withResume).toMatch(/probe a stated skill more deeply/i);
+    expect(withResume).toMatch(/exactly 6 questions total/i);
+    expect(withResume).toMatch(/genuinely different aspect/i);
+    expect(withResume).toContain('CareerBridge realtime matcher');
+  });
+
+  it('keeps historic rules when resume is skipped', () => {
+    const noResume = buildQuestionGuidePrompt({
+      roleLabel: 'Backend Engineer',
+      difficulty: 'medium',
+      durationMinutes: 15,
+      expectedCount: 6,
+      focusAreas: ['Coding'],
+      brief: {
+        skills: [],
+        projects: [],
+        resumeExcerpt: '',
+        promptText: 'Role: Backend Engineer\nBaseline difficulty: medium',
+      },
+    });
+    expect(briefHasResumeSignals({ skills: [], projects: [], resumeExcerpt: '' })).toBe(false);
+    expect(noResume).not.toMatch(/Resume personalization \(REQUIRED/i);
+    expect(noResume).toMatch(/Ground questions in the brief when present/i);
   });
 });
 
