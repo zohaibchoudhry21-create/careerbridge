@@ -109,11 +109,6 @@ export function isVapiConfigured() {
   return Boolean(getPublicToken());
 }
 
-export function getInterviewStartTarget() {
-  const assistantId = import.meta.env.VITE_VAPI_ASSISTANT_ID?.trim();
-  return assistantId || null;
-}
-
 /**
  * Vapi ends calls server-side for reasons that never surface as `error` events.
  * Pull the reason out of whatever shape the `call-end` payload arrives in.

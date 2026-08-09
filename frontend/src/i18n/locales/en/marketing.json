@@ -63,69 +63,84 @@
   },
   "solution": {
     "badge": "The Solution",
-    "title": "Meet AI Career OS",
-    "descriptionHighlight": "An end-to-end career automation system",
-    "descriptionBody": "designed to eliminate friction between you and your next offer.",
-    "mockupAriaLabel": "Solution mockup",
+    "titleLine1": "Meet your",
+    "titleLine2": "AI Career OS",
+    "description": "An end-to-end career automation system built to close the gap between you and your next offer.",
+    "cta": "Upload your CV",
+    "optimizedBadge": "Optimized & ATS-ready",
+    "mockupAriaLabel": "Resume and ATS score preview",
+    "atsScoreLabel": "ATS Score",
+    "matchLabel": "Job Match",
     "points": [
       {
-        "title": "Upload your CV → AI builds your profile",
-        "description": "Instant data extraction and structuring."
+        "title": "Upload your CV",
+        "description": "AI reads every line and builds a structured profile in seconds."
       },
       {
-        "title": "One-click CV optimization",
-        "description": "Tailored perfectly for any specific job description."
+        "title": "Tailor to the role",
+        "description": "One click rewrites your bullets to match any job description."
       },
       {
-        "title": "Download ATS-ready resume",
-        "description": "Export polished PDF templates optimized for applicant tracking systems."
+        "title": "Export, ATS-ready",
+        "description": "Download a polished PDF built to clear applicant tracking systems."
       }
     ]
   },
   "features": {
     "title": "Powerful Tools for Career Growth",
+    "subtitle": "Everything you need to build, optimize, and practice — in one career OS.",
     "items": [
       {
-        "title": "OCR CV Builder",
-        "description": "Upload any PDF or image. Our OCR instantly converts it into a structured, editable digital profile."
+        "title": "Resume Builder",
+        "description": "Upload or create a resume, edit every section, and export polished ATS-friendly PDFs."
       },
       {
-        "title": "Voice Profile Input",
-        "description": "Too busy to type? Speak your experience aloud and let our AI structure it into professional bullet points."
+        "title": "Resume Scanner",
+        "description": "Match your resume to any job description, spot ATS gaps, and optimize keywords in one click."
       },
       {
-        "title": "1-Click Optimization",
-        "description": "Paste a job description. We rewrite your bullets to match keywords and highlight relevant experience instantly."
-      },
-      {
-        "title": "Resume PDF Generator",
-        "description": "Export to beautifully designed, ATS-friendly PDF templates that look premium and pass screening."
-      },
-      {
-        "title": "Smart Job Matching",
-        "description": "Get AI-ranked job matches based on your skills, experience, and career goals."
-      },
-      {
-        "title": "Salary Intelligence",
-        "description": "Get real-time market data on what you should be earning based on your skills, location, and experience level."
+        "title": "Interview Prep",
+        "description": "Practice mock interviews and skill assessments with AI feedback on content, voice, and delivery."
       }
     ]
   },
   "howItWorks": {
+    "eyebrow": "Simple flow",
     "title": "How It Works",
-    "subtitle": "From raw data to interview ready in minutes.",
+    "subtitle": "Build, optimize, and practice — three steps from resume to interview-ready.",
+    "cta": "Get started free",
     "steps": [
       {
-        "title": "Upload or Speak",
-        "description": "Input your raw experience via CV upload, voice note, or manual entry. We handle the heavy lifting."
+        "title": "Build your resume",
+        "description": "Upload a CV or start fresh, edit every section, and export a polished ATS-friendly PDF."
       },
       {
-        "title": "Generate Profile",
-        "description": "AI structures your data into a master profile and generates an ATS-ready resume."
+        "title": "Scan & optimize",
+        "description": "Match your resume to any job description, surface ATS gaps, and fix keywords in one click."
       },
       {
-        "title": "Optimize & Apply",
-        "description": "Target specific roles. One click adjusts your CV keywords to beat ATS filters for that exact job description."
+        "title": "Practice interviews",
+        "description": "Run AI mock interviews and skill assessments with feedback on content, voice, and delivery."
+      }
+    ]
+  },
+  "interviewPrepSteps": {
+    "eyebrow": "Interview Prep",
+    "title": "How interview practice works",
+    "subtitle": "From setup to AI feedback — practice mock interviews and skill assessments in three steps.",
+    "cta": "Start Interview Prep",
+    "steps": [
+      {
+        "title": "Choose your mode",
+        "description": "Pick a live AI mock interview or a topic-based skill assessment quiz."
+      },
+      {
+        "title": "Customize the session",
+        "description": "Set role, difficulty, time, focus areas, and voice or video mode."
+      },
+      {
+        "title": "Practice & get feedback",
+        "description": "Answer live, then review AI scoring on content, voice delivery, and presence."
       }
     ]
   },
@@ -163,39 +178,38 @@
     "secondary": "Upload Your CV"
   },
   "footer": {
-    "tagline": "AI-powered career platform to build resumes, optimize profiles, practice interviews, and grow your professional future.",
+    "tagline": "AI-powered career platform to build resumes, scan for ATS gaps, practice interviews, and land your next offer.",
     "columns": [
       {
         "title": "Quick Links",
-        "links": ["Home", "Features", "Career Tools", "Templates", "Pricing", "Resources"]
-      },
-      {
-        "title": "AI Features",
         "links": [
-          "AI Resume Builder",
-          "OCR CV Scanner",
-          "Voice Profile Builder",
-          "Interview Analysis",
-          "Salary Predictor"
+          { "label": "Home", "href": "/" },
+          { "label": "Features", "href": "/#features" },
+          { "label": "How It Works", "href": "/#tools" },
+          { "label": "Interview Prep", "href": "/#interview-prep" },
+          { "label": "Get Started", "href": "/register" }
         ]
       },
       {
-        "title": "Career Tools",
+        "title": "Resume Builder",
         "links": [
-          "LinkedIn Optimizer",
-          "AI-Proof Analysis",
-          "Skill Gap Analysis",
-          "Smart Job Matching"
+          { "label": "Upload Resume", "href": "/resume/upload" },
+          { "label": "Resume History", "href": "/resume/history" },
+          { "label": "Browse Templates", "href": "/resume/templates" }
         ]
       },
       {
-        "title": "Resources",
+        "title": "Resume Scanner",
         "links": [
-          "Career Blog",
-          "Interview Tips",
-          "Resume Guides",
-          "AI Career Trends",
-          "Help Center"
+          { "label": "Scan Resume", "href": "/resume-scanner" }
+        ]
+      },
+      {
+        "title": "Interview Prep",
+        "links": [
+          { "label": "Overview", "href": "/interview-prep" },
+          { "label": "Mock Interview", "href": "/interview-prep/mock" },
+          { "label": "Skill Assessment", "href": "/interview-prep/skills" }
         ]
       }
     ],

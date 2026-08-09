@@ -188,7 +188,12 @@
     "QUESTION_ID_REQUIRED": "ہر جواب کو questionId درکار ہے",
     "SELECTED_INDEX_INVALID": "selectedIndex درست آپشن انڈیکس ہونا چاہیے",
     "VOICE_INPUT_REQUIRED": "آواز کے تجزیے کے لیے آڈیو فائل یا ٹرانسکرپٹ فراہم کریں۔",
-    "FRAME_SAMPLES_ARRAY": "frameSamples غیر خالی array ہونا چاہیے"
+    "FRAME_SAMPLES_ARRAY": "frameSamples غیر خالی array ہونا چاہیے",
+    "ASSISTANT_CREATE_FAILED": "وائس انٹرویوئر شروع نہیں ہو سکا۔ براہ کرم کچھ دیر بعد دوبارہ کوشش کریں۔",
+    "VAPI_NOT_CONFIGURED": "وائس انٹرویوز کنفیگر نہیں ہیں۔ backend/.env میں VAPI_PRIVATE_KEY (dashboard.vapi.ai کی Private key) سیٹ کر کے سرور دوبارہ چلائیں۔",
+    "TRANSCRIPT_TOO_LONG": "انٹرویو ٹرانسکرپٹ {{max}} حروف کی حد سے زیادہ ہے۔",
+    "AI_SERVICE_UNAVAILABLE": "ہمارا AI سروس عارضی طور پر مصروف ہے۔ براہ کرم کچھ دیر بعد دوبارہ کوشش کریں۔",
+    "AUDIO_TOO_LONG": "آڈیو ریکارڈنگ بہت لمبی ہے۔ جوابات {{maxMinutes}} منٹ سے کم رکھیں۔"
   },
   "RESUME_BUILDER": {
     "RESUME_NOT_FOUND": "ریزیومے نہیں ملا۔",

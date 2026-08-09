@@ -3,7 +3,14 @@
 @tailwind utilities;
 
 @layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
   html {
+    font-size: 16px;
     -webkit-text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
     text-size-adjust: 100%;
@@ -12,7 +19,8 @@
   }
 
   body {
-    @apply bg-surface text-on-surface font-body-md antialiased;
+    @apply bg-surface text-on-surface font-body-md text-body-md antialiased;
+    margin: 0;
     overflow-x: hidden;
     max-width: 100%;
   }
@@ -39,11 +47,11 @@
 
   .shell-inner,
   .page-container {
-    @apply w-full max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 min-w-0;
+    @apply w-full max-w-screen-2xl mx-auto px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10 2xl:px-12 min-w-0;
   }
 
   .page-container-narrow {
-    @apply w-full max-w-3xl mx-auto px-4 sm:px-6 md:px-8 min-w-0;
+    @apply w-full max-w-3xl mx-auto px-4 sm:px-5 md:px-6 min-w-0;
   }
 
   .auth-split {
@@ -51,7 +59,7 @@
   }
 
   .auth-form-panel {
-    @apply w-full xl:flex-1 xl:max-w-[720px] flex flex-col justify-center items-center px-6 py-10 sm:px-8 md:px-12 lg:px-14 xl:px-16 2xl:px-20;
+    @apply w-full xl:flex-1 xl:max-w-[720px] flex flex-col justify-center items-center px-5 py-8 sm:px-6 md:px-10 lg:px-12 xl:px-14 2xl:px-16;
   }
 
   @media (min-width: 1024px) {
@@ -65,7 +73,7 @@
   }
 
   .auth-hero-panel {
-    @apply hidden lg:flex flex-1 min-w-0 relative overflow-hidden items-center justify-center p-10 xl:p-14 2xl:p-16;
+    @apply hidden lg:flex flex-1 min-w-0 relative overflow-hidden items-center justify-center p-8 xl:p-12 2xl:p-14;
     min-height: min(100vh, 900px);
   }
 
@@ -126,9 +134,9 @@
 
   .dashboard-main {
     @apply flex-1 min-h-0 w-0 overflow-x-hidden overflow-y-auto;
-    @apply px-4 pb-6 pt-14;
-    @apply lg:px-8 lg:pt-8 lg:pb-8;
-    @apply xl:px-10 xl:pt-10;
+    @apply px-4 pb-5 pt-14;
+    @apply lg:px-6 lg:pt-6 lg:pb-6;
+    @apply xl:px-8 xl:pt-8;
   }
 
   .dashboard-content-grid {
@@ -396,6 +404,7 @@
 
 .nav-link-underline {
   position: relative;
+  display: inline-block;
 }
 
 .nav-link-underline::after {
@@ -403,13 +412,14 @@
   position: absolute;
   width: 0;
   height: 2px;
-  bottom: -2px;
+  bottom: 0;
   left: 0;
   background-color: #2170e4;
-  transition: width 0.3s ease;
+  transition: width 0.25s ease;
 }
 
-.nav-link-underline:hover::after {
+.nav-link-underline:hover::after,
+.nav-link-underline:focus-visible::after {
   width: 100%;
 }
 

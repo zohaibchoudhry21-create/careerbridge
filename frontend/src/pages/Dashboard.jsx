@@ -1,29 +1,21 @@
-import { useMemo } from 'react';
-import { resolveApiError } from '../utils/apiError';
 import { useTranslation } from 'react-i18next';
+import { resolveApiError } from '../utils/apiError';
 import useAuth from '../hooks/useAuth';
-import { useDashboardOverview, useJobMatches } from '../hooks/useDashboard';
+import { useDashboardOverview } from '../hooks/useDashboard';
 import { DashboardLayout, PageContainer } from '../components/layout';
 import WelcomeSection from '../components/dashboard/WelcomeSection';
 import QuickActions from '../components/dashboard/QuickActions';
-import ProfileStrengthCard from '../components/dashboard/ProfileStrengthCard';
-import ResumeIntelligenceCard from '../components/dashboard/ResumeIntelligenceCard';
+import DashboardFeatureSection from '../components/dashboard/DashboardFeatureSection';
+import ResumeBuilderCard from '../components/dashboard/ResumeBuilderCard';
+import ResumeScannerSection from '../components/dashboard/ResumeScannerSection';
 import InterviewReadinessCard from '../components/dashboard/InterviewReadinessCard';
-import JobMatchesSection from '../components/dashboard/JobMatchesSection';
-import CareerRiskCard from '../components/dashboard/CareerRiskCard';
 import DashboardLoading from '../components/dashboard/DashboardLoading';
 import DashboardError from '../components/dashboard/DashboardError';
 
 export default function Dashboard() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['dashboard', 'common']);
   const { user } = useAuth();
   const { data, isLoading, isError, error, refetch } = useDashboardOverview();
-  const { data: jobsData } = useJobMatches();
-
-  const jobMatches = useMemo(() => {
-    if (jobsData?.matches?.length) return jobsData.matches;
-    return data?.jobMatchesPreview || [];
-  }, [jobsData, data]);
 
   if (isLoading) {
     return (
@@ -37,7 +29,7 @@ export default function Dashboard() {
     return (
       <DashboardLayout user={user}>
         <DashboardError
-          message={resolveApiError(error, t('errors.somethingWentWrong'))}
+          message={resolveApiError(error, t('common:errors.somethingWentWrong'))}
           onRetry={refetch}
         />
       </DashboardLayout>
@@ -46,24 +38,42 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout user={user}>
-      <PageContainer>
+      <PageContainer className="space-y-8">
         <WelcomeSection welcome={data?.welcome} />
         <QuickActions />
 
-        <div className="dashboard-content-grid">
-          <ProfileStrengthCard profileStrength={data?.profileStrength} />
-          <ResumeIntelligenceCard resumeIntelligence={data?.resumeIntelligence} />
+        <DashboardFeatureSection
+          title={t('dashboard:features.resumeBuilder.title')}
+          description={t('dashboard:features.resumeBuilder.description')}
+          href="/resume/upload"
+          icon="description"
+          color="resume"
+        >
+          <ResumeBuilderCard />
+        </DashboardFeatureSection>
 
-          <div className="col-span-1 lg:col-span-4 space-y-dashboard-gutter min-w-0">
-            <InterviewReadinessCard interviewReadiness={data?.interviewReadiness} />
-          </div>
+        <DashboardFeatureSection
+          title={t('dashboard:features.resumeScanner.title')}
+          description={t('dashboard:features.resumeScanner.description')}
+          href="/resume-scanner"
+          icon="document_scanner"
+          color="scanner"
+        >
+          <ResumeScannerSection
+            profileStrength={data?.profileStrength}
+            resumeIntelligence={data?.resumeIntelligence}
+          />
+        </DashboardFeatureSection>
 
-          <JobMatchesSection matches={jobMatches} />
-
-          <div className="col-span-1 lg:col-span-4 space-y-dashboard-gutter min-w-0">
-            <CareerRiskCard careerRisk={data?.careerRisk} />
-          </div>
-        </div>
+        <DashboardFeatureSection
+          title={t('dashboard:features.interviewPrep.title')}
+          description={t('dashboard:features.interviewPrep.description')}
+          href="/interview-prep"
+          icon="mic_external_on"
+          color="mode"
+        >
+          <InterviewReadinessCard interviewReadiness={data?.interviewReadiness} />
+        </DashboardFeatureSection>
       </PageContainer>
     </DashboardLayout>
   );

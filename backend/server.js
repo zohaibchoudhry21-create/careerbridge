@@ -25,6 +25,13 @@ console.log(
     : 'Claude not set'
 );
 
+console.log(
+  '[vapi]',
+  process.env.VAPI_PRIVATE_KEY?.trim() || process.env.VAPI_API_KEY?.trim()
+    ? 'Private key configured (server-side assistants)'
+    : 'VAPI_PRIVATE_KEY missing — live interviews will fail until set in backend/.env'
+);
+
 const { default: app } = await import('./src/app.js');
 
 const PORT = process.env.PORT || 5000;

@@ -9,7 +9,7 @@ import LanguageSelector from '../../i18n/components/LanguageSelector';
 const SIDEBAR_TRANSITION =
   'transition-[width,padding] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]';
 
-export default function DashboardLayout({ children, user }) {
+export default function DashboardLayout({ children }) {
   const { t } = useTranslation('common');
   const [mobileOpen, setMobileOpen] = useState(false);
   const { collapsed, toggleCollapsed } = usePersistedSidebarCollapse();
@@ -19,10 +19,10 @@ export default function DashboardLayout({ children, user }) {
 
   return (
     <div className="dashboard-shell h-screen overflow-hidden">
-      <header className="lg:hidden fixed top-0 inset-x-0 z-50 flex items-center gap-3 h-14 px-4 bg-background/80 backdrop-blur-xl border-b border-outline-variant/50">
+      <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center gap-3 border-b border-slate-200 bg-white/90 px-4 backdrop-blur-xl lg:hidden">
         <button
           type="button"
-          className="relative z-[60] flex items-center justify-center w-10 h-10 rounded-2xl app-heading hover:bg-secondary/10 hover:scale-105 active:scale-95 transition-all duration-300 shrink-0"
+          className="relative z-[60] flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-slate-600 transition-colors duration-150 hover:bg-slate-50 hover:text-slate-800"
           onClick={toggleMobileSidebar}
           aria-label={mobileOpen ? t('sidebar.closeSidebar') : t('sidebar.openSidebar')}
           aria-expanded={mobileOpen}
@@ -35,21 +35,20 @@ export default function DashboardLayout({ children, user }) {
         </div>
       </header>
 
-      {mobileOpen && (
+      {mobileOpen ? (
         <button
           type="button"
-          className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300 lg:hidden"
           onClick={closeMobileSidebar}
           aria-label={t('sidebar.closeSidebar')}
         />
-      )}
+      ) : null}
 
       <aside
         className={[
-          'lg:hidden fixed top-0 start-0 z-50 h-full max-w-[85vw] w-[280px]',
-          'flex flex-col shrink-0 bg-background/90 backdrop-blur-xl border-e border-outline-variant/50',
-          'shadow-2xl py-sm px-sm overflow-hidden',
-          'transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
+          'fixed start-0 top-0 z-50 flex h-full w-[280px] max-w-[85vw] shrink-0 flex-col',
+          'border-e border-slate-200 bg-white shadow-2xl',
+          'transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] lg:hidden',
           mobileOpen ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full',
         ].join(' ')}
       >
@@ -62,20 +61,20 @@ export default function DashboardLayout({ children, user }) {
 
       <aside
         className={[
-          'hidden lg:flex shrink-0 h-full flex-col',
-          'bg-background/80 backdrop-blur-xl border-e border-outline-variant/50',
-          'shadow-[8px_0_30px_rgba(0,0,0,0.04)] py-sm overflow-hidden',
+          'hidden h-full shrink-0 flex-col overflow-hidden border-e border-slate-200 bg-white lg:flex',
+          'shadow-[8px_0_30px_rgba(0,0,0,0.04)]',
           SIDEBAR_TRANSITION,
-          collapsed ? 'w-[76px] px-2' : 'w-[280px] px-sm',
+          collapsed ? 'w-[76px]' : 'w-[280px]',
         ].join(' ')}
         aria-expanded={!collapsed}
+        aria-label="Dashboard navigation"
       >
         <Sidebar collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
       </aside>
 
       <main className="dashboard-main transition-[margin,padding] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
-        <div className="max-w-[1280px] mx-auto w-full">
-          <div className="hidden lg:flex justify-end mb-4">
+        <div className="mx-auto w-full max-w-[1280px]">
+          <div className="mb-4 hidden justify-end lg:flex">
             <LanguageSelector />
           </div>
           {children}

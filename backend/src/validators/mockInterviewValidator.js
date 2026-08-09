@@ -1,7 +1,7 @@
 import { body, param } from 'express-validator';
 import {
   INTERVIEW_FOCUS_AREAS,
-  INTERVIEW_SETUP_MODES,
+  INTERVIEW_SETUP_MODES_SELECTABLE,
   INTERVIEWER_PERSONAS,
   MOCK_INTERVIEW_DIFFICULTIES,
   MOCK_INTERVIEW_DURATION_OPTIONS,
@@ -84,7 +84,7 @@ export const startLiveInterviewValidation = [
     .withMessage(ERROR_CODES.INTERVIEW_PREP.FOCUS_AREA_INVALID),
   body('interviewMode')
     .optional()
-    .isIn(INTERVIEW_SETUP_MODES)
+    .isIn(INTERVIEW_SETUP_MODES_SELECTABLE)
     .withMessage(ERROR_CODES.INTERVIEW_PREP.INTERVIEW_MODE_INVALID),
   body('interviewerPersona')
     .optional()
@@ -114,14 +114,32 @@ export const roleSuggestionsValidation = [
 export const submitLiveInterviewValidation = [
   body('sessionId').isMongoId().withMessage(ERROR_CODES.VALIDATION.SESSION_ID_INVALID),
   body('transcript')
-    .isArray({ min: 1 })
+    .isArray({ min: 1, max: 400 })
     .withMessage(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_ARRAY),
   body('transcript.*.role').optional().isString(),
   body('transcript.*.content')
     .isString()
-    .withMessage(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_CONTENT_REQUIRED),
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_CONTENT_REQUIRED)
+    .isLength({ max: MAX_INTERVIEW_CONTEXT_TEXT_LENGTH })
+    .withMessage(
+      formatValidationCode(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_TOO_LONG, {
+        max: MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
+      })
+    ),
   body('liveAudioHints').optional().isObject(),
-  body('liveVideoMetrics').optional(),
+  body('liveAudioHints.acousticSamples')
+    .optional()
+    .isArray({ max: 2400 })
+    .withMessage(ERROR_CODES.VALIDATION.GENERIC),
+  body('liveAudioHints.pauseEvents')
+    .optional()
+    .isArray({ max: 200 })
+    .withMessage(ERROR_CODES.VALIDATION.GENERIC),
+  body('liveVideoMetrics').optional().isObject(),
+  body('liveVideoMetrics.frameSamples')
+    .optional()
+    .isArray({ max: 4000 })
+    .withMessage(ERROR_CODES.VALIDATION.GENERIC),
   body('durationMs')
     .optional()
     .isInt({ min: 0, max: 3600000 })

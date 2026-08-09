@@ -95,6 +95,11 @@ import {
   Video,
   VideoOff,
   X,
+  Check,
+  Lightbulb,
+  Sparkles,
+  Undo2,
+  Redo2,
 } from 'lucide-react';
 
 export const ICON_MAP = {
@@ -201,6 +206,13 @@ export const ICON_MAP = {
   checklist: ListChecks,
   trending_down: TrendingDown,
   rate_review: ClipboardList,
+  check: Check,
+  'alert-circle': CircleAlert,
+  x: X,
+  lightbulb: Lightbulb,
+  sparkles: Sparkles,
+  'undo-2': Undo2,
+  'redo-2': Redo2,
 };
 
 export function getLucideIcon(name) {

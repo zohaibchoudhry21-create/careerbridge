@@ -17,6 +17,15 @@ const reportSectionSchema = new mongoose.Schema(
   { _id: false, strict: false }
 );
 
+const listField = (label) => ({
+  type: [String],
+  default: [],
+  validate: {
+    validator: (arr) => Array.isArray(arr) && arr.length <= 10,
+    message: `${label} supports at most 10 items`,
+  },
+});
+
 const interviewReportSchema = new mongoose.Schema(
   {
     userId: {
@@ -42,34 +51,44 @@ const interviewReportSchema = new mongoose.Schema(
       max: 100,
       required: true,
     },
+    /** Scoring/gate/ceiling logic version; mismatch forces report regeneration. */
+    scoreVersion: {
+      type: Number,
+      min: 1,
+      default: 1,
+      index: true,
+    },
     sections: {
       contentQuality: { type: reportSectionSchema, default: undefined },
       voiceAnalysis: { type: reportSectionSchema, default: undefined },
       videoAnalysis: { type: reportSectionSchema, default: undefined },
       skillAssessment: { type: reportSectionSchema, default: undefined },
     },
-    strengths: {
-      type: [String],
-      default: [],
-    },
-    improvementAreas: {
-      type: [String],
-      default: [],
-    },
-    recommendedNextSteps: {
-      type: [String],
-      default: [],
+    strengths: listField('strengths'),
+    improvementAreas: listField('improvementAreas'),
+    recommendedNextSteps: listField('recommendedNextSteps'),
+    /** Heuristic: transcript contained prompt-injection-like phrases. */
+    flaggedForReview: {
+      type: Boolean,
+      default: false,
+      index: true,
     },
     rawMetricsSnapshot: {
       type: mongoose.Schema.Types.Mixed,
       default: undefined,
       select: false,
     },
+    /** Enterprise report payload (additive; legacy sections remain for older clients). */
+    enterpriseReport: {
+      type: mongoose.Schema.Types.Mixed,
+      default: undefined,
+    },
   },
   { timestamps: true }
 );
 
 interviewReportSchema.index({ userId: 1, createdAt: -1 });
+interviewReportSchema.index({ userId: 1, sourceType: 1, createdAt: -1 });
 interviewReportSchema.index({ sourceType: 1, sourceId: 1 }, { unique: true });
 
 const InterviewReport = mongoose.model('InterviewReport', interviewReportSchema);

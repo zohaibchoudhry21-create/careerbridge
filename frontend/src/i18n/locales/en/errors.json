@@ -188,7 +188,12 @@
     "QUESTION_ID_REQUIRED": "Each answer needs a questionId",
     "SELECTED_INDEX_INVALID": "selectedIndex must be a valid option index",
     "VOICE_INPUT_REQUIRED": "Provide an audio file or transcript for voice analysis.",
-    "FRAME_SAMPLES_ARRAY": "frameSamples must be a non-empty array"
+    "FRAME_SAMPLES_ARRAY": "frameSamples must be a non-empty array",
+    "ASSISTANT_CREATE_FAILED": "Could not start the voice interviewer. Please try again in a moment.",
+    "VAPI_NOT_CONFIGURED": "Voice interviews are not configured. Set VAPI_PRIVATE_KEY (Private API key from dashboard.vapi.ai) in the backend .env, then restart the server.",
+    "TRANSCRIPT_TOO_LONG": "Interview transcript exceeds the maximum length of {{max}} characters.",
+    "AI_SERVICE_UNAVAILABLE": "Our AI service is temporarily busy. Please try again in a moment.",
+    "AUDIO_TOO_LONG": "Audio recording is too long. Please keep answers under {{maxMinutes}} minutes."
   },
   "RESUME_BUILDER": {
     "RESUME_NOT_FOUND": "Resume not found.",

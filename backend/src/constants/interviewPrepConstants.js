@@ -42,8 +42,14 @@ export const INTERVIEW_FOCUS_AREAS = [
   'Communication',
 ];
 
-/** Optional interview delivery modes (stored on session; full text_only support is future scope). */
+/**
+ * Delivery modes stored on session.
+ * `text_only` is reserved for a future turn-by-turn Groq path — do not expose in UI
+ * until that flow is implemented (see docs/interview-prep-architecture.md).
+ */
 export const INTERVIEW_SETUP_MODES = ['video_voice', 'voice_only', 'text_only'];
+/** Modes accepted on new live starts / shown as working. */
+export const INTERVIEW_SETUP_MODES_SELECTABLE = ['video_voice', 'voice_only'];
 export const DEFAULT_INTERVIEW_SETUP_MODE = 'video_voice';
 
 /** Interviewer tone for live Vapi sessions. */
@@ -51,6 +57,40 @@ export const INTERVIEWER_PERSONAS = ['friendly', 'neutral', 'strict', 'panel'];
 export const DEFAULT_INTERVIEWER_PERSONA = 'neutral';
 
 export const MAX_INTERVIEW_CONTEXT_TEXT_LENGTH = 15000;
+
+/** Max audio duration for Whisper voice analysis (20 minutes). */
+export const MAX_VOICE_AUDIO_DURATION_MS = 1_200_000;
+
+/**
+ * Static opening questions when Groq is unavailable after retries.
+ * Keyed by coarse role keywords; falls back to `default`.
+ */
+export const FALLBACK_OPENING_QUESTIONS = {
+  default:
+    'Thanks for joining today. Could you briefly introduce yourself and walk me through your most relevant experience for this role?',
+  frontend:
+    'Thanks for joining. Could you introduce yourself and describe a recent frontend project you are proud of?',
+  backend:
+    'Thanks for joining. Could you introduce yourself and explain a backend system or API you have built or owned?',
+  fullstack:
+    'Thanks for joining. Could you introduce yourself and walk me through an end-to-end feature you shipped?',
+  data:
+    'Thanks for joining. Could you introduce yourself and describe a data problem you analyzed and the impact of your work?',
+  product:
+    'Thanks for joining. Could you introduce yourself and share how you typically prioritize product decisions?',
+  hr: 'Thanks for joining. Could you introduce yourself and tell me about a time you worked through a challenging team situation?',
+};
+
+export const resolveFallbackOpeningQuestion = (roleLabel = '') => {
+  const key = String(roleLabel || '').toLowerCase();
+  if (/front|react|ui|ux/.test(key)) return FALLBACK_OPENING_QUESTIONS.frontend;
+  if (/back|node|api|server|java|python/.test(key)) return FALLBACK_OPENING_QUESTIONS.backend;
+  if (/full\s*stack|fullstack/.test(key)) return FALLBACK_OPENING_QUESTIONS.fullstack;
+  if (/data|analyst|ml|machine/.test(key)) return FALLBACK_OPENING_QUESTIONS.data;
+  if (/product|pm\b/.test(key)) return FALLBACK_OPENING_QUESTIONS.product;
+  if (/hr|behavioral|people/.test(key)) return FALLBACK_OPENING_QUESTIONS.hr;
+  return FALLBACK_OPENING_QUESTIONS.default;
+};
 
 export const DEFAULT_SKILL_QUIZ_QUESTION_COUNT = 12;
 

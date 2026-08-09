@@ -7,6 +7,7 @@ import { cn } from '../../lib/utils';
 import { DashboardLayout, PageContainer, PageHeader, BackLink } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
 import AppIcon from '../../components/icons/AppIcon';
+import Skeleton from '../../components/Skeleton';
 import LiveInterviewReportView from '../../features/interviewPrep/components/LiveInterviewReportView';
 import { preloadInterviewFaceModels } from '../../features/interviewPrep/hooks/useFaceVideoAnalysis';
 import { useInterviewMedia } from '../../features/interviewPrep/context/InterviewMediaContext';
@@ -49,23 +50,20 @@ export default function MockInterviewSessionPage() {
   const [interviewReport, setInterviewReport] = useState(location.state?.interviewReport || null);
   const [submitError, setSubmitError] = useState(null);
 
+  // Skip session GET when start navigation already provided assistantId (faster cold start).
+  const hasNavAssistant = Boolean(location.state?.assistantId);
   const { data: sessionFromApi, isLoading: sessionLoading } = useMockInterviewSession(
     sessionId,
-    !interviewReport
+    !interviewReport && !hasNavAssistant
   );
 
-  const questions = useMemo(() => {
-    if (Array.isArray(location.state?.questions) && location.state.questions.length) {
-      return location.state.questions;
-    }
-    if (Array.isArray(sessionFromApi?.questionTexts) && sessionFromApi.questionTexts.length) {
-      return sessionFromApi.questionTexts;
-    }
-    if (Array.isArray(sessionFromApi?.questions) && sessionFromApi.questions.length) {
-      return sessionFromApi.questions.map((q) => q.text);
-    }
-    return [];
-  }, [location.state?.questions, sessionFromApi]);
+  const assistantId = useMemo(() => {
+    if (location.state?.assistantId) return String(location.state.assistantId);
+    if (sessionFromApi?.assistantId) return String(sessionFromApi.assistantId);
+    return '';
+  }, [location.state?.assistantId, sessionFromApi?.assistantId]);
+
+  const canStartSession = Boolean(assistantId);
 
   const interviewMeta = useMemo(
     () => ({
@@ -175,9 +173,9 @@ export default function MockInterviewSessionPage() {
   if (authLoading || !user) {
     return (
       <DashboardLayout user={user}>
-        <div className="flex justify-center py-xl">
-          <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
-        </div>
+        <PageContainer width="standard">
+          <Skeleton type="card" count={1} withMedia lines={3} label="Loading interview session" />
+        </PageContainer>
       </DashboardLayout>
     );
   }
@@ -211,9 +209,10 @@ export default function MockInterviewSessionPage() {
             />
 
             {!interviewReport && generateReport.isPending ? (
-              <div className="flex items-center justify-center gap-2 py-md">
-                <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
-                <span className="font-body-md text-on-surface-variant">{t('session.loadingReport')}</span>
+              <div className="space-y-4 py-md">
+                <Skeleton type="card" count={1} withMedia={false} lines={2} label={t('session.loadingReport')} />
+                <Skeleton type="card" count={4} withMedia={false} lines={2} columnsGrid={4} />
+                <Skeleton type="text" lines={4} />
               </div>
             ) : null}
 
@@ -230,13 +229,14 @@ export default function MockInterviewSessionPage() {
           </>
         ) : (
           <>
-            {sessionLoading && !questions.length ? (
-              <div className="flex justify-center py-xl">
-                <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
+            {sessionLoading && !canStartSession ? (
+              <div className="space-y-4 py-2">
+                <Skeleton type="card" count={1} withMedia lines={3} label="Loading interview session" />
+                <Skeleton type="list" count={3} />
               </div>
             ) : null}
 
-            {!sessionLoading && !questions.length ? (
+            {!sessionLoading && !canStartSession ? (
               <div className="text-center space-y-md">
                 <SessionExitLink />
                 <p className="font-body-md text-on-surface-variant">
@@ -251,7 +251,7 @@ export default function MockInterviewSessionPage() {
               </div>
             ) : null}
 
-            {questions.length > 0 ? (
+            {canStartSession ? (
               <>
                 <SessionExitLink />
                 <Suspense
@@ -269,13 +269,11 @@ export default function MockInterviewSessionPage() {
                   <LiveInterviewAgent
                     userName={userName}
                     sessionId={sessionId}
-                    questions={questions}
+                    assistantId={assistantId || undefined}
                     roleLabel={interviewMeta.roleLabel}
                     difficulty={interviewMeta.difficulty}
                     durationMinutes={interviewMeta.durationMinutes}
-                    interviewerPersona={interviewMeta.interviewerPersona}
                     interviewMode={interviewMeta.interviewMode}
-                    focusAreas={interviewMeta.focusAreas}
                     stream={stream}
                     onFinished={handleFinished}
                     submitError={submitError}

@@ -1,0 +1,275 @@
+{
+  "page": {
+    "upload": {
+      "title": "Resume Scanner",
+      "description": "Upload your resume and job description. We’ll analyze the match, then guide you through Improve → Finalize → Done."
+    },
+    "analysisPlaceholder": {
+      "title": "Resume Scanner Analysis",
+      "description": "Your analysis is ready. The full ATS workspace is loading next.",
+      "scoreLabel": "ATS Score",
+      "loading": "Loading analysis...",
+      "backToUpload": "Back to upload"
+    }
+  },
+  "upload": {
+    "step1Title": "Setup: Select Resume",
+    "step2Title": "Setup: Paste Job Description",
+    "progressReady": "{{progress}}% ready",
+    "phaseLabel": "Setup",
+    "tabs": {
+      "uploadNew": "Upload New"
+    },
+    "dropzoneTitle": "Drag & drop your resume",
+    "dropzoneHint": "or click to browse files",
+    "formats": {
+      "pdf": "PDF",
+      "docx": "DOCX",
+      "maxSize": "Max 10MB"
+    },
+    "selectedFile": "Selected: {{name}}",
+    "changeFile": "Change file",
+    "jobDescriptionPlaceholder": "Paste the full job description here. The AI will extract key skills, requirements, and responsibilities to compare against your resume...",
+    "clearText": "Clear Text",
+    "pasteHint": "Paste from clipboard",
+    "poweredBy": "Powered by CareerBridge AI",
+    "analyze": "Analyze Resume",
+    "errors": {
+      "fileRequired": "Please upload a resume file.",
+      "fileTooLarge": "Resume file must be 10MB or smaller.",
+      "unsupportedFile": "Unsupported file type. Use PDF or DOCX.",
+      "jobDescriptionRequired": "Please paste a job description.",
+      "analyzeFailed": "Could not start resume analysis. Please try again."
+    }
+  },
+  "overlay": {
+    "processing": "Processing your resume...",
+    "queued": "Queued for analysis...",
+    "extracting": "Extracting resume content...",
+    "analyzing": "Analyzing skills and ATS fit...",
+    "complete": "Analysis ready — opening workspace...",
+    "failed": "Analysis failed",
+    "phaseLabel": "Processing",
+    "progressComplete": "{{progress}}% Complete",
+    "labels": {
+      "skills": "Skills",
+      "experience": "Experience",
+      "education": "Education"
+    }
+  },
+  "analysis": {
+    "loading": "Loading analysis...",
+    "backToUpload": "Back to upload",
+    "defaultJobTitle": "Resume Analysis",
+    "headerDescription": "Improve suggestions, finalize your resume, then finish.",
+    "headerDescriptionWithCompany": "Improve your resume for {{company}}.",
+    "phases": {
+      "ariaLabel": "Resume scanner workflow",
+      "rewriteGate": "Rewrite review",
+      "improve": "Improve",
+      "finalize": "Finalize",
+      "done": "Done"
+    },
+    "viewMode": {
+      "edit": "Edit",
+      "preview": "Preview"
+    },
+    "done": {
+      "title": "Resume ready",
+      "description": "Your optimized resume for {{jobTitle}} is finalized. Start a new analysis anytime.",
+      "backToFinalize": "Back to Finalize",
+      "toasts": {
+        "finished": "Resume finalized and ready to download."
+      }
+    },
+    "gauge": {
+      "jobMatchLabel": "Job Match Score",
+      "atsLabel": "ATS Score",
+      "atsHint": "How well ATS systems can read your resume (formatting & structure).",
+      "viewBreakdown": "View breakdown"
+    },
+    "jobMatch": {
+      "keywordCoverage": "Keyword coverage",
+      "aiRelevance": "AI relevance"
+    },
+    "warnings": {
+      "fieldMismatch": "This resume doesn't appear to match this job — looks like a different field.",
+      "jdRequirementsUnclear": "Couldn't clearly extract requirements from this job description.",
+      "lowExtractionQuality": "Extraction quality is low — scores may be less accurate."
+    },
+    "rewrite": {
+      "bannerTitle": "Your resume has a very low match with this Job Description.",
+      "bannerDescription": "Every detected section was rewritten from scratch for ATS optimization, using only your factual experience. Review the comparison below.",
+      "gateRequired": "Choose an option below to continue. Improve and Finalize stay locked until you decide.",
+      "sectionsRewritten": "{{count}} sections rewritten:",
+      "originalLabel": "Original Resume",
+      "originalBadge": "Current",
+      "rewrittenLabel": "AI Rewritten Resume",
+      "rewrittenBadge": "ATS Optimized",
+      "useRewritten": "Use AI Rewritten Resume",
+      "keepOriginal": "Keep Original",
+      "applying": "Applying rewrite...",
+      "rejecting": "Restoring...",
+      "toasts": {
+        "accepted": "AI rewritten resume applied. Optimization suggestions are now available.",
+        "rejected": "Original resume kept. Incremental suggestions restored."
+      },
+      "errors": {
+        "acceptFailed": "Could not apply the rewritten resume.",
+        "rejectFailed": "Could not restore the original resume flow."
+      }
+    },
+    "atsTipBadge": "✨ ATS tip",
+    "tabs": {
+      "skills": "Skills",
+      "searchability": "Searchability",
+      "recruiterTips": "Recruiter Tips"
+    },
+    "workspaceTabs": {
+      "resume": "Resume",
+      "jobDescription": "Job Description"
+    },
+    "workspaceEmpty": {
+      "jobDescription": "No job description text is available."
+    },
+    "skills": {
+      "matched": "Matched skills",
+      "missing": "Missing skills",
+      "noMatched": "No matched skills yet.",
+      "noMissing": "All tracked skills are matched.",
+      "hardSkills": "Hard skills",
+      "requiredSkills": "Required skills",
+      "matchedLabel": "Matched skills",
+      "missingLabel": "Missing skills",
+      "matchedPlain": "Matched skills {{count}}",
+      "missingPlain": "Missing skills {{count}}",
+      "aiSuggestedPerSkill": "AI Suggested {{accepted}}/{{total}}",
+      "requiredInfo": "Must-have skills called out in the job description.",
+      "hardInfo": "Technical and role-specific skills from the job description.",
+      "emptyCategory": "No skills in this category."
+    },
+    "searchability": {
+      "sectionCompleteness": "Section completeness",
+      "searchability": "Searchability",
+      "quantifiedAchievements": "Quantified achievements",
+      "issues": "Issues to fix",
+      "noIssues": "No searchability issues detected."
+    },
+    "recruiterTips": {
+      "empty": "No recruiter tips for this analysis."
+    },
+    "steps": {
+      "ariaLabel": "Workflow steps",
+      "suggestions": "Improve ({{count}} pending)",
+      "suggestionsProgress": "Improve ({{accepted}}/{{total}})",
+      "edit": "Finalize"
+    },
+    "editor": {
+      "title": "Resume",
+      "ariaLabel": "Editable resume text",
+      "saving": "Saving...",
+      "hint": "{{count}} pending suggestion(s). Click highlighted text to review.",
+      "editHint": "Edit your resume freely. Changes save automatically.",
+      "unanchoredTitle": "Suggestions without an exact match (review in popover only)",
+      "unappliableTitle": "Could not apply automatically",
+      "unappliableHint": "Edit the highlighted fields manually to address these suggestions."
+    },
+    "popover": {
+      "title": "AI Suggestion",
+      "close": "Close",
+      "original": "Original",
+      "suggested": "Suggested",
+      "currentText": "Current Text",
+      "suggestedChange": "Suggested Change",
+      "removeText": "(Remove Text)",
+      "impact": "+{{points}} pts potential impact",
+      "impactShort": "+{{points}} Score",
+      "accept": "Accept Change",
+      "reject": "Reject",
+      "unappliable": "Couldn't apply — no matching content found",
+      "unappliableMessage": "The resume text changed and this suggestion no longer matches. Edit the field yourself.",
+      "unappliableNoMatch": "Couldn't apply — no matching content found in the resume."
+    },
+    "suggestionTypes": {
+      "missing_keyword": "Missing keyword",
+      "reword": "Reword",
+      "remove": "Remove"
+    },
+    "toolbar": {
+      "accepted": "{{accepted}} / {{total}} accepted",
+      "pending": "{{count}} pending",
+      "undo": "Undo",
+      "redo": "Redo",
+      "acceptAll": "Accept All",
+      "continueToEdit": "Continue to Finalize",
+      "continueToFinalize": "Continue to Finalize",
+      "backToImprove": "Back to Improve",
+      "finish": "Finish",
+      "downloadPdf": "Download PDF",
+      "downloadingPdf": "Preparing PDF...",
+      "newAnalysis": "New Analysis",
+      "continue": "Continue to Finalize",
+      "suggestionProgressAria": "Suggestion progress {{accepted}} of {{total}}"
+    },
+    "toasts": {
+      "acceptAllSuccess": "All suggestions accepted.",
+      "pdfDownloaded": "PDF downloaded."
+    },
+    "livePreview": {
+      "title": "Live preview",
+      "hint": "Updates as you edit or accept suggestions"
+    },
+    "sectionEditor": {
+      "hint": "Edit sections like Resume Builder. Changes save automatically.",
+      "save": "Save",
+      "namePlaceholder": "Your name",
+      "contactPlaceholder": "Contact info",
+      "template": "Template",
+      "templateHint": "Choose a resume design. Preview updates instantly.",
+      "header": "Header",
+      "fullName": "Full Name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "linkedin": "LinkedIn",
+      "github": "GitHub",
+      "summary": "Summary",
+      "summaryPlaceholder": "Professional summary...",
+      "experience": "Work Experience",
+      "experienceN": "Experience {{n}}",
+      "position": "Position",
+      "company": "Company",
+      "start": "Start",
+      "end": "End",
+      "bulletsPlaceholder": "One bullet per line...",
+      "addExperience": "Add Experience",
+      "education": "Education",
+      "educationN": "Education {{n}}",
+      "degree": "Degree",
+      "institution": "Institution",
+      "fieldOfStudy": "Field of Study",
+      "gpa": "GPA",
+      "addEducation": "Add Education",
+      "skills": "Core Competencies",
+      "skillsPlaceholder": "SEO, React, JavaScript...",
+      "projects": "Projects",
+      "projectN": "Project {{n}}",
+      "projectName": "Name",
+      "addProject": "Add Project",
+      "languages": "Languages",
+      "languagesPlaceholder": "English, Spanish...",
+      "certifications": "Certifications",
+      "certificationsPlaceholder": "AWS CCP, PMP...",
+      "livePreview": "Live Preview"
+    },
+    "errors": {
+      "suggestionFailed": "Could not update suggestion.",
+      "textFailed": "Could not save resume text.",
+      "acceptAllFailed": "Could not accept all suggestions.",
+      "undoFailed": "Nothing to undo.",
+      "redoFailed": "Nothing to redo.",
+      "finalizeFailed": "Could not finalize the resume.",
+      "pdfFailed": "Could not download the PDF. Finalize the resume first."
+    }
+  }
+}

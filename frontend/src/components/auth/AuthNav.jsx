@@ -2,6 +2,13 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import LanguageSelector from '../../i18n/components/LanguageSelector';
 
+const AUTH_NAV_LINKS = [
+  { key: 'features', href: '/#features' },
+  { key: 'howItWorks', href: '/#tools' },
+  { key: 'solution', href: '/#templates' },
+  { key: 'getStarted', href: '/#resources' },
+];
+
 export default function AuthNav({ active = 'login' }) {
   const { t } = useTranslation('auth');
 
@@ -15,30 +22,15 @@ export default function AuthNav({ active = 'login' }) {
         </Link>
 
         <div className="hidden md:flex items-center gap-lg">
-          <a
-            className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
-            href="/#features"
-          >
-            {t('nav.features')}
-          </a>
-          <a
-            className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
-            href="/#tools"
-          >
-            {t('nav.careerTools')}
-          </a>
-          <a
-            className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
-            href="/#templates"
-          >
-            {t('nav.templates')}
-          </a>
-          <a
-            className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
-            href="/#resources"
-          >
-            {t('nav.resources')}
-          </a>
+          {AUTH_NAV_LINKS.map((link) => (
+            <a
+              key={link.key}
+              className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
+              href={link.href}
+            >
+              {t(`nav.${link.key}`)}
+            </a>
+          ))}
         </div>
 
         <div className="flex items-center gap-md">

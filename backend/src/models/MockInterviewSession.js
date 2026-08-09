@@ -10,6 +10,9 @@ const mockInterviewQuestionSchema = new mongoose.Schema(
     questionId: { type: String, required: true },
     text: { type: String, required: true, trim: true },
     order: { type: Number, required: true, min: 0 },
+    /** Interview intelligence tags (optional; live guide). */
+    focusTag: { type: String, trim: true, default: undefined },
+    depthHint: { type: String, trim: true, default: undefined },
   },
   { _id: false }
 );
@@ -20,7 +23,13 @@ const liveVideoMetricsSchema = new mongoose.Schema(
     eyeContactPercent: { type: Number, min: 0, max: 100 },
     expressionBreakdown: { type: mongoose.Schema.Types.Mixed, default: {} },
     engagementScore: { type: Number, min: 0, max: 100 },
+    /** Composed attention score from measurable monitoring components. */
+    attentionScore: { type: Number, min: 0, max: 100 },
     timeline: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    /** Nested professional monitoring metrics (monitoring-only; not report generation). */
+    behavioralMetrics: { type: mongoose.Schema.Types.Mixed, default: undefined },
+    /** Structured behavioral timeline events `{ tMs, offsetLabel, type, message, severity? }`. */
+    timelineEvents: { type: [mongoose.Schema.Types.Mixed], default: undefined },
   },
   { _id: false }
 );
@@ -42,8 +51,11 @@ const videoMetricsSchema = new mongoose.Schema(
     eyeContactPercent: { type: Number, min: 0, max: 100 },
     expressionBreakdown: { type: mongoose.Schema.Types.Mixed, default: {} },
     engagementScore: { type: Number, min: 0, max: 100 },
+    attentionScore: { type: Number, min: 0, max: 100 },
     timeline: { type: [mongoose.Schema.Types.Mixed], default: [] },
     feedbackText: { type: String, trim: true, default: '' },
+    behavioralMetrics: { type: mongoose.Schema.Types.Mixed, default: undefined },
+    timelineEvents: { type: [mongoose.Schema.Types.Mixed], default: undefined },
   },
   { _id: false }
 );
@@ -53,6 +65,10 @@ const liveAudioHintsSchema = new mongoose.Schema(
     averageVolume: { type: Number, min: 0, max: 1 },
     silenceRatio: { type: Number, min: 0, max: 1 },
     longPauseCount: { type: Number, min: 0, default: 0 },
+    /** Optional acoustic capture metadata (samples usually stripped before persist). */
+    sampleIntervalMs: { type: Number, min: 0, default: undefined },
+    pauseEvents: { type: [mongoose.Schema.Types.Mixed], default: undefined },
+    acousticSamples: { type: [mongoose.Schema.Types.Mixed], default: undefined },
   },
   { _id: false }
 );
@@ -123,6 +139,15 @@ const mockInterviewSessionSchema = new mongoose.Schema(
     },
     callVideoMetrics: {
       type: videoMetricsSchema,
+      default: undefined,
+    },
+    /** Professional speech monitoring (separate from legacy callVoiceMetrics / reports). */
+    callSpeechMetrics: {
+      type: mongoose.Schema.Types.Mixed,
+      default: undefined,
+    },
+    speechTimelineEvents: {
+      type: [mongoose.Schema.Types.Mixed],
       default: undefined,
     },
     callDurationMs: {
@@ -217,12 +242,25 @@ const mockInterviewSessionSchema = new mongoose.Schema(
       enum: ['friendly', 'neutral', 'strict', 'panel'],
       default: 'neutral',
     },
+    /** Server-created Vapi assistant — browser only receives this id. */
+    vapiAssistantId: {
+      type: String,
+      trim: true,
+      default: undefined,
+    },
+    /** Create-time interview intelligence brief (resume/JD/skills) for prompt + debug. */
+    interviewContextBrief: {
+      type: mongoose.Schema.Types.Mixed,
+      default: undefined,
+    },
   },
   { timestamps: true }
 );
 
 mockInterviewSessionSchema.index({ userId: 1, updatedAt: -1 });
 mockInterviewSessionSchema.index({ userId: 1, status: 1 });
+mockInterviewSessionSchema.index({ userId: 1, mode: 1, createdAt: -1 });
+mockInterviewSessionSchema.index({ reportId: 1 }, { sparse: true });
 
 const MockInterviewSession = mongoose.model('MockInterviewSession', mockInterviewSessionSchema);
 

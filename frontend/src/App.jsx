@@ -19,8 +19,12 @@ import MockInterviewLayout from './pages/InterviewPrep/MockInterviewLayout';
 import MockInterviewSetupPage from './pages/InterviewPrep/MockInterviewSetupPage';
 import MockInterviewSessionPage from './pages/InterviewPrep/MockInterviewSessionPage';
 import SkillAssessmentQuizPage from './pages/InterviewPrep/SkillAssessmentQuizPage';
-import TemplateSelectionPage from './pages/ResumeBuilder/TemplateSelectionPage';
+import UploadResumePage from './pages/ResumeBuilder/UploadResumePage';
 import ResumeEditorPage from './pages/ResumeBuilder/ResumeEditorPage';
+import ResumeHistoryPage from './pages/ResumeBuilder/ResumeHistoryPage';
+import ResumeDetailsPage from './pages/ResumeBuilder/ResumeDetailsPage';
+import ResumeScannerUploadPage from './pages/ResumeScanner/ResumeScannerUploadPage';
+import ResumeScannerAnalysisPage from './pages/ResumeScanner/ResumeScannerAnalysisPage';
 import HeroResumeCapture from './pages/dev/HeroResumeCapture';
 import GuestRoute from './components/auth/GuestRoute';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -123,18 +127,66 @@ function App() {
         }
       />
       <Route
-        path="/resume/templates"
+        path="/resume/upload"
         element={
           <ProtectedRoute>
-            <TemplateSelectionPage />
+            <UploadResumePage />
           </ProtectedRoute>
         }
       />
       <Route
-        path="/resume/editor/:resumeId"
+        path="/resume/history"
+        element={
+          <ProtectedRoute>
+            <ResumeHistoryPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resume/templates"
+        element={
+          <ProtectedRoute>
+            <Navigate to="/resume/upload" replace />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resume/scanner"
+        element={
+          <ProtectedRoute>
+            <ResumeScannerUploadPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resume-scanner"
+        element={
+          <ProtectedRoute>
+            <ResumeScannerUploadPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resume-scanner/:analysisId"
+        element={
+          <ProtectedRoute>
+            <ResumeScannerAnalysisPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resume/:id/edit"
         element={
           <ProtectedRoute>
             <ResumeEditorPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resume/:id"
+        element={
+          <ProtectedRoute>
+            <ResumeDetailsPage />
           </ProtectedRoute>
         }
       />

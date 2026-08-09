@@ -1,21 +1,34 @@
 {
   "appName": "CareerBridge",
   "nav": {
-    "aiResumeParsing": "AI Resume Parsing",
-    "cvUpload": "CV Upload",
-    "aiSuggestions": "AI Suggestions",
     "resumeBuilder": "Resume Builder",
+    "resumeScanner": "Resume Scanner",
+    "interviewPrep": "Interview Prep",
     "login": "Login",
     "uploadCv": "Upload CV",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "dropdowns": {
+      "resumeBuilder": {
+        "upload": "Upload Resume",
+        "history": "Resume History",
+        "templates": "Browse Templates"
+      },
+      "resumeScanner": {
+        "scan": "Scan Resume"
+      },
+      "interviewPrep": {
+        "overview": "Overview",
+        "mock": "Mock Interview",
+        "skills": "Skill Assessment"
+      }
+    }
   },
   "sidebar": {
     "dashboard": "Dashboard",
     "resumeBuilder": "Resume Builder",
     "resumeScanner": "Resume Scanner",
     "interviewPrep": "Interview Prep",
-    "linkedinOptimizer": "LinkedIn Optimizer",
     "expandSidebar": "Expand sidebar",
     "collapseSidebar": "Collapse sidebar",
     "openSidebar": "Open sidebar",

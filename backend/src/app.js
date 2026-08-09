@@ -18,6 +18,7 @@ import skillQuizRoutes from './routes/skillQuizRoutes.js';
 import mockInterviewRoutes from './routes/mockInterviewRoutes.js';
 import voiceAnalysisRoutes from './routes/voiceAnalysisRoutes.js';
 import videoAnalysisRoutes from './routes/videoAnalysisRoutes.js';
+import resumeScannerRoutes from './routes/resumeScannerRoutes.js';
 import { ERROR_CODES, getErrorMessage } from './constants/apiErrorCodes.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 
@@ -150,6 +151,7 @@ app.use('/api', skillQuizRoutes);
 app.use('/api', mockInterviewRoutes);
 app.use('/api', voiceAnalysisRoutes);
 app.use('/api', videoAnalysisRoutes);
+app.use('/api', resumeScannerRoutes);
 app.use('/api', verifyRoutes);
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/auth', socialOAuthLimiter, socialAuthRoutes);

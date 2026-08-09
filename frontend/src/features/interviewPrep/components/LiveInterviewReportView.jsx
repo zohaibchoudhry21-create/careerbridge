@@ -2,133 +2,50 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import InterviewProgressChart from './InterviewProgressChart';
 import { fetchInterviewReportHistory } from '../services/mockInterviewService';
-import SectionHeading from '../../../components/ui/SectionHeading';
-import { accentCardClass } from '../../../components/ui/colorAccentTokens';
+import Skeleton from '../../../components/Skeleton';
+import ScoreRing from './report/ScoreRing';
+import { BulletList, MetricTile, ReportSectionCard } from './report/ReportShared';
+import ExecutiveSummaryCard from './report/ExecutiveSummaryCard';
+import HiringCard from './report/HiringCard';
+import DimensionGrid from './report/DimensionGrid';
+import QuestionReviewList from './report/QuestionReviewList';
+import RoadmapCard from './report/RoadmapCard';
+import TimelineList from './report/TimelineList';
+import EnterpriseCharts from './report/EnterpriseCharts';
 
-function ScoreRing({ score = 0, size = 160, overallLabel }) {
-  const radius = (size - 16) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const clamped = Math.min(100, Math.max(0, Number(score) || 0));
-  const offset = circumference - (clamped / 100) * circumference;
-
-  return (
-    <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="12"
-          className="text-surface-container-high"
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="12"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          className="text-secondary transition-all duration-700"
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-headline-dashboard text-headline-dashboard app-heading">{clamped}</span>
-        <span className="font-label-sm app-muted">{overallLabel}</span>
-      </div>
-    </div>
-  );
-}
-
-function MetricTile({ label, value, suffix = '' }) {
-  return (
-    <div className="min-w-0 rounded-2xl text-center dashboard-glass-card dashboard-card-padding">
-      <p className="font-label-sm app-muted">{label}</p>
-      <p className="mt-1 font-headline-section text-headline-section app-heading">
-        {value != null && value !== '' ? `${value}${suffix}` : '—'}
-      </p>
-    </div>
-  );
-}
-
-function BulletList({ title, items = [], color = 'settings', icon = 'checklist' }) {
-  if (!items.length) return null;
-
-  return (
-    <section className={accentCardClass}>
-      <SectionHeading color={color} icon={icon} title={title} alignDescription={false} />
-      <ul className="list-disc space-y-1 pl-5 font-body-md text-on-surface-variant">
-        {items.map((item, index) => (
-          <li key={`${title}-${index}`}>{item}</li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-function ReportSectionCard({ title, score, color, icon, children }) {
-  return (
-    <section className={`${accentCardClass} min-w-0`}>
-      <div className="flex items-start justify-between gap-2">
-        <SectionHeading color={color} icon={icon} title={title} alignDescription={false} />
-        {score != null ? (
-          <span className="shrink-0 rounded-full bg-secondary/10 px-2 py-0.5 font-label-md text-secondary">
-            {score}/100
-          </span>
-        ) : null}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-export default function LiveInterviewReportView({ report, sessionId }) {
-  const { t } = useTranslation('interviewPrep');
-  const { data: historyData } = useQuery({
-    queryKey: ['interview-report-history'],
-    queryFn: fetchInterviewReportHistory,
-    enabled: Boolean(report),
-    staleTime: 60_000,
-  });
-
-  if (!report) return null;
-
-  const { overallScore, sections = {}, strengths, improvementAreas, recommendedNextSteps } = report;
-  const history = historyData?.history || [];
-
-  const eyeContact = sections.videoAnalysis?.eyeContactPercent;
+function LegacyReportBody({ report, t }) {
+  const { sections = {}, strengths, improvementAreas, recommendedNextSteps, overallScore } = report;
+  // Align legacy section tiles with capped overall so high delivery scores aren't shown as success.
+  const dampLegacyScore = (value) => {
+    if (value == null || !Number.isFinite(Number(value))) return value;
+    if (overallScore == null || Number(overallScore) >= 15) return value;
+    return Math.min(Number(value), Math.max(Number(overallScore), 5));
+  };
+  const eyeContact = dampLegacyScore(sections.videoAnalysis?.eyeContactPercent);
   const wpm = sections.voiceAnalysis?.wpm;
   const fillerWords = sections.voiceAnalysis?.fillerWords;
+  const contentScore = dampLegacyScore(sections.contentQuality?.score);
+  const voiceScore = dampLegacyScore(sections.voiceAnalysis?.confidenceScore);
+  const engagementScore = dampLegacyScore(sections.videoAnalysis?.engagementScore);
+  const showStrengths = !(overallScore != null && Number(overallScore) < 15);
 
   return (
-    <div className="min-w-0 space-y-md">
-      <header className="flex flex-col items-center gap-sm rounded-2xl text-center dashboard-glass-card dashboard-card-padding">
-        <h2 className="font-headline-dashboard text-headline-dashboard app-heading">
-          {t('report.title')}
-        </h2>
-        <p className="max-w-lg font-body-md app-muted">{t('report.description')}</p>
-        <ScoreRing score={overallScore} overallLabel={t('report.overall')} />
-      </header>
-
+    <>
       <div className="grid grid-cols-2 gap-sm md:grid-cols-4">
         <MetricTile label={t('report.eyeContact')} value={eyeContact} suffix="%" />
         <MetricTile label={t('report.speakingPace')} value={wpm} suffix={t('report.wpmSuffix')} />
         <MetricTile label={t('report.fillerWords')} value={fillerWords} />
         <MetricTile
           label={t('report.engagement')}
-          value={sections.videoAnalysis?.engagementScore}
+          value={engagementScore}
           suffix="%"
         />
       </div>
 
-      <InterviewProgressChart history={history} currentSessionId={sessionId} />
-
       <div className="grid grid-cols-1 gap-sm md:grid-cols-2">
-        <BulletList title={t('report.strengths')} items={strengths} color="success" icon="thumb_up" />
+        {showStrengths ? (
+          <BulletList title={t('report.strengths')} items={strengths} color="success" icon="thumb_up" />
+        ) : null}
         <BulletList
           title={t('report.areasToImprove')}
           items={improvementAreas}
@@ -140,7 +57,7 @@ export default function LiveInterviewReportView({ report, sessionId }) {
       <div className="grid grid-cols-1 gap-sm md:grid-cols-2">
         <ReportSectionCard
           title={t('report.contentQuality')}
-          score={sections.contentQuality?.score}
+          score={contentScore}
           color="skills"
           icon="article"
         >
@@ -151,7 +68,7 @@ export default function LiveInterviewReportView({ report, sessionId }) {
 
         <ReportSectionCard
           title={t('report.voiceAnalysis')}
-          score={sections.voiceAnalysis?.confidenceScore}
+          score={voiceScore}
           color="mode"
           icon="mic"
         >
@@ -162,7 +79,7 @@ export default function LiveInterviewReportView({ report, sessionId }) {
 
         <ReportSectionCard
           title={t('report.videoPresence')}
-          score={sections.videoAnalysis?.engagementScore}
+          score={engagementScore}
           color="interview"
           icon="videocam"
         >
@@ -178,6 +95,135 @@ export default function LiveInterviewReportView({ report, sessionId }) {
         color="focus"
         icon="checklist"
       />
+    </>
+  );
+}
+
+function EnterpriseReportBody({ enterprise, t }) {
+  // Phase 3: prefer nested delivery.*; fall back to top-level aliases.
+  const delivery = enterprise.delivery || {};
+  const voice = delivery.voiceAnalysis || enterprise.voiceAnalysis || {};
+  const eye = delivery.eyeContact || enterprise.eyeContact || {};
+  const body = delivery.bodyLanguage || enterprise.bodyLanguage || {};
+  const dimensions = enterprise.content?.dimensions || enterprise.dimensions;
+
+  return (
+    <>
+      <ExecutiveSummaryCard executiveSummary={enterprise.executiveSummary} />
+      <HiringCard
+        hiringRecommendation={enterprise.hiringRecommendation}
+        hiringProbability={enterprise.hiringProbability}
+      />
+
+      <div className="grid grid-cols-2 gap-sm md:grid-cols-4">
+        <MetricTile label={t('report.eyeContact')} value={eye.percent ?? eye.score} suffix="%" />
+        <MetricTile
+          label={t('report.speakingPace')}
+          value={voice.metrics?.speechSpeed}
+          suffix={t('report.wpmSuffix')}
+        />
+        <MetricTile label={t('report.fillerWords')} value={voice.metrics?.fillerWords} />
+        <MetricTile
+          label={t('report.engagement')}
+          value={body.metrics?.engagementScore}
+          suffix="%"
+        />
+      </div>
+
+      <EnterpriseCharts charts={enterprise.charts} />
+      <DimensionGrid dimensions={dimensions} />
+
+      <div className="grid grid-cols-1 gap-sm md:grid-cols-2">
+        <ReportSectionCard
+          title={t('report.voiceAnalysis')}
+          score={voice.score}
+          color="mode"
+          icon="mic"
+        >
+          <p className="font-body-md text-sm text-on-surface-variant">
+            {voice.feedback || voice.evidence?.join('. ') || t('report.noVoiceFeedback')}
+          </p>
+          {voice.deliveryOnly ? (
+            <p className="mt-1 font-label-sm app-muted">Delivery only — not answer content</p>
+          ) : null}
+        </ReportSectionCard>
+        <ReportSectionCard
+          title={t('report.enterprise.bodyLanguage')}
+          score={body.score}
+          color="interview"
+          icon="accessibility"
+        >
+          <p className="font-body-md text-sm text-on-surface-variant">
+            {body.feedback || body.evidence?.join('. ') || t('report.noVideoFeedback')}
+          </p>
+          {body.deliveryOnly ? (
+            <p className="mt-1 font-label-sm app-muted">Delivery only — not answer content</p>
+          ) : null}
+        </ReportSectionCard>
+      </div>
+
+      <QuestionReviewList questionReviews={enterprise.questionReviews} />
+
+      <div className="grid grid-cols-1 gap-sm md:grid-cols-2">
+        <BulletList
+          title={t('report.strengths')}
+          items={enterprise.strengths}
+          color="success"
+          icon="thumb_up"
+        />
+        <BulletList
+          title={t('report.enterprise.weaknesses')}
+          items={enterprise.weaknesses?.length ? enterprise.weaknesses : enterprise.improvementAreas}
+          color="warning"
+          icon="trending_up"
+        />
+      </div>
+
+      <RoadmapCard
+        learningRoadmap={enterprise.learningRoadmap}
+        careerSuggestions={enterprise.careerSuggestions}
+      />
+      <TimelineList timeline={enterprise.timeline} />
+    </>
+  );
+}
+
+export default function LiveInterviewReportView({ report, sessionId }) {
+  const { t } = useTranslation('interviewPrep');
+  const { data: historyData, isLoading: historyLoading } = useQuery({
+    queryKey: ['interview-report-history'],
+    queryFn: fetchInterviewReportHistory,
+    enabled: Boolean(report),
+    staleTime: 60_000,
+  });
+
+  if (!report) return null;
+
+  const enterprise = report.enterpriseReport;
+  const history = historyData?.history || [];
+  const overallScore = enterprise?.overallScore ?? report.overallScore;
+
+  return (
+    <div className="min-w-0 space-y-md">
+      <header className="flex flex-col items-center gap-sm rounded-2xl text-center dashboard-glass-card dashboard-card-padding">
+        <h2 className="font-headline-dashboard text-headline-dashboard app-heading">
+          {t('report.title')}
+        </h2>
+        <p className="max-w-lg font-body-md app-muted">{t('report.description')}</p>
+        <ScoreRing score={overallScore} overallLabel={t('report.overall')} />
+      </header>
+
+      {historyLoading ? (
+        <Skeleton type="card" count={1} withMedia lines={2} label="Loading interview history chart" />
+      ) : (
+        <InterviewProgressChart history={history} currentSessionId={sessionId} />
+      )}
+
+      {enterprise ? (
+        <EnterpriseReportBody enterprise={enterprise} t={t} />
+      ) : (
+        <LegacyReportBody report={report} t={t} />
+      )}
     </div>
   );
 }

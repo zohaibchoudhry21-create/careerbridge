@@ -3,12 +3,30 @@ import {
   LIVE_VIDEO_SAMPLE_INTERVAL_MS,
   LIVE_VIDEO_SAMPLE_INTERVAL_SLOW_MS,
 } from '../constants/interviewPrepConstants';
+import {
+  STRANGER_DESCRIPTOR_DISTANCE_THRESHOLD,
+  STRANGER_REFERENCE_MIN_EYE_CONTACT,
+  STRANGER_REFERENCE_MIN_SCORE,
+  STRANGER_REFERENCE_SAMPLE_COUNT,
+} from '../config/behavioralMonitoringConfig.js';
 import { aggregateVideoFrameSamples } from '../utils/videoAnalysisMetrics.js';
+import {
+  classifyLookingDirection,
+  computeCameraFocusHeuristic,
+  computeEyeContactPercent,
+  estimateHeadPoseFromLandmarks,
+} from '../utils/headPoseUtils.js';
+import {
+  getDominantExpression,
+  isSmileSample,
+} from '../utils/behavioralAnalysisUtils.js';
 
 const MODEL_URL = '/models';
 
 let modelsLoadPromise = null;
 let faceApiModule = null;
+/** @type {boolean | null} */
+let recognitionNetAvailable = null;
 
 const loadModels = async () => {
   if (!modelsLoadPromise) {
@@ -19,6 +37,19 @@ const loadModels = async () => {
         faceApiModule.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
         faceApiModule.nets.faceExpressionNet.loadFromUri(MODEL_URL),
       ]);
+
+      // Optional: FaceRecognitionNet for stranger / primary-face matching.
+      // Gracefully disable if weights are missing — other metrics still work.
+      try {
+        await faceApiModule.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+        recognitionNetAvailable = true;
+      } catch {
+        recognitionNetAvailable = false;
+        console.info(
+          '[interview-monitoring] FaceRecognitionNet unavailable; stranger detection disabled.'
+        );
+      }
+
       return faceApiModule;
     })();
   }
@@ -29,34 +60,39 @@ export function preloadInterviewFaceModels() {
   return loadModels();
 }
 
-const computeEyeContactPercent = (detection, videoWidth, videoHeight) => {
-  const box = detection.detection.box;
-  const faceCenterX = box.x + box.width / 2;
-  const faceCenterY = box.y + box.height / 2;
+const euclideanDistance = (a, b) => {
+  if (!a?.length || !b?.length || a.length !== b.length) return Infinity;
+  let sum = 0;
+  for (let i = 0; i < a.length; i += 1) {
+    const d = a[i] - b[i];
+    sum += d * d;
+  }
+  return Math.sqrt(sum);
+};
 
-  const dx = Math.abs(faceCenterX - videoWidth / 2) / (videoWidth / 2 || 1);
-  const dy = Math.abs(faceCenterY - videoHeight / 2) / (videoHeight / 2 || 1);
-  const centerScore = 1 - Math.min(1, dx * 0.65 + dy * 0.35);
+const averageDescriptor = (descriptors) => {
+  if (!descriptors.length) return null;
+  const len = descriptors[0].length;
+  const avg = new Float32Array(len);
+  for (const desc of descriptors) {
+    for (let i = 0; i < len; i += 1) avg[i] += desc[i];
+  }
+  for (let i = 0; i < len; i += 1) avg[i] /= descriptors.length;
+  return avg;
+};
 
-  const faceAreaRatio = (box.width * box.height) / (videoWidth * videoHeight || 1);
-  const sizeScore = Math.min(1, faceAreaRatio / 0.12);
-
-  const landmarks = detection.landmarks;
-  const leftEye = landmarks.getLeftEye();
-  const rightEye = landmarks.getRightEye();
-  const nose = landmarks.getNose();
-
-  const eyeMidX = (leftEye[0].x + rightEye[3].x) / 2;
-  const noseOffset = Math.abs(nose[3].x - eyeMidX) / (box.width || 1);
-  const forwardScore = 1 - Math.min(1, noseOffset * 4);
-
-  const combined = centerScore * 0.45 + sizeScore * 0.25 + forwardScore * 0.3;
-  return Math.round(Math.min(100, Math.max(0, combined * 100)));
+const pickPrimaryDetection = (detections) => {
+  if (!detections?.length) return null;
+  return detections.reduce((best, current) => {
+    const bestScore = best?.detection?.score ?? 0;
+    const currentScore = current?.detection?.score ?? 0;
+    return currentScore > bestScore ? current : best;
+  }, detections[0]);
 };
 
 /**
- * Samples face-api.js on the live <video> element while `enabled` (typically during recording).
- * Aggregates incrementally via aggregateVideoFrameSamples so submit can reuse the same metrics.
+ * Samples face-api.js on the live <video> element while `enabled`.
+ * Aggregates incrementally via aggregateVideoFrameSamples so submit can reuse metrics.
  */
 export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
   const { showLiveIndicators = true, sampleIntervalMs } = options;
@@ -74,12 +110,20 @@ export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
   const intervalRef = useRef(null);
   const detectingRef = useRef(false);
   const faceApiRef = useRef(null);
+  const sessionStartedAtRef = useRef(null);
+  const referenceDescriptorsRef = useRef([]);
+  const lockedReferenceRef = useRef(null);
 
-  const pushSample = useCallback((sample) => {
-    samplesRef.current.push(sample);
-    setLatestSample(sample);
-    setLiveAggregated(aggregateVideoFrameSamples(samplesRef.current));
-  }, []);
+  const pushSample = useCallback(
+    (sample) => {
+      samplesRef.current.push(sample);
+      setLatestSample(sample);
+      setLiveAggregated(
+        aggregateVideoFrameSamples(samplesRef.current, { sampleIntervalMs: intervalMs })
+      );
+    },
+    [intervalMs]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -105,13 +149,16 @@ export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
 
   const resetSamples = useCallback(() => {
     samplesRef.current = [];
+    sessionStartedAtRef.current = null;
+    referenceDescriptorsRef.current = [];
+    lockedReferenceRef.current = null;
     setLatestSample(null);
     setLiveAggregated(null);
   }, []);
 
   const getAggregatedMetrics = useCallback(
-    () => aggregateVideoFrameSamples(samplesRef.current),
-    []
+    () => aggregateVideoFrameSamples(samplesRef.current, { sampleIntervalMs: intervalMs }),
+    [intervalMs]
   );
 
   useEffect(() => {
@@ -127,10 +174,16 @@ export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
     const faceapi = faceApiRef.current;
     if (!faceapi) return undefined;
 
+    if (!sessionStartedAtRef.current) {
+      sessionStartedAtRef.current = Date.now();
+    }
+
     const detectorOptions = new faceapi.TinyFaceDetectorOptions({
       inputSize: 224,
       scoreThreshold: 0.5,
     });
+
+    const useRecognition = recognitionNetAvailable === true;
 
     intervalRef.current = window.setInterval(async () => {
       if (detectingRef.current || video.readyState < 2) return;
@@ -138,21 +191,115 @@ export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
       detectingRef.current = true;
 
       try {
-        const detection = await faceapi
-          .detectSingleFace(video, detectorOptions)
-          .withFaceLandmarks()
-          .withFaceExpressions();
+        const tMs = Math.max(0, Date.now() - (sessionStartedAtRef.current || Date.now()));
+        const videoWidth = video.videoWidth || 1;
+        const videoHeight = video.videoHeight || 1;
 
-        if (!detection) {
-          pushSample({ eyeContactPercent: 0, expressions: { neutral: 1 } });
+        let detections;
+        if (useRecognition) {
+          detections = await faceapi
+            .detectAllFaces(video, detectorOptions)
+            .withFaceLandmarks()
+            .withFaceExpressions()
+            .withFaceDescriptors();
         } else {
-          const eyeContactPercent = computeEyeContactPercent(
-            detection,
-            video.videoWidth,
-            video.videoHeight
-          );
-          pushSample({ eyeContactPercent, expressions: { ...detection.expressions } });
+          detections = await faceapi
+            .detectAllFaces(video, detectorOptions)
+            .withFaceLandmarks()
+            .withFaceExpressions();
         }
+
+        const faceCount = detections?.length || 0;
+
+        if (!faceCount) {
+          pushSample({
+            tMs,
+            eyeContactPercent: 0,
+            expressions: { neutral: 1 },
+            faceCount: 0,
+            detectionScore: null,
+            faceAreaRatio: null,
+            headPose: null,
+            lookingDirection: 'none',
+            isLookingAway: true,
+            isSmiling: false,
+            dominantExpression: 'neutral',
+            isPrimaryMatch: null,
+            strangerDetectionEnabled: useRecognition,
+            cameraFocusScore: null,
+          });
+          return;
+        }
+
+        const primary = pickPrimaryDetection(detections);
+        const box = primary.detection.box;
+        const detectionScore = Number(primary.detection.score) || 0;
+        const faceAreaRatio = (box.width * box.height) / (videoWidth * videoHeight || 1);
+        const eyeContactPercent = computeEyeContactPercent(primary, videoWidth, videoHeight);
+        const headPose = estimateHeadPoseFromLandmarks(primary.landmarks);
+        const lookingDirection = classifyLookingDirection(headPose, {
+          eyeContactPercent,
+          faceCount,
+        });
+        const isLookingAway =
+          lookingDirection === 'away' ||
+          lookingDirection === 'left' ||
+          lookingDirection === 'right' ||
+          lookingDirection === 'down' ||
+          lookingDirection === 'none';
+        const expressions = { ...(primary.expressions || {}) };
+        const dominantExpression = getDominantExpression(expressions);
+        const isSmiling = isSmileSample(expressions);
+        const cameraFocusScore = computeCameraFocusHeuristic({
+          detectionScore,
+          faceAreaRatio,
+          faceCount,
+        });
+
+        let isPrimaryMatch = null;
+        if (useRecognition && primary.descriptor) {
+          if (!lockedReferenceRef.current) {
+            if (
+              faceCount === 1 &&
+              detectionScore >= STRANGER_REFERENCE_MIN_SCORE &&
+              eyeContactPercent >= STRANGER_REFERENCE_MIN_EYE_CONTACT
+            ) {
+              referenceDescriptorsRef.current.push(primary.descriptor);
+              if (referenceDescriptorsRef.current.length >= STRANGER_REFERENCE_SAMPLE_COUNT) {
+                lockedReferenceRef.current = averageDescriptor(
+                  referenceDescriptorsRef.current
+                );
+              }
+            }
+          } else {
+            // Stranger if any detected face is far from the locked candidate reference.
+            const anyMismatch = detections.some((det) => {
+              if (!det.descriptor) return false;
+              return (
+                euclideanDistance(lockedReferenceRef.current, det.descriptor) >
+                STRANGER_DESCRIPTOR_DISTANCE_THRESHOLD
+              );
+            });
+            isPrimaryMatch = !anyMismatch;
+          }
+        }
+
+        pushSample({
+          tMs,
+          eyeContactPercent,
+          expressions,
+          faceCount,
+          detectionScore: Number(detectionScore.toFixed(3)),
+          faceAreaRatio: Number(faceAreaRatio.toFixed(4)),
+          headPose,
+          lookingDirection,
+          isLookingAway,
+          isSmiling,
+          dominantExpression,
+          isPrimaryMatch,
+          strangerDetectionEnabled: useRecognition,
+          cameraFocusScore,
+        });
       } catch {
         // ignore intermittent detection errors
       } finally {

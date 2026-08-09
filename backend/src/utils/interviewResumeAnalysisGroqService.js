@@ -3,6 +3,7 @@ import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { extractJsonFromText } from './resumeAiPrompts.js';
+import { withGroqRetry } from './withGroqRetry.js';
 
 const MAX_SKILLS = 14;
 const MAX_PROJECTS = 6;
@@ -42,14 +43,18 @@ export const analyzeResumeForInterview = async (rawText) => {
   const { model } = getGroqConfig();
   const client = getClient();
 
-  const completion = await client.chat.completions.create({
-    model,
-    temperature: 0.3,
-    response_format: { type: 'json_object' },
-    messages: [
-      {
-        role: 'user',
-        content: `You are an expert technical recruiter. Analyze the following resume text and extract a concise structured summary for interview preparation.
+  let completion;
+  try {
+    completion = await withGroqRetry(
+      () =>
+        client.chat.completions.create({
+          model,
+          temperature: 0.3,
+          response_format: { type: 'json_object' },
+          messages: [
+            {
+              role: 'user',
+              content: `You are an expert technical recruiter. Analyze the following resume text and extract a concise structured summary for interview preparation.
 
 Resume text:
 """
@@ -68,9 +73,15 @@ Rules:
 - projects: at most ${MAX_PROJECTS} notable projects; keep each to one short line.
 - If something is missing, return an empty array for it.
 - Do not invent information that is not supported by the resume text.`,
-      },
-    ],
-  });
+            },
+          ],
+        }),
+      { label: 'interview-resume-analysis' }
+    );
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.AI_SERVICE_UNAVAILABLE, 503);
+  }
 
   const content = completion.choices?.[0]?.message?.content?.trim();
 

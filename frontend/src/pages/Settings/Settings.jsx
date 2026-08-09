@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import useAuth from '../../hooks/useAuth';
 import { DashboardLayout, PageContainer, PageHeader } from '../../components/layout';
-import AppIcon from '../../components/icons/AppIcon';
+import Skeleton from '../../components/Skeleton';
 import SettingCard from '../../components/settings/SettingCard';
 import { useSettingsCards } from '../../hooks/useSettingsCards';
 export default function Settings() {
@@ -12,9 +12,9 @@ export default function Settings() {
   if (loading || !user) {
     return (
       <DashboardLayout user={user}>
-        <div className="flex items-center justify-center py-xl">
-          <AppIcon name="progress_activity" size="dashboard" spin className="text-secondary" />
-        </div>
+        <PageContainer>
+          <Skeleton type="card" count={4} withMedia={false} lines={2} columnsGrid={2} label="Loading settings" />
+        </PageContainer>
       </DashboardLayout>
     );
   }

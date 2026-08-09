@@ -1,6 +1,8 @@
 import SkillQuiz from '../models/SkillQuiz.js';
 import {
   DEFAULT_SKILL_QUIZ_QUESTION_COUNT,
+  MAX_SKILL_QUIZ_QUESTIONS,
+  MIN_SKILL_QUIZ_QUESTIONS,
   SKILL_ASSESSMENT_TOPICS,
 } from '../constants/interviewPrepConstants.js';
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
@@ -14,6 +16,32 @@ import {
 } from '../utils/skillQuizScoring.js';
 
 const findTopicMeta = (topicId) => SKILL_ASSESSMENT_TOPICS.find((t) => t.id === topicId);
+
+const resolveTopicFields = (rawTopic) => {
+  const trimmed = String(rawTopic || '').trim();
+  const meta = findTopicMeta(trimmed);
+
+  if (meta) {
+    return { topic: meta.id, topicLabel: meta.label };
+  }
+
+  return { topic: trimmed, topicLabel: trimmed };
+};
+
+const resolveQuestionCount = (body) => {
+  const rawCount = body.length ?? body.questionCount;
+  const questionCount = Number(rawCount);
+
+  if (
+    Number.isInteger(questionCount) &&
+    questionCount >= MIN_SKILL_QUIZ_QUESTIONS &&
+    questionCount <= MAX_SKILL_QUIZ_QUESTIONS
+  ) {
+    return questionCount;
+  }
+
+  return DEFAULT_SKILL_QUIZ_QUESTION_COUNT;
+};
 
 const loadQuizForUser = async (quizId, userId) => {
   const quiz = await SkillQuiz.findOne({ _id: quizId, userId });
@@ -37,26 +65,20 @@ export const listSkillTopics = async (_req, res, next) => {
 
 export const generateSkillQuiz = async (req, res, next) => {
   try {
-    const topic = req.body.topic;
-    const meta = findTopicMeta(topic);
-
-    if (!meta) {
-      throw new AppError(ERROR_CODES.INTERVIEW_PREP.INVALID_TOPIC, 400);
-    }
-
+    const { topic: storedTopic, topicLabel } = resolveTopicFields(req.body.topic);
     const difficulty = req.body.difficulty || 'medium';
-    const questionCount = Number(req.body.questionCount) || DEFAULT_SKILL_QUIZ_QUESTION_COUNT;
+    const questionCount = resolveQuestionCount(req.body);
 
     const questions = await generateSkillQuizWithGroq({
-      topicLabel: meta.label,
+      topicLabel,
       difficulty,
       questionCount,
     });
 
     const quiz = await SkillQuiz.create({
       userId: req.user._id,
-      topic,
-      topicLabel: meta.label,
+      topic: storedTopic,
+      topicLabel,
       difficulty,
       questionCount: questions.length,
       status: 'in_progress',

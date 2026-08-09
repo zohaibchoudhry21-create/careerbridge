@@ -23,13 +23,11 @@ export {
 const MODE_ICONS = {
   video_voice: 'videocam',
   voice_only: 'mic',
-  text_only: 'edit_note',
 };
 
 const MODE_LABEL_KEYS = {
   video_voice: 'mockSetup.mode.videoVoice',
   voice_only: 'mockSetup.mode.voiceOnly',
-  text_only: 'mockSetup.mode.textOnly',
 };
 
 /** @deprecated Use SectionHeading from components/ui instead. */
@@ -108,21 +106,18 @@ export function InterviewModeSection({ interviewMode, onInterviewModeChange }) {
         title={t('mockSetup.mode.title')}
         description={t('mockSetup.mode.description')}
       />
-      <div className="grid gap-2.5 sm:grid-cols-3">
+      <div className="grid gap-2.5 sm:grid-cols-2">
         {INTERVIEW_SETUP_MODE_OPTIONS.map((option) => {
           const selected = (interviewMode || DEFAULT_INTERVIEW_SETUP_MODE) === option.value;
-          const disabled = Boolean(option.disabled);
           const labelKey = MODE_LABEL_KEYS[option.value];
 
           return (
             <button
               key={option.value}
               type="button"
-              disabled={disabled}
-              onClick={() => !disabled && onInterviewModeChange(option.value)}
+              onClick={() => onInterviewModeChange(option.value)}
               className={cn(
                 'flex items-center gap-2.5 rounded-xl border-2 px-4 py-3 text-left transition-all duration-150',
-                disabled && 'cursor-not-allowed opacity-50',
                 selected ? selectedOptionClass : unselectedOptionClass
               )}
             >
@@ -135,7 +130,6 @@ export function InterviewModeSection({ interviewMode, onInterviewModeChange }) {
                 className={cn('font-label-md', selected ? 'text-secondary' : 'text-on-surface')}
               >
                 {labelKey ? t(labelKey) : option.label}
-                {disabled && option.hint ? ` (${t('mockSetup.mode.comingSoon')})` : ''}
               </span>
             </button>
           );

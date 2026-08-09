@@ -13,6 +13,9 @@ backend/automation-screenshots/
 # Node modules
 node_modules/
 
+# Resume uploads (disk storage)
+backend/uploads/
+
 # Python
 python-service/venv/
 **/__pycache__/

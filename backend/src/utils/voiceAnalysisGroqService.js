@@ -3,6 +3,7 @@ import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { extractJsonFromText } from './resumeAiPrompts.js';
+import { withGroqRetry } from './withGroqRetry.js';
 
 const getClient = () => {
   const { apiKey } = getGroqConfig();
@@ -43,12 +44,22 @@ Score confidence/clarity/tone for interview delivery. Return JSON only:
 }
 `;
 
-  const completion = await client.chat.completions.create({
-    model,
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.3,
-    response_format: { type: 'json_object' },
-  });
+  let completion;
+  try {
+    completion = await withGroqRetry(
+      () =>
+        client.chat.completions.create({
+          model,
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.3,
+          response_format: { type: 'json_object' },
+        }),
+      { label: 'voice-analysis' }
+    );
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.AI_SERVICE_UNAVAILABLE, 503);
+  }
 
   const content = completion.choices?.[0]?.message?.content?.trim();
 

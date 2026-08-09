@@ -1,0 +1,57 @@
+{
+  "generatedAt": "2026-08-05T20:18:52.320Z",
+  "scoringLogicVersion": 2,
+  "note": "Frozen Phase 0 baseline before Phase 1 relevance refactor.",
+  "fixtures": {
+    "all_empty": {
+      "questionScores": [
+        1,
+        1,
+        1
+      ],
+      "overallScore": 2,
+      "hiringDecision": "no_hire",
+      "hiringProbability": 2
+    },
+    "all_gibberish": {
+      "questionScores": [
+        1,
+        1,
+        1
+      ],
+      "overallScore": 2,
+      "hiringDecision": "no_hire",
+      "hiringProbability": 2
+    },
+    "all_strong": {
+      "questionScores": [
+        70,
+        70,
+        70
+      ],
+      "overallScore": 77,
+      "hiringDecision": "lean_hire",
+      "hiringProbability": 69
+    },
+    "mixed": {
+      "questionScores": [
+        70,
+        1,
+        1
+      ],
+      "overallScore": 77,
+      "hiringDecision": "lean_hire",
+      "hiringProbability": 69
+    },
+    "question_echo": {
+      "questionScores": [
+        1,
+        1,
+        1
+      ],
+      "overallScore": 2,
+      "hiringDecision": "no_hire",
+      "hiringProbability": 2
+    }
+  }
+}

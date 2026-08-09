@@ -16,13 +16,18 @@ export const analyzeVideoFrames = async (req, res, next) => {
       eyeContactPercent: aggregated.eyeContactPercent,
       expressionBreakdown: aggregated.expressionBreakdown,
       engagementScore: aggregated.engagementScore,
+      attentionScore: aggregated.attentionScore,
       timeline: aggregated.timeline,
       feedbackText: buildVideoFeedbackText(aggregated),
+      behavioralMetrics: aggregated.behavioralMetrics,
+      timelineEvents: aggregated.timelineEvents,
     };
 
     sendResponse(res, 200, true, 'Video analysis complete.', {
       sampleCount: aggregated.sampleCount,
       videoMetrics,
+      behavioralMetrics: aggregated.behavioralMetrics,
+      timelineEvents: aggregated.timelineEvents,
     });
   } catch (error) {
     next(error);

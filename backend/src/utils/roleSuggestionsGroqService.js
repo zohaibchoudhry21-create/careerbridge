@@ -3,6 +3,7 @@ import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { extractJsonFromText } from './resumeAiPrompts.js';
+import { withGroqRetry } from './withGroqRetry.js';
 
 const ROLE_SUGGESTIONS_CACHE = new Map();
 const MAX_CACHE_ENTRIES = 200;
@@ -53,21 +54,25 @@ const callGroqForRoleSuggestions = async (query) => {
 
   const { fastModel } = getGroqConfig();
 
-  const completion = await client.chat.completions.create({
-    model: fastModel,
-    messages: [
-      {
-        role: 'user',
-        content: `Suggest 5 real job or profession titles that start with, contain, or closely relate to: '${query}'.
+  const completion = await withGroqRetry(
+    () =>
+      client.chat.completions.create({
+        model: fastModel,
+        messages: [
+          {
+            role: 'user',
+            content: `Suggest 5 real job or profession titles that start with, contain, or closely relate to: '${query}'.
 
 Return JSON only in this shape:
 { "suggestions": ["title 1", "title 2", "title 3", "title 4", "title 5"] }`,
-      },
-    ],
-    temperature: 0.3,
-    max_tokens: 200,
-    response_format: { type: 'json_object' },
-  });
+          },
+        ],
+        temperature: 0.3,
+        max_tokens: 200,
+        response_format: { type: 'json_object' },
+      }),
+    { label: 'role-suggestions' }
+  );
 
   const content = completion.choices?.[0]?.message?.content?.trim();
   return parseSuggestionsContent(content);

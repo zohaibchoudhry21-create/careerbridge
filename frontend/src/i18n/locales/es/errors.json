@@ -188,7 +188,12 @@
     "QUESTION_ID_REQUIRED": "Cada respuesta necesita un questionId",
     "SELECTED_INDEX_INVALID": "selectedIndex debe ser un índice de opción válido",
     "VOICE_INPUT_REQUIRED": "Proporciona un archivo de audio o transcripción para el análisis de voz.",
-    "FRAME_SAMPLES_ARRAY": "frameSamples debe ser un array no vacío"
+    "FRAME_SAMPLES_ARRAY": "frameSamples debe ser un array no vacío",
+    "ASSISTANT_CREATE_FAILED": "No se pudo iniciar el entrevistador de voz. Inténtalo de nuevo en un momento.",
+    "VAPI_NOT_CONFIGURED": "Las entrevistas de voz no están configuradas. Añade VAPI_PRIVATE_KEY (clave privada de dashboard.vapi.ai) en el .env del backend y reinicia el servidor.",
+    "TRANSCRIPT_TOO_LONG": "La transcripción de la entrevista supera el máximo de {{max}} caracteres.",
+    "AI_SERVICE_UNAVAILABLE": "Nuestro servicio de IA está temporalmente ocupado. Inténtalo de nuevo en un momento.",
+    "AUDIO_TOO_LONG": "La grabación de audio es demasiado larga. Mantén las respuestas por debajo de {{maxMinutes}} minutos."
   },
   "RESUME_BUILDER": {
     "RESUME_NOT_FOUND": "Currículum no encontrado.",

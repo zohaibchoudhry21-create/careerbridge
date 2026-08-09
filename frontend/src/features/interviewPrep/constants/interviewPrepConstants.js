@@ -60,19 +60,35 @@ export const FOCUS_AREA_I18N_KEYS = {
   Communication: 'communication',
 };
 
+/** Only fully implemented modes are selectable. text_only is backend-reserved. */
 export const INTERVIEW_SETUP_MODE_OPTIONS = [
   { value: 'video_voice', label: 'Video and voice' },
   { value: 'voice_only', label: 'Voice only' },
-  { value: 'text_only', label: 'Text only', disabled: true, hint: 'Coming soon' },
 ];
 
 export const DEFAULT_INTERVIEW_SETUP_MODE = 'video_voice';
 
 export const INTERVIEWER_PERSONA_OPTIONS = [
-  { value: 'friendly', label: 'Friendly', description: 'Warm and encouraging' },
-  { value: 'neutral', label: 'Neutral', description: 'Professional and balanced' },
-  { value: 'strict', label: 'Strict', description: 'Formal and demanding' },
-  { value: 'panel', label: 'Panel of 3', description: 'Multi-interviewer simulation' },
+  {
+    value: 'friendly',
+    label: 'Friendly',
+    description: 'Warm HR-style interviewer — encouraging, natural pauses, supportive follow-ups',
+  },
+  {
+    value: 'neutral',
+    label: 'Neutral',
+    description: 'Seasoned hiring manager — courteous, clear, efficient pacing',
+  },
+  {
+    value: 'strict',
+    label: 'Strict',
+    description: 'Formal rigorous interviewer — concise answers, crisp probes',
+  },
+  {
+    value: 'panel',
+    label: 'Panel of 3',
+    description: 'Technical lead + hiring manager + HR with natural hand-offs',
+  },
 ];
 
 export const DEFAULT_INTERVIEWER_PERSONA = 'neutral';

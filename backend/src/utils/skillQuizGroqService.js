@@ -3,6 +3,7 @@ import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { extractJsonFromText } from './resumeAiPrompts.js';
+import { withGroqRetry } from './withGroqRetry.js';
 
 const getClient = () => {
   const { apiKey } = getGroqConfig();
@@ -88,17 +89,27 @@ export const generateSkillQuizWithGroq = async ({ topicLabel, difficulty, questi
   const { model } = getGroqConfig();
   const client = getClient();
 
-  const completion = await client.chat.completions.create({
-    model,
-    messages: [
-      {
-        role: 'user',
-        content: buildQuizPrompt({ topicLabel, difficulty, questionCount }),
-      },
-    ],
-    temperature: 0.4,
-    response_format: { type: 'json_object' },
-  });
+  let completion;
+  try {
+    completion = await withGroqRetry(
+      () =>
+        client.chat.completions.create({
+          model,
+          messages: [
+            {
+              role: 'user',
+              content: buildQuizPrompt({ topicLabel, difficulty, questionCount }),
+            },
+          ],
+          temperature: 0.4,
+          response_format: { type: 'json_object' },
+        }),
+      { label: 'skill-quiz' }
+    );
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError(ERROR_CODES.INTERVIEW_PREP.AI_SERVICE_UNAVAILABLE, 503);
+  }
 
   const content = completion.choices?.[0]?.message?.content?.trim();
 

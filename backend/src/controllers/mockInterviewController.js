@@ -3,26 +3,47 @@ import InterviewReport from '../models/InterviewReport.js';
 import {
   DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES,
   INTERVIEWER_PERSONAS,
+  MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
   MOCK_INTERVIEW_ROLES,
   durationMinutesToQuestionCount,
 } from '../constants/interviewPrepConstants.js';
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError, sendResponse } from '../utils/sendResponse.js';
 import { analyzeVoiceFromTranscription } from '../utils/voiceAnalysisService.js';
+import { analyzeSpeechMonitoring } from '../services/speechAnalysis/index.js';
 import {
   aggregateVideoFrameSamples,
   buildVideoFeedbackText,
 } from '../utils/videoAnalysisMetrics.js';
-import {
-  buildMockInterviewSnapshot,
-  mergeReportWithSummary,
-} from '../utils/mockInterviewReportBuilder.js';
-import { generateMockInterviewReportWithGroq } from '../utils/mockInterviewReportGroqService.js';
+import { persistMockInterviewReport } from '../services/interviewReport/index.js';
+import { isCurrentScoreVersion } from '../config/interviewReportConfig.js';
 import { serializeInterviewReport } from '../utils/interviewReportSerializer.js';
-import { generateOpeningQuestion } from '../utils/mockInterviewGroqService.js';
 import { fetchRoleSuggestionsWithGroq } from '../utils/roleSuggestionsGroqService.js';
 import { analyzeResumeForInterview } from '../utils/interviewResumeAnalysisGroqService.js';
 import { extractResumeTextFromFile } from '../utils/resumeFileExtractor.js';
+import { createVapiAssistantForSession } from '../utils/vapiAssistantService.js';
+import { prepareInterviewIntelligence } from '../services/interviewIntelligence/index.js';
+import {
+  PERSIST_PAUSE_EVENTS_MAX,
+  PERSIST_TIMELINE_EVENTS_MAX,
+  RESUME_ANALYSIS_CACHE_TTL_MS,
+  ROLE_SUGGESTIONS_CACHE_TTL_MS,
+  SUBMIT_ACOUSTIC_SAMPLES_MAX,
+  SUBMIT_PAUSE_EVENTS_MAX,
+} from '../config/interviewPerfConfig.js';
+import { logInterviewStage, withInterviewStageTiming } from '../utils/interviewPerfLog.js';
+import { createInterviewTtlCache } from '../utils/interviewTtlCache.js';
+import { createHash } from 'crypto';
+
+const roleSuggestionsCache = createInterviewTtlCache({
+  maxEntries: 64,
+  ttlMs: ROLE_SUGGESTIONS_CACHE_TTL_MS,
+});
+
+const resumeAnalysisCache = createInterviewTtlCache({
+  maxEntries: 32,
+  ttlMs: RESUME_ANALYSIS_CACHE_TTL_MS,
+});
 
 const findRoleMeta = (roleId) => MOCK_INTERVIEW_ROLES.find((r) => r.id === roleId);
 
@@ -154,53 +175,6 @@ const estimateDurationSeconds = (transcript, durationMs, liveAudioHints) => {
   return Math.max(30, (userWords / 2.5) / speechFactor);
 };
 
-const persistMockInterviewReport = async (session, userId) => {
-  if (session.reportId) {
-    const existing = await InterviewReport.findOne({
-      _id: session.reportId,
-      userId,
-    });
-    if (existing) {
-      return { report: existing, cached: true };
-    }
-  }
-
-  const cachedBySource = await InterviewReport.findOne({
-    userId,
-    sourceType: 'mock_interview',
-    sourceId: session._id,
-  });
-
-  if (cachedBySource) {
-    session.reportId = cachedBySource._id;
-    session.status = 'completed';
-    await session.save();
-    return { report: cachedBySource, cached: true };
-  }
-
-  const snapshot = buildMockInterviewSnapshot(session);
-  const aiReport = await generateMockInterviewReportWithGroq(snapshot);
-  const merged = mergeReportWithSummary(aiReport, snapshot.summary);
-
-  const report = await InterviewReport.create({
-    userId,
-    sourceType: 'mock_interview',
-    sourceId: session._id,
-    overallScore: merged.overallScore,
-    sections: merged.sections,
-    strengths: merged.strengths,
-    improvementAreas: merged.improvementAreas,
-    recommendedNextSteps: merged.recommendedNextSteps,
-    rawMetricsSnapshot: snapshot,
-  });
-
-  session.reportId = report._id;
-  session.status = 'completed';
-  await session.save();
-
-  return { report, cached: false };
-};
-
 export const generateMockInterviewReport = async (req, res, next) => {
   try {
     const { sessionId } = req.body;
@@ -223,7 +197,8 @@ export const generateMockInterviewReport = async (req, res, next) => {
         userId: req.user._id,
       });
 
-      if (existing) {
+      // Only serve cache when scoring logic version matches; else regenerate.
+      if (existing && isCurrentScoreVersion(existing)) {
         sendResponse(res, 200, true, 'Interview report fetched.', {
           report: serializeInterviewReport(existing, session._id),
           cached: true,
@@ -238,7 +213,7 @@ export const generateMockInterviewReport = async (req, res, next) => {
       sourceId: session._id,
     });
 
-    if (cachedBySource) {
+    if (cachedBySource && isCurrentScoreVersion(cachedBySource)) {
       session.reportId = cachedBySource._id;
       if (session.status !== 'completed') {
         session.status = 'completed';
@@ -276,23 +251,16 @@ export const startLiveInterview = async (req, res, next) => {
     const targetQuestionCount = durationMinutesToQuestionCount(durationMinutes);
     const customization = parseOptionalCustomization(req.body);
 
-    const openingText = await generateOpeningQuestion({
+    const intelligence = await prepareInterviewIntelligence({
+      role: resolvedRole.role,
       roleLabel: resolvedRole.roleLabel,
       difficulty,
-      experience: customization.experience,
-      resumeSkills: customization.resumeSkills,
-      resumeProjects: customization.resumeProjects,
-      targetCompany: customization.targetCompany,
-      focusAreas: customization.focusAreas,
+      durationMinutes,
+      ...customization,
     });
 
-    const questions = [
-      {
-        questionId: 'q1',
-        text: openingText,
-        order: 0,
-      },
-    ];
+    const questions = intelligence.questions;
+    const interviewContextBrief = intelligence.interviewContextBrief;
 
     const session = await MockInterviewSession.create({
       userId: req.user._id,
@@ -305,18 +273,26 @@ export const startLiveInterview = async (req, res, next) => {
       answerTimeLimitSeconds: Number(req.body.answerTimeLimitSeconds) || 180,
       status: 'active',
       currentQuestionIndex: 0,
-      questions,
       answers: [],
       ...customization,
+      questions,
+      interviewContextBrief,
     });
+
+    const vapiAssistantId = await createVapiAssistantForSession(session);
+    session.vapiAssistantId = vapiAssistantId;
+    await session.save();
 
     sendResponse(res, 201, true, 'Live interview started.', {
       sessionId: String(session._id),
-      questions: [openingText],
+      assistantId: vapiAssistantId,
       mode: 'live',
       durationMinutes,
       roleLabel: resolvedRole.roleLabel,
       difficulty,
+      interviewMode: session.interviewMode || 'video_voice',
+      interviewerPersona: session.interviewerPersona || 'neutral',
+      focusAreas: session.focusAreas || [],
     });
   } catch (error) {
     next(error);
@@ -332,6 +308,24 @@ export const submitLiveInterview = async (req, res, next) => {
       throw new AppError(ERROR_CODES.INTERVIEW_PREP.NOT_LIVE_SESSION, 400);
     }
 
+    // Idempotent submit: return cached report only when scoring version is current.
+    if (session.status === 'completed' && session.reportId) {
+      const existing = await InterviewReport.findOne({
+        _id: session.reportId,
+        userId: req.user._id,
+      });
+      if (existing && isCurrentScoreVersion(existing)) {
+        logInterviewStage('submit.cached', { sessionId: String(session._id) });
+        sendResponse(res, 200, true, 'Live interview submitted.', {
+          report: serializeInterviewReport(existing, session._id),
+          sessionId: String(session._id),
+          cached: true,
+        });
+        return;
+      }
+      // Stale scoreVersion → fall through and regenerate.
+    }
+
     if (!Array.isArray(transcript) || transcript.length === 0) {
       throw new AppError(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_REQUIRED, 400);
     }
@@ -342,11 +336,42 @@ export const submitLiveInterview = async (req, res, next) => {
       throw new AppError(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_EMPTY, 400);
     }
 
-    const liveAudioHints = parseJsonBodyField(req.body.liveAudioHints);
+    const transcriptChars = normalized.reduce(
+      (sum, turn) => sum + String(turn.content || '').length,
+      0
+    );
+    if (transcriptChars > MAX_INTERVIEW_CONTEXT_TEXT_LENGTH) {
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.TRANSCRIPT_TOO_LONG, 400, {
+        max: MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
+      });
+    }
+
+    const submitStarted = Date.now();
+    const sessionIdStr = String(session._id);
+
+    let liveAudioHints = parseJsonBodyField(req.body.liveAudioHints);
     let liveVideoMetrics = parseJsonBodyField(req.body.liveVideoMetrics);
 
+    // Cap oversized monitoring arrays (DoS / payload protection).
+    if (liveAudioHints && typeof liveAudioHints === 'object') {
+      if (Array.isArray(liveAudioHints.acousticSamples)) {
+        liveAudioHints = {
+          ...liveAudioHints,
+          acousticSamples: liveAudioHints.acousticSamples.slice(-SUBMIT_ACOUSTIC_SAMPLES_MAX),
+        };
+      }
+      if (Array.isArray(liveAudioHints.pauseEvents)) {
+        liveAudioHints = {
+          ...liveAudioHints,
+          pauseEvents: liveAudioHints.pauseEvents.slice(-SUBMIT_PAUSE_EVENTS_MAX),
+        };
+      }
+    }
+
     if (Array.isArray(liveVideoMetrics?.frameSamples)) {
-      liveVideoMetrics = aggregateVideoFrameSamples(liveVideoMetrics.frameSamples);
+      liveVideoMetrics = aggregateVideoFrameSamples(liveVideoMetrics.frameSamples, {
+        sampleIntervalMs: liveVideoMetrics.sampleIntervalMs,
+      });
     }
 
     const userTranscript = normalized
@@ -360,42 +385,119 @@ export const submitLiveInterview = async (req, res, next) => {
       liveAudioHints
     );
 
+    // Parallelize independent Groq analyses (voice fatal; speech non-fatal).
     let callVoiceMetrics;
-    if (userTranscript.trim()) {
-      callVoiceMetrics = await analyzeVoiceFromTranscription({
-        transcript: userTranscript,
-        duration: durationSeconds,
-        durationMs: durationMs ? Number(durationMs) : undefined,
-      });
+    let callSpeechMetrics;
+    let speechTimelineEvents;
 
-      if (liveAudioHints?.silenceRatio != null && !callVoiceMetrics.pauseRatio) {
-        callVoiceMetrics.pauseRatio = Number(liveAudioHints.silenceRatio);
+    const voicePromise = userTranscript.trim()
+      ? withInterviewStageTiming(
+          'submit.voice',
+          () =>
+            analyzeVoiceFromTranscription({
+              transcript: userTranscript,
+              duration: durationSeconds,
+              durationMs: durationMs ? Number(durationMs) : undefined,
+            }),
+          { sessionId: sessionIdStr }
+        )
+      : Promise.resolve(null);
+
+    const speechPromise = (async () => {
+      try {
+        return await withInterviewStageTiming(
+          'submit.speech',
+          () =>
+            analyzeSpeechMonitoring({
+              transcript: userTranscript,
+              turns: normalized,
+              durationMs: durationMs ? Number(durationMs) : undefined,
+              duration: durationSeconds,
+              liveAudioHints,
+            }),
+          { sessionId: sessionIdStr }
+        );
+      } catch {
+        // Non-fatal: voice + report can still complete.
+        return null;
       }
+    })();
+
+    const [voiceResult, speechResult] = await Promise.all([voicePromise, speechPromise]);
+
+    callVoiceMetrics = voiceResult;
+    if (callVoiceMetrics && liveAudioHints?.silenceRatio != null && !callVoiceMetrics.pauseRatio) {
+      callVoiceMetrics.pauseRatio = Number(liveAudioHints.silenceRatio);
     }
+    if (speechResult) {
+      callSpeechMetrics = speechResult.metrics;
+      speechTimelineEvents = speechResult.timelineEvents;
+    }
+
+    const timelineEvents = Array.isArray(liveVideoMetrics?.timelineEvents)
+      ? liveVideoMetrics.timelineEvents.slice(0, PERSIST_TIMELINE_EVENTS_MAX)
+      : undefined;
 
     const callVideoMetrics = liveVideoMetrics
       ? {
           eyeContactPercent: liveVideoMetrics.eyeContactPercent,
           expressionBreakdown: liveVideoMetrics.expressionBreakdown,
           engagementScore: liveVideoMetrics.engagementScore,
+          attentionScore: liveVideoMetrics.attentionScore,
           timeline: liveVideoMetrics.timeline,
           feedbackText: buildVideoFeedbackText(liveVideoMetrics),
+          behavioralMetrics: liveVideoMetrics.behavioralMetrics,
+          timelineEvents,
+        }
+      : undefined;
+
+    // Persist compact audio hints — drop raw acousticSamples after analysis.
+    const callLiveAudioHints = liveAudioHints
+      ? {
+          averageVolume: liveAudioHints.averageVolume,
+          silenceRatio: liveAudioHints.silenceRatio,
+          longPauseCount: liveAudioHints.longPauseCount,
+          sampleIntervalMs: liveAudioHints.sampleIntervalMs,
+          pauseEvents: Array.isArray(liveAudioHints.pauseEvents)
+            ? liveAudioHints.pauseEvents.slice(0, PERSIST_PAUSE_EVENTS_MAX)
+            : undefined,
         }
       : undefined;
 
     session.voiceCallTranscript = normalized;
-    session.callLiveAudioHints = liveAudioHints;
-    session.callLiveVideoMetrics = liveVideoMetrics;
+    session.callLiveAudioHints = callLiveAudioHints;
+    // Omit callLiveVideoMetrics — callVideoMetrics already holds report-ready aggregates.
     session.callVoiceMetrics = callVoiceMetrics;
     session.callVideoMetrics = callVideoMetrics;
+    session.callSpeechMetrics = callSpeechMetrics;
+    session.speechTimelineEvents = Array.isArray(speechTimelineEvents)
+      ? speechTimelineEvents.slice(0, PERSIST_TIMELINE_EVENTS_MAX)
+      : speechTimelineEvents;
     session.callDurationMs = durationMs ? Number(durationMs) : undefined;
-    await session.save();
 
-    const { report, cached } = await persistMockInterviewReport(session, req.user._id);
+    // Persist metrics before report so a report failure still keeps monitoring data.
+    await withInterviewStageTiming('submit.saveMetrics', () => session.save(), {
+      sessionId: sessionIdStr,
+    });
+
+    const { report, cached } = await withInterviewStageTiming(
+      'submit.report',
+      () => persistMockInterviewReport(session, req.user._id),
+      { sessionId: sessionIdStr }
+    );
+
+    logInterviewStage('submit.complete', {
+      sessionId: sessionIdStr,
+      cached,
+      durationMs: Date.now() - submitStarted,
+      acousticSamples: Array.isArray(liveAudioHints?.acousticSamples)
+        ? liveAudioHints.acousticSamples.length
+        : 0,
+    });
 
     sendResponse(res, cached ? 200 : 201, true, 'Live interview submitted.', {
       report: serializeInterviewReport(report, session._id),
-      sessionId: String(session._id),
+      sessionId: sessionIdStr,
       cached,
     });
   } catch (error) {
@@ -407,6 +509,12 @@ export const getMockInterviewSession = async (req, res, next) => {
   try {
     const session = await loadSessionForUser(req.params.sessionId, req.user._id);
 
+    // Live sessions bake the prompt into a server-side Vapi assistant — do not
+    // expose question texts that would let the client reconstruct the system prompt.
+    const hideQuestions = session.mode === 'live';
+    // Live clients only need call metadata; omit large PII blobs from the wire.
+    const includeCustomizationText = !hideQuestions;
+
     sendResponse(res, 200, true, 'Session fetched.', {
       session: {
         sessionId: String(session._id),
@@ -417,31 +525,38 @@ export const getMockInterviewSession = async (req, res, next) => {
         status: session.status,
         durationMinutes: session.durationMinutes,
         targetQuestionCount: session.targetQuestionCount,
-        resumeText: session.resumeText,
-        jobDescriptionText: session.jobDescriptionText,
+        assistantId: session.vapiAssistantId || null,
+        resumeText: includeCustomizationText ? session.resumeText : undefined,
+        jobDescriptionText: includeCustomizationText
+          ? session.jobDescriptionText
+          : undefined,
         targetCompany: session.targetCompany,
         experience: session.experience,
         resumeSkills: session.resumeSkills,
-        resumeProjects: session.resumeProjects,
+        resumeProjects: includeCustomizationText ? session.resumeProjects : undefined,
         focusAreas: session.focusAreas,
         interviewMode: session.interviewMode,
         interviewerPersona: session.interviewerPersona || 'neutral',
         answerTimeLimitSeconds: session.answerTimeLimitSeconds,
         currentQuestionIndex: session.currentQuestionIndex,
-        questions: session.questions.map((q) => ({
-          questionId: q.questionId,
-          text: q.text,
-          order: q.order,
-        })),
-        questionTexts: session.questions.map((q) => q.text),
-        answers: session.answers.map((a) => ({
-          questionId: a.questionId,
-          transcript: a.transcript,
-          voiceMetrics: a.voiceMetrics,
-          videoMetrics: a.videoMetrics,
-          durationMs: a.durationMs,
-          submittedAt: a.submittedAt,
-        })),
+        questions: hideQuestions
+          ? []
+          : session.questions.map((q) => ({
+              questionId: q.questionId,
+              text: q.text,
+              order: q.order,
+            })),
+        questionTexts: hideQuestions ? [] : session.questions.map((q) => q.text),
+        answers: hideQuestions
+          ? []
+          : session.answers.map((a) => ({
+              questionId: a.questionId,
+              transcript: a.transcript,
+              voiceMetrics: a.voiceMetrics,
+              videoMetrics: a.videoMetrics,
+              durationMs: a.durationMs,
+              submittedAt: a.submittedAt,
+            })),
       },
     });
   } catch (error) {
@@ -459,7 +574,9 @@ export const getInterviewReportHistory = async (req, res, next) => {
     })
       .sort({ createdAt: -1 })
       .limit(limit)
-      .select('overallScore sections createdAt sourceId')
+      .select(
+        'overallScore createdAt sourceId sections.videoAnalysis.eyeContactPercent sections.voiceAnalysis.wpm sections.voiceAnalysis.fillerWords'
+      )
       .lean();
 
     const history = reports
@@ -488,9 +605,23 @@ export const getRoleSuggestions = async (req, res, next) => {
       return;
     }
 
-    const suggestions = await fetchRoleSuggestionsWithGroq(query);
+    const cacheKey = query.toLowerCase();
+    const cached = roleSuggestionsCache.get(cacheKey);
+    if (cached) {
+      sendResponse(res, 200, true, 'Role suggestions.', {
+        suggestions: cached,
+        cached: true,
+      });
+      return;
+    }
 
-    sendResponse(res, 200, true, 'Role suggestions.', { suggestions });
+    const suggestions = await fetchRoleSuggestionsWithGroq(query);
+    roleSuggestionsCache.set(cacheKey, suggestions);
+
+    sendResponse(res, 200, true, 'Role suggestions.', {
+      suggestions,
+      cached: false,
+    });
   } catch (error) {
     next(error);
   }
@@ -510,13 +641,32 @@ export const analyzeInterviewResume = async (req, res, next) => {
       throw new AppError(ERROR_CODES.INTERVIEW_PREP.RESUME_INPUT_REQUIRED, 400);
     }
 
+    const cacheKey = createHash('sha256').update(text).digest('hex');
+    const cached = resumeAnalysisCache.get(cacheKey);
+    if (cached) {
+      sendResponse(res, 200, true, 'Resume analyzed.', {
+        text,
+        skills: cached.skills,
+        projects: cached.projects,
+        summary: cached.summary,
+        cached: true,
+      });
+      return;
+    }
+
     const analysis = await analyzeResumeForInterview(text);
+    resumeAnalysisCache.set(cacheKey, {
+      skills: analysis.skills,
+      projects: analysis.projects,
+      summary: analysis.summary,
+    });
 
     sendResponse(res, 200, true, 'Resume analyzed.', {
       text,
       skills: analysis.skills,
       projects: analysis.projects,
       summary: analysis.summary,
+      cached: false,
     });
   } catch (error) {
     next(error);
