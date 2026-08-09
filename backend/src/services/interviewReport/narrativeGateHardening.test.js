@@ -43,6 +43,31 @@ describe('confidence cap explanation', () => {
     expect(dims.confidence.score).toBeGreaterThan(15);
     expect(dims.confidence.scoreNote).toBeUndefined();
   });
+
+  it('attaches a short reason on each dimension', () => {
+    const dims = buildDimensionScores(
+      {
+        qa: [{ questionId: 'q1' }],
+        callSpeechMetrics: { speakingConfidence: 70 },
+        summary: { averageConfidenceScore: 70 },
+      },
+      {
+        communication: 70,
+        communicationFeedback: 'Clear structure with room for more examples.',
+        technicalSkills: 68,
+        behavior: 65,
+        leadership: 60,
+        problemSolving: 66,
+        criticalThinking: 64,
+        confidence: 70,
+      },
+      { questionReviews: [{ score: 70 }] }
+    );
+
+    expect(dims.communication.reason).toContain('Clear structure');
+    expect(dims.technicalSkills.reason).toBeTruthy();
+    expect(dims.confidence.reason).toBeTruthy();
+  });
 });
 
 describe('enforceDeterministicRelevanceGate after Groq merge', () => {

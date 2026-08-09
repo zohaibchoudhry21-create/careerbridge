@@ -687,9 +687,30 @@ export const getInterviewReportHistory = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .limit(limit)
       .select(
-        'overallScore createdAt sourceId sections.videoAnalysis.eyeContactPercent sections.voiceAnalysis.wpm sections.voiceAnalysis.fillerWords'
+        'overallScore createdAt sourceId sections.videoAnalysis.eyeContactPercent sections.voiceAnalysis.wpm sections.voiceAnalysis.fillerWords enterpriseReport.dimensions'
       )
       .lean();
+
+    const DIMENSION_KEYS = [
+      'communication',
+      'technicalSkills',
+      'behavior',
+      'confidence',
+      'leadership',
+      'problemSolving',
+      'criticalThinking',
+    ];
+
+    const pickDimensionScores = (dims) => {
+      if (!dims || typeof dims !== 'object') return undefined;
+      const out = {};
+      for (const key of DIMENSION_KEYS) {
+        const score = dims[key]?.score;
+        if (score == null || !Number.isFinite(Number(score))) continue;
+        out[key] = Math.min(100, Math.max(0, Math.round(Number(score))));
+      }
+      return Object.keys(out).length ? out : undefined;
+    };
 
     const history = reports
       .map((report) => ({
@@ -698,6 +719,7 @@ export const getInterviewReportHistory = async (req, res, next) => {
         eyeContactPercent: report.sections?.videoAnalysis?.eyeContactPercent ?? null,
         wpm: report.sections?.voiceAnalysis?.wpm ?? null,
         fillerWords: report.sections?.voiceAnalysis?.fillerWords ?? null,
+        dimensions: pickDimensionScores(report.enterpriseReport?.dimensions),
         createdAt: report.createdAt,
       }))
       .reverse();

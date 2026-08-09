@@ -19,27 +19,28 @@ export default function DimensionGrid({ dimensions = {} }) {
 
   return (
     <div className="grid grid-cols-1 gap-sm md:grid-cols-2">
-      {entries.map(([key, dim]) => (
-        <ReportSectionCard
-          key={key}
-          title={dim.label || t(`report.enterprise.dimensions.${key}`, key)}
-          score={dim.score}
-          color="skills"
-          icon="analytics"
-        >
-          <p className="font-body-md text-sm text-on-surface-variant">
-            {dim.feedback || t('report.noFeedback')}
-          </p>
-          {dim.scoreNote ? (
-            <p
-              className="mt-2 font-body-md text-xs leading-snug text-on-surface-variant/90"
-              title={dim.scoreNote}
-            >
-              {dim.scoreNote}
-            </p>
-          ) : null}
-        </ReportSectionCard>
-      ))}
+      {entries.map(([key, dim]) => {
+        const why = dim.reason || dim.feedback || t('report.noFeedback');
+        return (
+          <ReportSectionCard
+            key={key}
+            title={dim.label || t(`report.enterprise.dimensions.${key}`, key)}
+            score={dim.score}
+            color="skills"
+            icon="analytics"
+          >
+            <p className="font-body-md text-sm text-on-surface-variant">{why}</p>
+            {dim.scoreNote ? (
+              <p
+                className="mt-2 font-body-md text-xs leading-snug text-on-surface-variant/90"
+                title={dim.scoreNote}
+              >
+                {dim.scoreNote}
+              </p>
+            ) : null}
+          </ReportSectionCard>
+        );
+      })}
     </div>
   );
 }

@@ -214,6 +214,10 @@
     "noVideoFeedback": "ویڈیو کی رائے نہیں۔",
     "progressTitle": "آپ کی پیش رفت",
     "progressDescription": "حالیہ ماک انٹرویوز میں مجموعی اسکور کا رجحان۔",
+    "progressDescriptionBySkill": "حالیہ ماک انٹرویوز میں مہارت کے لحاظ سے اسکور کا رجحان۔",
+    "progressViewLabel": "پیش رفت چارٹ منظر",
+    "progressViewOverall": "مجموعی",
+    "progressViewBySkill": "مہارت کے لحاظ سے",
     "chartLabel": "مجموعی اسکور",
     "chartTooltip": "اسکور: {{score}}",
     "enterprise": {

@@ -36,6 +36,49 @@ export const CONFIDENCE_CAP_NOTE =
 const LOW_CONTENT_FEEDBACK =
   'No relevant answers were provided to demonstrate this skill.';
 
+/** One-line why templates when Groq feedback is missing (score-band based). */
+const REASON_BY_BAND = Object.freeze({
+  high: 'Strong signals in this area across your answers.',
+  mid: 'Solid basics showed up, but depth and consistency were uneven.',
+  low: 'Limited evidence in your answers for this skill.',
+  empty: 'Not enough relevant answer content to score this skill.',
+  unknown: 'Score reflects your answer quality for this skill.',
+});
+
+/**
+ * Prefer narrative feedback (trimmed to one short line); else a deterministic band reason.
+ * @param {string} key
+ * @param {number|null} score
+ * @param {string} [feedback]
+ */
+export const buildDimensionReason = (key, score, feedback = '') => {
+  const fromNarrative = String(feedback || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (fromNarrative) {
+    // Keep secondary UI compact — one short sentence.
+    return fromNarrative.length > 140 ? `${fromNarrative.slice(0, 137).trim()}…` : fromNarrative;
+  }
+
+  if (score == null || !Number.isFinite(Number(score))) {
+    return REASON_BY_BAND.unknown;
+  }
+  const n = Number(score);
+  if (n <= 5) return REASON_BY_BAND.empty;
+  if (n >= 75) return REASON_BY_BAND.high;
+  if (n >= 45) return REASON_BY_BAND.mid;
+  return REASON_BY_BAND.low;
+};
+
+const attachDimensionReasons = (dimensions = {}) => {
+  for (const [key, dim] of Object.entries(dimensions)) {
+    if (!dim || typeof dim !== 'object') continue;
+    dim.reason = buildDimensionReason(key, dim.score, dim.feedback);
+  }
+  return dimensions;
+};
+
+
 const DIM_META = {
   communication: { label: 'Communication', feedbackKey: 'communicationFeedback' },
   technicalSkills: { label: 'Technical Skills', feedbackKey: 'technicalSkillsFeedback' },
@@ -177,7 +220,7 @@ export const buildDimensionScores = (snapshot = {}, narrativeDims = {}, options 
     dimensions.confidence.scoreNote = CONFIDENCE_CAP_NOTE;
   }
 
-  return dimensions;
+  return attachDimensionReasons(dimensions);
 };
 
 export const weightedDimensionAverage = (dimensions = {}) => {

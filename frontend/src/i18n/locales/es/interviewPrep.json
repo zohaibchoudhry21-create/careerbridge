@@ -214,6 +214,10 @@
     "noVideoFeedback": "Sin comentarios de vídeo.",
     "progressTitle": "Tu progreso",
     "progressDescription": "Tendencia de puntuación en entrevistas simuladas recientes.",
+    "progressDescriptionBySkill": "Tendencias por habilidad en tus entrevistas simuladas recientes.",
+    "progressViewLabel": "Vista del gráfico de progreso",
+    "progressViewOverall": "General",
+    "progressViewBySkill": "Por habilidad",
     "chartLabel": "Puntuación general",
     "chartTooltip": "Puntuación: {{score}}",
     "enterprise": {

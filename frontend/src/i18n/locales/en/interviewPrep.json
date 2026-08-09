@@ -214,6 +214,10 @@
     "noVideoFeedback": "No video feedback available.",
     "progressTitle": "Your progress",
     "progressDescription": "Overall score trend across your recent mock interviews.",
+    "progressDescriptionBySkill": "Per-skill score trends across your recent mock interviews.",
+    "progressViewLabel": "Progress chart view",
+    "progressViewOverall": "Overall",
+    "progressViewBySkill": "By Skill",
     "chartLabel": "Overall score",
     "chartTooltip": "Score: {{score}}",
     "enterprise": {
