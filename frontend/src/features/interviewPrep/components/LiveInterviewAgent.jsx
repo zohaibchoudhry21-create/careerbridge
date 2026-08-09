@@ -16,6 +16,7 @@ import LiveVideoIndicator from './LiveVideoIndicator';
 import { DEFAULT_INTERVIEW_SETUP_MODE } from '../constants/interviewPrepConstants';
 import { prepareLiveAudioHintsForSubmit } from '../utils/prepareLiveAudioHintsForSubmit';
 import { applyLiveAdaptiveDepth } from '../services/mockInterviewService';
+import { useInterviewCountdown } from '../hooks/useInterviewCountdown';
 
 const CallStatus = {
   INACTIVE: 'INACTIVE',
@@ -23,6 +24,9 @@ const CallStatus = {
   ACTIVE: 'ACTIVE',
   FINISHED: 'FINISHED',
 };
+
+/** System nudge when planned duration elapses — mirrors interviewerPromptBuilder closing rules. */
+const TIME_UP_WIND_DOWN_NUDGE = `Time for this interview is up. Deliver your natural closing now: thank the candidate briefly and wrap up within the next 30–60 seconds. Do not ask new substantive questions. Do not mention a timer or countdown — close professionally as a human interviewer would when time is over.`;
 
 const UI_STATUS_BY_CALL_STATUS = {
   [CallStatus.INACTIVE]: 'idle',
@@ -53,8 +57,9 @@ export default function LiveInterviewAgent({
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [videoReady, setVideoReady] = useState(false);
+  /** Wall-clock ms when Vapi `call-start` fired — source of truth for the countdown. */
+  const [connectedAtMs, setConnectedAtMs] = useState(null);
 
-  const messagesRef = useRef([]);
   const finishedNotifiedRef = useRef(false);
   const callStartedAtRef = useRef(null);
   const candidateVideoRef = useRef(null);
@@ -68,8 +73,17 @@ export default function LiveInterviewAgent({
   const lastAiQuestionRef = useRef('');
   const adaptiveDepthEnabledRef = useRef(adaptiveDepthEnabled);
   adaptiveDepthEnabledRef.current = adaptiveDepthEnabled;
+  const windDownSentRef = useRef(false);
+  const hardStopTriggeredRef = useRef(false);
 
-  const { transcript, addTurn } = useLiveInterview();
+  const { transcript, livePreview, ingestVapiMessage, resetTranscript, clearLivePreview, getSubmitTranscript } =
+    useLiveInterview();
+
+  const countdown = useInterviewCountdown({
+    connectedAtMs,
+    durationMinutes,
+    active: callStatus === CallStatus.ACTIVE,
+  });
 
   const isVoiceOnly = interviewMode === 'voice_only';
   const metricsActive = callStatus === CallStatus.ACTIVE;
@@ -152,7 +166,12 @@ export default function LiveInterviewAgent({
       logVapiDiagnostic('call-start', null);
       startInFlightRef.current = false;
       resetFaceSamples();
-      callStartedAtRef.current = Date.now();
+      resetTranscript();
+      const startedAt = Date.now();
+      callStartedAtRef.current = startedAt;
+      setConnectedAtMs(startedAt);
+      windDownSentRef.current = false;
+      hardStopTriggeredRef.current = false;
       setCallStatus(CallStatus.ACTIVE);
     };
 
@@ -161,6 +180,9 @@ export default function LiveInterviewAgent({
       endedReasonRef.current = getCallEndedReason(payload);
       startInFlightRef.current = false;
       captureFinalMetrics();
+      // Drop any in-flight partial preview — submit uses committed finals only.
+      clearLivePreview();
+      setConnectedAtMs(null);
       setCallStatus(CallStatus.FINISHED);
     };
 
@@ -168,68 +190,71 @@ export default function LiveInterviewAgent({
     const onCallStartFailed = (payload) => logVapiDiagnostic('call-start-failed', payload);
 
     const onMessage = (message) => {
-      if (message.type === 'transcript' && message.transcriptType === 'final') {
-        const role = message.role === 'user' ? 'user' : 'ai';
-        const content = String(message.transcript || '').trim();
-        messagesRef.current = [
-          ...messagesRef.current,
-          { role: message.role, content: message.transcript },
-        ];
-        addTurn(role, message.transcript);
+      const type = String(message?.type || '');
+      if (type !== 'transcript' && !type.startsWith('transcript')) return;
 
-        if (role === 'ai' && content) {
-          lastAiQuestionRef.current = content;
-          return;
-        }
+      const transcriptType =
+        String(message.transcriptType || '').toLowerCase() === 'partial'
+          ? 'partial'
+          : 'final';
+      const role = message.role === 'user' ? 'user' : 'assistant';
+      const segmentText = String(message.transcript || '').trim();
 
-        // Lightweight adaptive depth: classify last answer; nudge Vapi if server adjusts.
-        if (
-          role === 'user' &&
-          content &&
-          adaptiveDepthEnabledRef.current &&
-          sessionId &&
-          !adaptiveInFlightRef.current
-        ) {
-          const answeredCount = messagesRef.current.filter(
-            (m) => m.role === 'user' || m.role === 'candidate'
-          ).length;
-          const priorStrengths = adaptiveStrengthsRef.current.slice(-2);
-          adaptiveInFlightRef.current = true;
-          applyLiveAdaptiveDepth({
-            sessionId,
-            answerText: content,
-            questionText: lastAiQuestionRef.current || '',
-            answeredCount,
-            priorStrengths,
+      ingestVapiMessage(message);
+
+      if (transcriptType === 'partial' || !segmentText) return;
+
+      if (role === 'assistant') {
+        const turns = getSubmitTranscript();
+        const lastAssistant = [...turns].reverse().find((t) => t.role === 'assistant');
+        lastAiQuestionRef.current = lastAssistant?.content || segmentText;
+        return;
+      }
+
+      // User final — optional adaptive depth nudge (committed segments only).
+      if (
+        adaptiveDepthEnabledRef.current &&
+        sessionId &&
+        !adaptiveInFlightRef.current
+      ) {
+        const submitTurns = getSubmitTranscript();
+        const answeredCount = submitTurns.filter((m) => m.role === 'user').length;
+        const priorStrengths = adaptiveStrengthsRef.current.slice(-2);
+        adaptiveInFlightRef.current = true;
+        applyLiveAdaptiveDepth({
+          sessionId,
+          answerText: segmentText,
+          questionText: lastAiQuestionRef.current || '',
+          answeredCount,
+          priorStrengths,
+        })
+          .then((data) => {
+            if (data?.strength) {
+              adaptiveStrengthsRef.current = [
+                ...adaptiveStrengthsRef.current,
+                data.strength,
+              ].slice(-4);
+            }
+            if (data?.systemNudge) {
+              try {
+                getVapiClient().send({
+                  type: 'add-message',
+                  message: {
+                    role: 'system',
+                    content: data.systemNudge,
+                  },
+                });
+              } catch {
+                // Mid-call nudge is best-effort; never break the interview.
+              }
+            }
           })
-            .then((data) => {
-              if (data?.strength) {
-                adaptiveStrengthsRef.current = [
-                  ...adaptiveStrengthsRef.current,
-                  data.strength,
-                ].slice(-4);
-              }
-              if (data?.systemNudge) {
-                try {
-                  getVapiClient().send({
-                    type: 'add-message',
-                    message: {
-                      role: 'system',
-                      content: data.systemNudge,
-                    },
-                  });
-                } catch {
-                  // Mid-call nudge is best-effort; never break the interview.
-                }
-              }
-            })
-            .catch(() => {
-              // Default to no change on any failure.
-            })
-            .finally(() => {
-              adaptiveInFlightRef.current = false;
-            });
-        }
+          .catch(() => {
+            // Default to no change on any failure.
+          })
+          .finally(() => {
+            adaptiveInFlightRef.current = false;
+          });
       }
     };
 
@@ -245,6 +270,8 @@ export default function LiveInterviewAgent({
 
       console.error('Vapi error:', error);
       startInFlightRef.current = false;
+      clearLivePreview();
+      setConnectedAtMs(null);
       setCallError(formatVapiError(error));
       setCallStatus(CallStatus.INACTIVE);
     };
@@ -268,7 +295,47 @@ export default function LiveInterviewAgent({
       vapi.off('call-start-progress', onCallStartProgress);
       vapi.off('call-start-failed', onCallStartFailed);
     };
-  }, [addTurn, captureFinalMetrics, resetFaceSamples, sessionId]);
+  }, [clearLivePreview, getSubmitTranscript, ingestVapiMessage, captureFinalMetrics, resetFaceSamples, resetTranscript, sessionId]);
+
+  // Planned duration hit → ask interviewer to close naturally (do not hard-cut).
+  useEffect(() => {
+    if (callStatus !== CallStatus.ACTIVE || !countdown.isExpired || windDownSentRef.current) {
+      return;
+    }
+    windDownSentRef.current = true;
+    try {
+      getVapiClient().send({
+        type: 'add-message',
+        message: {
+          role: 'system',
+          content: TIME_UP_WIND_DOWN_NUDGE,
+        },
+      });
+    } catch {
+      // Best-effort; user still sees the wrap-up notice + hard limit below.
+    }
+  }, [callStatus, countdown.isExpired]);
+
+  // Outer hard limit: durationMinutes + 2 minutes — end if still connected.
+  useEffect(() => {
+    if (
+      callStatus !== CallStatus.ACTIVE ||
+      !countdown.isPastHardLimit ||
+      hardStopTriggeredRef.current
+    ) {
+      return;
+    }
+    hardStopTriggeredRef.current = true;
+    captureFinalMetrics();
+    try {
+      getVapiClient().stop();
+    } catch {
+      // ignore
+    }
+    clearLivePreview();
+    setConnectedAtMs(null);
+    setCallStatus(CallStatus.FINISHED);
+  }, [callStatus, countdown.isPastHardLimit, captureFinalMetrics, clearLivePreview]);
 
   // A call left running after unmount keeps billing and holds the mic.
   useEffect(
@@ -294,7 +361,11 @@ export default function LiveInterviewAgent({
     }
 
     // An ejected/failed call produces no turns; submitting would just 400.
-    if (!messagesRef.current.length) {
+    const submitTranscript = getSubmitTranscript();
+    if (import.meta.env.DEV) {
+      console.info('[live-transcript] submit payload', submitTranscript);
+    }
+    if (!submitTranscript.length) {
       const reason = endedReasonRef.current;
       setCallError(
         reason
@@ -313,7 +384,7 @@ export default function LiveInterviewAgent({
 
     onFinished?.(
       {
-        transcript: messagesRef.current,
+        transcript: submitTranscript,
         liveAudioHints: liveAudioHints || {},
         liveVideoMetrics: liveVideoMetrics || null,
         durationMs,
@@ -323,9 +394,11 @@ export default function LiveInterviewAgent({
   }, [
     callStatus,
     captureFinalMetrics,
+    getSubmitTranscript,
     isSubmitting,
     onFinished,
     sessionId,
+    t,
   ]);
 
   const toggleMic = () => {
@@ -369,6 +442,9 @@ export default function LiveInterviewAgent({
     finishedNotifiedRef.current = false;
     finalMetricsRef.current = null;
     callStartedAtRef.current = null;
+    setConnectedAtMs(null);
+    windDownSentRef.current = false;
+    hardStopTriggeredRef.current = false;
     endedReasonRef.current = null;
     resetFaceSamples();
     setCallStatus(CallStatus.CONNECTING);
@@ -404,6 +480,8 @@ export default function LiveInterviewAgent({
     } catch {
       // ignore
     }
+    clearLivePreview();
+    setConnectedAtMs(null);
     setCallStatus(CallStatus.FINISHED);
   };
 
@@ -422,7 +500,11 @@ export default function LiveInterviewAgent({
   else if (!isVoiceOnly && !videoReady) startLabel = t('live.waitingCamera');
 
   const notice =
-    !isVoiceOnly && !faceModelsReady && !faceModelsError ? (
+    countdown.isExpired && callStatus === CallStatus.ACTIVE ? (
+      <p className="font-label-sm text-center text-on-surface-variant" role="status">
+        {t('live.timeUpWrapping')}
+      </p>
+    ) : !isVoiceOnly && !faceModelsReady && !faceModelsError ? (
       <p className="font-label-sm text-on-surface-variant text-center">
         {t('live.loadingFaceModels')}
       </p>
@@ -447,10 +529,13 @@ export default function LiveInterviewAgent({
       status={UI_STATUS_BY_CALL_STATUS[callStatus] || 'idle'}
       activeSpeaker={activeSpeaker}
       transcript={transcript}
+      livePreview={livePreview}
       interviewMode={interviewMode}
       roleLabel={roleLabel}
       difficulty={difficulty}
       durationMinutes={durationMinutes}
+      countdownDisplay={callStatus === CallStatus.ACTIVE ? countdown.display : null}
+      countdownUrgency={callStatus === CallStatus.ACTIVE ? countdown.urgency : 'idle'}
       videoMetricsOn={videoMetricsOn}
       voiceMetricsOn={voiceMetricsOn}
       cameraOn={isCameraOn}

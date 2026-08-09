@@ -5,6 +5,7 @@ import { cn } from '../../../lib/utils';
 import Button from '../../../components/ui/Button';
 import { toDisplayErrorMessage } from '../lib/vapi.sdk';
 import { DEFAULT_INTERVIEW_SETUP_MODE } from '../constants/interviewPrepConstants';
+import InterviewCountdownBadge from './InterviewCountdownBadge';
 
 const AI_ORB_DOTS = [0, 1, 2];
 const WAVE_BARS = [0, 1, 2, 3, 4, 5];
@@ -93,10 +94,13 @@ export default function LiveInterview({
   status = 'idle',
   activeSpeaker = null,
   transcript = [],
+  livePreview = null,
   interviewMode = DEFAULT_INTERVIEW_SETUP_MODE,
   roleLabel = '',
   difficulty = '',
   durationMinutes = null,
+  countdownDisplay = null,
+  countdownUrgency = 'idle',
   videoMetricsOn = false,
   voiceMetricsOn = false,
   cameraOn = true,
@@ -121,12 +125,15 @@ export default function LiveInterview({
 
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, [transcript.length]);
+  }, [transcript.length, livePreview?.text]);
 
   const isActive = status === 'active';
   const aiSpeaking = activeSpeaker === 'ai';
   const userSpeaking = activeSpeaker === 'user' && isActive;
   const lastTurnId = transcript.length ? transcript[transcript.length - 1].id : null;
+  const lastSpeaker = transcript.length ? transcript[transcript.length - 1].speaker : null;
+  const previewNeedsOwnBubble =
+    Boolean(livePreview?.text) && livePreview.speaker !== lastSpeaker;
   const displayError = errorMessage
     ? toDisplayErrorMessage(errorMessage, t('live.genericError'))
     : null;
@@ -146,7 +153,14 @@ export default function LiveInterview({
   return (
     <div className="w-full space-y-md">
       {isActive ? (
-        <div className="flex justify-end">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {countdownDisplay ? (
+            <InterviewCountdownBadge
+              display={countdownDisplay}
+              urgency={countdownUrgency}
+              label={t('live.timeLeft')}
+            />
+          ) : null}
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 font-label-sm font-semibold text-emerald-700 ring-1 ring-emerald-200">
             <span className="relative flex h-2 w-2" aria-hidden>
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -332,7 +346,7 @@ export default function LiveInterview({
         </div>
       </div>
 
-      {transcript.length > 0 ? (
+      {transcript.length > 0 || livePreview?.text ? (
         <div className="max-h-72 space-y-4 overflow-y-auto rounded-3xl border border-outline-variant/40 bg-white/80 p-5 shadow-sm backdrop-blur">
           <div className="flex items-center justify-between">
             <p className="font-label-sm text-on-surface-variant">{t('live.transcriptTitle')}</p>
@@ -342,9 +356,15 @@ export default function LiveInterview({
             </p>
           </div>
 
-          {transcript.map((turn) => {
+          {transcript.map((turn, index) => {
             const isAi = turn.speaker === 'ai';
+            const isLast = index === transcript.length - 1;
             const isLiveTurn = isActive && activeSpeaker === turn.speaker && turn.id === lastTurnId;
+            const previewInside =
+              isLast &&
+              livePreview?.speaker === turn.speaker &&
+              livePreview?.text &&
+              livePreview.text !== turn.text;
 
             return (
               <div key={turn.id} className={cn('flex flex-col', isAi ? 'items-start' : 'items-end')}>
@@ -359,10 +379,41 @@ export default function LiveInterview({
                   )}
                 >
                   {turn.text}
+                  {previewInside ? (
+                    <span className="italic text-on-surface-variant/80">
+                      {turn.text ? ' ' : ''}
+                      {livePreview.text}
+                    </span>
+                  ) : null}
                 </p>
               </div>
             );
           })}
+
+          {previewNeedsOwnBubble ? (
+            <div
+              className={cn(
+                'flex flex-col',
+                livePreview.speaker === 'ai' ? 'items-start' : 'items-end'
+              )}
+            >
+              <SpeakerBadge
+                name={livePreview.speaker === 'ai' ? resolvedAiName : userName}
+                active
+              />
+              <p
+                className={cn(
+                  'mt-1.5 max-w-[85%] rounded-2xl px-4 py-2.5 text-sm italic leading-relaxed text-on-surface-variant/80 shadow-sm',
+                  livePreview.speaker === 'ai'
+                    ? 'rounded-tl-sm bg-gradient-to-br from-secondary/[0.08] to-secondary-container/[0.06]'
+                    : 'rounded-tr-sm bg-surface-container-low'
+                )}
+              >
+                {livePreview.text}
+              </p>
+            </div>
+          ) : null}
+
           <div ref={transcriptEndRef} />
         </div>
       ) : null}

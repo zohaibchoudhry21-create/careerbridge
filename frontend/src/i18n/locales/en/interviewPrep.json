@@ -153,6 +153,8 @@
   "live": {
     "title": "Live interview",
     "liveBadge": "Live",
+    "timeLeft": "Time left",
+    "timeUpWrapping": "Time's up — wrapping up shortly",
     "subtitleVoice": "Speak with {{name}} in real time. Microphone stays on for feedback.",
     "subtitleVideo": "Speak with {{name}} in real time. Camera and mic stay on for feedback.",
     "aiName": "AI Interviewer",

@@ -153,6 +153,8 @@
   "live": {
     "title": "Entrevista en vivo",
     "liveBadge": "En vivo",
+    "timeLeft": "Tiempo",
+    "timeUpWrapping": "Se acabó el tiempo — cerrando en breve",
     "subtitleVoice": "Habla con {{name}} en tiempo real. El micrófono permanece activo para la retroalimentación.",
     "subtitleVideo": "Habla con {{name}} en tiempo real. Cámara y micrófono activos para la retroalimentación.",
     "aiName": "Entrevistador IA",
