@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
@@ -12,7 +12,7 @@ import {
   Lightbulb,
   Loader2,
   Plus,
-  Save,
+  Download,
   Trash2,
   User,
 } from 'lucide-react';
@@ -27,6 +27,10 @@ import TemplatePicker from '../../features/resumeBuilder/components/TemplatePick
 import { ResumeTextArea, ResumeTextInput } from '../../features/resumeBuilder/components/ResumeFormFields';
 import { DEFAULT_TEMPLATE, getTemplateById } from '../../features/resumeBuilder/components/templatesConfig';
 import { useParsedResume, useResumeBuilderActions } from '../../features/resumeBuilder/hooks/useResumeBuilder';
+import {
+  buildResumePdfFilename,
+  downloadResumePdf,
+} from '../../features/resumeBuilder/utils/downloadResumePdf';
 
 const EMPTY_PARSED = {
   fullName: '',
@@ -83,7 +87,8 @@ export default function ResumeEditorPage() {
 
   const [parsedData, setParsedData] = useState(EMPTY_PARSED);
   const [activeSection, setActiveSection] = useState('header');
-  const [isSaving, setIsSaving] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const previewRef = useRef(null);
   const [skillsInput, setSkillsInput] = useState('');
   const [languagesInput, setLanguagesInput] = useState('');
   const [templateId, setTemplateId] = useState(DEFAULT_TEMPLATE);
@@ -125,15 +130,17 @@ export default function ResumeEditorPage() {
     }));
   };
 
-  const handleSave = async () => {
-    setIsSaving(true);
+  const handleDownload = async () => {
+    setIsDownloading(true);
     try {
       await updateResume(id, parsedData, templateId);
-      toast.success('Resume saved successfully.');
+      const filename = buildResumePdfFilename(resume.originalFileName, parsedData.fullName);
+      await downloadResumePdf(previewRef.current, filename);
+      toast.success('Resume downloaded successfully.');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to save resume');
+      toast.error(err.response?.data?.message || err.message || 'Failed to download resume');
     } finally {
-      setIsSaving(false);
+      setIsDownloading(false);
     }
   };
 
@@ -186,9 +193,14 @@ export default function ResumeEditorPage() {
             <Button variant="secondary" className="px-3 py-1.5 text-sm" onClick={() => navigate(`/resume/${id}`)}>
               View Details
             </Button>
-            <Button variant="primary" className="gap-1 px-3 py-1.5 text-sm" onClick={handleSave} disabled={isSaving}>
-              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-              Save
+            <Button
+              variant="primary"
+              className="gap-1 px-3 py-1.5 text-sm"
+              onClick={handleDownload}
+              disabled={isDownloading}
+            >
+              {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              Download
             </Button>
           </div>
         </div>
@@ -390,7 +402,9 @@ export default function ResumeEditorPage() {
               <p className="text-xs text-on-surface-variant text-center mb-3 uppercase tracking-wider">
                 Live Preview — {getTemplateById(templateId).name} Template
               </p>
-              <ResumePreview data={parsedData} templateId={templateId} />
+              <div ref={previewRef}>
+                <ResumePreview data={parsedData} templateId={templateId} />
+              </div>
             </div>
           </div>
         </div>
