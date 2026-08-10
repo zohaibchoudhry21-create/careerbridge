@@ -1,12 +1,44 @@
 import ParsedResume from '../models/ParsedResume.js';
+import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { cleanupFile } from '../middleware/resumeUploadMiddleware.js';
 import { extractResumeData } from '../utils/resumeParser/aiParser.js';
 import {
   extractTextFromResume,
   validateExtractedText,
 } from '../utils/resumeParser/fileProcessor.js';
+import {
+  RESUME_AI_TEXT_ACTIONS,
+  runResumeAiTextAction,
+} from '../utils/resumeBuilderAiTextService.js';
+import { AppError, buildErrorPayload } from '../utils/sendResponse.js';
 
 const VALID_TEMPLATES = ['classic', 'modern', 'minimal', 'professional', 'elegant'];
+
+const BLANK_RESUME_FILE_PATH = 'blank://no-file';
+
+const EMPTY_PARSED_DATA = {
+  fullName: '',
+  professionalTitle: '',
+  email: '',
+  phone: '',
+  address: '',
+  website: '',
+  nationality: '',
+  dateOfBirth: '',
+  visa: '',
+  passportOrId: '',
+  availability: '',
+  photo: '',
+  linkedinLink: '',
+  githubLink: '',
+  summary: '',
+  skills: [],
+  experience: [],
+  education: [],
+  projects: [],
+  languages: [],
+  certifications: [],
+};
 
 const serializeResume = (resume) => ({
   id: resume._id,
@@ -163,6 +195,52 @@ export const uploadParsedResume = async (req, res) => {
   }
 };
 
+export const createBlankParsedResume = async (req, res) => {
+  try {
+    let templateId = req.body?.templateId || 'classic';
+    if (!VALID_TEMPLATES.includes(templateId)) {
+      templateId = 'classic';
+    }
+
+    const stamp = Date.now();
+    const resume = new ParsedResume({
+      userId: req.user._id,
+      fileName: `blank-resume-${stamp}.pdf`,
+      originalFileName: 'Untitled Resume',
+      filePath: BLANK_RESUME_FILE_PATH,
+      fileSize: 0,
+      fileType: 'application/pdf',
+      sourceType: 'blank',
+      extractedText: '',
+      parsedData: { ...EMPTY_PARSED_DATA },
+      processingStatus: 'completed',
+      processingError: null,
+      templateId,
+    });
+
+    await resume.save();
+
+    return res.status(201).json({
+      message: 'Blank resume created successfully',
+      resume: {
+        id: resume._id,
+        fileName: resume.fileName,
+        originalFileName: resume.originalFileName,
+        processingStatus: resume.processingStatus,
+        parsedData: resume.parsedData,
+        templateId: resume.templateId,
+        sourceType: resume.sourceType,
+        createdAt: resume.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error('Create blank resume error:', error);
+    return res.status(500).json({
+      message: 'Server error while creating blank resume',
+    });
+  }
+};
+
 export const getParsedResumeHistory = async (req, res) => {
   try {
     const { page = 1, limit = 10, status, search } = req.query;
@@ -308,6 +386,48 @@ export const updateParsedResume = async (req, res) => {
   }
 };
 
+export const runParsedResumeAiText = async (req, res) => {
+  try {
+    const resume = await ParsedResume.findById(req.params.id);
+    const accessError = assertResumeAccess(resume, req.user);
+    if (accessError) {
+      return res.status(accessError.status).json({
+        success: false,
+        message: accessError.body.message,
+      });
+    }
+
+    const action = String(req.body?.action || '').trim();
+    const content = req.body?.content ?? '';
+    const field = String(req.body?.field || 'summary').trim() || 'summary';
+    const context =
+      req.body?.context && typeof req.body.context === 'object' ? req.body.context : {};
+
+    if (!RESUME_AI_TEXT_ACTIONS.includes(action)) {
+      throw new AppError(ERROR_CODES.RESUME_BUILDER.INVALID_AI_ACTION, 400);
+    }
+
+    const result = await runResumeAiTextAction({ action, content, field, context });
+
+    return res.json({
+      success: true,
+      text: result.text,
+      action: result.action,
+      field: result.field,
+    });
+  } catch (error) {
+    if (error instanceof AppError || error?.isOperational) {
+      const { statusCode, body } = buildErrorPayload(error);
+      return res.status(statusCode).json(body);
+    }
+    console.error('[resume-builder] AI text error:', error);
+    const { statusCode, body } = buildErrorPayload(
+      new AppError(ERROR_CODES.RESUME_BUILDER.AI_EMPTY_RESPONSE, 502)
+    );
+    return res.status(statusCode).json(body);
+  }
+};
+
 export const getParsedResume = async (req, res) => {
   try {
     const resume = await ParsedResume.findById(req.params.id);
@@ -333,7 +453,9 @@ export const deleteParsedResume = async (req, res) => {
       return res.status(accessError.status).json(accessError.body);
     }
 
-    cleanupFile(resume.filePath);
+    if (resume.sourceType !== 'blank') {
+      cleanupFile(resume.filePath);
+    }
     await ParsedResume.findByIdAndDelete(req.params.id);
 
     return res.json({ message: 'Resume deleted successfully' });

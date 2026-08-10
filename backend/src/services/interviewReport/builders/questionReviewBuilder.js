@@ -55,6 +55,16 @@ export const enforceDeterministicRelevanceGate = (reviews = []) =>
   });
 
 /**
+ * Prefer paired answer on the QA row (transcript extraction); fall back to
+ * index-aligned user turns for legacy fixtures / guide_fallback snapshots.
+ */
+const resolveCandidateAnswer = (q, index, userTurns) => {
+  const fromRow = String(q?.answer ?? q?.transcript ?? '').trim();
+  if (fromRow) return fromRow;
+  return userTurns[index] || (userTurns.length === 1 ? userTurns[0] : '') || '';
+};
+
+/**
  * Build question-by-question reviews.
  * 1) Pure relevance classification (no AI)
  * 2) Non-on_topic → fixed low score + feedback (AI narrative score ignored / skipped)
@@ -76,10 +86,8 @@ export const buildQuestionReviews = (snapshot = {}, narrativeReviews = []) => {
     const narrative = byId.get(String(q.questionId)) || narrativeReviews[index] || {};
     const questionText = q.question || q.text || '';
 
-    // Candidate transcript turn — never trust AI answerExcerpt for gating.
-    const candidateAnswer =
-      userTurns[index] || (userTurns.length === 1 ? userTurns[0] : '') || '';
-
+    // Candidate answer — never trust AI answerExcerpt for gating.
+    const candidateAnswer = resolveCandidateAnswer(q, index, userTurns);
     const answerExcerpt = candidateAnswer || narrative.answerExcerpt || '';
 
     // Phase 1: relevance FIRST (deterministic), before accepting any AI score.
@@ -120,8 +128,7 @@ export const selectAnswersNeedingAiScore = (snapshot = {}) => {
   return questions
     .map((q, index) => {
       const questionText = q.question || q.text || '';
-      const answer =
-        userTurns[index] || (userTurns.length === 1 ? userTurns[0] : '') || '';
+      const answer = resolveCandidateAnswer(q, index, userTurns);
       const classification = evaluateAnswerRelevance(answer, questionText);
       return {
         questionId: q.questionId || `q${index + 1}`,

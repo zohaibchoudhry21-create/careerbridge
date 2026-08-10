@@ -8,8 +8,8 @@ const renderParagraphLines = (paragraph = '') =>
       <p
         key={idx}
         className={cn(
-          'text-[13px] leading-relaxed text-slate-700',
-          isBullet && 'pl-4 relative before:content-["•"] before:absolute before:left-0 before:text-slate-400'
+          'resume-body-text text-on-surface',
+          isBullet && 'pl-5 relative before:content-["•"] before:absolute before:left-0 before:text-outline'
         )}
       >
         {isBullet ? trimmed.replace(/^[-•*]\s+/, '') : trimmed}
@@ -22,10 +22,8 @@ const Section = ({ title, section }) => {
   if (!paragraphs.length) return null;
 
   return (
-    <section className="mb-6">
-      <h3 className="text-[12px] font-bold tracking-wide uppercase text-blue-700 border-b border-slate-200 pb-1 mb-2">
-        {title}
-      </h3>
+    <section className="resume-section">
+      <h3 className="resume-section-heading">{title}</h3>
       <div className="space-y-1">
         {paragraphs.map((para, idx) => (
           <div key={idx}>{renderParagraphLines(para)}</div>
@@ -44,7 +42,7 @@ export const hasStructuredPreviewData = (structuredSections = {}) => {
     skills,
     additional_sections: additionalSections = [],
     unassigned,
-  } = structuredSections;
+  } = structuredSections ?? {};
 
   return Boolean(
     contact?.name ||
@@ -59,33 +57,47 @@ export const hasStructuredPreviewData = (structuredSections = {}) => {
   );
 };
 
-const PlainTextFallback = ({ text = '' }) => (
-  <div className="resume-paper w-full bg-white p-8 lg:p-12 shadow-[0_4px_20px_rgba(0,0,0,0.05)] text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
+/** Page chrome (white sheet, padding, shadow) — skipped when the parent already supplies it. */
+const PAPER_CHROME = 'bg-white p-8 lg:p-12 shadow-[0_4px_20px_rgba(0,0,0,0.05)]';
+
+const PlainTextFallback = ({ text = '', bare = false }) => (
+  <div
+    className={cn(
+      'resume-paper resume-document w-full whitespace-pre-wrap',
+      !bare && PAPER_CHROME
+    )}
+  >
     {text}
   </div>
 );
 
-export default function StructuredResumeView({ structuredSections = {}, fallbackText = '' }) {
+export default function StructuredResumeView({
+  structuredSections = {},
+  fallbackText = '',
+  bare = false,
+}) {
+  // Default params only cover undefined — callers may pass null (e.g. rewrite comparison).
+  const sections = structuredSections ?? {};
   const { contact, summary, experience, education, skills, additional_sections: additionalSections = [] } =
-    structuredSections;
+    sections;
 
-  if (!hasStructuredPreviewData(structuredSections)) {
+  if (!hasStructuredPreviewData(sections)) {
     if (fallbackText?.trim()) {
-      return <PlainTextFallback text={fallbackText} />;
+      return <PlainTextFallback text={fallbackText} bare={bare} />;
     }
     return null;
   }
 
   return (
-    <div className="resume-paper w-full bg-white p-8 lg:p-12 shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+    <div className={cn('resume-paper resume-document w-full', !bare && PAPER_CHROME)}>
       {contact?.name || contact?.lines?.length ? (
-        <header className="mb-6 text-center">
-          {contact?.name ? <h1 className="text-xl font-bold text-slate-900">{contact.name}</h1> : null}
+        <header className="mb-7 text-center">
+          {contact?.name ? <h1 className="resume-document-name">{contact.name}</h1> : null}
           {contact.headline ? (
-            <p className="text-sm text-slate-500 mt-1">{contact.headline}</p>
+            <p className="resume-document-contact mt-1">{contact.headline}</p>
           ) : null}
           {contact.lines?.length ? (
-            <p className="text-xs text-slate-500 mt-2">{contact.lines.join('  |  ')}</p>
+            <p className="resume-document-contact mt-2">{contact.lines.join('  |  ')}</p>
           ) : null}
         </header>
       ) : null}
@@ -95,15 +107,13 @@ export default function StructuredResumeView({ structuredSections = {}, fallback
       <Section title="Education" section={education} />
 
       {skills?.items?.length ? (
-        <section className="mb-6">
-          <h3 className="text-[12px] font-bold tracking-wide uppercase text-blue-700 border-b border-slate-200 pb-1 mb-2">
-            Skills
-          </h3>
+        <section className="resume-section">
+          <h3 className="resume-section-heading">Skills</h3>
           <div className="flex flex-wrap gap-2">
             {skills.items.map((item, idx) => (
               <span
                 key={idx}
-                className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded-full"
+                className="text-sm bg-surface-container text-on-surface-variant px-2.5 py-1 rounded-full"
               >
                 {item}
               </span>
@@ -118,10 +128,10 @@ export default function StructuredResumeView({ structuredSections = {}, fallback
         <Section key={idx} title={extra.heading || extra.type} section={extra} />
       ))}
 
-      {structuredSections?.unassigned?.text ? (
+      {sections?.unassigned?.text ? (
         <Section
           title="Additional"
-          section={{ text: structuredSections.unassigned.text, paragraphs: [structuredSections.unassigned.text] }}
+          section={{ text: sections.unassigned.text, paragraphs: [sections.unassigned.text] }}
         />
       ) : null}
     </div>

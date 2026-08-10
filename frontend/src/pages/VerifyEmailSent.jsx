@@ -13,6 +13,7 @@ export default function VerifyEmailSent() {
   const [email, setEmail] = useState(location.state?.email || '');
   const [name] = useState(location.state?.name || '');
   const [devLink, setDevLink] = useState(location.state?.verificationUrl || '');
+  const [emailPreviewUrl, setEmailPreviewUrl] = useState(location.state?.emailPreviewUrl || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleResend = async (event) => {
@@ -29,6 +30,9 @@ export default function VerifyEmailSent() {
       toast.success(data.message);
       if (data.verificationUrl) {
         setDevLink(data.verificationUrl);
+      }
+      if (data.emailPreviewUrl) {
+        setEmailPreviewUrl(data.emailPreviewUrl);
       }
     } catch (error) {
       toast.error(resolveApiError(error, t('toasts.resendFailed')));
@@ -95,6 +99,22 @@ export default function VerifyEmailSent() {
           )}
         </button>
       </form>
+
+      {emailPreviewUrl && (
+        <div className="mt-md p-4 rounded-2xl bg-surface-container-low border border-outline-variant">
+          <p className="text-sm text-on-surface-variant mb-2">
+            Dev email preview (Gmail SMTP failed — open this inbox):
+          </p>
+          <a
+            href={emailPreviewUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-sm text-secondary break-all hover:underline"
+          >
+            {emailPreviewUrl}
+          </a>
+        </div>
+      )}
 
       {devLink && (
         <div className="mt-md p-4 rounded-2xl bg-surface-container-low border border-outline-variant">

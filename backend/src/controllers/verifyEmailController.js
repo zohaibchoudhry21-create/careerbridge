@@ -102,7 +102,10 @@ export const resendVerificationEmail = async (req, res, next) => {
     };
 
     if (process.env.NODE_ENV === 'development' && emailResult.devMode) {
-      response.verificationUrl = verificationUrl;
+      response.verificationUrl = emailResult.verificationUrl || verificationUrl;
+      if (emailResult.previewUrl) {
+        response.emailPreviewUrl = emailResult.previewUrl;
+      }
     }
 
     res.status(200).json(response);

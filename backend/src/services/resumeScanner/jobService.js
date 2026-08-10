@@ -2,8 +2,9 @@
  * Resume Scanner background job lifecycle.
  * Owns in-process job guard + analysis pipeline execution.
  *
- * AI flow (Phase 2):
- *   Analysis (1 LLM) → Decision Engine once → Optimize | Rewrite(plan/rewrite/validate)
+ * Flow:
+ *   Upload creates pending AtsAnalysis + stub ScannedResume (no extract wait)
+ *   Background: extract file → analyzing (LLM) → Decision → Optimize | Rewrite
  * Preview scores after rewrite use deterministic recompute (0 LLM).
  */
 
@@ -43,35 +44,36 @@ import {
 
 const runningJobs = new Set();
 
-export const resolveResumeSource = async ({ userId, file }) => {
-  if (!file) {
-    throw new AppError(ERROR_CODES.RESUME_SCANNER.FILE_REQUIRED, 400);
-  }
-
-  const extraction = await extractResumeForScanner(file);
-  const scannedResume = await ScannedResume.create({
-    userId,
-    label: extraction.sourceFile?.filename || 'Uploaded Resume',
-    sourceFile: extraction.sourceFile,
-    extractedText: extraction.extractedText,
-    structuredSections: extraction.structuredSections,
-    lineMap: extraction.lineMap,
-    extractionMetadata: extraction.extractionMetadata,
-  });
-
+const buildSourceFileMeta = (file) => {
+  const filename = file?.originalname || 'resume.pdf';
   return {
-    resumeSourceType: 'scanned',
-    resumeSourceId: scannedResume._id,
-    extractedText: extraction.extractedText,
-    structuredSections: extraction.structuredSections,
-    lineMap: extraction.lineMap,
-    sourceFile: extraction.sourceFile,
+    filename,
+    mimeType: file?.mimetype || '',
+    size: file?.size || file?.buffer?.length || 0,
+    extension: filename.includes('.') ? filename.split('.').pop().toLowerCase() : '',
   };
 };
 
 /**
- * Create JD + AtsAnalysis records and return the analysis document.
- * Does not start the background job — Orchestrator enqueues separately.
+ * Snapshot multer file so background work keeps a stable buffer after the
+ * upload request returns (memoryStorage buffer is still valid in-process).
+ */
+const snapshotUploadFile = (file) => {
+  if (!file?.buffer) {
+    throw new AppError(ERROR_CODES.RESUME_SCANNER.FILE_REQUIRED, 400);
+  }
+
+  return {
+    buffer: Buffer.from(file.buffer),
+    originalname: file.originalname || 'resume.pdf',
+    mimetype: file.mimetype || '',
+    size: file.size || file.buffer.length,
+  };
+};
+
+/**
+ * Create JD + stub ScannedResume + pending AtsAnalysis.
+ * Does NOT run extraction — Orchestrator enqueues that in the background.
  */
 export const createAnalysisJob = async ({ userId, file, jobDescriptionText }) => {
   const cleanJd = sanitizeResumeScannerText(jobDescriptionText);
@@ -79,47 +81,101 @@ export const createAnalysisJob = async ({ userId, file, jobDescriptionText }) =>
     throw new AppError(ERROR_CODES.RESUME_SCANNER.JOB_DESCRIPTION_REQUIRED, 400);
   }
 
-  const resumeSource = await resolveResumeSource({ userId, file });
+  if (!file?.buffer) {
+    throw new AppError(ERROR_CODES.RESUME_SCANNER.FILE_REQUIRED, 400);
+  }
+
+  const sourceFile = buildSourceFileMeta(file);
+
+  const scannedResume = await ScannedResume.create({
+    userId,
+    label: sourceFile.filename || 'Uploaded Resume',
+    sourceFile,
+    extractedText: '',
+    structuredSections: {},
+    lineMap: [],
+    extractionMetadata: {},
+  });
 
   const jobDescription = await JobDescription.create({
     userId,
     rawText: cleanJd,
   });
 
-  const canonicalResumeText = resolveCanonicalResumeText({
-    resumeText: resumeSource.extractedText,
-    lineMap: resumeSource.lineMap,
-  });
-  const structuredResume = parseAtsTextToStructured(canonicalResumeText);
-  const derivedText = generateAtsText(structuredResume) || canonicalResumeText;
-
   const analysis = await AtsAnalysis.create({
     userId,
-    resumeSourceType: resumeSource.resumeSourceType,
-    resumeSourceId: resumeSource.resumeSourceId,
+    resumeSourceType: 'scanned',
+    resumeSourceId: scannedResume._id,
     jobDescriptionId: jobDescription._id,
     status: 'pending',
     progress: 5,
     statusMessage: 'Queued for analysis...',
-    resumeText: derivedText,
-    originalResumeText: derivedText,
-    structuredResume,
-    structuredSections: structuredResumeToSections(structuredResume),
-    lineMap: resumeSource.lineMap || [],
+    resumeText: '',
+    originalResumeText: '',
+    structuredResume: {},
+    structuredSections: {},
+    lineMap: [],
   });
 
   return analysis;
 };
 
-export const enqueueAnalysisPipeline = (analysisId, userId) => {
+export const enqueueAnalysisPipeline = (analysisId, userId, { file } = {}) => {
+  const fileSnapshot = file ? snapshotUploadFile(file) : null;
+
   setImmediate(() => {
-    runAnalysisPipeline(analysisId, userId).catch((error) => {
+    runAnalysisPipeline(analysisId, userId, { file: fileSnapshot }).catch((error) => {
       console.error('[resume-scanner] Background job error:', error);
     });
   });
 };
 
-export const runAnalysisPipeline = async (analysisId, userId) => {
+/**
+ * Apply extraction results onto ScannedResume + AtsAnalysis before AI starts.
+ */
+const applyExtractionToAnalysis = async (analysis, extraction) => {
+  const scannedResume = await ScannedResume.findById(analysis.resumeSourceId);
+  if (!scannedResume) {
+    throw new AppError(ERROR_CODES.RESUME_SCANNER.RESUME_NOT_FOUND, 404);
+  }
+
+  scannedResume.label = extraction.sourceFile?.filename || scannedResume.label;
+  scannedResume.sourceFile = extraction.sourceFile || scannedResume.sourceFile;
+  scannedResume.extractedText = extraction.extractedText || '';
+  scannedResume.structuredSections = extraction.structuredSections || {};
+  scannedResume.lineMap = extraction.lineMap || [];
+  scannedResume.extractionMetadata = extraction.extractionMetadata || {};
+  scannedResume.markModified('sourceFile');
+  scannedResume.markModified('structuredSections');
+  scannedResume.markModified('lineMap');
+  scannedResume.markModified('extractionMetadata');
+  await scannedResume.save();
+
+  const canonicalResumeText = resolveCanonicalResumeText({
+    resumeText: extraction.extractedText,
+    lineMap: extraction.lineMap,
+  });
+  const structuredResume = parseAtsTextToStructured(canonicalResumeText);
+  const derivedText = generateAtsText(structuredResume) || canonicalResumeText;
+
+  if (!sanitizeResumeScannerText(derivedText || canonicalResumeText)) {
+    throw new AppError(ERROR_CODES.RESUME_SCANNER.RESUME_TEXT_EMPTY, 400);
+  }
+
+  analysis.resumeText = derivedText;
+  analysis.originalResumeText = derivedText;
+  analysis.structuredResume = structuredResume;
+  analysis.structuredSections = structuredResumeToSections(structuredResume);
+  analysis.lineMap = extraction.lineMap || [];
+  analysis.markModified('structuredResume');
+  analysis.markModified('structuredSections');
+  analysis.markModified('lineMap');
+  await analysis.save();
+
+  return { structuredResume, derivedText, resumeText: derivedText || canonicalResumeText };
+};
+
+export const runAnalysisPipeline = async (analysisId, userId, { file } = {}) => {
   if (runningJobs.has(String(analysisId))) {
     console.warn(
       '[resume-scanner] Skipping duplicate pipeline run (already in progress):',
@@ -134,27 +190,37 @@ export const runAnalysisPipeline = async (analysisId, userId) => {
     const analysis = await loadAnalysisForUser(analysisId, userId);
     const jobDescription = await loadJobDescription(analysis.jobDescriptionId, userId);
 
+    // --- Step 1: real file extraction (Python → Node fallback) ---
     await updateAnalysisProgress(analysisId, {
       status: 'extracting',
-      progress: 20,
-      statusMessage: 'Preparing resume text...',
+      progress: 15,
+      statusMessage: 'Extracting text from your resume...',
     });
 
-    const resumeText = sanitizeResumeScannerText(
-      resolveCanonicalResumeText({
-        resumeText: analysis.resumeText,
-        lineMap: analysis.lineMap,
-      })
-    );
-    if (!resumeText) {
-      throw new AppError(ERROR_CODES.RESUME_SCANNER.RESUME_TEXT_EMPTY, 400);
+    if (!file?.buffer) {
+      throw new AppError(ERROR_CODES.RESUME_SCANNER.FILE_REQUIRED, 400);
     }
 
-    const structuredResume = ensureStructuredResume({
-      ...analysis.toObject(),
-      resumeText,
+    const extraction = await extractResumeForScanner(file);
+    const { structuredResume, derivedText, resumeText } = await applyExtractionToAnalysis(
+      analysis,
+      extraction
+    );
+
+    await updateAnalysisProgress(analysisId, {
+      progress: 30,
+      statusMessage: 'Resume text ready. Starting analysis...',
     });
-    const derivedText = generateAtsText(structuredResume);
+
+    // Reload so later saves use fresh version after applyExtractionToAnalysis.
+    const analysisFresh = await loadAnalysisForUser(analysisId, userId);
+
+    const ensuredStructured = ensureStructuredResume({
+      ...analysisFresh.toObject(),
+      resumeText,
+      structuredResume,
+    });
+    const ensuredDerivedText = generateAtsText(ensuredStructured) || derivedText || resumeText;
 
     await updateAnalysisProgress(analysisId, {
       status: 'analyzing',
@@ -163,14 +229,17 @@ export const runAnalysisPipeline = async (analysisId, userId) => {
     });
 
     const initialAiResult = await analyzeResumeAgainstJob({
-      resumeText: derivedText || resumeText,
+      resumeText: ensuredDerivedText || resumeText,
       jobDescriptionText: jobDescription.rawText,
       jobTitle: jobDescription.title || '',
-      structuredSections: structuredResumeToSections(structuredResume),
-      structuredResume,
+      structuredSections: structuredResumeToSections(ensuredStructured),
+      structuredResume: ensuredStructured,
     });
 
-    const parsedData = structuredResumeToParsedData(structuredResume, analysis.parsedData);
+    const parsedData = structuredResumeToParsedData(
+      ensuredStructured,
+      analysisFresh.parsedData
+    );
 
     await updateAnalysisProgress(analysisId, {
       progress: 55,
@@ -179,24 +248,24 @@ export const runAnalysisPipeline = async (analysisId, userId) => {
 
     // Decision Engine — once per job. Downstream rewrite reuses this context.
     const decisionContext = runDecisionEngine({
-      resumeText: derivedText || resumeText,
-      structuredResume,
+      resumeText: ensuredDerivedText || resumeText,
+      structuredResume: ensuredStructured,
       parsedData,
       jobDescriptionText: jobDescription.rawText,
       jobTitle: jobDescription.title || initialAiResult.jobTitle || '',
       analyzeResult: initialAiResult,
     });
 
-    analysis.decisionContext = serializeDecisionContext(decisionContext);
-    analysis.markModified('decisionContext');
+    analysisFresh.decisionContext = serializeDecisionContext(decisionContext);
+    analysisFresh.markModified('decisionContext');
 
     const useRewriteMode = decisionContext.mode === 'rewrite';
     let aiResult = initialAiResult;
 
     if (useRewriteMode) {
       const rewriteResult = await rewriteResumeFromJD({
-        resumeText: derivedText || resumeText,
-        structuredResume,
+        resumeText: ensuredDerivedText || resumeText,
+        structuredResume: ensuredStructured,
         parsedData,
         jobDescriptionText: jobDescription.rawText,
         jobTitle: jobDescription.title || initialAiResult.jobTitle || '',
@@ -208,18 +277,18 @@ export const runAnalysisPipeline = async (analysisId, userId) => {
         },
       });
 
-      analysis.analysisMode = 'rewrite';
-      analysis.rewriteStatus = 'pending_review';
-      analysis.rewriteTriggerReason = decisionContext.reason || 'low_match';
-      analysis.rewrittenResume = rewriteResult.rewrittenResume;
-      analysis.rewrittenParsedData = rewriteResult.rewrittenParsedData;
-      analysis.rewriteNotes = rewriteResult.rewriteNotes || [];
-      analysis.pendingOptimizationSuggestions = initialAiResult.suggestions;
-      analysis.suggestions = [];
-      analysis.markModified('rewrittenResume');
-      analysis.markModified('rewrittenParsedData');
-      analysis.markModified('rewriteNotes');
-      analysis.markModified('pendingOptimizationSuggestions');
+      analysisFresh.analysisMode = 'rewrite';
+      analysisFresh.rewriteStatus = 'pending_review';
+      analysisFresh.rewriteTriggerReason = decisionContext.reason || 'low_match';
+      analysisFresh.rewrittenResume = rewriteResult.rewrittenResume;
+      analysisFresh.rewrittenParsedData = rewriteResult.rewrittenParsedData;
+      analysisFresh.rewriteNotes = rewriteResult.rewriteNotes || [];
+      analysisFresh.pendingOptimizationSuggestions = initialAiResult.suggestions;
+      analysisFresh.suggestions = [];
+      analysisFresh.markModified('rewrittenResume');
+      analysisFresh.markModified('rewrittenParsedData');
+      analysisFresh.markModified('rewriteNotes');
+      analysisFresh.markModified('pendingOptimizationSuggestions');
 
       // Deterministic preview scores — no second Analyze LLM call
       const preview = recomputeAnalysisState({
@@ -245,19 +314,30 @@ export const runAnalysisPipeline = async (analysisId, userId) => {
         jobMatchScore: preview.jobMatchScore,
         score: preview.jobMatchScore,
         atsScoreBreakdown: preview.atsScoreBreakdown,
-        jobMatchBreakdown: preview.jobMatchBreakdown,
+        jobMatchBreakdown: {
+          ...preview.jobMatchBreakdown,
+          // Preserve Analyze-time field-fit signal (not recomputed on rewrite preview).
+          jobRelevanceScore:
+            Number(initialAiResult.jobMatchBreakdown?.jobRelevanceScore) ||
+            Number(initialAiResult.jobRelevanceScore) ||
+            0,
+        },
+        jobRelevanceScore:
+          Number(initialAiResult.jobMatchBreakdown?.jobRelevanceScore) ||
+          Number(initialAiResult.jobRelevanceScore) ||
+          0,
         matchedSkillIds: preview.matchedSkillIds,
         missingSkillIds: preview.missingSkillIds,
       };
     } else {
-      analysis.analysisMode = 'optimize';
-      analysis.rewriteStatus = 'none';
-      analysis.rewriteTriggerReason = '';
-      analysis.rewrittenResume = {};
-      analysis.rewrittenParsedData = {};
-      analysis.rewriteNotes = [];
-      analysis.pendingOptimizationSuggestions = [];
-      analysis.suggestions = initialAiResult.suggestions;
+      analysisFresh.analysisMode = 'optimize';
+      analysisFresh.rewriteStatus = 'none';
+      analysisFresh.rewriteTriggerReason = '';
+      analysisFresh.rewrittenResume = {};
+      analysisFresh.rewrittenParsedData = {};
+      analysisFresh.rewriteNotes = [];
+      analysisFresh.pendingOptimizationSuggestions = [];
+      analysisFresh.suggestions = initialAiResult.suggestions;
     }
 
     await updateAnalysisProgress(analysisId, {
@@ -277,26 +357,27 @@ export const runAnalysisPipeline = async (analysisId, userId) => {
     }));
     await jobDescription.save();
 
-    analysis.status = 'completed';
-    analysis.progress = 100;
-    analysis.statusMessage = 'Analysis complete';
-    analysis.score = aiResult.jobMatchScore;
-    analysis.atsScore = aiResult.atsScore;
-    analysis.jobMatchScore = aiResult.jobMatchScore;
-    analysis.atsScoreBreakdown = aiResult.atsScoreBreakdown;
-    analysis.jobMatchBreakdown = aiResult.jobMatchBreakdown;
-    analysis.matchedSkillIds = aiResult.matchedSkillIds;
-    analysis.missingSkillIds = aiResult.missingSkillIds;
-    analysis.suggestions = aiResult.suggestions;
-    analysis.searchabilityIssues = aiResult.searchabilityIssues;
-    analysis.recruiterTips = aiResult.recruiterTips;
-    syncDerivedFromStructured(analysis, structuredResume);
-    analysis.originalResumeText = analysis.resumeText;
-    if (!analysis.templateId) {
-      analysis.templateId = 'classic';
+    analysisFresh.status = 'completed';
+    analysisFresh.progress = 100;
+    analysisFresh.statusMessage = 'Analysis complete';
+    analysisFresh.errorMessage = '';
+    analysisFresh.score = aiResult.jobMatchScore;
+    analysisFresh.atsScore = aiResult.atsScore;
+    analysisFresh.jobMatchScore = aiResult.jobMatchScore;
+    analysisFresh.atsScoreBreakdown = aiResult.atsScoreBreakdown;
+    analysisFresh.jobMatchBreakdown = aiResult.jobMatchBreakdown;
+    analysisFresh.matchedSkillIds = aiResult.matchedSkillIds;
+    analysisFresh.missingSkillIds = aiResult.missingSkillIds;
+    analysisFresh.suggestions = aiResult.suggestions;
+    analysisFresh.searchabilityIssues = aiResult.searchabilityIssues;
+    analysisFresh.recruiterTips = aiResult.recruiterTips;
+    syncDerivedFromStructured(analysisFresh, ensuredStructured);
+    analysisFresh.originalResumeText = analysisFresh.resumeText;
+    if (!analysisFresh.templateId) {
+      analysisFresh.templateId = 'classic';
     }
-    initializeHistory(analysis);
-    await analysis.save();
+    initializeHistory(analysisFresh);
+    await analysisFresh.save();
   } catch (error) {
     console.error('[resume-scanner] Analysis pipeline failed:', error);
     await updateAnalysisProgress(analysisId, {

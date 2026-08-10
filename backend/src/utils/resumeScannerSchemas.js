@@ -32,6 +32,8 @@ export const resumeScannerAnalysisSchema = z.object({
   company: z.string().default(''),
   skills: z.array(skillSchema).min(1),
   score: z.number().min(0).max(100),
+  /** Field/experience fit only — ignore formatting quality (see prompt rubric). */
+  jobRelevanceScore: z.number().min(0).max(100),
   scoreBreakdown: z.object({
     keywordCoverage: scoreComponentSchema,
     sectionCompleteness: scoreComponentSchema,

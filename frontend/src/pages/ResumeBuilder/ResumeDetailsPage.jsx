@@ -23,6 +23,7 @@ import { StatusBadge } from '../../features/resumeBuilder/components/ResumeFormF
 import { DEFAULT_TEMPLATE } from '../../features/resumeBuilder/components/templatesConfig';
 import { useParsedResume, useResumeBuilderActions } from '../../features/resumeBuilder/hooks/useResumeBuilder';
 import { formatDate, formatFileSize } from '../../features/resumeBuilder/services/resumeBuilderService';
+import { sanitizeHtml } from '../../utils/sanitizeHtml';
 
 export default function ResumeDetailsPage() {
   const { id } = useParams();
@@ -201,7 +202,10 @@ export default function ResumeDetailsPage() {
 
             {parsedData.summary && (
               <InfoCard title="Professional Summary" icon={FileText}>
-                <p className="text-sm text-on-surface whitespace-pre-wrap">{parsedData.summary}</p>
+                <div
+                  className="text-sm text-on-surface [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-4"
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(parsedData.summary) }}
+                />
               </InfoCard>
             )}
 

@@ -5,8 +5,10 @@ import {
   getResume,
   getResumeHistory,
   reprocessResume,
+  runResumeAiText,
   updateResume,
   uploadResume,
+  createBlankResume,
 } from '../services/resumeBuilderService';
 
 export const resumeHistoryQueryKey = (params) => ['parsedResumeHistory', params];
@@ -32,6 +34,11 @@ export const useResumeBuilderActions = () => {
 
   return {
     uploadResume,
+    createBlankResume: async (templateId) => {
+      const result = await createBlankResume(templateId);
+      queryClient.invalidateQueries({ queryKey: ['parsedResumeHistory'] });
+      return result;
+    },
     updateResume: async (id, parsedData, templateId) => {
       const result = await updateResume(id, parsedData, templateId);
       queryClient.invalidateQueries({ queryKey: resumeDetailQueryKey(id) });
@@ -47,6 +54,7 @@ export const useResumeBuilderActions = () => {
       queryClient.invalidateQueries({ queryKey: resumeDetailQueryKey(id) });
       return result;
     },
+    runResumeAiText: (id, payload) => runResumeAiText(id, payload),
     exportResume,
   };
 };

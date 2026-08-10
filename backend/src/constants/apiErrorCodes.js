@@ -121,6 +121,7 @@ export const ERROR_CODES = {
     FILE_TOO_LARGE: 'COMMON.FILE_TOO_LARGE',
     FILE_UPLOAD_FAILED: 'COMMON.FILE_UPLOAD_FAILED',
     DUPLICATE_EMAIL: 'COMMON.DUPLICATE_EMAIL',
+    DATABASE_UNAVAILABLE: 'COMMON.DATABASE_UNAVAILABLE',
     UNKNOWN: 'COMMON.UNKNOWN',
   },
   RATE_LIMIT: {
@@ -381,6 +382,8 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.COMMON.FILE_UPLOAD_FAILED]: 'File upload failed. Please check the file and try again.',
   [ERROR_CODES.COMMON.DUPLICATE_EMAIL]:
     'Email already registered. Please use another email or log in.',
+  [ERROR_CODES.COMMON.DATABASE_UNAVAILABLE]:
+    'Database is unavailable. Start the MongoDB service and check MONGO_URI in backend/.env.',
   [ERROR_CODES.COMMON.UNKNOWN]: 'Something went wrong. Please try again.',
 
   [ERROR_CODES.RATE_LIMIT.AUTH]: 'Too many auth attempts. Please try again later.',

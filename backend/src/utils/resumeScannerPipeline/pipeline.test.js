@@ -81,11 +81,18 @@ describe('resumeScannerPipeline', () => {
       facts,
       jd,
       analyzeResult: {
-        jobMatchBreakdown: { keywordCoverage: 0, aiAssessedRelevance: 10 },
-        score: 10,
+        jobMatchScore: 5,
+        jobRelevanceScore: 12,
+        jobMatchBreakdown: {
+          keywordCoverage: 0,
+          aiAssessedRelevance: 52,
+          jobRelevanceScore: 12,
+        },
+        score: 5,
       },
     });
     expect(similarity.rewriteRecommended).toBe(true);
+    expect(similarity.jobRelevanceScore).toBe(12);
 
     const decision = runDecidePass({ similarity, skills });
     expect(decision.mode).toBe('rewrite');
@@ -150,8 +157,14 @@ describe('resumeScannerPipeline', () => {
           { id: '1', name: 'React', type: 'required' },
           { id: '2', name: 'TypeScript', type: 'hard' },
         ],
-        jobMatchBreakdown: { keywordCoverage: 0, aiAssessedRelevance: 10 },
-        score: 10,
+        jobMatchScore: 5,
+        jobRelevanceScore: 12,
+        jobMatchBreakdown: {
+          keywordCoverage: 0,
+          aiAssessedRelevance: 52,
+          jobRelevanceScore: 12,
+        },
+        score: 5,
       },
     });
 
@@ -275,6 +288,166 @@ describe('centralized validation pipeline', () => {
     expect(result.details.quality).toBeTruthy();
     expect(result.details.ats).toBeTruthy();
     expect(result.details.structure).toBeTruthy();
+  });
+});
+
+describe('rewrite vs optimize decision scenarios', () => {
+  const SOFTWARE_SKILLS = [
+    { id: '1', name: 'React', type: 'required' },
+    { id: '2', name: 'TypeScript', type: 'hard' },
+    { id: '3', name: 'Communication', type: 'hard' },
+    { id: '4', name: 'Leadership', type: 'hard' },
+  ];
+
+  const runScenario = ({
+    resumeText = CHEF_RESUME,
+    jobDescriptionText,
+    jobTitle,
+    skills,
+    keywordCoverage,
+    jobRelevanceScore,
+    aiAssessedRelevance,
+    jobMatchScore,
+    lexicalHintJd,
+  }) => {
+    const understanding = runUnderstandPass({ resumeText });
+    const facts = runFactsPass(understanding);
+    const jd = runJdPass({
+      jobDescriptionText: lexicalHintJd || jobDescriptionText,
+      jobTitle,
+      skills,
+    });
+    const analyzeResult = {
+      skills,
+      jobMatchScore,
+      jobRelevanceScore,
+      score: jobMatchScore,
+      jobMatchBreakdown: {
+        keywordCoverage,
+        aiAssessedRelevance,
+        jobRelevanceScore,
+      },
+    };
+    const similarity = runSimilarityPass({
+      understanding,
+      facts,
+      jd,
+      analyzeResult,
+    });
+    const decision = runDecidePass({ similarity, skills });
+    return { similarity, decision, jd };
+  };
+
+  it('1. true field mismatch (chef vs React) → rewrite', () => {
+    const { similarity, decision } = runScenario({
+      jobDescriptionText:
+        'Senior React Developer. Must know React and TypeScript. Build scalable web apps.',
+      jobTitle: 'Senior React Developer',
+      skills: [
+        { id: '1', name: 'React', type: 'required' },
+        { id: '2', name: 'TypeScript', type: 'hard' },
+      ],
+      keywordCoverage: 0,
+      // High composite quality (polished resume) — must not keep optimize mode.
+      aiAssessedRelevance: 55,
+      jobRelevanceScore: 12,
+      jobMatchScore: 5,
+    });
+
+    expect(similarity.keywordCoverage).toBe(0);
+    expect(similarity.jobRelevanceScore).toBe(12);
+    expect(similarity.aiRelevance).toBe(55);
+    expect(similarity.rewriteRecommended).toBe(true);
+    expect(decision.mode).toBe('rewrite');
+  });
+
+  it('2. well-formatted wrong-field resume (high composite, low jobRelevance) → rewrite', () => {
+    const { similarity, decision } = runScenario({
+      jobDescriptionText:
+        'Software engineer role requiring React, TypeScript, and strong communication.',
+      jobTitle: 'Software Engineer',
+      // Generic hard skills that can match most resumes inflate coverage.
+      skills: SOFTWARE_SKILLS,
+      keywordCoverage: 40,
+      aiAssessedRelevance: 62,
+      jobRelevanceScore: 18,
+      jobMatchScore: 50,
+    });
+
+    expect(similarity.keywordCoverage).toBe(40);
+    expect(similarity.jobRelevanceScore).toBe(18);
+    expect(similarity.aiRelevance).toBe(62);
+    // Previously broken: composite 62 + coverage 40 stayed optimize; now jobRelevance gates rewrite.
+    expect(decision.mode).toBe('rewrite');
+    expect(decision.reason).toMatch(/job_relevance|overall_similarity|job_match|keyword/);
+  });
+
+  it('3. career-switch (~40% coverage, mid jobRelevance, blended ~44) → rewrite', () => {
+    const { similarity, decision } = runScenario({
+      jobDescriptionText: 'Account executive role requiring CRM, sales, and communication skills.',
+      jobTitle: 'Account Executive',
+      skills: [
+        { id: '1', name: 'CRM', type: 'required' },
+        { id: '2', name: 'Sales', type: 'hard' },
+        { id: '3', name: 'Communication', type: 'hard' },
+        { id: '4', name: 'Leadership', type: 'hard' },
+      ],
+      keywordCoverage: 40,
+      aiAssessedRelevance: 58,
+      jobRelevanceScore: 45,
+      // UI gauge in the weak band that previously stayed optimize.
+      jobMatchScore: 43,
+      // Force low lexical/transfer contribution so blended sits near ~44.
+      lexicalHintJd: 'CRM quota pipeline forecasting',
+    });
+
+    // blended uses jobRelevance (not composite): 40*0.55 + 45*0.25 + lex*0.1 + transfer*0.1
+    expect(similarity.keywordCoverage).toBe(40);
+    expect(similarity.jobRelevanceScore).toBe(45);
+    expect(similarity.jobMatchScore).toBe(43);
+    expect(similarity.overallSimilarity).toBeLessThan(50);
+    expect(decision.mode).toBe('rewrite');
+  });
+
+  it('4. genuinely strong match → optimize', () => {
+    const strongResume = `Jordan Dev
+jordan@example.com
+
+PROFESSIONAL SUMMARY
+Senior React engineer building TypeScript web apps.
+
+WORK EXPERIENCE
+Senior Software Engineer, Acme
+2020 - Present
+• Shipped React and TypeScript features used by 1M users
+
+SKILLS
+React, TypeScript, Node.js, Communication
+`;
+    const skills = [
+      { id: '1', name: 'React', type: 'required', matched: true },
+      { id: '2', name: 'TypeScript', type: 'hard', matched: true },
+      { id: '3', name: 'Node.js', type: 'hard', matched: true },
+    ];
+    const { similarity, decision } = runScenario({
+      resumeText: strongResume,
+      jobDescriptionText:
+        'Senior React Developer. Must know React, TypeScript, and Node.js. Build scalable software.',
+      jobTitle: 'Senior React Developer',
+      skills,
+      keywordCoverage: 90,
+      aiAssessedRelevance: 80,
+      jobRelevanceScore: 88,
+      jobMatchScore: 88,
+    });
+
+    expect(similarity.keywordCoverage).toBe(90);
+    expect(similarity.jobRelevanceScore).toBe(88);
+    expect(similarity.jobMatchScore).toBe(88);
+    expect(similarity.overallSimilarity).toBeGreaterThanOrEqual(50);
+    expect(similarity.rewriteRecommended).toBe(false);
+    expect(decision.mode).toBe('optimize');
+    expect(decision.reason).toBeNull();
   });
 });
 

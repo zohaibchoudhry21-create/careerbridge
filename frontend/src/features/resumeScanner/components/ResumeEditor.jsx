@@ -19,10 +19,9 @@ import {
 import { partitionSuggestions } from '../utils/resumeEditorUtils';
 import { cn } from '../../../lib/utils';
 
-const HEADING_CLASS =
-  'ats-section-heading font-label-md uppercase tracking-wide text-secondary mt-3 mb-1';
+const HEADING_CLASS = 'ats-section-heading resume-section-heading mt-7';
 const LINE_CLASS = 'ats-section-line outline-none';
-const BULLET_CLASS = 'ats-section-line ats-bullet-line pl-3 outline-none';
+const BULLET_CLASS = 'ats-section-line ats-bullet-line pl-5 outline-none';
 
 const EditableLine = ({
   path,
@@ -132,6 +131,7 @@ const ResumeEditor = forwardRef(function ResumeEditor(
     }
   };
 
+  /** Cancels the debounce and hands the unsaved draft to the caller, which owns the save. */
   const flushPendingSave = useCallback(() => {
     if (saveTimerRef.current) {
       clearTimeout(saveTimerRef.current);
@@ -140,9 +140,8 @@ const ResumeEditor = forwardRef(function ResumeEditor(
     if (!pendingRef.current) return null;
     const next = pendingRef.current;
     pendingRef.current = null;
-    onStructuredChange?.(next);
     return next;
-  }, [onStructuredChange]);
+  }, []);
 
   useImperativeHandle(ref, () => ({ flushPendingSave }), [flushPendingSave]);
 
@@ -215,7 +214,7 @@ const ResumeEditor = forwardRef(function ResumeEditor(
 
         <div
           className={cn(
-            'resume-paper w-full bg-white p-8 lg:p-12 text-slate-800 leading-relaxed text-[13px]',
+            'resume-paper resume-document w-full bg-white p-8 lg:p-12',
             'min-h-[1000px] whitespace-pre-wrap outline-none shadow-[0_4px_20px_rgba(0,0,0,0.05)]',
             'focus-within:ring-4 focus-within:ring-blue-100 transition-shadow'
           )}

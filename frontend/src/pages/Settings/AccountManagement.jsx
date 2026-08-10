@@ -125,7 +125,7 @@ export default function AccountManagement() {
       await logout();
       setLogoutDialogOpen(false);
       toast.success(t('account.signOut.success'));
-      navigate('/login', { replace: true });
+      navigate('/', { replace: true });
     } catch {
       toast.error(t('account.toasts.logoutFailed'));
     } finally {

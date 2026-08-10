@@ -52,6 +52,8 @@ export const serializeDecisionContext = (decisionContext) => {
     similarity: {
       overallSimilarity: Number(decisionContext.similarity?.overallSimilarity) || 0,
       keywordCoverage: Number(decisionContext.similarity?.keywordCoverage) || 0,
+      jobRelevanceScore: Number(decisionContext.similarity?.jobRelevanceScore) || 0,
+      jobMatchScore: Number(decisionContext.similarity?.jobMatchScore) || 0,
       aiRelevance: Number(decisionContext.similarity?.aiRelevance) || 0,
       domainAligned: Boolean(decisionContext.similarity?.domainAligned),
       rewriteRecommended: Boolean(decisionContext.similarity?.rewriteRecommended),

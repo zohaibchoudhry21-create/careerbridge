@@ -27,6 +27,7 @@ import {
 
 const ACCEPTED_TYPES = ['.pdf', '.docx'];
 const MAX_MB = 10;
+const MAX_ANALYSIS_WAIT_MS = 5 * 60 * 1000;
 
 function formatBytes(bytes) {
   if (bytes === 0) return '0 B';
@@ -94,7 +95,11 @@ export default function ResumeScannerUploadPage() {
   const [overlayOpen, setOverlayOpen] = useState(false);
 
   const uploadMutation = useUploadResumeScanner();
-  const { data: statusData } = useResumeScannerStatus(activeAnalysisId, overlayOpen);
+  const {
+    data: statusData,
+    isError: isStatusError,
+    error: statusError,
+  } = useResumeScannerStatus(activeAnalysisId, overlayOpen);
   const { data: analysisData } = useResumeScannerAnalysis(
     activeAnalysisId,
     overlayOpen && statusData?.status === 'completed'
@@ -123,6 +128,29 @@ export default function ResumeScannerUploadPage() {
       toast.error(statusData.errorMessage || t('overlay.failed'));
     }
   }, [overlayOpen, statusData, t]);
+
+  // Status never loaded at all (unknown id, auth, network) — don't hang on the overlay.
+  // Transient mid-poll failures are ignored; `statusData` is retained and polling recovers.
+  useEffect(() => {
+    if (!overlayOpen || !isStatusError || statusData) return;
+
+    setOverlayOpen(false);
+    setActiveAnalysisId(null);
+    toast.error(resolveApiError(statusError, t('overlay.failed')));
+  }, [overlayOpen, isStatusError, statusError, statusData, t]);
+
+  // Backstop for a job that stalls without ever reporting a terminal status.
+  useEffect(() => {
+    if (!overlayOpen || statusData?.status === 'completed') return undefined;
+
+    const timer = setTimeout(() => {
+      setOverlayOpen(false);
+      setActiveAnalysisId(null);
+      toast.error(t('overlay.timedOut'));
+    }, MAX_ANALYSIS_WAIT_MS);
+
+    return () => clearTimeout(timer);
+  }, [overlayOpen, statusData?.status, t]);
 
   // Navigate on status alone — optional analysis prefetch only warms cache / skill chips.
   useEffect(() => {

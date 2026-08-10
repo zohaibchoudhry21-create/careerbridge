@@ -44,6 +44,7 @@ export default function Register() {
           email: values.email,
           name: values.name,
           verificationUrl: data.verificationUrl || '',
+          emailPreviewUrl: data.emailPreviewUrl || '',
         },
       });
     } catch (error) {

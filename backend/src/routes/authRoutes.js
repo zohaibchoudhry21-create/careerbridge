@@ -29,6 +29,7 @@ import {
   reactivateAccount,
 } from '../controllers/reactivationController.js';
 import { protect } from '../middleware/authMiddleware.js';
+import requireDb from '../middleware/requireDb.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import {
   registerValidation,
@@ -47,11 +48,11 @@ import {
 
 const router = express.Router();
 
-router.post('/register', registerValidation, validateRequest, register);
-router.post('/login', loginValidation, validateRequest, login);
-router.post('/reactivate', reactivateAccount);
+router.post('/register', requireDb, registerValidation, validateRequest, register);
+router.post('/login', requireDb, loginValidation, validateRequest, login);
+router.post('/reactivate', requireDb, reactivateAccount);
 router.post('/reactivate/clear-challenge', clearReactivationChallenge);
-router.post('/2fa/verify', verifyTwoFactorValidation, validateRequest, verifyLogin);
+router.post('/2fa/verify', requireDb, verifyTwoFactorValidation, validateRequest, verifyLogin);
 router.post('/2fa/clear-challenge', clearChallenge);
 router.get('/me', protect, getMe);
 router.post('/logout', logout);

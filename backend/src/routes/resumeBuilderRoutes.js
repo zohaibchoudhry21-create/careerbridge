@@ -2,11 +2,13 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { ERROR_CODES, getErrorMessage } from '../constants/apiErrorCodes.js';
 import {
+  createBlankParsedResume,
   deleteParsedResume,
   exportParsedResume,
   getParsedResume,
   getParsedResumeHistory,
   reprocessParsedResume,
+  runParsedResumeAiText,
   searchParsedResumes,
   updateParsedResume,
   uploadParsedResume,
@@ -48,12 +50,14 @@ router.post(
   handleUploadError,
   uploadParsedResume
 );
+router.post('/resume/blank', protect, createBlankParsedResume);
 router.get('/resume/history', protect, getParsedResumeHistory);
 router.get('/resume/search/:query', protect, searchParsedResumes);
 router.get('/resume/export/:id', protect, exportParsedResume);
 router.post('/resume/:id/reprocess', protect, heavyResumeLimiter, reprocessParsedResume);
 router.get('/resume/:id', protect, getParsedResume);
 router.put('/resume/:id', protect, updateParsedResume);
+router.post('/resume/:id/ai-text', protect, heavyResumeLimiter, runParsedResumeAiText);
 router.delete('/resume/:id', protect, deleteParsedResume);
 
 export default router;

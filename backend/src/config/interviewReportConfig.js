@@ -69,7 +69,7 @@ export const ENTERPRISE_REPORT_VERSION = 1;
  * Bump when scoring/gate/ceiling logic changes so cached InterviewReport
  * documents are regenerated instead of serving stale scores.
  */
-export const SCORING_LOGIC_VERSION = 7;
+export const SCORING_LOGIC_VERSION = 8;
 
 export const isCurrentScoreVersion = (report) =>
   report != null && Number(report.scoreVersion) === SCORING_LOGIC_VERSION;

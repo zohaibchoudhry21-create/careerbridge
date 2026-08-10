@@ -98,7 +98,14 @@ export const extractPdfTextFallback = async (buffer) => {
   }
 };
 
-export const extractResumeTextFromFile = async (file) => {
+/**
+ * @param {object} file - multer-style file with buffer/mimetype
+ * @param {{ skipPython?: boolean }} [options]
+ *   When skipPython is true (scanner fallback-after-Python-failure), PDFs use
+ *   pdf-parse only — no second call to the Python /extract service.
+ *   Resume Builder / mock interview keep the default (Python-or-fallback) path.
+ */
+export const extractResumeTextFromFile = async (file, { skipPython = false } = {}) => {
   if (!file?.buffer) {
     throw new AppError(ERROR_CODES.RESUME_BUILDER.FILE_REQUIRED, 400);
   }
@@ -108,13 +115,31 @@ export const extractResumeTextFromFile = async (file) => {
   }
 
   if (file.mimetype === 'application/pdf') {
-    const extraction = await extractPdfWithPythonOrFallback(
-      file.buffer,
-      'resume',
-      extractPdfTextFallback
-    );
-    const text = cleanExtractedText(extraction.full_text || '');
-    const pages = mapPagesFromExtraction(extraction);
+    let text;
+    let pages;
+    let pagesCount;
+    let source;
+
+    if (skipPython) {
+      const nodeResult = await extractPdfTextFallback(file.buffer);
+      text = cleanExtractedText(nodeResult.text || '');
+      pages = (nodeResult.pages || []).map((page) => ({
+        pageNumber: page.pageNumber ?? page.page ?? 1,
+        text: page.text || '',
+      }));
+      pagesCount = pages.length || 0;
+      source = 'node-fallback';
+    } else {
+      const extraction = await extractPdfWithPythonOrFallback(
+        file.buffer,
+        'resume',
+        extractPdfTextFallback
+      );
+      text = cleanExtractedText(extraction.full_text || '');
+      pages = mapPagesFromExtraction(extraction);
+      pagesCount = extraction.pages || pages.length || 0;
+      source = extraction.source || 'unknown';
+    }
 
     if (!text) {
       throw new AppError(ERROR_CODES.RESUME_BUILDER.PDF_EXTRACT_FAILED, 400);
@@ -130,8 +155,8 @@ export const extractResumeTextFromFile = async (file) => {
       text,
       pages,
       pages_text: toPagesText(pages),
-      pages_count: extraction.pages || pages.length || 0,
-      source: extraction.source || 'unknown',
+      pages_count: pagesCount,
+      source,
     };
 
     return text;
@@ -141,6 +166,7 @@ export const extractResumeTextFromFile = async (file) => {
     file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
     file.mimetype === 'application/msword'
   ) {
+    // DOCX is always mammoth-only (no Python) — skipPython is a no-op here.
     const result = await mammoth.extractRawText({ buffer: file.buffer });
     const text = cleanExtractedText(result.value?.trim() || '');
 

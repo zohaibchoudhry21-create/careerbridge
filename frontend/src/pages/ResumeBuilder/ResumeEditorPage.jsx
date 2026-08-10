@@ -20,6 +20,9 @@ import { DashboardLayout } from '../../components/layout';
 import Button from '../../components/ui/Button';
 import Skeleton from '../../components/Skeleton';
 import ResumePreview from '../../features/resumeBuilder/components/ResumePreview';
+import SummaryEditPanel from '../../features/resumeBuilder/components/SummaryEditPanel';
+import ExperienceEditPanel from '../../features/resumeBuilder/components/ExperienceEditPanel';
+import HeaderPersonalDetailsPanel from '../../features/resumeBuilder/components/HeaderPersonalDetailsPanel';
 import TemplatePicker from '../../features/resumeBuilder/components/TemplatePicker';
 import { ResumeTextArea, ResumeTextInput } from '../../features/resumeBuilder/components/ResumeFormFields';
 import { DEFAULT_TEMPLATE, getTemplateById } from '../../features/resumeBuilder/components/templatesConfig';
@@ -27,9 +30,17 @@ import { useParsedResume, useResumeBuilderActions } from '../../features/resumeB
 
 const EMPTY_PARSED = {
   fullName: '',
+  professionalTitle: '',
   email: '',
   phone: '',
   address: '',
+  website: '',
+  nationality: '',
+  dateOfBirth: '',
+  visa: '',
+  passportOrId: '',
+  availability: '',
+  photo: '',
   linkedinLink: '',
   githubLink: '',
   summary: '',
@@ -47,7 +58,8 @@ function Section({ id, title, icon: Icon, activeSection, onToggle, children }) {
     <div className="rounded-xl border border-outline-variant overflow-hidden bg-surface-container-lowest">
       <button
         type="button"
-        onClick={() => onToggle(id)}
+        onClick={() => onToggle(isOpen ? null : id)}
+        aria-expanded={isOpen}
         className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors ${
           isOpen ? 'bg-surface-container border-b border-outline-variant' : 'hover:bg-surface-container-low'
         }`}
@@ -67,7 +79,7 @@ export default function ResumeEditorPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data, isLoading, error } = useParsedResume(id);
-  const { updateResume } = useResumeBuilderActions();
+  const { updateResume, runResumeAiText } = useResumeBuilderActions();
 
   const [parsedData, setParsedData] = useState(EMPTY_PARSED);
   const [activeSection, setActiveSection] = useState('header');
@@ -184,13 +196,27 @@ export default function ResumeEditorPage() {
         <div className="flex flex-1 overflow-hidden">
           <div className="w-full lg:w-[420px] xl:w-[460px] shrink-0 overflow-y-auto bg-surface border-e border-outline-variant p-4 space-y-3">
             <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-4">
-              <p className="text-base font-bold text-on-surface uppercase tracking-wide">
-                {parsedData.fullName || 'Your Name'}
-              </p>
-              <p className="text-xs text-on-surface-variant mt-1">
-                {[parsedData.email, parsedData.phone, parsedData.address].filter(Boolean).join(' | ') ||
-                  'Contact info'}
-              </p>
+              <div className="flex items-center gap-3">
+                {parsedData.photo ? (
+                  <img
+                    src={parsedData.photo}
+                    alt=""
+                    className="h-12 w-12 rounded-full object-cover border border-outline-variant shrink-0"
+                  />
+                ) : null}
+                <div className="min-w-0">
+                  <p className="text-base font-bold text-on-surface uppercase tracking-wide truncate">
+                    {parsedData.fullName || 'Your Name'}
+                  </p>
+                  {parsedData.professionalTitle ? (
+                    <p className="text-xs text-secondary mt-0.5 truncate">{parsedData.professionalTitle}</p>
+                  ) : null}
+                  <p className="text-xs text-on-surface-variant mt-1 truncate">
+                    {[parsedData.email, parsedData.phone, parsedData.address].filter(Boolean).join(' | ') ||
+                      'Contact info'}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <Section id="templates" title="Template" icon={LayoutGrid} activeSection={activeSection} onToggle={setActiveSection}>
@@ -201,43 +227,90 @@ export default function ResumeEditorPage() {
             </Section>
 
             <Section id="header" title="Header" icon={User} activeSection={activeSection} onToggle={setActiveSection}>
-              <ResumeTextInput label="Full Name" value={parsedData.fullName || ''} onChange={(e) => updateField('fullName', e.target.value)} />
-              <ResumeTextInput label="Email" type="email" value={parsedData.email || ''} onChange={(e) => updateField('email', e.target.value)} />
-              <ResumeTextInput label="Phone" value={parsedData.phone || ''} onChange={(e) => updateField('phone', e.target.value)} />
-              <ResumeTextInput label="Address" value={parsedData.address || ''} onChange={(e) => updateField('address', e.target.value)} />
-              <ResumeTextInput label="LinkedIn" value={parsedData.linkedinLink || ''} onChange={(e) => updateField('linkedinLink', e.target.value)} />
-              <ResumeTextInput label="GitHub" value={parsedData.githubLink || ''} onChange={(e) => updateField('githubLink', e.target.value)} />
+              <HeaderPersonalDetailsPanel
+                value={parsedData}
+                onChange={(next) => setParsedData((prev) => ({ ...prev, ...next }))}
+                onDone={() => setActiveSection(null)}
+                onAiTips={() =>
+                  runResumeAiText(id, {
+                    action: 'tips',
+                    content: [parsedData.fullName, parsedData.professionalTitle, parsedData.email]
+                      .filter(Boolean)
+                      .join(' · '),
+                    field: 'header',
+                  })
+                }
+              />
             </Section>
 
             <Section id="summary" title="Summary" icon={User} activeSection={activeSection} onToggle={setActiveSection}>
-              <ResumeTextArea value={parsedData.summary || ''} onChange={(e) => updateField('summary', e.target.value)} placeholder="Professional summary..." rows={5} />
+              <SummaryEditPanel
+                value={parsedData.summary || ''}
+                onChange={(next) => updateField('summary', next)}
+                onDone={() => setActiveSection(null)}
+                onPreview={() => {
+                  document.getElementById('resume-live-preview')?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                  });
+                }}
+                onAiAction={(action, content) =>
+                  runResumeAiText(id, { action, content, field: 'summary' })
+                }
+              />
             </Section>
 
             <Section id="experience" title="Work Experience" icon={Briefcase} activeSection={activeSection} onToggle={setActiveSection}>
-              {(parsedData.experience || []).map((exp, index) => (
-                <div key={index} className="rounded-lg border border-outline-variant bg-surface-container-low p-3 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs font-medium text-on-surface-variant">Experience {index + 1}</span>
-                    <button type="button" onClick={() => removeListItem('experience', index)} className="text-error">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <ResumeTextInput label="Position" value={exp.position || ''} onChange={(e) => updateListItem('experience', index, 'position', e.target.value)} />
-                  <ResumeTextInput label="Company" value={exp.company || ''} onChange={(e) => updateListItem('experience', index, 'company', e.target.value)} />
-                  <div className="grid grid-cols-2 gap-2">
-                    <ResumeTextInput label="Start" value={exp.startDate || ''} onChange={(e) => updateListItem('experience', index, 'startDate', e.target.value)} />
-                    <ResumeTextInput label="End" value={exp.endDate || ''} onChange={(e) => updateListItem('experience', index, 'endDate', e.target.value)} />
-                  </div>
-                  <ResumeTextArea value={exp.description || ''} onChange={(e) => updateListItem('experience', index, 'description', e.target.value)} placeholder="One bullet per line..." rows={3} />
-                </div>
-              ))}
-              <Button
-                variant="secondary"
-                className="w-full text-sm"
-                onClick={() => addListItem('experience', { company: '', position: '', startDate: '', endDate: '', description: '', isCurrent: false })}
-              >
-                <Plus className="h-4 w-4 mr-1" /> Add Experience
-              </Button>
+              <div className="space-y-4">
+                {(parsedData.experience || []).map((exp, index) => (
+                  <ExperienceEditPanel
+                    key={index}
+                    index={index}
+                    entry={exp}
+                    onChange={(next) => {
+                      setParsedData((prev) => {
+                        const list = [...(prev.experience || [])];
+                        list[index] = next;
+                        return { ...prev, experience: list };
+                      });
+                    }}
+                    onRemove={() => removeListItem('experience', index)}
+                    onDone={() => setActiveSection(null)}
+                    onPreview={() => {
+                      document.getElementById('resume-live-preview')?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                      });
+                    }}
+                    onAiAction={(action, content, context) =>
+                      runResumeAiText(id, {
+                        action,
+                        content,
+                        field: 'experience.description',
+                        context,
+                      })
+                    }
+                  />
+                ))}
+                <Button
+                  variant="secondary"
+                  className="w-full text-sm"
+                  onClick={() =>
+                    addListItem('experience', {
+                      company: '',
+                      companyLink: '',
+                      position: '',
+                      location: '',
+                      startDate: '',
+                      endDate: '',
+                      description: '',
+                      isCurrent: false,
+                    })
+                  }
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add Experience
+                </Button>
+              </div>
             </Section>
 
             <Section id="education" title="Education" icon={GraduationCap} activeSection={activeSection} onToggle={setActiveSection}>
@@ -309,7 +382,10 @@ export default function ResumeEditorPage() {
             </Section>
           </div>
 
-          <div className="hidden lg:flex flex-1 overflow-y-auto bg-surface-dim p-6 justify-center">
+          <div
+            id="resume-live-preview"
+            className="hidden lg:flex flex-1 overflow-y-auto bg-surface-dim p-6 justify-center"
+          >
             <div className="w-full max-w-[210mm]">
               <p className="text-xs text-on-surface-variant text-center mb-3 uppercase tracking-wider">
                 Live Preview — {getTemplateById(templateId).name} Template

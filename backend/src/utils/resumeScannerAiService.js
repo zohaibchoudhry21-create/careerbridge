@@ -8,7 +8,7 @@ import {
   computeAnalysisScores,
   computeSkillMatches,
 } from './resumeScannerScoring.js';
-import { sanitizeResumeScannerText } from './resumeScannerTextUtils.js';
+import { clampScore, sanitizeResumeScannerText } from './resumeScannerTextUtils.js';
 import {
   cloneStructuredResume,
   generateAtsText,
@@ -78,6 +78,9 @@ export const analyzeResumeAgainstJob = async ({
     : structuredResumeToSections(structured);
 
   const skillMatch = computeSkillMatches(cleanResume, aiResult.skills);
+  // aiResult.score is a composite quality score (keywords + structure + searchability +
+  // achievements) — NOT job-field relevance. Used only for Job Match gauge blending.
+  // jobRelevanceScore is the dedicated experience/field-fit signal for rewrite decisions.
   const scores = computeAnalysisScores({
     resumeText: cleanResume,
     structuredSections: sections,
@@ -85,6 +88,7 @@ export const analyzeResumeAgainstJob = async ({
     skills: skillMatch.skills,
     aiAssessedRelevance: aiResult.score,
   });
+  const jobRelevanceScore = clampScore(aiResult.jobRelevanceScore);
   const anchoredSuggestions = anchorSuggestionsToResume(
     cleanResume,
     aiResult.suggestions,
@@ -101,7 +105,11 @@ export const analyzeResumeAgainstJob = async ({
     atsScore: scores.atsScore,
     atsScoreBreakdown: scores.atsScoreBreakdown,
     jobMatchScore: scores.jobMatchScore,
-    jobMatchBreakdown: scores.jobMatchBreakdown,
+    jobRelevanceScore,
+    jobMatchBreakdown: {
+      ...scores.jobMatchBreakdown,
+      jobRelevanceScore,
+    },
     score: scores.jobMatchScore,
     suggestions: anchoredSuggestions,
     searchabilityIssues: aiResult.searchabilityIssues,

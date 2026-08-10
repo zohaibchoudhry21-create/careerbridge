@@ -203,6 +203,8 @@ export const computeAtsScore = ({
 
 export const computeJobMatchScore = ({ skills = [], aiAssessedRelevance = 0 }) => {
   const keywordCoverage = computeKeywordCoverageScore(skills);
+  // aiAssessedRelevance here is the Analyze LLM composite quality score (keywords +
+  // structure + searchability + achievements), NOT jobRelevanceScore / field fit.
   const aiRelevance = clampScore(aiAssessedRelevance);
   const aiWeight =
     keywordCoverage < RELEVANCE_GATE_THRESHOLD

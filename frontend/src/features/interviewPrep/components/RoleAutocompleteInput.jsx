@@ -14,6 +14,7 @@ export default function RoleAutocompleteInput({
   onBlur,
   hasError = false,
   placeholder,
+  inputId = 'mock-role-input',
 }) {
   const { t } = useTranslation('interviewPrep');
   const resolvedPlaceholder = placeholder ?? t('roleAutocomplete.placeholder');
@@ -26,17 +27,30 @@ export default function RoleAutocompleteInput({
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
+  /**
+   * After the user picks a suggestion, suppress further fetches while the field
+   * still equals that pick. Cleared on edit/backspace (value changes).
+   */
+  const [lockedSuggestion, setLockedSuggestion] = useState(null);
 
   const query = value.trim();
+  const isLocked = lockedSuggestion != null && query === lockedSuggestion.trim();
   const showDropdown =
-    isOpen && query.length > 0 && (isLoading || fetchError || suggestions.length > 0);
+    isOpen &&
+    !isLocked &&
+    query.length > 0 &&
+    (isLoading || fetchError || suggestions.length > 0);
 
   const selectSuggestion = useCallback(
     (role) => {
-      onChange(role);
+      const picked = String(role || '').trim();
+      onChange(picked);
+      setLockedSuggestion(picked);
       setIsOpen(false);
       setHighlightIndex(-1);
       setSuggestions([]);
+      setFetchError(null);
+      setIsLoading(false);
       inputRef.current?.focus();
     },
     [onChange]
@@ -47,6 +61,17 @@ export default function RoleAutocompleteInput({
       setSuggestions([]);
       setIsLoading(false);
       setFetchError(null);
+      setLockedSuggestion(null);
+      setIsOpen(false);
+      return undefined;
+    }
+
+    // User already picked this exact suggestion — don't fetch more.
+    if (lockedSuggestion != null && query === lockedSuggestion.trim()) {
+      setSuggestions([]);
+      setIsLoading(false);
+      setFetchError(null);
+      setIsOpen(false);
       return undefined;
     }
 
@@ -63,7 +88,10 @@ export default function RoleAutocompleteInput({
         if (cancelled) return;
 
         const list = Array.isArray(result?.suggestions)
-          ? result.suggestions.map((item) => String(item).trim()).filter(Boolean).slice(0, MAX_SUGGESTIONS)
+          ? result.suggestions
+              .map((item) => String(item).trim())
+              .filter(Boolean)
+              .slice(0, MAX_SUGGESTIONS)
           : [];
 
         setSuggestions(list);
@@ -94,7 +122,7 @@ export default function RoleAutocompleteInput({
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [query]);
+  }, [query, lockedSuggestion, t]);
 
   useEffect(() => {
     if (!showDropdown) {
@@ -116,7 +144,7 @@ export default function RoleAutocompleteInput({
 
   const handleKeyDown = (event) => {
     if (!showDropdown || isLoading) {
-      if (event.key === 'ArrowDown' && query) {
+      if (event.key === 'ArrowDown' && query && !isLocked) {
         setIsOpen(true);
         event.preventDefault();
       }
@@ -152,7 +180,7 @@ export default function RoleAutocompleteInput({
     <div ref={containerRef} className="relative">
       <input
         ref={inputRef}
-        id="mock-role-input"
+        id={inputId}
         type="text"
         role="combobox"
         aria-expanded={showDropdown}
@@ -161,12 +189,17 @@ export default function RoleAutocompleteInput({
         aria-busy={isLoading}
         value={value}
         onChange={(event) => {
-          onChange(event.target.value);
+          const next = event.target.value;
+          onChange(next);
+          // Backspace / any edit away from the picked value → unlock suggestions.
+          if (lockedSuggestion != null && next.trim() !== lockedSuggestion.trim()) {
+            setLockedSuggestion(null);
+          }
           setIsOpen(true);
           setHighlightIndex(-1);
         }}
         onFocus={() => {
-          if (query) setIsOpen(true);
+          if (query && !isLocked) setIsOpen(true);
         }}
         onBlur={() => {
           window.setTimeout(() => {

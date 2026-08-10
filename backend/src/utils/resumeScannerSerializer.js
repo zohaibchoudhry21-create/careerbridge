@@ -63,6 +63,7 @@ export const serializeAtsAnalysis = (analysis, jobDescription = null, options = 
   const jobMatchBreakdown = analysis.jobMatchBreakdown || {
     keywordCoverage: 0,
     aiAssessedRelevance: 0,
+    jobRelevanceScore: 0,
   };
   const jdSkillsUnavailable = !hasExtractableJobSkills(jobDescription?.extractedSkills || []);
   const fieldMismatch = isFieldMismatchCoverage(jobMatchBreakdown.keywordCoverage, skills);

@@ -99,7 +99,7 @@ function LegacyReportBody({ report, t }) {
   );
 }
 
-function EnterpriseReportBody({ enterprise, t }) {
+function EnterpriseReportBody({ enterprise, t, aiName, userName }) {
   // Phase 3: prefer nested delivery.*; fall back to top-level aliases.
   const delivery = enterprise.delivery || {};
   const voice = delivery.voiceAnalysis || enterprise.voiceAnalysis || {};
@@ -162,7 +162,11 @@ function EnterpriseReportBody({ enterprise, t }) {
         </ReportSectionCard>
       </div>
 
-      <QuestionReviewList questionReviews={enterprise.questionReviews} />
+      <QuestionReviewList
+        questionReviews={enterprise.questionReviews}
+        aiName={aiName}
+        userName={userName}
+      />
 
       <div className="grid grid-cols-1 gap-sm md:grid-cols-2">
         <BulletList
@@ -188,7 +192,7 @@ function EnterpriseReportBody({ enterprise, t }) {
   );
 }
 
-export default function LiveInterviewReportView({ report, sessionId }) {
+export default function LiveInterviewReportView({ report, sessionId, userName, aiName }) {
   const { t } = useTranslation('interviewPrep');
   const { data: historyData, isLoading: historyLoading } = useQuery({
     queryKey: ['interview-report-history'],
@@ -233,7 +237,12 @@ export default function LiveInterviewReportView({ report, sessionId }) {
       )}
 
       {enterprise ? (
-        <EnterpriseReportBody enterprise={enterprise} t={t} />
+        <EnterpriseReportBody
+          enterprise={enterprise}
+          t={t}
+          aiName={aiName}
+          userName={userName}
+        />
       ) : (
         <LegacyReportBody report={report} t={t} />
       )}

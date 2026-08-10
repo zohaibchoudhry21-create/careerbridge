@@ -98,7 +98,7 @@
     "description": "موضوع اور مشکل منتخب کریں۔ سوالات AI بناتا ہے اور سرور پر اسکور ہوتے ہیں۔",
     "topic": {
       "title": "موضوع",
-      "description": "وہ مہارت یا موضوع لکھیں جسے آپ جانچنا چاہتے ہیں۔",
+      "description": "مہارت یا موضوع لکھیں — AI تجویز منتخب کریں، یا جو لکھا ہے وہی رکھیں۔",
       "placeholder": "مثال: React Hooks، MongoDB، System Design"
     },
     "difficulty": {
@@ -228,6 +228,9 @@
       "hiringProbability": "ہائرنگ امکان",
       "bodyLanguage": "باڈی لینگویج",
       "questionReview": "سوال بہ سوال جائزہ",
+      "questionIndex": "سوال {{index}}",
+      "questionFallback": "سوال {{index}}",
+      "noAnswerProvided": "کوئی جواب نہیں دیا گیا۔",
       "weaknesses": "کمزوریاں",
       "learningRoadmap": "سیکھنے کا روڈمیپ",
       "careerSuggestions": "کیریئر تجاویز",

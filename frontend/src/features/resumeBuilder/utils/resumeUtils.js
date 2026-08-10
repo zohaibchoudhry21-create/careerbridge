@@ -1,8 +1,16 @@
 export const normalizeResumeData = (data = {}) => ({
   fullName: data.fullName || '',
+  professionalTitle: data.professionalTitle || '',
   email: data.email || '',
   phone: data.phone || '',
   address: data.address || '',
+  website: data.website || '',
+  nationality: data.nationality || '',
+  dateOfBirth: data.dateOfBirth || '',
+  visa: data.visa || '',
+  passportOrId: data.passportOrId || '',
+  availability: data.availability || '',
+  photo: data.photo || data.photoUrl || '',
   linkedinLink: data.linkedinLink || '',
   githubLink: data.githubLink || '',
   summary: data.summary || '',
@@ -18,7 +26,7 @@ export const getContactParts = (data) =>
   [data.email, data.phone, data.address].filter(Boolean);
 
 export const getLinkParts = (data) =>
-  [data.linkedinLink, data.githubLink].filter(Boolean);
+  [data.linkedinLink, data.githubLink, data.website].filter(Boolean);
 
 export const splitSkills = (skills = []) =>
   skills.length

@@ -12,7 +12,10 @@ const atsScoreBreakdownSchema = new mongoose.Schema(
 const jobMatchBreakdownSchema = new mongoose.Schema(
   {
     keywordCoverage: { type: Number, default: 0 },
+    // Composite LLM quality score (structure/searchability/etc.) — not job-field relevance.
     aiAssessedRelevance: { type: Number, default: 0 },
+    // Dedicated experience/field-fit signal used by rewrite-vs-optimize decision.
+    jobRelevanceScore: { type: Number, default: 0 },
   },
   { _id: false }
 );

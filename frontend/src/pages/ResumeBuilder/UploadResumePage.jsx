@@ -1,10 +1,15 @@
 import { useCallback, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { CheckCircle2, FileText, History, Loader2, Upload, X, XCircle } from 'lucide-react';
+import { CheckCircle2, FileText, History, Loader2, PenLine, Upload, X, XCircle } from 'lucide-react';
 import { DashboardLayout, PageContainer, PageHeader } from '../../components/layout';
 import Button from '../../components/ui/Button';
-import { formatFileSize, uploadResume } from '../../features/resumeBuilder/services/resumeBuilderService';
+import {
+  createBlankResume,
+  formatFileSize,
+  uploadResume,
+} from '../../features/resumeBuilder/services/resumeBuilderService';
 
 const ACCEPTED_TYPES = [
   'application/pdf',
@@ -13,11 +18,13 @@ const ACCEPTED_TYPES = [
 const MAX_SIZE = 5 * 1024 * 1024;
 
 export default function UploadResumePage() {
+  const { t } = useTranslation('resumeBuilder');
   const navigate = useNavigate();
   const inputRef = useRef(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isCreatingBlank, setIsCreatingBlank] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({});
 
   const validateFile = (file) => {
@@ -122,6 +129,23 @@ export default function UploadResumePage() {
     setIsUploading(false);
   };
 
+  const handleStartFromScratch = async () => {
+    setIsCreatingBlank(true);
+    try {
+      const response = await createBlankResume('classic');
+      const resumeId = response?.resume?.id;
+      if (!resumeId) {
+        throw new Error(t('toasts.createFailed'));
+      }
+      toast.success(t('toasts.createSuccess'));
+      navigate(`/resume/${resumeId}/edit`);
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message || t('toasts.createFailed'));
+    } finally {
+      setIsCreatingBlank(false);
+    }
+  };
+
   const removeFile = (id) => {
     setUploadedFiles((prev) => prev.filter((item) => item.id !== id));
     setUploadProgress((prev) => {
@@ -182,8 +206,48 @@ export default function UploadResumePage() {
           <p className="mt-2 text-xs text-on-surface-variant">PDF and DOCX up to 5MB</p>
         </div>
 
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center" aria-hidden="true">
+            <div className="w-full border-t border-outline-variant" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-surface px-3 text-xs font-medium uppercase tracking-wide text-on-surface-variant">
+              or
+            </span>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 sm:p-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <PenLine className="h-5 w-5 text-secondary shrink-0" />
+                <h2 className="text-base font-semibold text-on-surface">
+                  {t('startChoice.startFromScratch')}
+                </h2>
+              </div>
+              <p className="mt-1 text-sm text-on-surface-variant">
+                {t('startChoice.startFromScratchDescription')}
+              </p>
+            </div>
+            <Button
+              variant="primary"
+              className="gap-2 px-5 py-2.5 shrink-0"
+              onClick={handleStartFromScratch}
+              disabled={isCreatingBlank || isUploading}
+            >
+              {isCreatingBlank ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <PenLine className="h-4 w-4" />
+              )}
+              {isCreatingBlank ? t('startChoice.creating') : t('startChoice.startFromScratch')}
+            </Button>
+          </div>
+        </div>
+
         {uploadedFiles.length > 0 && (
-          <div className="rounded-2xl border border-outline-variant bg-surface-container-lowest overflow-hidden">
+          <div className="mt-6 rounded-2xl border border-outline-variant bg-surface-container-lowest overflow-hidden">
             <div className="border-b border-outline-variant px-5 py-4">
               <h2 className="font-headline-section text-headline-section text-on-surface">
                 Uploaded Files ({uploadedFiles.length})
@@ -254,7 +318,7 @@ export default function UploadResumePage() {
                     variant="primary"
                     className="gap-2 px-4 py-2"
                     onClick={handleUploadAll}
-                    disabled={isUploading}
+                    disabled={isUploading || isCreatingBlank}
                   >
                     {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                     Upload {pendingCount} file{pendingCount > 1 ? 's' : ''}

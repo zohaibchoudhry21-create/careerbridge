@@ -49,6 +49,7 @@
     "analyzing": "Analizando habilidades y ajuste ATS...",
     "complete": "Análisis listo — abriendo el espacio de trabajo...",
     "failed": "El análisis falló",
+    "timedOut": "Esto está tardando más de lo esperado. Inténtalo de nuevo en un momento.",
     "phaseLabel": "Procesamiento",
     "progressComplete": "{{progress}}% completado",
     "labels": {

@@ -19,21 +19,26 @@ Core rules:
    - quantifiedAchievements (20%): metrics, numbers, measurable outcomes in experience bullets
 9. For each scoreBreakdown component include score (0-100), weight, weighted (score * weight / 100), and short notes.
    Use notes to capture experience-match reasoning and ATS structure/readability observations.
-10. suggestions must reference exact substrings that appear in the resume text for reword/remove types.
-11. For reword/remove/missing_keyword suggestions, quote original text WITHOUT bullet markers (no bullet dashes, asterisks, or numbering prefixes) — structured storage omits list markers even when the resume text shown to you includes them.
-12. missing_keyword suggestions should use a short original anchor phrase from the resume where the keyword should be added, and suggested should include the keyword naturally. When the resume and job are weakly related or from different fields, still emit missing_keyword suggestions for important unmatched JD skills — place them via fieldPath on "summary" or "skills.0" (or the best existing skills entry). Do not invent jobs, employers, or achievements; only add concise skill/keyword phrasing the candidate could truthfully claim or that belongs in a skills list.
-13. impact is 1-5 indicating estimated ATS/job-match lift if accepted.
-14. Return at most 20 suggestions, ordered by impact descending.
-15. skill ids must be stable strings like skill-react-1.
-16. Every suggestion MUST include fieldPath pointing at the structured field to edit, using dot paths such as:
+10. Also return jobRelevanceScore (0-100): score ONLY how well the candidate's actual experience, skills, industry, and career field align with the job description. Explicitly IGNORE resume formatting, section structure, writing polish, ATS friendliness, and quantified-bullet quality when producing this score — those belong in score/scoreBreakdown only. Rubric:
+    - 0–20: completely unrelated field (e.g. chef vs software engineer)
+    - 21–50: some transferable skills but different core field / career switch
+    - 51–75: same general field with meaningful gaps
+    - 76–100: strong direct match for the role
+11. suggestions must reference exact substrings that appear in the resume text for reword/remove types.
+12. For reword/remove/missing_keyword suggestions, quote original text WITHOUT bullet markers (no bullet dashes, asterisks, or numbering prefixes) — structured storage omits list markers even when the resume text shown to you includes them.
+13. missing_keyword suggestions should use a short original anchor phrase from the resume where the keyword should be added, and suggested should include the keyword naturally. When the resume and job are weakly related or from different fields, still emit missing_keyword suggestions for important unmatched JD skills — place them via fieldPath on "summary" or "skills.0" (or the best existing skills entry). Do not invent jobs, employers, or achievements; only add concise skill/keyword phrasing the candidate could truthfully claim or that belongs in a skills list.
+14. impact is 1-5 indicating estimated ATS/job-match lift if accepted.
+15. Return at most 20 suggestions, ordered by impact descending.
+16. skill ids must be stable strings like skill-react-1.
+17. Every suggestion MUST include fieldPath pointing at the structured field to edit, using dot paths such as:
     "summary", "workExperience.0.bullets.1", "education.0.degree", "skills.2", "languages.0".
-17. Map deeper analysis into existing fields:
+18. Map deeper analysis into existing fields:
     - resume strengths → recruiterTips entries prefixed with "Strength: "
     - resume weaknesses → recruiterTips entries prefixed with "Weakness: "
     - experience-match insight → scoreBreakdown.keywordCoverage.notes and/or recruiterTips
     - final hiring recommendation → last recruiterTips entry prefixed with "Recommendation: "
     - ATS structure/readability issues → searchabilityIssues
-18. Return JSON only. No markdown. No text outside JSON.`;
+19. Return JSON only. No markdown. No text outside JSON.`;
 
 export const buildResumeScannerPrompt = ({
   resumeText,
@@ -70,6 +75,7 @@ Return JSON only in exactly this shape:
     }
   ],
   "score": 0,
+  "jobRelevanceScore": 0,
   "scoreBreakdown": {
     "keywordCoverage": { "score": 0, "weight": 40, "weighted": 0, "notes": "skill + experience relevance" },
     "sectionCompleteness": { "score": 0, "weight": 20, "weighted": 0, "notes": "" },

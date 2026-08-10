@@ -49,7 +49,13 @@ export const applyRecomputedState = (analysis, recomputed) => {
   analysis.jobMatchScore = recomputed.jobMatchScore;
   analysis.score = recomputed.jobMatchScore;
   analysis.atsScoreBreakdown = recomputed.atsScoreBreakdown;
-  analysis.jobMatchBreakdown = recomputed.jobMatchBreakdown;
+  analysis.jobMatchBreakdown = {
+    ...recomputed.jobMatchBreakdown,
+    jobRelevanceScore:
+      Number(recomputed.jobMatchBreakdown?.jobRelevanceScore) ||
+      Number(analysis.jobMatchBreakdown?.jobRelevanceScore) ||
+      0,
+  };
   analysis.suggestions = recomputed.suggestions;
   analysis.matchedSkillIds = recomputed.matchedSkillIds;
   analysis.missingSkillIds = recomputed.missingSkillIds;

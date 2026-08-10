@@ -44,7 +44,8 @@ export const extractResumeForScanner = async (file) => {
     console.warn('[resume-scanner] Python extract-resume failed, using Node fallback:', error.message);
   }
 
-  const fallbackText = await extractResumeTextFromFile(file);
+  // skipPython: avoid a second Python /extract retry after /extract-resume already failed.
+  const fallbackText = await extractResumeTextFromFile(file, { skipPython: true });
 
   return {
     extractedText: fallbackText,

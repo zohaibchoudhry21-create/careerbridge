@@ -2,6 +2,9 @@ export const PHOTO_ACCEPT = 'image/jpeg,image/png,image/webp';
 
 export const MAX_PROFILE_PHOTO_BYTES = 5 * 1024 * 1024;
 
+/** Max edge length after client-side resize (keeps base64 under API body limits). */
+export const PROFILE_PHOTO_MAX_EDGE = 400;
+
 export const PROFILE_PHOTO_SIZE = 80;
 
 /** Larger profile photo in full-page resume templates (editor + card previews). */
@@ -32,16 +35,42 @@ export const validateProfilePhotoFile = (file) => {
   return null;
 };
 
-export const readProfilePhotoAsBase64 = (file) =>
+const loadImageFromFile = (file) =>
   new Promise((resolve, reject) => {
-    const error = validateProfilePhotoFile(file);
-    if (error) {
-      reject(new Error(error));
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error('Could not read the photo file.'));
-    reader.readAsDataURL(file);
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Could not read the photo file.'));
+    };
+    img.src = url;
   });
+
+/**
+ * Read and compress a profile photo to a JPEG data URL suitable for resume JSON payloads.
+ */
+export const readProfilePhotoAsBase64 = async (file) => {
+  const error = validateProfilePhotoFile(file);
+  if (error) {
+    throw new Error(error);
+  }
+
+  const img = await loadImageFromFile(file);
+  const scale = Math.min(1, PROFILE_PHOTO_MAX_EDGE / Math.max(img.width, img.height));
+  const width = Math.max(1, Math.round(img.width * scale));
+  const height = Math.max(1, Math.round(img.height * scale));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Could not process the photo.');
+  }
+  ctx.drawImage(img, 0, 0, width, height);
+  return canvas.toDataURL('image/jpeg', 0.82);
+};

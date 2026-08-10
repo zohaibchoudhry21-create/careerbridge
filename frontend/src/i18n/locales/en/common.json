@@ -5,7 +5,8 @@
     "resumeScanner": "Resume Scanner",
     "interviewPrep": "Interview Prep",
     "login": "Login",
-    "uploadCv": "Upload CV",
+    "signup": "Signup",
+    "dashboard": "Dashboard",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "dropdowns": {

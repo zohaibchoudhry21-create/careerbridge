@@ -7,16 +7,23 @@ import {
   structuredResumeToSections,
 } from '../utils/structuredResumeUtils';
 
-function ResumeColumn({ title, badge, structuredResume, fallbackText, badgeClassName }) {
+function ResumeColumn({
+  title,
+  badge,
+  structuredResume,
+  fallbackText,
+  badgeClassName,
+  accent = false,
+}) {
   const sections = hasStructuredResumeData(structuredResume)
     ? structuredResumeToSections(structuredResume)
     : null;
   const text = structuredResume ? generateAtsText(structuredResume) : fallbackText;
 
   return (
-    <div className="flex flex-col min-h-0 min-w-0 flex-1">
+    <div className="flex flex-col min-w-0">
       <div className="flex items-center gap-2 mb-3 shrink-0">
-        <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
+        <h3 className="text-sm font-semibold text-on-surface">{title}</h3>
         {badge ? (
           <span
             className={cn(
@@ -28,8 +35,13 @@ function ResumeColumn({ title, badge, structuredResume, fallbackText, badgeClass
           </span>
         ) : null}
       </div>
-      <div className="flex-1 overflow-y-auto rounded-lg border border-slate-200 bg-white p-4 lg:p-6 shadow-sm min-h-0">
-        <StructuredResumeView structuredSections={sections} fallbackText={text} />
+      <div
+        className={cn(
+          'resume-a4-page rounded-xl shadow-sm',
+          accent ? 'border-2 border-secondary' : 'border border-outline-variant'
+        )}
+      >
+        <StructuredResumeView structuredSections={sections} fallbackText={text} bare />
       </div>
     </div>
   );
@@ -103,21 +115,22 @@ export default function RewriteComparisonPanel({
         ) : null}
       </div>
 
-      <div className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-50 min-h-0">
-        <div className="h-full flex flex-col lg:flex-row gap-4 min-h-0">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6 bg-surface-container-low min-h-0">
+        <div className="rewrite-compare-grid">
           <ResumeColumn
             title={t('analysis.rewrite.originalLabel')}
             badge={t('analysis.rewrite.originalBadge')}
             structuredResume={originalResume}
             fallbackText={analysis?.originalResumeText || analysis?.resumeText}
-            badgeClassName="bg-slate-100 text-slate-600"
+            badgeClassName="bg-surface-container-high text-on-surface-variant"
           />
           <ResumeColumn
             title={t('analysis.rewrite.rewrittenLabel')}
             badge={t('analysis.rewrite.rewrittenBadge')}
             structuredResume={rewrittenResume}
             fallbackText={analysis?.rewrittenText}
-            badgeClassName="bg-blue-100 text-blue-700"
+            badgeClassName="bg-green-100 text-green-800"
+            accent
           />
         </div>
       </div>

@@ -5,12 +5,49 @@ import {
   splitSkills,
   toBullets,
 } from '../utils/resumeUtils';
+import { sanitizeHtml } from '../../../utils/sanitizeHtml';
+
+const SummaryHtml = ({ html, className }) => {
+  if (!html) return null;
+  return (
+    <div
+      className={className}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
+    />
+  );
+};
+
+const DescriptionBlock = ({ text, listClassName = 'text-xs space-y-1 mt-1', itemClassName = '' }) => {
+  if (!text) return null;
+  if (/<[a-z][\s\S]*>/i.test(text)) {
+    return (
+      <div
+        className={`${listClassName} [&_ul]:list-disc [&_ul]:pl-4 [&_p]:mb-1`}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(text) }}
+      />
+    );
+  }
+  return (
+    <ul className={listClassName}>
+      {toBullets(text).map((line, j) => (
+        <li key={j} className={itemClassName}>
+          • {line}
+        </li>
+      ))}
+    </ul>
+  );
+};
 
 const ClassicSectionTitle = ({ children }) => (
   <h3 className="text-xs font-bold tracking-widest text-on-surface uppercase border-b border-outline-variant pb-1 mb-3">
     {children}
   </h3>
 );
+
+const ProfilePhoto = ({ src, className = 'h-16 w-16 rounded-full object-cover border border-outline-variant' }) => {
+  if (!src) return null;
+  return <img src={src} alt="" className={className} />;
+};
 
 export const ClassicTemplate = ({ data }) => {
   const d = normalizeResumeData(data);
@@ -21,14 +58,20 @@ export const ClassicTemplate = ({ data }) => {
   return (
     <div className="bg-white shadow-lg min-h-[842px] p-10 text-on-surface text-sm leading-relaxed font-serif">
       <div className="text-center border-b border-outline-variant pb-4 mb-5">
-        <h1 className="text-2xl font-bold tracking-wide uppercase mb-2">{d.fullName || 'Your Name'}</h1>
+        <div className="flex justify-center mb-3">
+          <ProfilePhoto src={d.photo} />
+        </div>
+        <h1 className="text-2xl font-bold tracking-wide uppercase mb-1">{d.fullName || 'Your Name'}</h1>
+        {d.professionalTitle ? (
+          <p className="text-xs text-secondary font-medium mb-2">{d.professionalTitle}</p>
+        ) : null}
         {contact.length > 0 && <p className="text-xs text-on-surface-variant">{contact.join(' | ')}</p>}
         {links.length > 0 && <p className="text-xs text-on-surface-variant mt-1">{links.join(' | ')}</p>}
       </div>
       {d.summary && (
         <div className="mb-5">
           <ClassicSectionTitle>Summary</ClassicSectionTitle>
-          <p className="text-xs text-on-surface whitespace-pre-wrap">{d.summary}</p>
+          <SummaryHtml html={d.summary} className="text-xs text-on-surface prose-summary [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-4" />
         </div>
       )}
       {d.experience.length > 0 && (
@@ -47,13 +90,9 @@ export const ClassicTemplate = ({ data }) => {
                     {exp.endDate ? ` – ${exp.endDate}` : ''}
                   </span>
                 </div>
-                {exp.description && (
-                  <ul className="mt-1 list-disc list-inside text-xs text-on-surface">
-                    {toBullets(exp.description).map((line, j) => (
-                      <li key={j}>{line}</li>
-                    ))}
-                  </ul>
-                )}
+                {exp.description ? (
+                  <DescriptionBlock text={exp.description} listClassName="mt-1 text-xs text-on-surface" />
+                ) : null}
               </div>
             ))}
           </div>
@@ -110,7 +149,18 @@ export const ModernTemplate = ({ data }) => {
   return (
     <div className="bg-white shadow-lg min-h-[842px] flex text-sm font-sans">
       <aside className="w-[32%] bg-primary-container text-on-primary p-6 shrink-0">
-        <h1 className="text-lg font-bold uppercase leading-tight mb-4">{d.fullName || 'Your Name'}</h1>
+        <div className="mb-3">
+          <ProfilePhoto
+            src={d.photo}
+            className="h-16 w-16 rounded-full object-cover border-2 border-on-primary/30"
+          />
+        </div>
+        <h1 className="text-lg font-bold uppercase leading-tight mb-1">{d.fullName || 'Your Name'}</h1>
+        {d.professionalTitle ? (
+          <p className="text-xs text-on-primary-fixed mb-4">{d.professionalTitle}</p>
+        ) : (
+          <div className="mb-4" />
+        )}
         <div className="space-y-3 text-xs text-on-primary-fixed">
           {contact.map((c, i) => (
             <p key={i}>{c}</p>
@@ -148,7 +198,7 @@ export const ModernTemplate = ({ data }) => {
             <h3 className="text-xs font-bold uppercase text-on-surface border-b-2 border-secondary pb-1 mb-2">
               Profile
             </h3>
-            <p className="text-xs leading-relaxed">{d.summary}</p>
+            <SummaryHtml html={d.summary} className="text-xs leading-relaxed [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-4" />
           </div>
         )}
         {d.experience.length > 0 && (
@@ -162,13 +212,9 @@ export const ModernTemplate = ({ data }) => {
                 <p className="text-xs text-on-surface-variant">
                   {exp.company} | {exp.startDate} – {exp.endDate}
                 </p>
-                {exp.description && (
-                  <ul className="mt-1 text-xs list-disc list-inside text-on-surface">
-                    {toBullets(exp.description).map((line, j) => (
-                      <li key={j}>{line}</li>
-                    ))}
-                  </ul>
-                )}
+                {exp.description ? (
+                  <DescriptionBlock text={exp.description} listClassName="mt-1 text-xs text-on-surface" />
+                ) : null}
               </div>
             ))}
           </div>
@@ -199,11 +245,19 @@ export const MinimalTemplate = ({ data }) => {
 
   return (
     <div className="bg-white shadow-lg min-h-[842px] p-12 font-sans text-on-surface">
-      <h1 className="text-3xl font-light tracking-tight mb-1">{d.fullName || 'Your Name'}</h1>
+      <div className="flex items-start gap-4 mb-1">
+        <ProfilePhoto src={d.photo} className="h-14 w-14 rounded-full object-cover border border-outline-variant shrink-0" />
+        <div>
+          <h1 className="text-3xl font-light tracking-tight">{d.fullName || 'Your Name'}</h1>
+          {d.professionalTitle ? (
+            <p className="text-sm text-secondary mt-1">{d.professionalTitle}</p>
+          ) : null}
+        </div>
+      </div>
       {contact.length > 0 && <p className="text-xs text-on-surface-variant mb-8">{contact.join('  ·  ')}</p>}
       {d.summary && (
         <div className="mb-8">
-          <p className="text-sm text-on-surface leading-relaxed max-w-prose">{d.summary}</p>
+          <SummaryHtml html={d.summary} className="text-sm text-on-surface leading-relaxed max-w-prose [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-4" />
         </div>
       )}
       {d.experience.length > 0 && (
@@ -220,7 +274,9 @@ export const MinimalTemplate = ({ data }) => {
                 </span>
               </div>
               <p className="text-xs text-on-surface-variant mb-2">{exp.company}</p>
-              {exp.description && <p className="text-xs text-on-surface leading-relaxed">{exp.description}</p>}
+              {exp.description ? (
+                <DescriptionBlock text={exp.description} listClassName="text-xs text-on-surface leading-relaxed" />
+              ) : null}
             </div>
           ))}
         </div>
@@ -257,14 +313,25 @@ export const ProfessionalTemplate = ({ data }) => {
   return (
     <div className="bg-white shadow-lg min-h-[842px] font-sans text-sm">
       <header className="bg-secondary text-on-secondary px-10 py-8">
-        <h1 className="text-2xl font-bold uppercase tracking-wide">{d.fullName || 'Your Name'}</h1>
-        {contact.length > 0 && <p className="text-xs text-on-secondary mt-2">{contact.join(' | ')}</p>}
+        <div className="flex items-center gap-4">
+          <ProfilePhoto
+            src={d.photo}
+            className="h-16 w-16 rounded-full object-cover border-2 border-on-secondary/40 shrink-0"
+          />
+          <div>
+            <h1 className="text-2xl font-bold uppercase tracking-wide">{d.fullName || 'Your Name'}</h1>
+            {d.professionalTitle ? (
+              <p className="text-xs text-on-secondary/90 mt-1">{d.professionalTitle}</p>
+            ) : null}
+            {contact.length > 0 && <p className="text-xs text-on-secondary mt-2">{contact.join(' | ')}</p>}
+          </div>
+        </div>
       </header>
       <div className="p-10 text-on-surface">
         {d.summary && (
           <div className="mb-6">
             <h3 className="text-xs font-bold uppercase text-secondary mb-2">Professional Summary</h3>
-            <p className="text-xs leading-relaxed">{d.summary}</p>
+            <SummaryHtml html={d.summary} className="text-xs leading-relaxed [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-4" />
           </div>
         )}
         {d.experience.length > 0 && (
@@ -282,13 +349,9 @@ export const ProfessionalTemplate = ({ data }) => {
                     {exp.startDate} – {exp.endDate}
                   </span>
                 </div>
-                {exp.description && (
-                  <ul className="mt-1 text-xs list-disc list-inside text-on-surface">
-                    {toBullets(exp.description).map((line, j) => (
-                      <li key={j}>{line}</li>
-                    ))}
-                  </ul>
-                )}
+                {exp.description ? (
+                  <DescriptionBlock text={exp.description} listClassName="mt-1 text-xs text-on-surface" />
+                ) : null}
               </div>
             ))}
           </div>
@@ -333,7 +396,13 @@ export const ElegantTemplate = ({ data }) => {
   return (
     <div className="bg-white shadow-lg min-h-[842px] p-10 font-serif border-t-4 border-amber-600">
       <div className="text-center mb-6">
+        <div className="flex justify-center mb-3">
+          <ProfilePhoto src={d.photo} />
+        </div>
         <h1 className="text-2xl font-bold text-on-surface tracking-wide">{d.fullName || 'Your Name'}</h1>
+        {d.professionalTitle ? (
+          <p className="text-xs text-amber-700 mt-1">{d.professionalTitle}</p>
+        ) : null}
         <div className="w-16 h-0.5 bg-amber-500 mx-auto my-3" />
         {contact.length > 0 && (
           <p className="text-xs text-on-surface-variant italic">{contact.join('  |  ')}</p>
@@ -342,7 +411,7 @@ export const ElegantTemplate = ({ data }) => {
       {d.summary && (
         <div className="mb-6 px-4">
           <h3 className="text-xs font-bold uppercase tracking-widest text-amber-700 mb-2 text-center">Summary</h3>
-          <p className="text-xs text-on-surface text-center leading-relaxed italic">{d.summary}</p>
+          <SummaryHtml html={d.summary} className="text-xs text-on-surface text-center leading-relaxed italic [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:inline-block [&_ul]:text-left" />
         </div>
       )}
       {d.experience.length > 0 && (
@@ -359,7 +428,9 @@ export const ElegantTemplate = ({ data }) => {
               <p className="text-xs text-amber-700 mb-1">
                 {exp.startDate} – {exp.endDate}
               </p>
-              {exp.description && <p className="text-xs text-on-surface">{exp.description}</p>}
+              {exp.description ? (
+                <DescriptionBlock text={exp.description} listClassName="text-xs text-on-surface" />
+              ) : null}
             </div>
           ))}
         </div>

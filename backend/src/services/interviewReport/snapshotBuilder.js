@@ -3,6 +3,8 @@
  */
 
 import { detectTranscriptInjectionMarkers } from '../../utils/interviewScoreUtils.js';
+import { extractTranscriptQaPairs } from './builders/extractTranscriptQaPairs.js';
+import { QUESTION_REVIEW_MAX } from '../../config/interviewReportConfig.js';
 
 const average = (values) => {
   const nums = values.filter((v) => Number.isFinite(Number(v)));
@@ -47,22 +49,23 @@ const attachMonitoring = (session, base) => ({
 const buildTranscriptBasedSnapshot = (session, mode) => {
   const callVoiceMetrics = session.callVoiceMetrics || null;
   const callVideoMetrics = session.callVideoMetrics || null;
+  const fullTranscript = session.voiceCallTranscript || [];
 
-  // Live path: keep full transcript once on `fullTranscript` — do not duplicate
-  // the entire conversation onto every QA row (Groq token / payload win).
-  const qa = (session.questions || []).map((question) => ({
-    questionId: question.questionId,
-    question: question.text,
-    focusTag: question.focusTag,
-    depthHint: question.depthHint,
-    transcript: '',
+  // Live path: Q&A from spoken transcript (assistant question → user answer).
+  // Planned question guide is metadata / fallback only — never the primary question text.
+  const qa = extractTranscriptQaPairs(fullTranscript, {
+    guideQuestions: session.questions || [],
+    maxPairs: QUESTION_REVIEW_MAX,
+  }).map((pair) => ({
+    ...pair,
     voiceMetrics: callVoiceMetrics,
     videoMetrics: callVideoMetrics,
   }));
 
   const summary = {
     interviewStyle: mode === 'live' ? 'live_interview' : 'live_voice_call',
-    transcriptTurns: session.voiceCallTranscript?.length || 0,
+    transcriptTurns: fullTranscript.length || 0,
+    qaSource: qa[0]?.source || (qa.length ? 'transcript' : 'none'),
   };
 
   if (callVoiceMetrics) {
@@ -85,7 +88,6 @@ const buildTranscriptBasedSnapshot = (session, mode) => {
   if (speech.fluency != null) summary.speechFluency = speech.fluency;
   if (speech.speakingConfidence != null) summary.speechSpeakingConfidence = speech.speakingConfidence;
 
-  const fullTranscript = session.voiceCallTranscript || [];
   const flaggedForReview = detectTranscriptInjectionMarkers(fullTranscript);
 
   return attachMonitoring(session, {

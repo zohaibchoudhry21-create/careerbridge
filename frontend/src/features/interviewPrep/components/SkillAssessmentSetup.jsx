@@ -9,6 +9,7 @@ import AppIcon from '../../../components/icons/AppIcon';
 import { accentCardClass } from '../../../components/ui/colorAccentTokens';
 import { MOCK_INTERVIEW_DIFFICULTIES } from '../constants/interviewPrepConstants';
 import { useGenerateSkillQuiz } from '../hooks/useSkillAssessment';
+import RoleAutocompleteInput from './RoleAutocompleteInput';
 import RetryErrorPanel from './RetryErrorPanel';
 import { getApiErrorMessage } from '../utils/apiErrorUtils';
 
@@ -21,8 +22,12 @@ export default function SkillAssessmentSetup() {
   const [generateError, setGenerateError] = useState(null);
 
   const [topic, setTopic] = useState('');
+  const [topicTouched, setTopicTouched] = useState(false);
   const [difficulty, setDifficulty] = useState('medium');
   const [length, setLength] = useState('12');
+
+  const topicTrimmed = topic.trim();
+  const showTopicError = topicTouched && !topicTrimmed;
 
   const difficultyOptions = MOCK_INTERVIEW_DIFFICULTIES.map((value) => ({
     value,
@@ -35,6 +40,7 @@ export default function SkillAssessmentSetup() {
   }));
 
   const handleStart = async () => {
+    setTopicTouched(true);
     const trimmedTopic = topic.trim();
 
     if (!trimmedTopic) {
@@ -81,25 +87,27 @@ export default function SkillAssessmentSetup() {
       />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <section className={`${accentCardClass} hover:shadow-sm`}>
+        <section className={`${accentCardClass} relative overflow-visible hover:shadow-sm`}>
           <SectionHeading
             color="skills"
             icon="school"
             title={t('skillSetup.topic.title')}
             description={t('skillSetup.topic.description')}
           />
-          <label htmlFor="skill-topic" className="sr-only">
+          <label htmlFor="skill-topic-input" className="sr-only">
             {t('skillSetup.topic.title')}
           </label>
-          <input
-            id="skill-topic"
-            type="text"
+          <RoleAutocompleteInput
+            inputId="skill-topic-input"
             value={topic}
-            onChange={(event) => setTopic(event.target.value)}
+            onChange={setTopic}
+            onBlur={() => setTopicTouched(true)}
+            hasError={showTopicError}
             placeholder={t('skillSetup.topic.placeholder')}
-            autoComplete="off"
-            className="w-full rounded-xl border border-[#E2E7EE] bg-white px-4 py-3 text-sm text-on-surface transition-colors duration-150 placeholder:text-on-surface-variant/70 focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/20"
           />
+          {showTopicError ? (
+            <p className="mt-1 font-label-sm text-error">{t('skillSetup.selectTopic')}</p>
+          ) : null}
         </section>
 
         <section className={`${accentCardClass} hover:shadow-sm`}>

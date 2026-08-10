@@ -98,7 +98,7 @@
     "description": "Elige un tema y la dificultad. Las preguntas las genera la IA y se puntúan en el servidor.",
     "topic": {
       "title": "Tema",
-      "description": "Escribe cualquier habilidad o tema que quieras evaluar.",
+      "description": "Escribe una habilidad o tema — elige una sugerencia de IA o quédate con lo que escribiste.",
       "placeholder": "Ej.: React Hooks, MongoDB, System Design"
     },
     "difficulty": {
@@ -228,6 +228,9 @@
       "hiringProbability": "Probabilidad de contratación",
       "bodyLanguage": "Lenguaje corporal",
       "questionReview": "Revisión pregunta por pregunta",
+      "questionIndex": "P{{index}}",
+      "questionFallback": "Pregunta {{index}}",
+      "noAnswerProvided": "No se proporcionó respuesta.",
       "weaknesses": "Debilidades",
       "learningRoadmap": "Hoja de ruta de aprendizaje",
       "careerSuggestions": "Sugerencias de carrera",

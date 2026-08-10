@@ -58,7 +58,7 @@ function ActiveSessionsSection({ rememberDevicesEnabled }) {
       if (result?.signedOutCurrent || session.isCurrent) {
         toast.success(t('loginSecurity.toasts.signedOut'));
         await logout();
-        navigate('/login');
+        navigate('/');
         return;
       }
 

@@ -150,6 +150,81 @@
   .dashboard-card-padding {
     @apply p-dashboard-card;
   }
+
+  /* ------------------------------------------------------------------
+   * Resume document styling — shared by the Resume Scanner rewrite
+   * comparison, the structured preview, and the inline editor so all
+   * three render sections with the same hierarchy.
+   * ------------------------------------------------------------------ */
+  .resume-document {
+    @apply text-on-surface;
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  .resume-document-name {
+    @apply text-on-surface;
+    font-size: 25px;
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .resume-document-contact {
+    @apply text-on-surface-variant;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .resume-body-text {
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  .resume-section {
+    margin-bottom: 28px;
+  }
+
+  .resume-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .resume-section-heading {
+    @apply uppercase text-secondary;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    border-bottom: 0.5px solid theme('colors.outline-variant');
+  }
+
+  /* A4 proportions (210 × 297mm): height follows the column width, so the
+   * panel reads like a page instead of a squeezed box. Scrolls only when
+   * the resume runs longer than a single page. */
+  .resume-a4-page {
+    @apply bg-white;
+    aspect-ratio: 210 / 297;
+    overflow-y: auto;
+    padding: 3rem;
+  }
+
+  .rewrite-compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (max-width: 899px) {
+    .rewrite-compare-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .resume-a4-page {
+      padding: 1.75rem;
+    }
+  }
 }
 
 .shadow-level-1 {

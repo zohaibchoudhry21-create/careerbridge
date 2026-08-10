@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavbarScroll } from '../hooks/useAnimations';
+import useAuth from '../hooks/useAuth';
 import BrandLogo from './brand/BrandLogo';
 import AppIcon from './icons/AppIcon';
 import { buttonSecondaryClass } from './ui/buttonTokens';
@@ -112,11 +113,15 @@ function MobileFeatureGroup({ label, items, open, onToggle, onNavigate }) {
 
 export default function Navbar() {
   const { t } = useTranslation('common');
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const navRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [mobileOpenId, setMobileOpenId] = useState(null);
   useNavbarScroll(navRef);
+
+  const showGuestActions = !authLoading && !isAuthenticated;
+  const showAuthActions = !authLoading && isAuthenticated;
 
   const featureMenus = useMemo(
     () => [
@@ -185,15 +190,27 @@ export default function Navbar() {
 
         <div className="hidden md:flex items-center gap-2 sm:gap-3 shrink-0">
           <LanguageSelector />
-          <Link to="/login" className={cn(buttonSecondaryClass, navActionClass)}>
-            {t('nav.login')}
-          </Link>
-          <Link
-            to="/resume/upload"
-            className={cn(buttonSecondaryClass, navActionClass, 'whitespace-nowrap')}
-          >
-            {t('nav.uploadCv')}
-          </Link>
+          {showAuthActions ? (
+            <Link
+              to="/dashboard"
+              className={cn(buttonSecondaryClass, navActionClass, 'whitespace-nowrap')}
+            >
+              {t('nav.dashboard')}
+            </Link>
+          ) : null}
+          {showGuestActions ? (
+            <>
+              <Link to="/login" className={cn(buttonSecondaryClass, navActionClass)}>
+                {t('nav.login')}
+              </Link>
+              <Link
+                to="/register"
+                className={cn(buttonSecondaryClass, navActionClass, 'whitespace-nowrap')}
+              >
+                {t('nav.signup')}
+              </Link>
+            </>
+          ) : null}
         </div>
 
         <button
@@ -243,23 +260,42 @@ export default function Navbar() {
           ))}
 
           <div className="mt-4 pt-4 border-t border-outline-variant/30 flex flex-col gap-3">
-            <Link
-              to="/login"
-              className={cn(buttonSecondaryClass, 'w-full justify-center px-4 py-3 text-label-md rounded-2xl')}
-              onClick={closeMenu}
-            >
-              {t('nav.login')}
-            </Link>
-            <Link
-              to="/resume/upload"
-              className={cn(
-                buttonSecondaryClass,
-                'w-full justify-center px-6 py-3 text-label-md rounded-2xl shadow-level-1'
-              )}
-              onClick={closeMenu}
-            >
-              {t('nav.uploadCv')}
-            </Link>
+            {showAuthActions ? (
+              <Link
+                to="/dashboard"
+                className={cn(
+                  buttonSecondaryClass,
+                  'w-full justify-center px-6 py-3 text-label-md rounded-2xl shadow-level-1'
+                )}
+                onClick={closeMenu}
+              >
+                {t('nav.dashboard')}
+              </Link>
+            ) : null}
+            {showGuestActions ? (
+              <>
+                <Link
+                  to="/login"
+                  className={cn(
+                    buttonSecondaryClass,
+                    'w-full justify-center px-4 py-3 text-label-md rounded-2xl'
+                  )}
+                  onClick={closeMenu}
+                >
+                  {t('nav.login')}
+                </Link>
+                <Link
+                  to="/register"
+                  className={cn(
+                    buttonSecondaryClass,
+                    'w-full justify-center px-6 py-3 text-label-md rounded-2xl shadow-level-1'
+                  )}
+                  onClick={closeMenu}
+                >
+                  {t('nav.signup')}
+                </Link>
+              </>
+            ) : null}
           </div>
         </div>
       </div>

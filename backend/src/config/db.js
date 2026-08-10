@@ -1,25 +1,36 @@
 import mongoose from 'mongoose';
 
+const connectOptions = {
+  serverSelectionTimeoutMS: 8000,
+};
+
 const connectDB = async () => {
   const uri = process.env.MONGO_URI;
 
   if (!uri) {
-    console.error('MONGO_URI is not defined in environment variables.');
-    return;
+    console.error('MONGO_URI is not defined in backend/.env');
+    console.error('Example: MONGO_URI=mongodb://127.0.0.1:27017/ai-careerbridge');
+    process.exit(1);
   }
 
   try {
-    const conn = await mongoose.connect(uri);
-    console.log(`MongoDB connected: ${conn.connection.host}`);
-    console.log(`Database: ${conn.connection.name}`);
-  } catch (error) {
-    console.error(`MongoDB connection error: ${error.message}`);
-
-    if (process.env.NODE_ENV === 'production') {
-      process.exit(1);
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
     }
 
-    console.warn('Server will continue without database. Start MongoDB for full MERN functionality.');
+    const conn = await mongoose.connect(uri, connectOptions);
+    console.log(`MongoDB connected: ${conn.connection.host}`);
+    console.log(`Database: ${conn.connection.name}`);
+    return conn;
+  } catch (error) {
+    console.error(`MongoDB connection error: ${error.message}`);
+    console.error('');
+    console.error('[mongodb] Start MongoDB locally, then retry:');
+    console.error('  - Windows Service: Start "MongoDB" from Services');
+    console.error('  - Or run: mongod --dbpath <your-data-path>');
+    console.error(`  - Expected URI: ${uri}`);
+    console.error('');
+    process.exit(1);
   }
 };
 

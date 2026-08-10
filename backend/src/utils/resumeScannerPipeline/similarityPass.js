@@ -20,9 +20,27 @@ export const runSimilarityPass = ({
   );
 
   const keywordCoverage = clampScore(analyzeResult?.jobMatchBreakdown?.keywordCoverage ?? 0);
+
+  // Dedicated field/experience fit from Analyze LLM (ignores formatting quality).
+  const jobRelevanceScore = clampScore(
+    analyzeResult?.jobMatchBreakdown?.jobRelevanceScore ??
+      analyzeResult?.jobRelevanceScore ??
+      0
+  );
+
+  // Composite quality score (structure/searchability/etc.) — kept for diagnostics only;
+  // rewrite decisions must use jobRelevanceScore, not this value.
   const aiRelevance = clampScore(
     analyzeResult?.jobMatchBreakdown?.aiAssessedRelevance ?? analyzeResult?.score ?? 0
   );
+
+  // Already-computed UI Job Match gauge from analyzeResumeAgainstJob / computeJobMatchScore.
+  const jobMatchScore = clampScore(
+    analyzeResult?.jobMatchScore ??
+      (analyzeResult?.jobMatchUnavailable ? 0 : analyzeResult?.score) ??
+      0
+  );
+
   const lexicalOverlap = clampScore(jaccardSimilarity(resumeText, jdText) * 100);
   const resumeTokens = tokenize(resumeText);
 
@@ -49,11 +67,17 @@ export const runSimilarityPass = ({
     (domain === 'hospitality' && /\b(chef|kitchen|culinary)\b/i.test(resumeText));
 
   const blended = clampScore(
-    keywordCoverage * 0.55 + aiRelevance * 0.25 + lexicalOverlap * 0.1 + transferableRatio * 100 * 0.1
+    keywordCoverage * 0.55 +
+      jobRelevanceScore * 0.25 +
+      lexicalOverlap * 0.1 +
+      transferableRatio * 100 * 0.1
   );
 
   return {
     keywordCoverage,
+    jobRelevanceScore,
+    jobMatchScore,
+    /** @deprecated Composite quality — prefer jobRelevanceScore for decisions. */
     aiRelevance,
     lexicalOverlap,
     transferableSkills: transferable,
@@ -62,6 +86,10 @@ export const runSimilarityPass = ({
     domainAligned: domainPresent,
     overallSimilarity: blended,
     rewriteRecommended:
-      blended < 40 || keywordCoverage < 25 || aiRelevance < 30 || !domainPresent,
+      blended < 50 ||
+      keywordCoverage < 35 ||
+      jobRelevanceScore < 40 ||
+      jobMatchScore < 45 ||
+      !domainPresent,
   };
 };

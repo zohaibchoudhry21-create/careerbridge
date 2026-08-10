@@ -117,6 +117,7 @@
     "FILE_TOO_LARGE": "El archivo es demasiado grande. Sube un documento de menos de 10 MB.",
     "FILE_UPLOAD_FAILED": "Error al subir el archivo. Revisa el archivo e inténtalo de nuevo.",
     "DUPLICATE_EMAIL": "El correo electrónico ya está registrado. Usa otro correo o inicia sesión.",
+    "DATABASE_UNAVAILABLE": "La base de datos no está disponible. Inicia MongoDB o revisa MONGO_URI en backend/.env.",
     "UNKNOWN": "Algo salió mal. Inténtalo de nuevo."
   },
   "RATE_LIMIT": {

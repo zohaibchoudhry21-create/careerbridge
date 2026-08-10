@@ -33,6 +33,32 @@ const createTransporter = () => {
   });
 };
 
+/** Local-only catch inbox when real SMTP (e.g. Gmail) rejects credentials. */
+const sendViaEthereal = async ({ to, subject, html, from }) => {
+  const testAccount = await nodemailer.createTestAccount();
+  const transporter = nodemailer.createTransport({
+    host: testAccount.smtp.host,
+    port: testAccount.smtp.port,
+    secure: testAccount.smtp.secure,
+    auth: {
+      user: testAccount.user,
+      pass: testAccount.pass,
+    },
+  });
+
+  const info = await transporter.sendMail({
+    from: from || `"AI CareerBridge" <${testAccount.user}>`,
+    to,
+    subject,
+    html,
+  });
+
+  const previewUrl = nodemailer.getTestMessageUrl(info);
+  console.warn('[Email] SMTP failed / unavailable — sent via Ethereal (dev inbox).');
+  console.warn(`[Email] Open this preview to view the message: ${previewUrl}`);
+  return { sent: true, devMode: true, previewUrl };
+};
+
 export const sendEmail = async ({ to, subject, html }) => {
   const config = getEmailConfig();
   const transporter = createTransporter();
@@ -77,6 +103,20 @@ export const sendVerificationEmail = async ({ to, name, verificationUrl }) => {
   const transporter = createTransporter();
 
   if (!transporter) {
+    if (process.env.NODE_ENV !== 'production') {
+      try {
+        const ethereal = await sendViaEthereal({
+          to,
+          subject,
+          html,
+          from: config.emailFrom,
+        });
+        return { ...ethereal, verificationUrl };
+      } catch (etherealError) {
+        console.error('[Email] Ethereal fallback failed:', etherealError.message);
+      }
+    }
+
     console.warn('[Email] Verification link logged for development:');
     console.warn(verificationUrl);
     return { sent: false, devMode: true, verificationUrl };
@@ -93,6 +133,25 @@ export const sendVerificationEmail = async ({ to, name, verificationUrl }) => {
     return { sent: true, devMode: false };
   } catch (error) {
     console.error('[Email] Failed to send verification email:', error.message);
+
+    // Local/dev: Gmail App Password wrong → Ethereal inbox + verification link.
+    if (process.env.NODE_ENV !== 'production') {
+      try {
+        const ethereal = await sendViaEthereal({
+          to,
+          subject,
+          html,
+          from: config.emailFrom,
+        });
+        return { ...ethereal, verificationUrl };
+      } catch (etherealError) {
+        console.error('[Email] Ethereal fallback failed:', etherealError.message);
+        console.warn('[Email] Falling back to verification link only:');
+        console.warn(verificationUrl);
+        return { sent: false, devMode: true, verificationUrl };
+      }
+    }
+
     throw error;
   }
 };

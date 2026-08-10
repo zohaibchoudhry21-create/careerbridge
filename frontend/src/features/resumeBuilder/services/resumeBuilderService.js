@@ -35,6 +35,9 @@ export const uploadResume = (formData, onUploadProgress) =>
     })
     .then(unwrap);
 
+export const createBlankResume = (templateId = 'classic') =>
+  api.post('/resume/blank', { templateId }).then(unwrap);
+
 export const getResumeHistory = (params = {}) =>
   api.get('/resume/history', { params }).then(unwrap);
 
@@ -42,6 +45,11 @@ export const getResume = (id) => api.get(`/resume/${id}`).then(unwrap);
 
 export const updateResume = (id, parsedData, templateId) =>
   api.put(`/resume/${id}`, { parsedData, templateId }).then(unwrap);
+
+export const runResumeAiText = (id, { action, content, field = 'summary', context } = {}) =>
+  api
+    .post(`/resume/${id}/ai-text`, { action, content, field, context }, { timeout: 60000 })
+    .then(unwrap);
 
 export const deleteResume = (id) => api.delete(`/resume/${id}`).then(unwrap);
 

@@ -33,7 +33,7 @@ export const startUploadAnalysis = async ({ userId, file, jobDescriptionText }) 
     jobDescriptionText,
   });
 
-  enqueueAnalysisPipeline(analysis._id, userId);
+  enqueueAnalysisPipeline(analysis._id, userId, { file });
 
   return {
     analysisId: analysis._id,

@@ -110,7 +110,7 @@ describe('assembleInterviewReport', () => {
       questions: [{ questionId: 'q1', text: 'Tell me about yourself.', order: 0 }],
       answers: [],
       voiceCallTranscript: [
-        { role: 'assistant', content: 'Hello' },
+        { role: 'assistant', content: 'Can you tell me about your backend experience?' },
         { role: 'user', content: 'I am a backend engineer with Node experience.' },
       ],
       callVoiceMetrics: {
@@ -137,7 +137,9 @@ describe('assembleInterviewReport', () => {
     });
 
     expect(snapshot.fullTranscript).toHaveLength(2);
-    expect(snapshot.qa[0].transcript).toBe('');
+    expect(snapshot.qa[0].question).toMatch(/backend experience/i);
+    expect(snapshot.qa[0].answer).toMatch(/Node experience/i);
+    expect(snapshot.qa[0].transcript).toMatch(/Node experience/i);
 
     const assembled = assembleInterviewReport(snapshot, {
       legacyAiReport: {

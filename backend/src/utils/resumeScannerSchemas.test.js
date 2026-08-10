@@ -15,6 +15,7 @@ const validPayload = {
     },
   ],
   score: 72,
+  jobRelevanceScore: 74,
   scoreBreakdown: {
     keywordCoverage: { score: 70, weight: 40, weighted: 28, notes: 'Good coverage' },
     sectionCompleteness: { score: 80, weight: 20, weighted: 16, notes: '' },
@@ -40,8 +41,14 @@ describe('resumeScannerSchemas', () => {
   it('parses a valid AI analysis payload', () => {
     const parsed = parseResumeScannerAnalysis(validPayload);
     expect(parsed.score).toBe(72);
+    expect(parsed.jobRelevanceScore).toBe(74);
     expect(parsed.skills).toHaveLength(1);
     expect(parsed.suggestions[0].type).toBe('reword');
+  });
+
+  it('rejects payloads missing jobRelevanceScore', () => {
+    const { jobRelevanceScore: _omit, ...withoutRelevance } = validPayload;
+    expect(() => parseResumeScannerAnalysis(withoutRelevance)).toThrow();
   });
 
   it('rejects malformed payloads', () => {

@@ -49,6 +49,7 @@
     "analyzing": "Analyzing skills and ATS fit...",
     "complete": "Analysis ready — opening workspace...",
     "failed": "Analysis failed",
+    "timedOut": "This is taking longer than expected. Please try again in a moment.",
     "phaseLabel": "Processing",
     "progressComplete": "{{progress}}% Complete",
     "labels": {

@@ -32,6 +32,9 @@ console.log(
     : 'VAPI_PRIVATE_KEY missing — live interviews will fail until set in backend/.env'
 );
 
+const connectDB = (await import('./src/config/db.js')).default;
+await connectDB();
+
 const { default: app } = await import('./src/app.js');
 
 const PORT = process.env.PORT || 5000;
@@ -50,4 +53,3 @@ server.on('error', (error) => {
 
   throw error;
 });
-

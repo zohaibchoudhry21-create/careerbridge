@@ -16,18 +16,22 @@ export const runDecidePass = ({
   skills = [],
 } = {}) => {
   const keywordCoverage = Number(similarity.keywordCoverage) || 0;
-  const aiAssessedRelevance = Number(similarity.aiRelevance) || 0;
+  const jobRelevanceScore = Number(similarity.jobRelevanceScore) || 0;
+  const jobMatchScore =
+    similarity.jobMatchScore == null ? null : Number(similarity.jobMatchScore) || 0;
 
   const thresholdHit = shouldTriggerRewriteMode({
     keywordCoverage,
-    aiAssessedRelevance,
+    jobRelevanceScore,
+    jobMatchScore,
     skills,
   });
 
   const reason =
     getRewriteTriggerReason({
       keywordCoverage,
-      aiAssessedRelevance,
+      jobRelevanceScore,
+      jobMatchScore,
       skills,
     }) ||
     (!similarity.domainAligned ? 'domain_mismatch' : null) ||
@@ -41,6 +45,7 @@ export const runDecidePass = ({
   if (similarity.rewriteRecommended) agreement += 1;
   if (!similarity.domainAligned) agreement += 1;
   if (keywordCoverage < 15) agreement += 1;
+  if (jobRelevanceScore < 40) agreement += 1;
 
   const confidence =
     mode === 'rewrite'
@@ -57,7 +62,10 @@ export const runDecidePass = ({
       domainAligned: Boolean(similarity.domainAligned),
       overallSimilarity: similarity.overallSimilarity,
       keywordCoverage,
-      aiAssessedRelevance,
+      jobRelevanceScore,
+      jobMatchScore,
+      // Composite quality score kept for diagnostics only.
+      aiAssessedRelevance: Number(similarity.aiRelevance) || 0,
     },
   };
 };

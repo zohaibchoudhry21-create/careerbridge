@@ -242,7 +242,11 @@ export default function MockInterviewSessionPage() {
             ) : null}
 
             {interviewReport ? (
-              <LiveInterviewReportView report={interviewReport} sessionId={sessionId} />
+              <LiveInterviewReportView
+                report={interviewReport}
+                sessionId={sessionId}
+                userName={userName}
+              />
             ) : null}
 
             <Link
