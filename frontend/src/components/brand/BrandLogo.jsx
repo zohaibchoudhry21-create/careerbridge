@@ -1,10 +1,14 @@
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export default function BrandLogo({ className = 'h-10 w-auto sm:h-8', title }) {
+export default function BrandLogo({ className = 'h-10 w-auto sm:h-8', title, variant = 'default' }) {
   const { t } = useTranslation('marketing');
   const brandTitle = title ?? t('brand');
   const gradId = useId();
+  const onDark = variant === 'onDark';
+  const aiColor = onDark ? '#adc6ff' : '#0058be';
+  const nameColor = onDark ? '#ffffff' : '#131b2e';
+  const bridgeColor = onDark ? '#adc6ff' : '#0058be';
 
   return (
     <svg
@@ -21,8 +25,8 @@ export default function BrandLogo({ className = 'h-10 w-auto sm:h-8', title }) {
           <stop offset="100%" stopColor="#adc6ff" />
         </linearGradient>
       </defs>
-      <rect x="8" y="18" width="7" height="20" rx="2" fill="#0058be" />
-      <rect x="29" y="18" width="7" height="20" rx="2" fill="#0058be" />
+      <rect x="8" y="18" width="7" height="20" rx="2" fill={bridgeColor} />
+      <rect x="29" y="18" width="7" height="20" rx="2" fill={bridgeColor} />
       <path
         d="M8 22 Q22 6 36 22"
         stroke={`url(#${gradId})`}
@@ -41,10 +45,10 @@ export default function BrandLogo({ className = 'h-10 w-auto sm:h-8', title }) {
         fontFamily="'Plus Jakarta Sans', sans-serif"
         fontWeight="800"
         fontSize="17"
-        fill="#0058be"
+        fill={aiColor}
       >
         AI{' '}
-        <tspan fill="#131b2e" fontWeight="700" fontSize="16">
+        <tspan fill={nameColor} fontWeight="700" fontSize="16">
           CareerBridge
         </tspan>
       </text>

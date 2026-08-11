@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import BrandLogo from '../brand/BrandLogo';
 import LanguageSelector from '../../i18n/components/LanguageSelector';
 
 const AUTH_NAV_LINKS = [
@@ -15,10 +16,8 @@ export default function AuthNav({ active = 'login' }) {
   return (
     <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm">
       <div className="shell-inner flex justify-between items-center h-20">
-        <Link to="/" className="flex items-center gap-sm">
-          <span className="font-display-lg-mobile text-display-lg-mobile font-extrabold text-on-surface">
-            {t('nav.brand')}
-          </span>
+        <Link to="/" className="flex items-center">
+          <BrandLogo className="h-8 w-auto" />
         </Link>
 
         <div className="hidden md:flex items-center gap-lg">

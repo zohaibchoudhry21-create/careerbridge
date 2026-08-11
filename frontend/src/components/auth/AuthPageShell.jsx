@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import AppIcon from '../icons/AppIcon';
+import BrandLogo from '../brand/BrandLogo';
 
 export default function AuthPageShell({ children, wide = false }) {
   return (
@@ -33,12 +33,9 @@ export default function AuthPageShell({ children, wide = false }) {
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-10 sm:px-6">
         <Link
           to="/"
-          className="login-page-logo mb-8 inline-flex items-center justify-center gap-2 transition-transform duration-200 hover:scale-[1.02]"
+          className="login-page-logo mb-8 inline-flex items-center justify-center transition-transform duration-200 hover:scale-[1.02]"
         >
-          <AppIcon name="work" size="h-9 w-9" className="text-secondary" />
-          <span className="font-headline-md text-headline-md font-extrabold text-on-surface">
-            AI CareerBridge
-          </span>
+          <BrandLogo className="h-10 w-auto" />
         </Link>
 
         <div

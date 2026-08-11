@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import AppIcon from '../icons/AppIcon';
+import BrandLogo from '../brand/BrandLogo';
 
 const LEGAL_LINK_KEYS = ['privacyPolicy', 'termsOfService', 'security'];
 const SUPPORT_LINK_KEYS = ['helpCenter', 'careerBlog', 'contactUs'];
@@ -11,9 +12,7 @@ export default function AuthFooter() {
     <footer className="w-full bg-tertiary-container text-on-tertiary-container">
       <div className="shell-inner py-xl grid grid-cols-1 md:grid-cols-4 gap-gutter">
         <div className="space-y-sm">
-          <span className="font-headline-md text-headline-md font-bold text-on-tertiary-container">
-            {t('footer.brand')}
-          </span>
+          <BrandLogo variant="onDark" className="h-8 w-auto" />
           <p className="text-on-tertiary-container/80 font-body-md text-body-md max-w-sm">
             {t('footer.tagline')}
           </p>

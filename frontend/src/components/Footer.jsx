@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AppIcon from './icons/AppIcon';
+import BrandLogo from './brand/BrandLogo';
 
 const SOCIAL_ICONS = ['link', 'code', 'share'];
 
@@ -35,11 +36,8 @@ export default function Footer() {
       <div className="shell-inner">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-md mb-xl">
           <div className="col-span-full sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <AppIcon name="work" size="h-4 w-4" className="text-secondary" />
-              <span className="font-headline-md text-xl font-extrabold text-on-surface">
-                {t('brand')}
-              </span>
+            <div className="flex items-center mb-4">
+              <BrandLogo className="h-8 w-auto" />
             </div>
             <p className="font-body-md text-sm text-on-surface-variant leading-relaxed mb-4">
               {t('footer.tagline')}
