@@ -153,8 +153,8 @@ export const runRewriteFromDecisionContext = async ({
 
   const validationNotes = !lastValidation.valid
     ? [
-        `Validation warnings after retries: ${(lastValidation.hardFailures || []).join(', ') || 'unknown'}`,
-      ]
+      `Validation warnings after retries: ${(lastValidation.hardFailures || []).join(', ') || 'unknown'}`,
+    ]
     : [];
 
   return {

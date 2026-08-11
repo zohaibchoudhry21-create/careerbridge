@@ -2,6 +2,7 @@ import AtsAnalysis from '../models/AtsAnalysis.js';
 import InterviewReport from '../models/InterviewReport.js';
 import MockInterviewSession from '../models/MockInterviewSession.js';
 import ParsedResume from '../models/ParsedResume.js';
+import SkillQuiz from '../models/SkillQuiz.js';
 
 const DIMENSION_LABELS = {
   communication: 'Communication',
@@ -227,14 +228,190 @@ const mapAnalysisToJobMatch = (analysis, { featured = false, recommendedByAi = f
   };
 };
 
+const formatShortDate = (date) => {
+  const value = new Date(date);
+  if (Number.isNaN(value.getTime())) return '';
+  return value.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+const averageScores = (scores = []) => {
+  if (!scores.length) return null;
+  const total = scores.reduce((sum, score) => sum + score, 0);
+  return Math.round(total / scores.length);
+};
+
+const buildWeakSkillTallies = (interviewReports = [], quizzes = []) => {
+  const tallies = new Map();
+
+  const bump = (label) => {
+    const key = String(label || '').trim();
+    if (!key) return;
+    tallies.set(key, (tallies.get(key) || 0) + 1);
+  };
+
+  for (const report of interviewReports) {
+    for (const area of report.improvementAreas || []) bump(area);
+  }
+
+  for (const quiz of quizzes) {
+    for (const area of quiz.scoredResult?.weakAreas || []) {
+      bump(area.subtopic);
+    }
+  }
+
+  return [...tallies.entries()]
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+    .slice(0, 6);
+};
+
+export const buildCareerProgress = async (userId) => {
+  const [
+    interviewReportsDesc,
+    atsAnalysesDesc,
+    skillQuizzesDesc,
+    interviewsCompleted,
+    quizzesCompleted,
+    scansCompleted,
+  ] = await Promise.all([
+    InterviewReport.find({ userId, sourceType: 'mock_interview' })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select('overallScore createdAt improvementAreas sourceId')
+      .lean(),
+    AtsAnalysis.find({ userId, status: 'completed' })
+      .sort({ updatedAt: -1 })
+      .limit(5)
+      .select('atsScore jobMatchScore updatedAt')
+      .lean(),
+    SkillQuiz.find({ userId, status: 'submitted' })
+      .sort({ updatedAt: -1 })
+      .limit(5)
+      .select('topic topicLabel scoredResult updatedAt')
+      .lean(),
+    InterviewReport.countDocuments({ userId, sourceType: 'mock_interview' }),
+    SkillQuiz.countDocuments({ userId, status: 'submitted' }),
+    AtsAnalysis.countDocuments({ userId, status: 'completed' }),
+  ]);
+
+  const sessionIds = interviewReportsDesc.map((report) => report.sourceId).filter(Boolean);
+  const sessions = sessionIds.length
+    ? await MockInterviewSession.find({ _id: { $in: sessionIds } })
+        .select('role roleLabel')
+        .lean()
+    : [];
+  const sessionById = new Map(sessions.map((session) => [String(session._id), session]));
+
+  const interviewTrend = [...interviewReportsDesc]
+    .reverse()
+    .map((report) => {
+      const session = sessionById.get(String(report.sourceId));
+      const role = session?.roleLabel || session?.role || 'Mock interview';
+      return {
+        id: String(report._id),
+        date: report.createdAt,
+        label: formatShortDate(report.createdAt),
+        score: Math.round(Number(report.overallScore) || 0),
+        role,
+      };
+    });
+
+  const atsTrend = [...atsAnalysesDesc]
+    .reverse()
+    .map((analysis) => {
+      const atsScore = Math.round(Number(analysis.atsScore) || 0);
+      const jobMatchScore = Math.round(Number(analysis.jobMatchScore) || 0);
+      return {
+        id: String(analysis._id),
+        date: analysis.updatedAt,
+        label: formatShortDate(analysis.updatedAt),
+        atsScore,
+        jobMatchScore,
+        score: Math.round((atsScore + jobMatchScore) / 2),
+      };
+    });
+
+  const skillQuizTrend = [...skillQuizzesDesc]
+    .reverse()
+    .map((quiz) => ({
+      id: String(quiz._id),
+      date: quiz.updatedAt,
+      label: formatShortDate(quiz.updatedAt),
+      score: Math.round(Number(quiz.scoredResult?.percentage) || 0),
+      topic: quiz.topicLabel || quiz.topic || 'Skill quiz',
+    }));
+
+  const weakSkills = buildWeakSkillTallies(interviewReportsDesc, skillQuizzesDesc);
+
+  const timeline = [
+    ...interviewReportsDesc.map((report) => {
+      const session = sessionById.get(String(report.sourceId));
+      const role = session?.roleLabel || session?.role || 'practice';
+      return {
+        id: `interview-${report._id}`,
+        type: 'interview',
+        date: report.createdAt,
+        label: `Mock interview (${role})`,
+        score: Math.round(Number(report.overallScore) || 0),
+      };
+    }),
+    ...atsAnalysesDesc.map((analysis) => {
+      const atsScore = Math.round(Number(analysis.atsScore) || 0);
+      const jobMatchScore = Math.round(Number(analysis.jobMatchScore) || 0);
+      return {
+        id: `scan-${analysis._id}`,
+        type: 'scan',
+        date: analysis.updatedAt,
+        label: 'Resume ATS scan',
+        score: Math.round((atsScore + jobMatchScore) / 2),
+      };
+    }),
+    ...skillQuizzesDesc.map((quiz) => ({
+      id: `quiz-${quiz._id}`,
+      type: 'quiz',
+      date: quiz.updatedAt,
+      label: `Skill quiz (${quiz.topicLabel || quiz.topic || 'topic'})`,
+      score: Math.round(Number(quiz.scoredResult?.percentage) || 0),
+    })),
+  ]
+    .filter((item) => item.date)
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 8)
+    .map((item) => ({
+      ...item,
+      relativeTime: formatRelativeTime(item.date),
+    }));
+
+  const interviewScores = interviewTrend.map((item) => item.score);
+  const hasAnyData = Boolean(
+    interviewTrend.length || atsTrend.length || skillQuizTrend.length
+  );
+
+  return {
+    hasData: hasAnyData,
+    summary: {
+      interviewsCompleted,
+      quizzesCompleted,
+      scansCompleted,
+      interviewAverage: averageScores(interviewScores),
+    },
+    interviewTrend,
+    atsTrend,
+    skillQuizTrend,
+    weakSkills,
+    timeline,
+  };
+};
+
 export const getDashboardOverview = async (user) => {
   const userId = user._id;
-  const [latestAnalysis, latestInterviewReport, lastActivity] = await Promise.all([
+  const [latestAnalysis, latestInterviewReport, lastActivity, careerProgress] = await Promise.all([
     getLatestCompletedAnalysis(userId),
     InterviewReport.findOne({ userId, sourceType: 'mock_interview' })
       .sort({ createdAt: -1 })
       .lean(),
     getRecentActivity(userId),
+    buildCareerProgress(userId),
   ]);
 
   const hasCareerData = Boolean(latestAnalysis || latestInterviewReport);
@@ -255,6 +432,7 @@ export const getDashboardOverview = async (user) => {
     resumeIntelligence: buildResumeIntelligence(latestAnalysis),
     interviewReadiness: buildInterviewReadiness(latestInterviewReport),
     careerRisk: buildCareerRisk(latestAnalysis),
+    careerProgress,
   };
 };
 

@@ -46,6 +46,45 @@
     "recommendation": "Recomendación de IA",
     "browseTracks": "Explorar trayectorias profesionales con IA"
   },
+  "careerProgress": {
+    "title": "Progreso profesional",
+    "description": "Sigue puntuaciones de entrevistas, tendencias ATS y brechas de habilidades a lo largo del tiempo.",
+    "actions": {
+      "practice": "Practicar entrevista",
+      "scan": "Escanear currículum"
+    },
+    "stats": {
+      "interviewAvg": "Promedio de últimas 5 entrevistas",
+      "interviews": "Entrevistas",
+      "quizzes": "Evaluaciones",
+      "scans": "Escaneos ATS"
+    },
+    "charts": {
+      "interviewTrend": "Tendencia de puntuación de entrevista",
+      "interviewScore": "Puntuación de entrevista",
+      "atsTrend": "Tendencia ATS y coincidencia laboral",
+      "atsScore": "Puntuación ATS",
+      "jobMatch": "Coincidencia laboral",
+      "quizTrend": "Tendencia de evaluaciones",
+      "quizScore": "Puntuación del quiz",
+      "needMoreInterviews": "Completa al menos 2 entrevistas simuladas para ver tu tendencia.",
+      "needMoreScans": "Realiza al menos 2 escaneos de currículum para ver la tendencia ATS."
+    },
+    "weakSkills": {
+      "title": "Habilidades débiles a mejorar",
+      "empty": "Aún no hay habilidades débiles marcadas. Sigue practicando."
+    },
+    "timeline": {
+      "title": "Actividad reciente",
+      "empty": "Aún no hay actividad profesional reciente."
+    },
+    "empty": {
+      "title": "Empieza a construir tu progreso",
+      "description": "Escanea un currículum o practica entrevistas para desbloquear tendencias e insights.",
+      "scanCta": "Escanear currículum",
+      "practiceCta": "Practicar entrevista"
+    }
+  },
   "loading": {
     "message": "Cargando tu panel..."
   },
@@ -76,6 +115,7 @@
   },
   "resumeScanner": {
     "openScanner": "Abrir escáner de currículum",
+    "compactInsight": "Potencial de mejora {{potential}} si cierras las principales brechas.",
     "empty": {
       "title": "Sin datos de escaneo",
       "description": "Sube tu currículum y una descripción de puesto para ver puntuaciones ATS y brechas de habilidades.",

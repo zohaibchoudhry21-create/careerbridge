@@ -4,11 +4,9 @@ import useAuth from '../hooks/useAuth';
 import { useDashboardOverview } from '../hooks/useDashboard';
 import { DashboardLayout, PageContainer } from '../components/layout';
 import WelcomeSection from '../components/dashboard/WelcomeSection';
-import QuickActions from '../components/dashboard/QuickActions';
 import DashboardFeatureSection from '../components/dashboard/DashboardFeatureSection';
-import ResumeBuilderCard from '../components/dashboard/ResumeBuilderCard';
 import ResumeScannerSection from '../components/dashboard/ResumeScannerSection';
-import InterviewReadinessCard from '../components/dashboard/InterviewReadinessCard';
+import CareerProgressSection from '../components/dashboard/CareerProgressSection';
 import DashboardLoading from '../components/dashboard/DashboardLoading';
 import DashboardError from '../components/dashboard/DashboardError';
 
@@ -40,16 +38,14 @@ export default function Dashboard() {
     <DashboardLayout user={user}>
       <PageContainer className="space-y-8">
         <WelcomeSection welcome={data?.welcome} />
-        <QuickActions />
 
         <DashboardFeatureSection
-          title={t('dashboard:features.resumeBuilder.title')}
-          description={t('dashboard:features.resumeBuilder.description')}
-          href="/resume/upload"
-          icon="description"
-          color="resume"
+          title={t('dashboard:careerProgress.title')}
+          description={t('dashboard:careerProgress.description')}
+          icon="analytics"
+          color="skills"
         >
-          <ResumeBuilderCard />
+          <CareerProgressSection careerProgress={data?.careerProgress} />
         </DashboardFeatureSection>
 
         <DashboardFeatureSection
@@ -63,16 +59,6 @@ export default function Dashboard() {
             profileStrength={data?.profileStrength}
             resumeIntelligence={data?.resumeIntelligence}
           />
-        </DashboardFeatureSection>
-
-        <DashboardFeatureSection
-          title={t('dashboard:features.interviewPrep.title')}
-          description={t('dashboard:features.interviewPrep.description')}
-          href="/interview-prep"
-          icon="mic_external_on"
-          color="mode"
-        >
-          <InterviewReadinessCard interviewReadiness={data?.interviewReadiness} />
         </DashboardFeatureSection>
       </PageContainer>
     </DashboardLayout>

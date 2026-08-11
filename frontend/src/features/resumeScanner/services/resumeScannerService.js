@@ -52,7 +52,7 @@ export const updateSuggestionStatus = (analysisId, suggestionId, action) =>
 
 export const acceptAllSuggestions = (analysisId) =>
   api
-    .post(`/resume-scanner/${analysisId}/accept-all`, null, {
+    .post(`/resume-scanner/${analysisId}/accept-all`, {}, {
       timeout: MUTATION_TIMEOUT_MS,
     })
     .then(unwrap);
@@ -74,12 +74,12 @@ export const updateResumeScannerText = (analysisId, payload) => {
 
 export const undoResumeScannerChange = (analysisId) =>
   api
-    .post(`/resume-scanner/${analysisId}/undo`, null, { timeout: MUTATION_TIMEOUT_MS })
+    .post(`/resume-scanner/${analysisId}/undo`, {}, { timeout: MUTATION_TIMEOUT_MS })
     .then(unwrap);
 
 export const redoResumeScannerChange = (analysisId) =>
   api
-    .post(`/resume-scanner/${analysisId}/redo`, null, { timeout: MUTATION_TIMEOUT_MS })
+    .post(`/resume-scanner/${analysisId}/redo`, {}, { timeout: MUTATION_TIMEOUT_MS })
     .then(unwrap);
 
 export const updateRewriteStatus = (analysisId, action) =>
@@ -93,7 +93,7 @@ export const updateRewriteStatus = (analysisId, action) =>
 
 export const finalizeResumeScannerAnalysis = (analysisId) =>
   api
-    .post(`/resume-scanner/${analysisId}/finalize`, null, {
+    .post(`/resume-scanner/${analysisId}/finalize`, {}, {
       timeout: MUTATION_TIMEOUT_MS,
     })
     .then(unwrap);

@@ -94,11 +94,11 @@ export const serializeAtsAnalysis = (analysis, jobDescription = null, options = 
     },
     extractionMetadata: extractionMetadata
       ? {
-          source: extractionMetadata.source || '',
-          extractionMode: extractionMetadata.extraction_mode || '',
-          atsNormalized: Boolean(extractionMetadata.atsNormalized ?? extractionMetadata.ats_normalized),
-          lowQuality: lowExtractionQuality,
-        }
+        source: extractionMetadata.source || '',
+        extractionMode: extractionMetadata.extraction_mode || '',
+        atsNormalized: Boolean(extractionMetadata.atsNormalized ?? extractionMetadata.ats_normalized),
+        lowQuality: lowExtractionQuality,
+      }
       : null,
     score: jdSkillsUnavailable ? null : jobMatchScore,
     matchedSkills: skills.filter((skill) => skill.matched),
@@ -118,11 +118,11 @@ export const serializeAtsAnalysis = (analysis, jobDescription = null, options = 
     recruiterTips: analysis.recruiterTips,
     jobDescription: jobDescription
       ? {
-          id: jobDescription._id,
-          title: jobDescription.title,
-          company: jobDescription.company,
-          rawText: jobDescription.rawText,
-        }
+        id: jobDescription._id,
+        title: jobDescription.title,
+        company: jobDescription.company,
+        rawText: jobDescription.rawText,
+      }
       : null,
     suggestionStats,
     analysisMode: analysis.analysisMode || 'optimize',
@@ -136,9 +136,9 @@ export const serializeAtsAnalysis = (analysis, jobDescription = null, options = 
     finalizedAt: analysis.finalizedAt || null,
     canDownloadPdf: Boolean(
       analysis.status === 'completed' &&
-        analysis.rewriteStatus !== 'pending_review' &&
-        analysis.finalizedAt &&
-        hasStructuredResumeData(analysis.finalizedStructuredResume)
+      analysis.rewriteStatus !== 'pending_review' &&
+      analysis.finalizedAt &&
+      hasStructuredResumeData(analysis.finalizedStructuredResume)
     ),
     history: {
       canUndo: analysis.historyIndex > 0,

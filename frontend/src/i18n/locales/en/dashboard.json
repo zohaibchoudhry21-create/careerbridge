@@ -46,6 +46,45 @@
     "recommendation": "AI Recommendation",
     "browseTracks": "Browse AI Career Tracks"
   },
+  "careerProgress": {
+    "title": "Career Progress",
+    "description": "Track interview scores, ATS trends, and skill gaps over time.",
+    "actions": {
+      "practice": "Practice interview",
+      "scan": "Scan resume"
+    },
+    "stats": {
+      "interviewAvg": "Last 5 interview avg",
+      "interviews": "Interviews",
+      "quizzes": "Skill quizzes",
+      "scans": "ATS scans"
+    },
+    "charts": {
+      "interviewTrend": "Interview score trend",
+      "interviewScore": "Interview score",
+      "atsTrend": "ATS & job-match trend",
+      "atsScore": "ATS score",
+      "jobMatch": "Job match",
+      "quizTrend": "Skill quiz trend",
+      "quizScore": "Quiz score",
+      "needMoreInterviews": "Complete at least 2 mock interviews to see your trend.",
+      "needMoreScans": "Run at least 2 resume scans to see your ATS trend."
+    },
+    "weakSkills": {
+      "title": "Weak skills to improve",
+      "empty": "No weak skills flagged yet. Keep practicing."
+    },
+    "timeline": {
+      "title": "Recent activity",
+      "empty": "No recent career activity yet."
+    },
+    "empty": {
+      "title": "Start building your progress",
+      "description": "Scan a resume or practice interviews to unlock trends and weak-skill insights.",
+      "scanCta": "Scan resume",
+      "practiceCta": "Practice interview"
+    }
+  },
   "loading": {
     "message": "Loading your dashboard..."
   },
@@ -76,6 +115,7 @@
   },
   "resumeScanner": {
     "openScanner": "Open Resume Scanner",
+    "compactInsight": "Improvement potential {{potential}} if you close the top gaps.",
     "empty": {
       "title": "No scan data yet",
       "description": "Upload your resume and a job description to see ATS scores and skill gaps.",

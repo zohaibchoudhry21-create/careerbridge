@@ -396,8 +396,8 @@ export default function ResumeScannerAnalysisPage() {
             ) : null}
 
             {!showRewriteGate &&
-            workflowPhase !== WORKFLOW_PHASES.DONE &&
-            workspaceTab === 'resume' ? (
+              workflowPhase !== WORKFLOW_PHASES.DONE &&
+              workspaceTab === 'resume' ? (
               <>
                 <SuggestionToolbar
                   suggestionStats={analysis.suggestionStats}
@@ -443,8 +443,8 @@ export default function ResumeScannerAnalysisPage() {
                             ? 'bg-blue-600 text-white'
                             : 'bg-slate-100 text-slate-600',
                           !analysis.resumeText &&
-                            !analysis.structuredSections &&
-                            'opacity-40 cursor-not-allowed'
+                          !analysis.structuredSections &&
+                          'opacity-40 cursor-not-allowed'
                         )}
                       >
                         {t('analysis.viewMode.preview')}
@@ -493,8 +493,8 @@ export default function ResumeScannerAnalysisPage() {
             ) : null}
 
             {!showRewriteGate &&
-            workflowPhase !== WORKFLOW_PHASES.DONE &&
-            workspaceTab === 'jobDescription' ? (
+              workflowPhase !== WORKFLOW_PHASES.DONE &&
+              workspaceTab === 'jobDescription' ? (
               <div className="flex-1 overflow-y-auto p-6 lg:p-12 bg-slate-50">
                 <div className="max-w-[800px] mx-auto bg-white p-8 lg:p-12 shadow-[0_4px_20px_rgba(0,0,0,0.05)] text-sm text-slate-700 whitespace-pre-wrap leading-relaxed min-h-[400px]">
                   {analysis.jobDescription?.rawText ||
