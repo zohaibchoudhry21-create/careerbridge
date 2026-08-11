@@ -9,7 +9,15 @@ import SettingsConfirmDialog, {
   AccountDeletedState,
   AccountDeactivatedState,
 } from '../../components/settings/SettingsConfirmDialog';
+import SignOutDialog from '../../components/dashboard/SignOutDialog';
 import { DELETE_ACCOUNT_CONFIRMATION_PHRASE } from '../../components/settings/settingsConstants';
+import {
+  evaluateDeleteRequirements,
+  getDeleteRequirementMessageKey,
+  isDeleteEmailValid,
+  isDeletePhraseValid,
+  isLocalAuthAccount,
+} from '../../components/settings/accountDeleteUtils';
 import AppIcon from '../../components/icons/AppIcon';
 import Button from '../../components/ui/Button';
 import useAuth from '../../hooks/useAuth';
@@ -22,6 +30,9 @@ function mapDeleteAccountErrors(error, t) {
 
   if (lower.includes('password')) {
     return { password: message, form: null };
+  }
+  if (lower.includes('sign in again') || lower.includes('sign out')) {
+    return { password: null, confirmEmail: null, confirmPhrase: null, form: message };
   }
   if (lower.includes('email confirmation') || lower.includes('account email')) {
     return { confirmEmail: message, form: null };
@@ -36,12 +47,12 @@ function mapDeleteAccountErrors(error, t) {
 export default function AccountManagement() {
   const { t } = useTranslation(['settings', 'common']);
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const deleteAccount = useDeleteAccount();
   const deactivateAccount = useDeactivateAccount();
   const exportAccountData = useExportAccountData();
 
-  const isLocalAccount = (user?.provider || user?.authProvider || 'local') === 'local';
+  const isLocalAccount = isLocalAuthAccount(user);
 
   const exportIncludes = useMemo(
     () => [
@@ -66,27 +77,28 @@ export default function AccountManagement() {
   const [deleteErrors, setDeleteErrors] = useState({});
   const [deleteSuccess, setDeleteSuccess] = useState(false);
 
-  const deleteRequirementsMet = useMemo(() => {
-    if (!deleteAcknowledged) return false;
+  useEffect(() => {
+    void refreshUser();
+  }, [refreshUser]);
 
-    if (isLocalAccount) {
-      return Boolean(deletePassword.trim());
-    }
+  useEffect(() => {
+    if (!user?.email || confirmEmail) return;
+    setConfirmEmail(user.email);
+  }, [user?.email, confirmEmail]);
 
-    const normalizedEmail = confirmEmail.trim().toLowerCase();
-    const normalizedPhrase = confirmPhrase.trim().toUpperCase();
-    return (
-      normalizedEmail === String(user?.email || '').toLowerCase() &&
-      normalizedPhrase === DELETE_ACCOUNT_CONFIRMATION_PHRASE
-    );
-  }, [
-    confirmEmail,
-    confirmPhrase,
-    deleteAcknowledged,
-    deletePassword,
-    isLocalAccount,
-    user?.email,
-  ]);
+  const deleteRequirementState = useMemo(
+    () =>
+      evaluateDeleteRequirements({
+        user,
+        deleteAcknowledged,
+        deletePassword,
+        confirmEmail,
+        confirmPhrase,
+      }),
+    [user, deleteAcknowledged, deletePassword, confirmEmail, confirmPhrase]
+  );
+
+  const deleteRequirementsMet = deleteRequirementState.met;
 
   useEffect(() => {
     if (!deleteSuccess) return undefined;
@@ -165,12 +177,12 @@ export default function AccountManagement() {
         setDeleteErrors({ form: t('account.delete.errors.acknowledge') });
       } else if (isLocalAccount && !deletePassword.trim()) {
         setDeleteErrors({ password: t('account.delete.errors.password') });
-      } else if (!isLocalAccount) {
+      } else {
         const nextErrors = {};
-        if (confirmEmail.trim().toLowerCase() !== String(user?.email || '').toLowerCase()) {
+        if (!isDeleteEmailValid(user, confirmEmail)) {
           nextErrors.confirmEmail = t('account.delete.errors.email');
         }
-        if (confirmPhrase.trim().toUpperCase() !== DELETE_ACCOUNT_CONFIRMATION_PHRASE) {
+        if (!isDeletePhraseValid(confirmPhrase)) {
           nextErrors.confirmPhrase = t('account.delete.errors.phrase', {
             phrase: DELETE_ACCOUNT_CONFIRMATION_PHRASE,
           });
@@ -432,7 +444,9 @@ export default function AccountManagement() {
             <p className="font-body-md text-xs text-on-surface-variant">
               {deleteRequirementsMet
                 ? t('account.delete.requirementsMet')
-                : t('account.delete.requirementsPending')}
+                : t(getDeleteRequirementMessageKey(deleteRequirementState.reason), {
+                    phrase: DELETE_ACCOUNT_CONFIRMATION_PHRASE,
+                  })}
             </p>
             <Button
               type="button"
@@ -457,13 +471,10 @@ export default function AccountManagement() {
         </div>
       </SectionCard>
 
-      <SettingsConfirmDialog
+      <SignOutDialog
         open={logoutDialogOpen}
-        title={t('account.signOut.dialogTitle')}
-        description={t('account.signOut.dialogDescription')}
-        confirmLabel={t('account.signOut.confirm')}
-        cancelLabel={t('account.signOut.cancel')}
         loading={loggingOut}
+        userEmail={user?.email}
         onConfirm={handleLogoutConfirm}
         onCancel={() => {
           if (!loggingOut) setLogoutDialogOpen(false);

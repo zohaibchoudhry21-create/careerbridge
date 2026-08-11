@@ -232,7 +232,13 @@
       "confirmPassword": "Confirma con tu contraseña",
       "confirmEmail": "Confirma el correo de tu cuenta",
       "confirmPhrase": "Frase de confirmación",
-      "phraseHint": "Escribe {{phrase}} exactamente. Por seguridad, debes haber iniciado sesión recientemente con tu proveedor.",
+      "phraseHint": "Escribe {{phrase}} exactamente para confirmar la eliminación de la cuenta.",
+      "requirements": {
+        "acknowledge": "Marca la casilla de confirmación de arriba para continuar.",
+        "email": "Ingresa tu correo de cuenta exactamente como se muestra arriba.",
+        "phrase": "Escribe \"{{phrase}}\" exactamente en el campo de frase de confirmación.",
+        "password": "Ingresa tu contraseña para confirmar la eliminación de la cuenta."
+      },
       "requirementsMet": "Requisitos cumplidos. Puedes eliminar tu cuenta.",
       "requirementsPending": "Completa todos los requisitos anteriores para habilitar la eliminación.",
       "deleting": "Eliminando cuenta...",

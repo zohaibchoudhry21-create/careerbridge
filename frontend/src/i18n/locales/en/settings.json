@@ -232,7 +232,13 @@
       "confirmPassword": "Confirm with your password",
       "confirmEmail": "Confirm your account email",
       "confirmPhrase": "Confirmation phrase",
-      "phraseHint": "Type {{phrase}} exactly. For security, you must have signed in recently with your provider.",
+      "phraseHint": "Type {{phrase}} exactly to confirm account deletion.",
+      "requirements": {
+        "acknowledge": "Check the confirmation box above to continue.",
+        "email": "Enter your account email exactly as shown above.",
+        "phrase": "Type \"{{phrase}}\" exactly in the confirmation phrase field.",
+        "password": "Enter your password to confirm account deletion."
+      },
       "requirementsMet": "Requirements met. You can delete your account.",
       "requirementsPending": "Complete all requirements above to enable deletion.",
       "deleting": "Deleting account...",

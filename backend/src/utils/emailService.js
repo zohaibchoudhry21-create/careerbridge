@@ -30,6 +30,9 @@ const createTransporter = () => {
       user: config.smtpUser,
       pass: config.smtpPass,
     },
+    ...(config.smtpHost === 'smtp.gmail.com' && !config.smtpSecure
+      ? { requireTLS: true }
+      : {}),
   });
 };
 
@@ -133,6 +136,14 @@ export const sendVerificationEmail = async ({ to, name, verificationUrl }) => {
     return { sent: true, devMode: false };
   } catch (error) {
     console.error('[Email] Failed to send verification email:', error.message);
+    if (
+      String(error.message).includes('535') ||
+      String(error.message).includes('BadCredentials')
+    ) {
+      console.error(
+        '[Email] Gmail SMTP login failed. Regenerate an App Password at https://myaccount.google.com/apppasswords and set SMTP_PASS in backend/.env (not your normal Gmail password).'
+      );
+    }
 
     // Local/dev: Gmail App Password wrong → Ethereal inbox + verification link.
     if (process.env.NODE_ENV !== 'production') {

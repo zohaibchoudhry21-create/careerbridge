@@ -46,7 +46,7 @@ export default function DashboardLayout({ children }) {
 
       <aside
         className={[
-          'fixed start-0 top-0 z-50 flex h-full w-[280px] max-w-[85vw] shrink-0 flex-col',
+          'fixed start-0 top-0 z-50 flex h-full w-[216px] max-w-[85vw] shrink-0 flex-col',
           'border-e border-slate-200 bg-white shadow-2xl',
           'transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] lg:hidden',
           mobileOpen ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full',
@@ -64,7 +64,7 @@ export default function DashboardLayout({ children }) {
           'hidden h-full shrink-0 flex-col overflow-hidden border-e border-slate-200 bg-white lg:flex',
           'shadow-[8px_0_30px_rgba(0,0,0,0.04)]',
           SIDEBAR_TRANSITION,
-          collapsed ? 'w-[76px]' : 'w-[280px]',
+          collapsed ? 'w-[76px]' : 'w-[216px]',
         ].join(' ')}
         aria-expanded={!collapsed}
         aria-label="Dashboard navigation"

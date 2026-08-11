@@ -8,7 +8,6 @@ export const DASHBOARD_NAV_DEFS = [
 export const QUICK_ACTION_DEFS = [
   { id: 'build-resume', icon: 'description', href: '/resume/upload', color: 'resume' },
   { id: 'optimize-resume', icon: 'document_scanner', href: '/resume-scanner', color: 'scanner' },
-  { id: 'cover-letter', icon: 'edit_note', color: 'skills' },
 ];
 
 export const DEFAULT_AVATAR =

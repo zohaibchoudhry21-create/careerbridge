@@ -116,7 +116,6 @@ export const serializeAtsAnalysis = (analysis, jobDescription = null, options = 
     suggestions: analysis.suggestions,
     searchabilityIssues: analysis.searchabilityIssues,
     recruiterTips: analysis.recruiterTips,
-    coverLetter: analysis.coverLetter,
     jobDescription: jobDescription
       ? {
           id: jobDescription._id,

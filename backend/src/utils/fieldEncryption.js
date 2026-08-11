@@ -6,16 +6,17 @@ const IV_BYTES = 12;
 const VERSION_PREFIX = 'v1';
 
 const resolveEncryptionKey = () => {
-  const raw = process.env.TOTP_ENCRYPTION_KEY || process.env.LINKEDIN_CRED_ENCRYPTION_KEY;
+  const raw =
+    process.env.TOTP_ENCRYPTION_KEY?.trim() || process.env.JWT_SECRET?.trim();
 
-  if (!raw || !String(raw).trim()) {
+  if (!raw) {
     throw new AppError(
-      'Two-factor encryption is not configured. Set TOTP_ENCRYPTION_KEY in the server environment.',
+      'Two-factor encryption is not configured. Set JWT_SECRET (or optional TOTP_ENCRYPTION_KEY) in the server environment.',
       500
     );
   }
 
-  const value = String(raw).trim();
+  const value = raw;
 
   if (/^[0-9a-f]{64}$/i.test(value)) {
     return Buffer.from(value, 'hex');

@@ -275,10 +275,6 @@ const atsAnalysisSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
-    coverLetter: {
-      type: String,
-      default: '',
-    },
     analysisMode: {
       type: String,
       enum: ['optimize', 'rewrite'],

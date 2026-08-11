@@ -18,6 +18,7 @@ import {
 export default function RegisterForm() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -126,16 +127,29 @@ export default function RegisterForm() {
           <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="confirmPassword">
             Confirm Password <span className="text-error">*</span>
           </label>
-          <input
-            id="confirmPassword"
-            type="password"
-            placeholder="Confirm your password"
-            className={getAuthFieldClassName(authInputClassName, Boolean(errors.confirmPassword))}
-            {...register('confirmPassword', {
-              required: 'Please confirm your password',
-              validate: (value) => value === password || 'Passwords do not match',
-            })}
-          />
+          <div className="relative">
+            <input
+              id="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              placeholder="Confirm your password"
+              className={getAuthFieldClassName(authInputPasswordClassName, Boolean(errors.confirmPassword))}
+              {...register('confirmPassword', {
+                required: 'Please confirm your password',
+                validate: (value) => value === password || 'Passwords do not match',
+              })}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+              className="absolute end-4 top-1/2 -translate-y-1/2 text-outline transition-colors duration-200 hover:text-secondary"
+              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+            >
+              <AppIcon
+                name={showConfirmPassword ? 'visibility_off' : 'visibility'}
+                size="h-5 w-5"
+              />
+            </button>
+          </div>
           {errors.confirmPassword && (
             <p className="text-sm text-error">{errors.confirmPassword.message}</p>
           )}

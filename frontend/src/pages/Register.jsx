@@ -15,6 +15,7 @@ export default function Register() {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -129,16 +130,29 @@ export default function Register() {
           <label className="font-label-md text-label-md text-on-surface" htmlFor="confirmPassword">
             {t('fields.confirmPassword')}
           </label>
-          <input
-            id="confirmPassword"
-            type="password"
-            placeholder={t('fields.placeholders.confirmPassword')}
-            className={inputClassName}
-            {...register('confirmPassword', {
-              required: t('validation.confirmRequired'),
-              validate: (value) => value === password || t('validation.passwordMismatch'),
-            })}
-          />
+          <div className="relative">
+            <input
+              id="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              placeholder={t('fields.placeholders.confirmPassword')}
+              className={`${inputClassName} pe-12`}
+              {...register('confirmPassword', {
+                required: t('validation.confirmRequired'),
+                validate: (value) => value === password || t('validation.passwordMismatch'),
+              })}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+              className="absolute end-4 top-1/2 -translate-y-1/2 text-outline hover:text-secondary"
+              aria-label={showConfirmPassword ? t('fields.hidePassword') : t('fields.showPassword')}
+            >
+              <AppIcon
+                name={showConfirmPassword ? 'visibility_off' : 'visibility'}
+                size="h-5 w-5"
+              />
+            </button>
+          </div>
           {errors.confirmPassword && (
             <p className="text-sm text-error">{errors.confirmPassword.message}</p>
           )}

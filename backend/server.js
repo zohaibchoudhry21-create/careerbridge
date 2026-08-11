@@ -8,13 +8,6 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '.env') });
 
 console.log(
-  '[encryption key check]',
-  process.env.LINKEDIN_CRED_ENCRYPTION_KEY
-    ? 'set (' + process.env.LINKEDIN_CRED_ENCRYPTION_KEY.length + ' chars)'
-    : 'MISSING'
-);
-
-console.log(
   '[resume AI]',
   process.env.GROQ_API_KEY?.trim()
     ? 'Groq configured'

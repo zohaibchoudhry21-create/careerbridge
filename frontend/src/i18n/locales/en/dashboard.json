@@ -8,8 +8,7 @@
   "quickActions": {
     "sectionTitle": "Quick shortcuts",
     "build-resume": "Build ATS Resume",
-    "optimize-resume": "Optimize Resume",
-    "cover-letter": "Create Cover Letter"
+    "optimize-resume": "Optimize Resume"
   },
   "profileStrength": {
     "title": "Profile Strength",

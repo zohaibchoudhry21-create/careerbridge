@@ -8,8 +8,7 @@
   "quickActions": {
     "sectionTitle": "Herramientas aceleradas",
     "build-resume": "Crear currículum ATS",
-    "optimize-resume": "Optimizar currículum",
-    "cover-letter": "Crear carta de presentación"
+    "optimize-resume": "Optimizar currículum"
   },
   "profileStrength": {
     "title": "Fortaleza del perfil",

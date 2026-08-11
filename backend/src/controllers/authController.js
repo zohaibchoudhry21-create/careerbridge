@@ -161,6 +161,8 @@ export const getMe = async (req, res, next) => {
   try {
     sendResponse(res, 200, true, 'User profile fetched successfully', {
       user: req.user.toPublicJSON(),
+      sessionIssuedAt:
+        typeof req.authTokenIssuedAt === 'number' ? req.authTokenIssuedAt : null,
     });
   } catch (error) {
     next(error);
@@ -219,11 +221,8 @@ export const forgotPassword = async (req, res, next) => {
       message: 'If that email exists, a reset link has been sent.',
     };
 
-    if (process.env.NODE_ENV === 'development') {
-      if (emailResult.devMode) {
-        response.resetUrl = resetUrl;
-      }
-      response.resetToken = resetToken;
+    if (process.env.NODE_ENV === 'development' && emailResult.devMode) {
+      response.resetUrl = resetUrl;
     }
 
     res.status(200).json(response);

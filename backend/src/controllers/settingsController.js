@@ -19,8 +19,6 @@ import {
 } from '../utils/sessionService.js';
 
 const ACCOUNT_DELETE_CONFIRMATION = ACCOUNT_DELETE_CONFIRMATION_PHRASE;
-/** OAuth destructive actions require a freshly issued session (minutes). */
-const OAUTH_REAUTH_WINDOW_MINUTES = 15;
 const EXPORT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 const loadUser = (userId) => User.findById(userId);
@@ -244,29 +242,19 @@ export const deleteAccount = async (req, res, next) => {
       const normalizedConfirmEmail = String(confirmEmail || '')
         .trim()
         .toLowerCase();
+      const normalizedUserEmail = String(user.email || '').trim().toLowerCase();
 
-      if (!normalizedConfirmEmail || normalizedConfirmEmail !== user.email) {
+      if (!normalizedConfirmEmail || normalizedConfirmEmail !== normalizedUserEmail) {
         throw new AppError(ERROR_CODES.ACCOUNT.DELETE_EMAIL_MISMATCH, 400);
       }
 
-      const phrase = String(confirmPhrase || '').trim().toUpperCase();
+      const phrase = String(confirmPhrase || '')
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toUpperCase();
       if (phrase !== ACCOUNT_DELETE_CONFIRMATION) {
         throw new AppError(ERROR_CODES.ACCOUNT.DELETE_PHRASE_REQUIRED, 400, {
           phrase: ACCOUNT_DELETE_CONFIRMATION,
-        });
-      }
-
-      const issuedAt = req.authTokenIssuedAt;
-      const maxAgeSeconds = OAUTH_REAUTH_WINDOW_MINUTES * 60;
-      const nowSeconds = Math.floor(Date.now() / 1000);
-
-      if (
-        typeof issuedAt !== 'number' ||
-        nowSeconds - issuedAt > maxAgeSeconds
-      ) {
-        throw new AppError(ERROR_CODES.ACCOUNT.DELETE_OAUTH_REAUTH, 403, {
-          provider: user.provider,
-          minutes: OAUTH_REAUTH_WINDOW_MINUTES,
         });
       }
     }

@@ -14,7 +14,7 @@ function QuickActions() {
       <h3 className="mb-3 text-sm font-medium uppercase tracking-wide text-slate-500">
         {t('quickActions.sectionTitle')}
       </h3>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {quickActions.map(({ id, label, icon, href, color = 'resume' }) => (
           <button
             key={id}

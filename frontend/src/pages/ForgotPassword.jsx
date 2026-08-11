@@ -10,7 +10,7 @@ import { AuthLayout } from '../components/layout';
 export default function ForgotPassword() {
   const { t } = useTranslation('auth');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [resetToken, setResetToken] = useState('');
+  const [devResetUrl, setDevResetUrl] = useState('');
 
   const {
     register,
@@ -20,11 +20,12 @@ export default function ForgotPassword() {
 
   const onSubmit = async ({ email }) => {
     setIsSubmitting(true);
+    setDevResetUrl('');
     try {
       const { data } = await forgotPassword(email);
       toast.success(data.message);
-      if (data.resetToken) {
-        setResetToken(data.resetToken);
+      if (data.resetUrl) {
+        setDevResetUrl(data.resetUrl);
       }
     } catch (error) {
       toast.error(resolveApiError(error, t('toasts.forgotPasswordError')));
@@ -76,18 +77,14 @@ export default function ForgotPassword() {
         </button>
       </form>
 
-      {resetToken && (
-        <div className="mt-md p-4 rounded-2xl bg-surface-container-low border border-outline-variant">
-          <p className="text-sm text-on-surface-variant mb-2">{t('forgotPassword.devTokenLabel')}</p>
-          <code className="text-xs break-all text-secondary">{resetToken}</code>
-          <Link
-            to={`/reset-password?token=${resetToken}`}
-            className="block mt-3 text-secondary font-bold hover:underline text-sm"
-          >
-            {t('forgotPassword.continueToReset')}
-          </Link>
+      {devResetUrl ? (
+        <div className="mt-md rounded-2xl border border-outline-variant bg-surface-container-low p-4">
+          <p className="mb-2 text-sm text-on-surface-variant">{t('forgotPassword.devLinkLabel')}</p>
+          <a href={devResetUrl} className="text-sm text-secondary break-all hover:underline">
+            {devResetUrl}
+          </a>
         </div>
-      )}
+      ) : null}
 
       <div className="mt-xl text-center lg:text-start">
         <Link to="/login" className="text-secondary font-bold hover:underline">
