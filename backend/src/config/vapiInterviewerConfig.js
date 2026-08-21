@@ -69,7 +69,7 @@ export const getVapiInterviewerConfig = () => {
     model: {
       provider: process.env.VAPI_INTERVIEWER_MODEL_PROVIDER || 'openai',
       model: process.env.VAPI_INTERVIEWER_MODEL || 'gpt-4o-mini',
-      temperature: toNumber(process.env.VAPI_INTERVIEWER_TEMPERATURE, 0.6),
+      temperature: toNumber(process.env.VAPI_INTERVIEWER_TEMPERATURE, 0.72),
       /** Keep spoken turns short like a real interviewer. */
       maxTokens: toNumber(process.env.VAPI_INTERVIEWER_MAX_TOKENS, 180),
     },

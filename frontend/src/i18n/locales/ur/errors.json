@@ -134,6 +134,7 @@
   "INTERVIEW_PREP": {
     "SESSION_NOT_FOUND": "انٹرویو سیشن نہیں ملا۔",
     "REPORT_INCOMPLETE": "رپورٹ بنانے سے پہلے انٹرویو مکمل کریں۔",
+    "REPORT_UNAVAILABLE": "اس سیشن کے لیے محفوظ شدہ انٹرویو رپورٹ دستیاب نہیں۔",
     "ROLE_REQUIRED": "کردار ضروری ہے۔",
     "NOT_LIVE_SESSION": "یہ سیشن لائیو انٹرویو نہیں ہے۔",
     "TRANSCRIPT_REQUIRED": "ٹرانسکرپٹ ضروری ہے۔",
@@ -165,7 +166,7 @@
     "ROLE_SUGGESTIONS_FAILED": "کردار کی تجاویز حاصل نہیں ہو سکیں۔ دوبارہ کوشش کریں۔",
     "ROLE_LENGTH": "کردار {{min}} سے {{max}} حروف کے درمیان ہونا چاہیے",
     "DIFFICULTY_INVALID": "مشکل easy، medium یا hard ہونی چاہیے",
-    "DURATION_INVALID": "مدت ان میں سے ایک ہونی چاہیے: {{options}} منٹ",
+    "DURATION_INVALID": "مدت {{min}} سے {{max}} منٹ کے درمیان ہونی چاہیے",
     "ANSWER_TIME_LIMIT_INVALID": "جواب کی وقت حد 30 سے 600 سیکنڈ کے درمیان ہونی چاہیے",
     "RESUME_TEXT_TOO_LONG": "ریزیومے متن زیادہ سے زیادہ {{max}} حروف کا ہونا چاہیے",
     "JOB_DESCRIPTION_TOO_LONG": "ملازمت کی تفصیل زیادہ سے زیادہ {{max}} حروف کی ہونی چاہیے",

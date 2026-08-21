@@ -34,8 +34,13 @@
     },
     "time": {
       "title": "Time",
-      "description": "How long the session runs.",
-      "minutes": "{{count}} minutes"
+      "description": "Pick a length, or type your own ({{min}}–{{max}} min).",
+      "minutes": "{{count}} minutes",
+      "minutesUnit": "min",
+      "custom": "Custom",
+      "placeholder": "e.g. 45",
+      "customAria": "Type custom duration in minutes",
+      "questionPreview": "About {{count}} questions for this length"
     },
     "focusAreas": {
       "title": "Focus areas",
@@ -148,7 +153,39 @@
     "submitMissingReport": "Interview submitted but report was missing.",
     "submitFailed": "Could not submit live interview.",
     "defaultRole": "this role",
-    "defaultCandidate": "Candidate"
+    "defaultCandidate": "Candidate",
+    "incompleteTitle": "This interview was not completed",
+    "incompleteDescription": "No evaluation was saved for this session. Start a new mock interview whenever you're ready.",
+    "reportUnavailableTitle": "Report unavailable",
+    "reportUnavailableDescription": "This interview has no saved evaluation. We don't generate a new score from missing data."
+  },
+  "history": {
+    "navLabel": "Interview History",
+    "title": "Interview History",
+    "description": "Review your previous mock interviews and saved reports.",
+    "startNew": "Start new interview",
+    "loading": "Loading interview history",
+    "emptyTitle": "No interviews yet",
+    "emptyDescription": "Complete a mock interview and it will show up here automatically.",
+    "searchLabel": "Search interviews",
+    "searchPlaceholder": "Search by role, difficulty, or status...",
+    "noSearchResults": "No interviews match your search.",
+    "errorTitle": "Could not load history",
+    "errorFallback": "Could not load interview history. Please try again.",
+    "view": "View",
+    "score": "Score {{score}}",
+    "scoreUnavailable": "Score unavailable",
+    "questionCount": "{{count}} questions",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{current}} of {{total}}",
+    "status": {
+      "completed": "Completed",
+      "abandoned": "Incomplete",
+      "active": "In progress",
+      "processing": "Processing",
+      "setup": "Setup"
+    }
   },
   "live": {
     "title": "Live interview",
@@ -190,6 +227,7 @@
     "faceModelsFailed": "Face analysis models could not load. Eye-contact metrics may be unavailable.",
     "endedNoConversation": "The interview ended before any conversation was recorded. Please start it again.",
     "endedNoConversationWithReason": "The interview ended before any conversation was recorded ({{reason}}). Please start it again.",
+    "micJoinFailed": "The voice room closed because the microphone never joined. Close Zoom/Teams or other apps using the mic, then start the interview again.",
     "analyzingCamera": "Analyzing camera…",
     "eyeContactGood": "Eye contact: good",
     "eyeContactLow": "Eye contact: low",

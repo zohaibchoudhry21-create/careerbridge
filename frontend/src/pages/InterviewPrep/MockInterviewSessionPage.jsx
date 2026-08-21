@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { buttonPrimaryClass } from '../../components/ui/buttonTokens';
+import { buttonGradientCtaClass, buttonPrimaryClass } from '../../components/ui/buttonTokens';
 import { cn } from '../../lib/utils';
 import { DashboardLayout, PageContainer, PageHeader, BackLink } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
@@ -12,8 +12,8 @@ import LiveInterviewReportView from '../../features/interviewPrep/components/Liv
 import { preloadInterviewFaceModels } from '../../features/interviewPrep/hooks/useFaceVideoAnalysis';
 import { useInterviewMedia } from '../../features/interviewPrep/context/InterviewMediaContext';
 import {
-  useGenerateMockInterviewReport,
   useMockInterviewSession,
+  useSavedInterviewReport,
   useSubmitLiveInterview,
 } from '../../features/interviewPrep/hooks/useMockInterview';
 import {
@@ -30,8 +30,11 @@ const LiveInterviewAgent = lazy(
   () => import('../../features/interviewPrep/components/LiveInterviewAgent')
 );
 
-function SessionExitLink() {
+function SessionExitLink({ fromHistory }) {
   const { t } = useTranslation('interviewPrep');
+  if (fromHistory) {
+    return <BackLink to="/interview-prep/mock/history">{t('history.navLabel')}</BackLink>;
+  }
   return <BackLink to="/interview-prep/mock">{t('backLinks.exit')}</BackLink>;
 }
 
@@ -42,24 +45,37 @@ export default function MockInterviewSessionPage() {
   const { user, loading: authLoading } = useAuth();
   const { status, stream, requestAccess } = useInterviewMedia();
   const submitLiveInterview = useSubmitLiveInterview();
-  const generateReport = useGenerateMockInterviewReport();
   const submittedRef = useRef(false);
   const requestAccessRef = useRef(requestAccess);
   requestAccessRef.current = requestAccess;
 
+  const fromHistory = Boolean(location.state?.fromHistory);
   const [interviewReport, setInterviewReport] = useState(location.state?.interviewReport || null);
   const [submitError, setSubmitError] = useState(null);
 
-  // Always fetch session status (abandoned / completed) unless we already have a report.
-  // Nav-state assistantId still used for faster cold start.
   const { data: sessionFromApi, isLoading: sessionLoading } = useMockInterviewSession(
     sessionId,
     !interviewReport
   );
 
+  const sessionStatus = sessionFromApi?.status;
+  const isAbandoned = sessionStatus === 'abandoned';
+  const isIncomplete = sessionStatus === 'setup' || sessionStatus === 'processing';
+  const isCompleted = Boolean(interviewReport) || sessionStatus === 'completed';
+
+  const {
+    data: savedReport,
+    isLoading: savedReportLoading,
+    isFetched: savedReportFetched,
+  } = useSavedInterviewReport(sessionId, isCompleted && !interviewReport);
+
+  const displayReport = interviewReport || savedReport;
+  const reportUnavailable = isCompleted && !displayReport && savedReportFetched && !savedReportLoading;
+
+  // Prefer API id — after Vapi key rotation the navigation-state id can be stale.
   const assistantId = useMemo(() => {
-    if (location.state?.assistantId) return String(location.state.assistantId);
     if (sessionFromApi?.assistantId) return String(sessionFromApi.assistantId);
+    if (location.state?.assistantId) return String(location.state.assistantId);
     return '';
   }, [location.state?.assistantId, sessionFromApi?.assistantId]);
 
@@ -67,8 +83,6 @@ export default function MockInterviewSessionPage() {
     location.state?.adaptiveDepthEnabled ?? sessionFromApi?.adaptiveDepthEnabled
   );
 
-  const isAbandoned = sessionFromApi?.status === 'abandoned';
-  // Wait for session GET so abandoned/stale status is known before starting the call.
   const canStartSession =
     Boolean(assistantId) &&
     !sessionLoading &&
@@ -105,43 +119,31 @@ export default function MockInterviewSessionPage() {
     [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
     t('session.defaultCandidate');
 
-  const isCompletePhase =
-    Boolean(interviewReport) || sessionFromApi?.status === 'completed';
-
   useEffect(() => {
-    if (interviewReport || !sessionFromApi || sessionFromApi.status !== 'completed') {
-      return;
-    }
-
-    let cancelled = false;
-
-    generateReport
-      .mutateAsync(sessionId)
-      .then((data) => {
-        if (!cancelled && data?.report) {
-          setInterviewReport(data.report);
-        }
-      })
-      .catch(() => {});
-
-    return () => {
-      cancelled = true;
-    };
-  }, [generateReport, interviewReport, sessionFromApi, sessionId]);
-
-  useEffect(() => {
-    preloadInterviewFaceModels().catch(() => {});
+    preloadInterviewFaceModels().catch(() => { });
   }, []);
 
   useEffect(() => {
     const hasLiveStream = stream?.getTracks?.().some((track) => track.readyState === 'live');
-    if (hasLiveStream || isCompletePhase) return;
-    if (status === 'requesting') return;
+    if (hasLiveStream || isCompleted || isAbandoned || isIncomplete) return;
+    if (sessionLoading) return;
+    if (sessionFromApi && sessionFromApi.status !== 'active') return;
+    if (status === 'requesting' || status === 'granted' || status === 'denied') return;
+    if (!canStartSession) return;
     requestAccessRef.current().catch((err) => {
       const issue = getMediaPermissionIssue(err) || 'unknown';
       toast.error(getPermissionIssueMessage(issue));
     });
-  }, [stream, status, isCompletePhase]);
+  }, [
+    stream,
+    status,
+    isCompleted,
+    isAbandoned,
+    isIncomplete,
+    sessionLoading,
+    sessionFromApi,
+    canStartSession,
+  ]);
 
   const handleFinished = useCallback(
     (payload) => {
@@ -209,13 +211,19 @@ export default function MockInterviewSessionPage() {
   return (
     <DashboardLayout user={user}>
       <PageContainer width="standard">
-        {isAbandoned ? (
+        {isAbandoned || isIncomplete ? (
           <div className="mx-auto max-w-lg space-y-md text-center">
-            <SessionExitLink />
+            <SessionExitLink fromHistory={fromHistory} />
             <PageHeader
               align="center"
-              title={t('session.abandonedTitle')}
-              description={t('session.abandonedDescription')}
+              title={
+                isAbandoned ? t('session.abandonedTitle') : t('session.incompleteTitle')
+              }
+              description={
+                isAbandoned
+                  ? t('session.abandonedDescription')
+                  : t('session.incompleteDescription')
+              }
             />
             <Link
               to="/interview-prep/mock"
@@ -224,16 +232,22 @@ export default function MockInterviewSessionPage() {
               {t('session.startNewInterview')}
             </Link>
           </div>
-        ) : isCompletePhase ? (
+        ) : isCompleted ? (
           <>
-            <SessionExitLink />
+            <SessionExitLink fromHistory={fromHistory} />
             <PageHeader
               align="center"
-              title={t('session.completeTitle')}
-              description={t('session.completeDescription')}
+              title={
+                displayReport ? t('session.completeTitle') : t('session.reportUnavailableTitle')
+              }
+              description={
+                displayReport
+                  ? t('session.completeDescription')
+                  : t('session.reportUnavailableDescription')
+              }
             />
 
-            {!interviewReport && generateReport.isPending ? (
+            {!displayReport && savedReportLoading ? (
               <div className="space-y-4 py-md">
                 <Skeleton type="card" count={1} withMedia={false} lines={2} label={t('session.loadingReport')} />
                 <Skeleton type="card" count={4} withMedia={false} lines={2} columnsGrid={4} />
@@ -241,19 +255,24 @@ export default function MockInterviewSessionPage() {
               </div>
             ) : null}
 
-            {interviewReport ? (
+            {displayReport ? (
               <LiveInterviewReportView
-                report={interviewReport}
+                report={displayReport}
                 sessionId={sessionId}
                 userName={userName}
               />
             ) : null}
 
+            {reportUnavailable ? (
+              <p className="font-body-md app-muted text-center">{t('history.scoreUnavailable')}</p>
+            ) : null}
+
             <Link
-              to="/interview-prep"
-              className={cn(buttonPrimaryClass, 'px-6 py-2.5')}
+              to={fromHistory ? '/interview-prep/mock/history' : '/interview-prep'}
+              className={buttonGradientCtaClass}
             >
-              {t('backLinks.backToInterviewPrep')}
+              <AppIcon name={fromHistory ? 'history' : 'arrow_back'} size="sm" className="text-white" />
+              {fromHistory ? t('history.navLabel') : t('backLinks.backToInterviewPrep')}
             </Link>
           </>
         ) : (
@@ -267,7 +286,7 @@ export default function MockInterviewSessionPage() {
 
             {!sessionLoading && !canStartSession ? (
               <div className="text-center space-y-md">
-                <SessionExitLink />
+                <SessionExitLink fromHistory={fromHistory} />
                 <p className="font-body-md text-on-surface-variant">
                   {t('session.loadFailed')}
                 </p>
@@ -282,7 +301,7 @@ export default function MockInterviewSessionPage() {
 
             {canStartSession ? (
               <>
-                <SessionExitLink />
+                <SessionExitLink fromHistory={fromHistory} />
                 <Suspense
                   fallback={
                     <div className="flex justify-center py-xl">

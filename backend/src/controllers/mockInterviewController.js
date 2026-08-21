@@ -5,6 +5,7 @@ import {
   INTERVIEWER_PERSONAS,
   MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
   MOCK_INTERVIEW_ROLES,
+  clampDurationMinutes,
   durationMinutesToQuestionCount,
 } from '../constants/interviewPrepConstants.js';
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
@@ -19,10 +20,22 @@ import { persistMockInterviewReport } from '../services/interviewReport/index.js
 import { evaluateClientMetricsAnomalies } from '../services/interviewReport/clientMetricsValidation.js';
 import { isCurrentScoreVersion } from '../config/interviewReportConfig.js';
 import { serializeInterviewReport } from '../utils/interviewReportSerializer.js';
+import {
+  SESSION_HISTORY_SELECT,
+  buildHistoryPagination,
+  indexReportsBySourceId,
+  mapSessionHistoryItems,
+  parseHistoryPagination,
+  savedInterviewReportQuery,
+  sessionHistoryOwnerFilter,
+} from '../utils/interviewHistoryUtils.js';
 import { fetchRoleSuggestionsWithGroq } from '../utils/roleSuggestionsGroqService.js';
 import { analyzeResumeForInterview } from '../utils/interviewResumeAnalysisGroqService.js';
 import { extractResumeTextFromFile } from '../utils/resumeFileExtractor.js';
-import { createVapiAssistantForSession } from '../utils/vapiAssistantService.js';
+import {
+  createVapiAssistantForSession,
+  ensureVapiAssistantForSession,
+} from '../utils/vapiAssistantService.js';
 import { prepareInterviewIntelligence } from '../services/interviewIntelligence/index.js';
 import {
   applyAdaptiveDepthToQuestions,
@@ -76,10 +89,10 @@ const resolveRoleInput = (roleInput) => {
 };
 
 const resolveDurationMinutes = (value) => {
+  if (value == null || value === '') return DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES;
   const minutes = Number(value);
-  return [10, 15, 20].includes(minutes)
-    ? minutes
-    : DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES;
+  if (!Number.isFinite(minutes)) return DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES;
+  return clampDurationMinutes(minutes);
 };
 
 const parseOptionalCustomization = (body) => {
@@ -416,15 +429,15 @@ export const submitLiveInterview = async (req, res, next) => {
 
     const voicePromise = userTranscript.trim()
       ? withInterviewStageTiming(
-          'submit.voice',
-          () =>
-            analyzeVoiceFromTranscription({
-              transcript: userTranscript,
-              duration: durationSeconds,
-              durationMs: durationMs ? Number(durationMs) : undefined,
-            }),
-          { sessionId: sessionIdStr }
-        )
+        'submit.voice',
+        () =>
+          analyzeVoiceFromTranscription({
+            transcript: userTranscript,
+            duration: durationSeconds,
+            durationMs: durationMs ? Number(durationMs) : undefined,
+          }),
+        { sessionId: sessionIdStr }
+      )
       : Promise.resolve(null);
 
     const speechPromise = (async () => {
@@ -464,28 +477,28 @@ export const submitLiveInterview = async (req, res, next) => {
 
     const callVideoMetrics = liveVideoMetrics
       ? {
-          eyeContactPercent: liveVideoMetrics.eyeContactPercent,
-          expressionBreakdown: liveVideoMetrics.expressionBreakdown,
-          engagementScore: liveVideoMetrics.engagementScore,
-          attentionScore: liveVideoMetrics.attentionScore,
-          timeline: liveVideoMetrics.timeline,
-          feedbackText: buildVideoFeedbackText(liveVideoMetrics),
-          behavioralMetrics: liveVideoMetrics.behavioralMetrics,
-          timelineEvents,
-        }
+        eyeContactPercent: liveVideoMetrics.eyeContactPercent,
+        expressionBreakdown: liveVideoMetrics.expressionBreakdown,
+        engagementScore: liveVideoMetrics.engagementScore,
+        attentionScore: liveVideoMetrics.attentionScore,
+        timeline: liveVideoMetrics.timeline,
+        feedbackText: buildVideoFeedbackText(liveVideoMetrics),
+        behavioralMetrics: liveVideoMetrics.behavioralMetrics,
+        timelineEvents,
+      }
       : undefined;
 
     // Persist compact audio hints — drop raw acousticSamples after analysis.
     const callLiveAudioHints = liveAudioHints
       ? {
-          averageVolume: liveAudioHints.averageVolume,
-          silenceRatio: liveAudioHints.silenceRatio,
-          longPauseCount: liveAudioHints.longPauseCount,
-          sampleIntervalMs: liveAudioHints.sampleIntervalMs,
-          pauseEvents: Array.isArray(liveAudioHints.pauseEvents)
-            ? liveAudioHints.pauseEvents.slice(0, PERSIST_PAUSE_EVENTS_MAX)
-            : undefined,
-        }
+        averageVolume: liveAudioHints.averageVolume,
+        silenceRatio: liveAudioHints.silenceRatio,
+        longPauseCount: liveAudioHints.longPauseCount,
+        sampleIntervalMs: liveAudioHints.sampleIntervalMs,
+        pauseEvents: Array.isArray(liveAudioHints.pauseEvents)
+          ? liveAudioHints.pauseEvents.slice(0, PERSIST_PAUSE_EVENTS_MAX)
+          : undefined,
+      }
       : undefined;
 
     session.voiceCallTranscript = normalized;
@@ -552,6 +565,20 @@ export const getMockInterviewSession = async (req, res, next) => {
     let session = await loadSessionForUser(req.params.sessionId, req.user._id);
     session = await maybeAbandonStaleSession(session);
 
+    // After Vapi key rotation, stored assistant ids from the old org 404.
+    // Recreate for active live sessions so the client always gets a usable id.
+    if (session.mode === 'live' && session.status === 'active') {
+      try {
+        await ensureVapiAssistantForSession(session);
+      } catch (ensureError) {
+        console.error(
+          '[vapi] ensure assistant failed for session',
+          String(session._id),
+          ensureError.message || ensureError
+        );
+      }
+    }
+
     // Live sessions bake the prompt into a server-side Vapi assistant — do not
     // expose question texts that would let the client reconstruct the system prompt.
     const hideQuestions = session.mode === 'live';
@@ -586,21 +613,21 @@ export const getMockInterviewSession = async (req, res, next) => {
         questions: hideQuestions
           ? []
           : session.questions.map((q) => ({
-              questionId: q.questionId,
-              text: q.text,
-              order: q.order,
-            })),
+            questionId: q.questionId,
+            text: q.text,
+            order: q.order,
+          })),
         questionTexts: hideQuestions ? [] : session.questions.map((q) => q.text),
         answers: hideQuestions
           ? []
           : session.answers.map((a) => ({
-              questionId: a.questionId,
-              transcript: a.transcript,
-              voiceMetrics: a.voiceMetrics,
-              videoMetrics: a.videoMetrics,
-              durationMs: a.durationMs,
-              submittedAt: a.submittedAt,
-            })),
+            questionId: a.questionId,
+            transcript: a.transcript,
+            voiceMetrics: a.voiceMetrics,
+            videoMetrics: a.videoMetrics,
+            durationMs: a.durationMs,
+            submittedAt: a.submittedAt,
+          })),
       },
     });
   } catch (error) {
@@ -670,6 +697,62 @@ export const applyLiveAdaptiveDepth = async (req, res, next) => {
       strength,
       adjustment,
       systemNudge,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getInterviewSessionHistory = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { page, limit, skip } = parseHistoryPagination(req.query);
+    const filter = sessionHistoryOwnerFilter(userId);
+
+    const [sessions, total] = await Promise.all([
+      MockInterviewSession.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select(SESSION_HISTORY_SELECT)
+        .lean(),
+      MockInterviewSession.countDocuments(filter),
+    ]);
+
+    const sessionIds = sessions.map((session) => session._id);
+    const reports = sessionIds.length
+      ? await InterviewReport.find({
+        userId,
+        sourceType: 'mock_interview',
+        sourceId: { $in: sessionIds },
+      })
+        .select('sourceId overallScore')
+        .lean()
+      : [];
+
+    sendResponse(res, 200, true, 'Interview session history.', {
+      items: mapSessionHistoryItems(sessions, indexReportsBySourceId(reports)),
+      pagination: buildHistoryPagination(page, limit, total),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSavedInterviewReport = async (req, res, next) => {
+  try {
+    const session = await loadSessionForUser(req.params.sessionId, req.user._id);
+    const report = await InterviewReport.findOne(
+      savedInterviewReportQuery(req.user._id, session._id)
+    );
+
+    if (!report) {
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.REPORT_UNAVAILABLE, 404);
+    }
+
+    sendResponse(res, 200, true, 'Interview report fetched.', {
+      report: serializeInterviewReport(report, session._id),
+      cached: true,
     });
   } catch (error) {
     next(error);

@@ -143,7 +143,14 @@ const ResumeEditor = forwardRef(function ResumeEditor(
     return next;
   }, []);
 
-  useImperativeHandle(ref, () => ({ flushPendingSave }), [flushPendingSave]);
+  useImperativeHandle(
+    ref,
+    () => ({
+      flushPendingSave,
+      cancelPendingSave,
+    }),
+    [flushPendingSave, cancelPendingSave]
+  );
 
   useEffect(
     () => () => {

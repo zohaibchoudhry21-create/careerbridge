@@ -8,6 +8,12 @@ export const fetchMockInterviewSession = (sessionId) =>
 export const fetchInterviewReportHistory = (limit = 12) =>
   api.get('/interview/reports/history', { params: { limit } }).then(unwrap);
 
+export const fetchInterviewSessionHistory = ({ page = 1, limit = 10 } = {}) =>
+  api.get('/interview/sessions/history', { params: { page, limit } }).then(unwrap);
+
+export const fetchSavedInterviewReport = (sessionId) =>
+  api.get(`/interview/report/${sessionId}`).then(unwrap);
+
 export const generateMockInterviewReport = (sessionId) =>
   api.post('/interview/report', { sessionId }, { timeout: 120000 }).then(unwrap);
 

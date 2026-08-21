@@ -184,6 +184,7 @@ export const ICON_MAP = {
   difference: GitCompare,
   psychology_alt: Brain,
   find_in_page: Search,
+  search: Search,
   join_inner: GitMerge,
   flag: Flag,
   calendar_today: Calendar,

@@ -23,6 +23,7 @@ import * as optimizeService from './optimizeService.js';
 import * as rewriteLifecycleService from './rewriteLifecycleService.js';
 import {
   ensureAnalysisStructureForRead,
+  healJobMatchFromLiveSkills,
   refreshSkillState,
 } from './structureService.js';
 
@@ -73,8 +74,17 @@ export const getAnalysis = async ({ analysisId, userId }) => {
     }
   }
 
-  refreshSkillState(analysis, jobDescription);
+  const skillMatch = refreshSkillState(analysis, jobDescription);
   await ensureAnalysisStructureForRead(analysis);
+
+  // Heal analyses stuck at ~5 Job Match from the mongoose skill-spread bug.
+  if (healJobMatchFromLiveSkills(analysis, jobDescription, skillMatch)) {
+    try {
+      await analysis.save();
+    } catch {
+      // Read path must still return; concurrent writes can version-conflict.
+    }
+  }
 
   return {
     analysis: await serializeAnalysisForUser(analysis, jobDescription, userId),

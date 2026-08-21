@@ -9,7 +9,7 @@ import {
   ensureAnalysisParsedData,
   structuredResumeToParsedData,
 } from '../../utils/resumeScannerParsedData.js';
-import { computeSkillMatches } from '../../utils/resumeScannerScoring.js';
+import { computeJobMatchScore, computeSkillMatches } from '../../utils/resumeScannerScoring.js';
 import {
   cloneStructuredResume,
   findOriginalInText,
@@ -64,8 +64,14 @@ export const applyRecomputedState = (analysis, recomputed) => {
   analysis.markModified('lineMap');
 };
 
-/** Snapshot job-match fields before accept so we can enforce a non-decreasing floor. */
+/** Snapshot score fields before accept so we can enforce a non-decreasing floor. */
 export const captureJobMatchSnapshot = (analysis) => ({
+  atsScore: Number(analysis.atsScore) || 0,
+  atsScoreBreakdown: {
+    sectionCompleteness: Number(analysis.atsScoreBreakdown?.sectionCompleteness) || 0,
+    searchability: Number(analysis.atsScoreBreakdown?.searchability) || 0,
+    quantifiedAchievements: Number(analysis.atsScoreBreakdown?.quantifiedAchievements) || 0,
+  },
   jobMatchScore: Number(analysis.jobMatchScore) || 0,
   jobMatchBreakdown: {
     keywordCoverage: Number(analysis.jobMatchBreakdown?.keywordCoverage) || 0,
@@ -77,11 +83,25 @@ export const captureJobMatchSnapshot = (analysis) => ({
 });
 
 /**
- * Accepting a suggestion should never lower Job Match — reword/remove can drop keyword
- * evidence on recompute, and stale editor saves can race; floor the stored score.
+ * Accepting a suggestion should never lower Job Match or ATS — reword/remove can drop
+ * keyword evidence on recompute (especially when scoring from generateAtsText), and
+ * stale editor saves can race; floor the stored scores before the single save.
  */
 export const enforceAcceptJobMatchFloor = (analysis, snapshot) => {
   if (!snapshot) return;
+
+  const prevAts = Number(snapshot.atsScore) || 0;
+  const currentAts = Number(analysis.atsScore) || 0;
+  if (currentAts < prevAts) {
+    analysis.atsScore = prevAts;
+    if (snapshot.atsScoreBreakdown) {
+      analysis.atsScoreBreakdown = {
+        ...analysis.atsScoreBreakdown,
+        ...snapshot.atsScoreBreakdown,
+      };
+      analysis.markModified('atsScoreBreakdown');
+    }
+  }
 
   const prevScore = snapshot.jobMatchScore;
   const prevCoverage = snapshot.jobMatchBreakdown.keywordCoverage;
@@ -114,13 +134,74 @@ export const enforceAcceptJobMatchFloor = (analysis, snapshot) => {
 };
 
 export const refreshSkillState = (analysis, jobDescription) => {
-  const resumeText = resolveCanonicalResumeText({
-    resumeText: analysis.resumeText,
-    lineMap: analysis.lineMap,
-  });
+  // Prefer structured → ATS text so skill matching matches what the editor shows.
+  // Stale/empty resumeText after apply was marking SEO unmatched while UI still showed SEO.
+  let resumeText = '';
+  if (hasStructuredResumeData(analysis.structuredResume)) {
+    resumeText = generateAtsText(analysis.structuredResume);
+    if (resumeText) {
+      analysis.resumeText = resumeText;
+    }
+  }
+  if (!resumeText) {
+    resumeText = resolveCanonicalResumeText({
+      resumeText: analysis.resumeText,
+      lineMap: analysis.lineMap,
+    });
+  }
   const skillMatch = computeSkillMatches(resumeText, jobDescription.extractedSkills);
   analysis.matchedSkillIds = skillMatch.matchedSkillIds;
   analysis.missingSkillIds = skillMatch.missingSkillIds;
+  return skillMatch;
+};
+
+/**
+ * Repair Job Match after the mongoose-subdoc skill-name bug collapsed coverage to ~0
+ * (UI showed SEO unmatched / score ~5 while resume text still had the keywords).
+ * Returns true when persisted fields were updated.
+ */
+export const healJobMatchFromLiveSkills = (analysis, jobDescription, skillMatch = null) => {
+  const live =
+    skillMatch ||
+    computeSkillMatches(
+      resolveCanonicalResumeText({
+        resumeText: analysis.resumeText,
+        lineMap: analysis.lineMap,
+      }) ||
+        (hasStructuredResumeData(analysis.structuredResume)
+          ? generateAtsText(analysis.structuredResume)
+          : ''),
+      jobDescription.extractedSkills
+    );
+
+  const aiAssessedRelevance =
+    Number(analysis.jobMatchBreakdown?.aiAssessedRelevance) || 0;
+  const liveScores = computeJobMatchScore({
+    skills: live.skills,
+    aiAssessedRelevance,
+  });
+
+  const storedScore = Number(analysis.jobMatchScore) || 0;
+  const storedCoverage = Number(analysis.jobMatchBreakdown?.keywordCoverage) || 0;
+  const liveCoverage = Number(liveScores.jobMatchBreakdown.keywordCoverage) || 0;
+
+  if (liveCoverage <= storedCoverage && liveScores.jobMatchScore <= storedScore) {
+    return false;
+  }
+
+  analysis.matchedSkillIds = live.matchedSkillIds;
+  analysis.missingSkillIds = live.missingSkillIds;
+  analysis.jobMatchScore = Math.max(storedScore, liveScores.jobMatchScore);
+  analysis.score = analysis.jobMatchScore;
+  analysis.jobMatchBreakdown = {
+    ...analysis.jobMatchBreakdown,
+    keywordCoverage: Math.max(storedCoverage, liveCoverage),
+    aiAssessedRelevance,
+  };
+  analysis.markModified('matchedSkillIds');
+  analysis.markModified('missingSkillIds');
+  analysis.markModified('jobMatchBreakdown');
+  return true;
 };
 
 /** Expire pending suggestions whose original text no longer exists in the resume. */
@@ -160,7 +241,8 @@ export const expireStalePendingSuggestions = (analysis) => {
   return changed;
 };
 
-export const recomputeAndSave = async (analysis, jobDescription) => {
+/** Recompute scores in memory — caller owns save (and any accept floor). */
+export const recomputeInMemory = (analysis, jobDescription) => {
   const recomputed = recomputeAnalysisState({
     resumeText: analysis.resumeText,
     structuredResume: analysis.structuredResume,
@@ -173,6 +255,10 @@ export const recomputeAndSave = async (analysis, jobDescription) => {
 
   applyRecomputedState(analysis, recomputed);
   refreshSkillState(analysis, jobDescription);
+};
+
+export const recomputeAndSave = async (analysis, jobDescription) => {
+  recomputeInMemory(analysis, jobDescription);
   await analysis.save();
 };
 

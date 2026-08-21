@@ -34,8 +34,13 @@
     },
     "time": {
       "title": "وقت",
-      "description": "سیشن کتنی دیر چلے گا۔",
-      "minutes": "{{count}} منٹ"
+      "description": "مدت منتخب کریں، یا خود ٹائپ کریں ({{min}}–{{max}} منٹ)۔",
+      "minutes": "{{count}} منٹ",
+      "minutesUnit": "منٹ",
+      "custom": "حسب ضرورت",
+      "placeholder": "مثلاً 45",
+      "customAria": "حسب ضرورت مدت منٹ میں ٹائپ کریں",
+      "questionPreview": "اس مدت کے لیے تقریباً {{count}} سوالات"
     },
     "focusAreas": {
       "title": "توجہ کے شعبے",
@@ -148,7 +153,39 @@
     "submitMissingReport": "انٹرویو جمع ہوا لیکن رپورٹ غائب تھی۔",
     "submitFailed": "لائیو انٹرویو جمع نہیں ہو سکا۔",
     "defaultRole": "یہ کردار",
-    "defaultCandidate": "امیدوار"
+    "defaultCandidate": "امیدوار",
+    "incompleteTitle": "یہ انٹرویو مکمل نہیں ہوا",
+    "incompleteDescription": "اس سیشن کی کوئی تشخیص محفوظ نہیں ہوئی۔ جب تیار ہوں نیا ماک انٹرویو شروع کریں۔",
+    "reportUnavailableTitle": "رپورٹ دستیاب نہیں",
+    "reportUnavailableDescription": "اس انٹرویو کی محفوظ شدہ تشخیص نہیں ہے۔ غائب ڈیٹا سے نیا اسکور نہیں بنایا جاتا۔"
+  },
+  "history": {
+    "navLabel": "انٹرویو ہسٹری",
+    "title": "انٹرویو ہسٹری",
+    "description": "اپنے پچھلے ماک انٹرویوز اور محفوظ شدہ رپورٹس دیکھیں۔",
+    "startNew": "نیا انٹرویو شروع کریں",
+    "loading": "انٹرویو ہسٹری لوڈ ہو رہی ہے",
+    "emptyTitle": "ابھی کوئی انٹرویو نہیں",
+    "emptyDescription": "ماک انٹرویو مکمل کریں اور وہ یہاں خود بخود نظر آئے گا۔",
+    "searchLabel": "انٹرویو تلاش کریں",
+    "searchPlaceholder": "رول، مشکل، یا سٹیٹس سے تلاش کریں...",
+    "noSearchResults": "آپ کی تلاش سے کوئی انٹرویو نہیں ملا۔",
+    "errorTitle": "ہسٹری لوڈ نہیں ہو سکی",
+    "errorFallback": "انٹرویو ہسٹری لوڈ نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
+    "view": "دیکھیں",
+    "score": "اسکور {{score}}",
+    "scoreUnavailable": "اسکور دستیاب نہیں",
+    "questionCount": "{{count}} سوالات",
+    "previous": "پچھلا",
+    "next": "اگلا",
+    "pageOf": "صفحہ {{current}} از {{total}}",
+    "status": {
+      "completed": "مکمل",
+      "abandoned": "نامکمل",
+      "active": "جاری",
+      "processing": "پروسیسنگ",
+      "setup": "سیٹ اپ"
+    }
   },
   "live": {
     "title": "لائیو انٹرویو",
@@ -190,6 +227,7 @@
     "faceModelsFailed": "چہرے کے ماڈلز لوڈ نہیں ہوئے۔ آنکھوں کے رابطے کی میٹرکس دستیاب نہیں ہو سکتی۔",
     "endedNoConversation": "بات چیت ریکارڈ ہونے سے پہلے انٹرویو ختم ہو گیا۔ دوبارہ شروع کریں۔",
     "endedNoConversationWithReason": "بات چیت ریکارڈ ہونے سے پہلے انٹرویو ختم ({{reason}})۔ دوبارہ شروع کریں۔",
+    "micJoinFailed": "وائس روم بند ہو گیا کیونکہ مائیک شامل نہیں ہو سکا۔ زوم/ٹیمز یا مائیک استعمال کرنے والی دوسری ایپس بند کریں، پھر انٹرویو دوبارہ شروع کریں۔",
     "analyzingCamera": "کیمرہ کا تجزیہ…",
     "eyeContactGood": "آنکھوں کا رابطہ: اچھا",
     "eyeContactLow": "آنکھوں کا رابطہ: کم",

@@ -14,7 +14,8 @@ Then choose the NEXT move (still one spoken question at a time):
 - Excellent answer → Deep technical discussion: explore architecture choices, alternatives considered, scale, or leadership judgment — still conversational and concise for voice.
 
 Never announce the classification out loud. Never ask multiple stacked questions in one turn.
-Match overall interview baseline difficulty, but adapt locally based on the last answer.`;
+Match overall interview baseline difficulty, but adapt locally based on the last answer.
+Adaptive difficulty changes the hardness of the NEXT question, not how long you stay on the current topic. After at most one follow-up on this item, move on.`;
 
 const DEPTH_HINT_LADDER = `Depth-hint ladder (enabled for this session):
 The question guide lists depthHint values (warmup | standard | deep). Do not regenerate the guide.

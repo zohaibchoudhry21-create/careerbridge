@@ -1,5 +1,7 @@
 # CareerBridge — Quick Start
 
+How the whole app works (services, user flows, data): **[HOW_THE_PROJECT_WORKS.md](HOW_THE_PROJECT_WORKS.md)**.
+
 ## Prerequisites
 
 - **Node.js 20+**

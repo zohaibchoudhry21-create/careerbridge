@@ -88,15 +88,40 @@ export const skillMatchesResume = (resumeText, skill) => {
   };
 };
 
+/** Plain skill shape — never spread Mongoose subdocs (loses name/type/synonyms). */
+const toPlainSkillForMatch = (skill = {}, index = 0) => {
+  const plain =
+    skill && typeof skill.toObject === 'function'
+      ? skill.toObject({ virtuals: false })
+      : skill && typeof skill === 'object'
+        ? skill
+        : {};
+
+  const name = String(plain.name || plain.skillName || plain.label || skill?.name || '').trim();
+  const id =
+    resolveStoredSkillId(skill) ||
+    resolveStoredSkillId(plain) ||
+    plain.id ||
+    createSkillId(name, index);
+
+  return {
+    id: String(id || createSkillId(name || 'item', index)),
+    name,
+    type: plain.type || skill?.type || 'hard',
+    synonyms: Array.isArray(plain.synonyms)
+      ? plain.synonyms.map((item) => String(item || '')).filter(Boolean)
+      : Array.isArray(skill?.synonyms)
+        ? skill.synonyms.map((item) => String(item || '')).filter(Boolean)
+        : [],
+  };
+};
+
 export const computeSkillMatches = (resumeText, skills = []) => {
   const matchedSkillIds = [];
   const missingSkillIds = [];
 
-  const enrichedSkills = skills.map((skill, index) => {
-    const withId = {
-      ...skill,
-      id: resolveStoredSkillId(skill) || skill.id || createSkillId(skill.name, index),
-    };
+  const enrichedSkills = (Array.isArray(skills) ? skills : []).map((skill, index) => {
+    const withId = toPlainSkillForMatch(skill, index);
     const { matched, evidence } = skillMatchesResume(resumeText, withId);
 
     if (matched) {

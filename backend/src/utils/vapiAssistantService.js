@@ -152,3 +152,56 @@ export const createVapiAssistantForSession = async (session) => {
 
   return String(assistantId);
 };
+
+/**
+ * True when the assistant exists under the current private key (same Vapi org).
+ * Stale IDs from a previous key/account return false.
+ */
+export const vapiAssistantExists = async (assistantId) => {
+  const apiKey = getPrivateKey();
+  const id = String(assistantId || '').trim();
+  if (!apiKey || !id) return false;
+
+  try {
+    const response = await fetch(`${VAPI_ASSISTANT_URL}/${encodeURIComponent(id)}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('[vapi] Assistant lookup network error:', id, error.message);
+    return false;
+  }
+};
+
+/**
+ * Return a usable assistant id for this session, recreating when the stored id
+ * is missing or belongs to another Vapi account (e.g. after key rotation).
+ * Persists the new id on the session document when possible.
+ */
+export const ensureVapiAssistantForSession = async (session) => {
+  const existingId = session?.vapiAssistantId ? String(session.vapiAssistantId) : '';
+
+  if (existingId && (await vapiAssistantExists(existingId))) {
+    return existingId;
+  }
+
+  if (existingId) {
+    console.warn(
+      '[vapi] Stale assistant id — recreating under current private key:',
+      String(session._id || session.id || 'unknown'),
+      existingId
+    );
+  }
+
+  const assistantId = await createVapiAssistantForSession(session);
+  session.vapiAssistantId = assistantId;
+
+  if (typeof session.save === 'function') {
+    await session.save();
+  }
+
+  return assistantId;
+};

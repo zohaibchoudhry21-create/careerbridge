@@ -34,8 +34,13 @@
     },
     "time": {
       "title": "Tiempo",
-      "description": "Duración de la sesión.",
-      "minutes": "{{count}} minutos"
+      "description": "Elige una duración, o escribe la tuya ({{min}}–{{max}} min).",
+      "minutes": "{{count}} minutos",
+      "minutesUnit": "min",
+      "custom": "Personalizado",
+      "placeholder": "p. ej. 45",
+      "customAria": "Escribe una duración personalizada en minutos",
+      "questionPreview": "Unas {{count}} preguntas para esta duración"
     },
     "focusAreas": {
       "title": "Áreas de enfoque",
@@ -148,7 +153,39 @@
     "submitMissingReport": "Entrevista enviada pero faltaba el informe.",
     "submitFailed": "No se pudo enviar la entrevista en vivo.",
     "defaultRole": "este puesto",
-    "defaultCandidate": "Candidato"
+    "defaultCandidate": "Candidato",
+    "incompleteTitle": "Esta entrevista no se completó",
+    "incompleteDescription": "No se guardó ninguna evaluación para esta sesión. Inicia una nueva entrevista simulada cuando quieras.",
+    "reportUnavailableTitle": "Informe no disponible",
+    "reportUnavailableDescription": "Esta entrevista no tiene una evaluación guardada. No generamos una nueva puntuación si faltan datos."
+  },
+  "history": {
+    "navLabel": "Historial de entrevistas",
+    "title": "Historial de entrevistas",
+    "description": "Consulta tus entrevistas simuladas anteriores y los informes guardados.",
+    "startNew": "Nueva entrevista",
+    "loading": "Cargando historial de entrevistas",
+    "emptyTitle": "Aún no hay entrevistas",
+    "emptyDescription": "Completa una entrevista simulada y aparecerá aquí automáticamente.",
+    "searchLabel": "Buscar entrevistas",
+    "searchPlaceholder": "Buscar por rol, dificultad o estado...",
+    "noSearchResults": "Ninguna entrevista coincide con tu búsqueda.",
+    "errorTitle": "No se pudo cargar el historial",
+    "errorFallback": "No se pudo cargar el historial de entrevistas. Inténtalo de nuevo.",
+    "view": "Ver",
+    "score": "Puntuación {{score}}",
+    "scoreUnavailable": "Puntuación no disponible",
+    "questionCount": "{{count}} preguntas",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "pageOf": "Página {{current}} de {{total}}",
+    "status": {
+      "completed": "Completada",
+      "abandoned": "Incompleta",
+      "active": "En curso",
+      "processing": "Procesando",
+      "setup": "Configuración"
+    }
   },
   "live": {
     "title": "Entrevista en vivo",
@@ -190,6 +227,7 @@
     "faceModelsFailed": "No se pudieron cargar los modelos faciales. Las métricas de contacto visual pueden no estar disponibles.",
     "endedNoConversation": "La entrevista terminó antes de registrar conversación. Vuelve a iniciarla.",
     "endedNoConversationWithReason": "La entrevista terminó antes de registrar conversación ({{reason}}). Vuelve a iniciarla.",
+    "micJoinFailed": "La sala de voz se cerró porque el micrófono no se unió. Cierra Zoom/Teams u otras apps que usen el micrófono e inicia de nuevo.",
     "analyzingCamera": "Analizando cámara…",
     "eyeContactGood": "Contacto visual: bueno",
     "eyeContactLow": "Contacto visual: bajo",

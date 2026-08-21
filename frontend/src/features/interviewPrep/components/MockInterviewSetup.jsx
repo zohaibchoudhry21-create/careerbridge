@@ -7,6 +7,7 @@ import RetryErrorPanel from './RetryErrorPanel';
 import RoleResumeCard from './RoleResumeCard';
 import {
   CARD_CLASS,
+  DurationSection,
   FocusAreasSection,
   InterviewModeSection,
   SELECTED_OPTION_CLASS,
@@ -18,7 +19,7 @@ import {
   DEFAULT_INTERVIEWER_PERSONA,
   DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES,
   DEFAULT_INTERVIEW_SETUP_MODE,
-  MOCK_INTERVIEW_DURATION_OPTIONS,
+  clampDurationMinutes,
 } from '../constants/interviewPrepConstants';
 import { useInterviewMedia } from '../context/InterviewMediaContext';
 import { useStartLiveInterview } from '../hooks/useMockInterview';
@@ -55,7 +56,7 @@ export default function MockInterviewSetup() {
   const [roleTouched, setRoleTouched] = useState(false);
   const [difficulty, setDifficulty] = useState('medium');
   const [durationMinutes, setDurationMinutes] = useState(
-    String(DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES)
+    DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES
   );
   const [resumeText, setResumeText] = useState('');
   const [resumeSkills, setResumeSkills] = useState([]);
@@ -94,7 +95,7 @@ export default function MockInterviewSetup() {
   }, [roleTrimmed, difficulty, durationMinutes, t]);
 
   useEffect(() => {
-    preloadInterviewFaceModels().catch(() => {});
+    preloadInterviewFaceModels().catch(() => { });
   }, []);
 
   const hasLiveMediaStream = (mediaStream) =>
@@ -130,7 +131,7 @@ export default function MockInterviewSetup() {
     const payload = {
       role: roleTrimmed,
       difficulty,
-      durationMinutes: Number(durationMinutes),
+      durationMinutes: clampDurationMinutes(durationMinutes),
       ...(resumeText.trim() && { resumeText: resumeText.trim() }),
       ...(resumeSkills.length > 0 && { resumeSkills }),
       ...(resumeProjects.length > 0 && { resumeProjects }),
@@ -165,7 +166,7 @@ export default function MockInterviewSetup() {
           assistantId,
           roleLabel: roleTrimmed,
           difficulty,
-          durationMinutes: Number(durationMinutes),
+          durationMinutes: clampDurationMinutes(durationMinutes),
           interviewerPersona: DEFAULT_INTERVIEWER_PERSONA,
           adaptiveDepthEnabled: Boolean(result?.adaptiveDepthEnabled),
           customization: {
@@ -189,13 +190,6 @@ export default function MockInterviewSetup() {
 
   return (
     <div className="min-w-0 space-y-md">
-      <header className="min-w-0">
-        <h1 className="font-headline-dashboard text-headline-dashboard app-heading">
-          {t('mockSetup.title')}
-        </h1>
-        <p className="font-body-md app-muted mt-base">{t('mockSetup.description')}</p>
-      </header>
-
       <RoleResumeCard
         role={role}
         onRoleChange={setRole}
@@ -212,7 +206,7 @@ export default function MockInterviewSetup() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <section className={CARD_CLASS}>
+        <section className={cn(CARD_CLASS, 'h-full')}>
           <SectionHeading
             color="difficulty"
             icon="tune"
@@ -232,25 +226,10 @@ export default function MockInterviewSetup() {
           </div>
         </section>
 
-        <section className={CARD_CLASS}>
-          <SectionHeading
-            color="time"
-            icon="hourglass_top"
-            title={t('mockSetup.time.title')}
-            description={t('mockSetup.time.description')}
-          />
-          <div className="space-y-2">
-            {MOCK_INTERVIEW_DURATION_OPTIONS.map((minutes) => (
-              <OptionButton
-                key={minutes}
-                selected={durationMinutes === String(minutes)}
-                onClick={() => setDurationMinutes(String(minutes))}
-              >
-                {t('mockSetup.time.minutes', { count: minutes })}
-              </OptionButton>
-            ))}
-          </div>
-        </section>
+        <DurationSection
+          durationMinutes={durationMinutes}
+          onDurationMinutesChange={setDurationMinutes}
+        />
       </div>
 
       <FocusAreasSection focusAreas={focusAreas} onFocusAreasChange={setFocusAreas} />
@@ -270,15 +249,22 @@ export default function MockInterviewSetup() {
         </p>
         <Button
           type="button"
-          variant="primary"
+          variant="gradient"
           onClick={handleStart}
           disabled={!canStart}
-          className="min-h-[48px] shrink-0 gap-2 px-6 py-3"
+          className="w-full shrink-0 sm:w-auto"
         >
-          {startLiveInterview.isPending ? t('mockSetup.starting') : t('mockSetup.startLive')}
-          {!startLiveInterview.isPending ? (
-            <AppIcon name="chevron_right" size="sm" className="text-on-secondary" />
-          ) : null}
+          {startLiveInterview.isPending ? (
+            <>
+              <AppIcon name="progress_activity" size="sm" spin className="text-white" />
+              {t('mockSetup.starting')}
+            </>
+          ) : (
+            <>
+              <AppIcon name="sparkles" size="sm" className="text-white" />
+              {t('mockSetup.startLive')}
+            </>
+          )}
         </Button>
       </div>
     </div>

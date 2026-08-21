@@ -4,6 +4,8 @@ import {
   generateMockInterviewReport,
   analyzeInterviewResume,
   getInterviewReportHistory,
+  getInterviewSessionHistory,
+  getSavedInterviewReport,
   getMockInterviewSession,
   getRoleSuggestions,
   startLiveInterview,
@@ -78,6 +80,13 @@ router.post(
 );
 
 router.get(
+  '/interview/sessions/history',
+  protect,
+  interviewFlowLimiter,
+  getInterviewSessionHistory
+);
+
+router.get(
   '/interview/session/:sessionId',
   protect,
   interviewFlowLimiter,
@@ -87,6 +96,15 @@ router.get(
 );
 
 router.get('/interview/reports/history', protect, interviewFlowLimiter, getInterviewReportHistory);
+
+router.get(
+  '/interview/report/:sessionId',
+  protect,
+  interviewFlowLimiter,
+  sessionIdParamValidation,
+  validateRequest,
+  getSavedInterviewReport
+);
 
 router.post(
   '/interview/report',

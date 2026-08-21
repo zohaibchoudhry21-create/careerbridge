@@ -3,7 +3,7 @@ import { cn } from '../../lib/utils';
 import { BUTTON_VARIANTS } from './buttonTokens';
 
 /**
- * @param {'primary' | 'destructive' | 'secondary'} variant
+ * @param {'primary' | 'destructive' | 'secondary' | 'gradient'} variant
  */
 const Button = forwardRef(function Button(
   { variant = 'primary', className, type = 'button', ...props },

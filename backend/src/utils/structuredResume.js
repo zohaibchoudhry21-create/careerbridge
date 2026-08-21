@@ -513,6 +513,7 @@ const commitFieldUpdate = (data, path, nextValue, suggestion) => {
 export const applySuggestionToStructured = (structured, suggestion = {}) => {
   const data = cloneStructuredResume(structured);
   let path = String(suggestion.fieldPath || '').trim();
+  const originalHint = suggestion.original;
 
   if (path && path.split('.').some(isForbiddenPathKey)) {
     if (suggestion.type === 'missing_keyword' && suggestion.suggested) {
@@ -536,14 +537,37 @@ export const applySuggestionToStructured = (structured, suggestion = {}) => {
   }
 
   if (!isFieldPathInBounds(data, path)) {
-    if (suggestion.type === 'missing_keyword' && suggestion.suggested) {
+    // Wrong index from the model — try locating original elsewhere before giving up.
+    const fallbackPath =
+      findPathForOriginal(data, stripBulletPrefix(originalHint)) ||
+      findPathForOriginal(data, originalHint);
+    if (fallbackPath && isFieldPathInBounds(data, fallbackPath)) {
+      path = fallbackPath;
+    } else if (suggestion.type === 'missing_keyword' && suggestion.suggested) {
       return appendMissingKeywordToSummary(data, suggestion.suggested);
+    } else {
+      return { structured: data, applied: false, reason: APPLY_FAILURE.PATH_OUT_OF_BOUNDS };
     }
-    return { structured: data, applied: false, reason: APPLY_FAILURE.PATH_OUT_OF_BOUNDS };
   }
 
-  const current = getFieldByPath(data, path);
-  const currentText = current == null ? '' : String(current);
+  let current = getFieldByPath(data, path);
+  let currentText = current == null ? '' : String(current);
+
+  // Stale fieldPath: original lives in another field — relocate before remove/reword.
+  if (
+    suggestion.type !== 'missing_keyword' &&
+    originalHint &&
+    !findOriginalInText(currentText, originalHint)
+  ) {
+    const relocated =
+      findPathForOriginal(data, stripBulletPrefix(originalHint)) ||
+      findPathForOriginal(data, originalHint);
+    if (relocated && relocated !== path && isFieldPathInBounds(data, relocated)) {
+      path = relocated;
+      current = getFieldByPath(data, path);
+      currentText = current == null ? '' : String(current);
+    }
+  }
 
   if (suggestion.type === 'remove') {
     if (!suggestion.original) {

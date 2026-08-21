@@ -1,10 +1,10 @@
+import { getGroqConfig } from '../../config/groqConfig.js';
+
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 const getGroqModels = () => {
-  const primary = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
-  return [primary, 'llama-3.1-8b-instant'].filter(
-    (model, index, list) => list.indexOf(model) === index
-  );
+  const { model, fastModel } = getGroqConfig();
+  return [model, fastModel].filter((name, index, list) => name && list.indexOf(name) === index);
 };
 
 const callGroq = async (modelName, prompt) => {

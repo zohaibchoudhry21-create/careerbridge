@@ -15,21 +15,36 @@ export const SKILL_QUIZ_STATUSES = ['pending', 'in_progress', 'submitted'];
 
 export const INTERVIEW_REPORT_SOURCE_TYPES = ['mock_interview', 'skill_assessment'];
 
-export const DEFAULT_MOCK_QUESTION_COUNT = 6;
+export const DEFAULT_MOCK_QUESTION_COUNT = 5;
 
-export const MIN_MOCK_QUESTIONS = 5;
-export const MAX_MOCK_QUESTIONS = 8;
+export const MIN_MOCK_QUESTIONS = 4;
+export const MAX_MOCK_QUESTIONS = 16;
 
-/** Live interview duration options (minutes). */
+/** Live interview duration: any whole minute from 1 up to 2 hours. */
+export const MIN_MOCK_INTERVIEW_DURATION_MINUTES = 1;
+export const MAX_MOCK_INTERVIEW_DURATION_MINUTES = 120;
+/** Quick-select options in setup UI (user can also type any value in range). */
 export const MOCK_INTERVIEW_DURATION_OPTIONS = [10, 15, 20];
 export const DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES = 15;
 
-/** Maps interview duration to Groq question-set size. */
+export const clampDurationMinutes = (value) => {
+  const minutes = Math.round(Number(value));
+  if (!Number.isFinite(minutes)) return DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES;
+  return Math.min(
+    MAX_MOCK_INTERVIEW_DURATION_MINUTES,
+    Math.max(MIN_MOCK_INTERVIEW_DURATION_MINUTES, minutes)
+  );
+};
+
+/**
+ * Guide size scales with duration (~1 question per 3 minutes), not fixed 5/6/8 buckets.
+ * Live follow-ups are extra and are not part of this count.
+ */
 export const durationMinutesToQuestionCount = (durationMinutes) => {
   const minutes = Number(durationMinutes);
-  if (minutes <= 10) return 5;
-  if (minutes >= 20) return 8;
-  return 6;
+  if (!Number.isFinite(minutes) || minutes <= 0) return DEFAULT_MOCK_QUESTION_COUNT;
+  const scaled = Math.round(minutes / 3);
+  return Math.min(MAX_MOCK_QUESTIONS, Math.max(MIN_MOCK_QUESTIONS, scaled));
 };
 
 /** Optional focus areas for advanced interview setup. */
@@ -108,6 +123,11 @@ export const SKILL_ASSESSMENT_TOPICS = [
   { id: 'system-design', label: 'System Design' },
   { id: 'html-css', label: 'HTML & CSS' },
 ];
+
+/** Paginated Interview History list (not the report-progress chart). */
+export const INTERVIEW_HISTORY_DEFAULT_PAGE = 1;
+export const INTERVIEW_HISTORY_DEFAULT_LIMIT = 10;
+export const INTERVIEW_HISTORY_MAX_LIMIT = 20;
 
 export const MOCK_INTERVIEW_ROLES = [
   { id: 'frontend-developer', label: 'Frontend Developer' },

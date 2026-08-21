@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { durationMinutesToQuestionCount } from '../../constants/interviewPrepConstants.js';
 import { buildInterviewContextBrief } from './contextBriefBuilder.js';
 import {
   buildFallbackQuestionGuide,
@@ -8,6 +9,27 @@ import {
 } from './questionGuideGroqService.js';
 import { buildInterviewIntelligencePoliciesPrompt } from './interviewIntelligenceService.js';
 import { buildInterviewerSystemPrompt } from '../../utils/interviewerPromptBuilder.js';
+
+describe('durationMinutesToQuestionCount', () => {
+  it('scales with duration instead of fixed 5/6/8 buckets', () => {
+    expect(durationMinutesToQuestionCount(5)).toBe(4);
+    expect(durationMinutesToQuestionCount(10)).toBe(4);
+    expect(durationMinutesToQuestionCount(15)).toBe(5);
+    expect(durationMinutesToQuestionCount(20)).toBe(7);
+    expect(durationMinutesToQuestionCount(45)).toBe(15);
+    expect(durationMinutesToQuestionCount(90)).toBe(16);
+    expect(durationMinutesToQuestionCount(120)).toBe(16);
+  });
+
+  it('builds a longer fallback guide for a 45-minute session', () => {
+    const guide = buildFallbackQuestionGuide({
+      roleLabel: 'Frontend Developer',
+      difficulty: 'medium',
+      durationMinutes: 45,
+    });
+    expect(guide).toHaveLength(15);
+  });
+});
 
 describe('buildInterviewContextBrief', () => {
   it('prefers structured skills/projects and truncates long resume', () => {
@@ -49,7 +71,7 @@ describe('question guide fallbacks', () => {
       durationMinutes: 15,
       focusAreas: ['Coding', 'Behavioral'],
     });
-    expect(guide).toHaveLength(6);
+    expect(guide).toHaveLength(5);
     expect(guide[0].focusTag).toBe('opening');
     expect(guide.some((q) => q.focusTag === 'coding' || q.focusTag === 'behavioral')).toBe(true);
   });
@@ -120,6 +142,7 @@ describe('interview intelligence policies', () => {
     expect(policies).toMatch(/Conversation memory/i);
     expect(policies).toMatch(/Weak answer/i);
     expect(policies).toMatch(/Excellent answer/i);
+    expect(policies).toMatch(/hardness of the NEXT question/i);
     expect(policies).toMatch(/System design/i);
     expect(policies).toMatch(/Contradiction/i);
     expect(policies).toMatch(/Skill depth/i);

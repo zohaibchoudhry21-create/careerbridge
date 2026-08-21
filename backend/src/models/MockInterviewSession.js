@@ -1,5 +1,11 @@
 import mongoose from 'mongoose';
 import {
+  DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES,
+  DEFAULT_MOCK_QUESTION_COUNT,
+  MAX_MOCK_INTERVIEW_DURATION_MINUTES,
+  MAX_MOCK_QUESTIONS,
+  MIN_MOCK_INTERVIEW_DURATION_MINUTES,
+  MIN_MOCK_QUESTIONS,
   MOCK_INTERVIEW_DIFFICULTIES,
   MOCK_INTERVIEW_MODES,
   MOCK_INTERVIEW_STATUSES,
@@ -163,14 +169,15 @@ const mockInterviewSessionSchema = new mongoose.Schema(
     },
     durationMinutes: {
       type: Number,
-      enum: [10, 15, 20],
-      default: 15,
+      min: MIN_MOCK_INTERVIEW_DURATION_MINUTES,
+      max: MAX_MOCK_INTERVIEW_DURATION_MINUTES,
+      default: DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES,
     },
     targetQuestionCount: {
       type: Number,
-      min: 5,
-      max: 8,
-      default: 6,
+      min: MIN_MOCK_QUESTIONS,
+      max: MAX_MOCK_QUESTIONS,
+      default: DEFAULT_MOCK_QUESTION_COUNT,
     },
     answerTimeLimitSeconds: {
       type: Number,
@@ -260,6 +267,7 @@ const mockInterviewSessionSchema = new mongoose.Schema(
 mockInterviewSessionSchema.index({ userId: 1, updatedAt: -1 });
 mockInterviewSessionSchema.index({ userId: 1, status: 1 });
 mockInterviewSessionSchema.index({ userId: 1, mode: 1, createdAt: -1 });
+mockInterviewSessionSchema.index({ userId: 1, createdAt: -1 });
 mockInterviewSessionSchema.index({ reportId: 1 }, { sparse: true });
 
 const MockInterviewSession = mongoose.model('MockInterviewSession', mockInterviewSessionSchema);

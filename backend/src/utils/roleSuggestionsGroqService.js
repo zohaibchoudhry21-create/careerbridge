@@ -68,7 +68,8 @@ Return JSON only in this shape:
           },
         ],
         temperature: 0.3,
-        max_tokens: 200,
+        max_tokens: 1024,
+        reasoning_effort: 'low',
         response_format: { type: 'json_object' },
       }),
     { label: 'role-suggestions' }

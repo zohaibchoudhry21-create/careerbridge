@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   computeAnalysisScores,
+  computeJobMatchScore,
   computeSkillMatches,
   findTextOffset,
   skillMatchesResume,
@@ -110,6 +111,40 @@ describe('resumeScannerScoring', () => {
 
     expect(result.matchedSkillIds).toEqual(['skill-react-1', 'skill-ga4-1']);
     expect(result.missingSkillIds).toEqual(['skill-python-1']);
+  });
+
+  it('matches SEO from Mongoose-like subdocs that lose fields when spread', () => {
+    const resumeText =
+      'Executing full-spectrum off-page SEO strategies and overall SEO strategy';
+    const mongooseLikeSkill = {
+      _doc: { id: 'skill-seo-1', name: 'SEO', type: 'required', synonyms: [] },
+      toObject() {
+        return { id: 'skill-seo-1', name: 'SEO', type: 'required', synonyms: [] };
+      },
+      get(key) {
+        return this._doc[key];
+      },
+    };
+    Object.defineProperty(mongooseLikeSkill, 'name', {
+      get() {
+        return this._doc.name;
+      },
+    });
+    Object.defineProperty(mongooseLikeSkill, 'id', {
+      get() {
+        return this._doc.id;
+      },
+    });
+
+    // Spreading such objects must not be used for matching — computeSkillMatches should toObject.
+    expect(Object.keys({ ...mongooseLikeSkill }).includes('name')).toBe(false);
+
+    const result = computeSkillMatches(resumeText, [mongooseLikeSkill]);
+    expect(result.matchedSkillIds).toContain('skill-seo-1');
+    expect(result.skills[0].matched).toBe(true);
+    expect(
+      computeJobMatchScore({ skills: result.skills, aiAssessedRelevance: 70 }).jobMatchScore
+    ).toBeGreaterThanOrEqual(70);
   });
 
   it('finds substring offsets case-insensitively', () => {

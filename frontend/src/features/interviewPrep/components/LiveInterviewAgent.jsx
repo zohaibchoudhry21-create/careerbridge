@@ -2,8 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   getVapiClient,
+  stopVapiCall,
   formatVapiError,
   isNonFatalVapiError,
+  isDailyEjectError,
   getCallEndedReason,
   logVapiDiagnostic,
 } from '../lib/vapi.sdk';
@@ -17,6 +19,7 @@ import { DEFAULT_INTERVIEW_SETUP_MODE } from '../constants/interviewPrepConstant
 import { prepareLiveAudioHintsForSubmit } from '../utils/prepareLiveAudioHintsForSubmit';
 import { applyLiveAdaptiveDepth } from '../services/mockInterviewService';
 import { useInterviewCountdown } from '../hooks/useInterviewCountdown';
+import { useInterviewMedia } from '../context/InterviewMediaContext';
 
 const CallStatus = {
   INACTIVE: 'INACTIVE',
@@ -27,6 +30,9 @@ const CallStatus = {
 
 /** System nudge when planned duration elapses — mirrors interviewerPromptBuilder closing rules. */
 const TIME_UP_WIND_DOWN_NUDGE = `Time for this interview is up. Deliver your natural closing now: thank the candidate briefly and wrap up within the next 30–60 seconds. Do not ask new substantive questions. Do not mention a timer or countdown — close professionally as a human interviewer would when time is over.`;
+
+const getLiveAudioTrack = (mediaStream) =>
+  mediaStream?.getAudioTracks?.().find((track) => track.readyState === 'live') || null;
 
 const UI_STATUS_BY_CALL_STATUS = {
   [CallStatus.INACTIVE]: 'idle',
@@ -51,6 +57,7 @@ export default function LiveInterviewAgent({
   isSubmitting,
 }) {
   const { t } = useTranslation('interviewPrep');
+  const { requestAccess } = useInterviewMedia();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [callStatus, setCallStatus] = useState(CallStatus.INACTIVE);
   const [callError, setCallError] = useState(null);
@@ -75,9 +82,22 @@ export default function LiveInterviewAgent({
   adaptiveDepthEnabledRef.current = adaptiveDepthEnabled;
   const windDownSentRef = useRef(false);
   const hardStopTriggeredRef = useRef(false);
+  const callStatusRef = useRef(CallStatus.INACTIVE);
 
   const { transcript, livePreview, ingestVapiMessage, resetTranscript, clearLivePreview, getSubmitTranscript } =
     useLiveInterview();
+
+  callStatusRef.current = callStatus;
+
+  const formatCallError = useCallback(
+    (error) => (isDailyEjectError(error) ? t('live.micJoinFailed') : formatVapiError(error)),
+    [t]
+  );
+
+  const recoverMicIfNeeded = useCallback(() => {
+    if (getLiveAudioTrack(stream)) return;
+    requestAccess().catch(() => {});
+  }, [requestAccess, stream]);
 
   const countdown = useInterviewCountdown({
     connectedAtMs,
@@ -153,10 +173,13 @@ export default function LiveInterviewAgent({
   }, [isVoiceOnly, stream]);
 
   useEffect(() => {
+    const audioTrack = getLiveAudioTrack(stream);
+    if (!audioTrack) return undefined;
+
     let vapi;
 
     try {
-      vapi = getVapiClient();
+      vapi = getVapiClient(audioTrack);
     } catch (error) {
       setCallError(formatVapiError(error));
       return undefined;
@@ -197,7 +220,7 @@ export default function LiveInterviewAgent({
         String(message.transcriptType || '').toLowerCase() === 'partial'
           ? 'partial'
           : 'final';
-      const role = message.role === 'user' ? 'user' : 'assistant';
+      const role = message.role === 'user' || message.role === 'customer' ? 'user' : 'assistant';
       const segmentText = String(message.transcript || '').trim();
 
       ingestVapiMessage(message);
@@ -237,7 +260,7 @@ export default function LiveInterviewAgent({
             }
             if (data?.systemNudge) {
               try {
-                getVapiClient().send({
+                getVapiClient(getLiveAudioTrack(stream)).send({
                   type: 'add-message',
                   message: {
                     role: 'system',
@@ -272,8 +295,9 @@ export default function LiveInterviewAgent({
       startInFlightRef.current = false;
       clearLivePreview();
       setConnectedAtMs(null);
-      setCallError(formatVapiError(error));
+      setCallError(formatCallError(error));
       setCallStatus(CallStatus.INACTIVE);
+      recoverMicIfNeeded();
     };
 
     vapi.on('call-start', onCallStart);
@@ -295,7 +319,7 @@ export default function LiveInterviewAgent({
       vapi.off('call-start-progress', onCallStartProgress);
       vapi.off('call-start-failed', onCallStartFailed);
     };
-  }, [clearLivePreview, getSubmitTranscript, ingestVapiMessage, captureFinalMetrics, resetFaceSamples, resetTranscript, sessionId]);
+  }, [clearLivePreview, formatCallError, getSubmitTranscript, ingestVapiMessage, captureFinalMetrics, recoverMicIfNeeded, resetFaceSamples, resetTranscript, sessionId, stream]);
 
   // Planned duration hit → ask interviewer to close naturally (do not hard-cut).
   useEffect(() => {
@@ -304,7 +328,7 @@ export default function LiveInterviewAgent({
     }
     windDownSentRef.current = true;
     try {
-      getVapiClient().send({
+      getVapiClient(getLiveAudioTrack(stream)).send({
         type: 'add-message',
         message: {
           role: 'system',
@@ -314,7 +338,7 @@ export default function LiveInterviewAgent({
     } catch {
       // Best-effort; user still sees the wrap-up notice + hard limit below.
     }
-  }, [callStatus, countdown.isExpired]);
+  }, [callStatus, countdown.isExpired, stream]);
 
   // Outer hard limit: durationMinutes + 2 minutes — end if still connected.
   useEffect(() => {
@@ -327,11 +351,7 @@ export default function LiveInterviewAgent({
     }
     hardStopTriggeredRef.current = true;
     captureFinalMetrics();
-    try {
-      getVapiClient().stop();
-    } catch {
-      // ignore
-    }
+    stopVapiCall();
     clearLivePreview();
     setConnectedAtMs(null);
     setCallStatus(CallStatus.FINISHED);
@@ -340,10 +360,11 @@ export default function LiveInterviewAgent({
   // A call left running after unmount keeps billing and holds the mic.
   useEffect(
     () => () => {
-      try {
-        getVapiClient().stop();
-      } catch {
-        // client was never created / already stopped
+      if (
+        callStatusRef.current === CallStatus.ACTIVE ||
+        callStatusRef.current === CallStatus.CONNECTING
+      ) {
+        stopVapiCall();
       }
     },
     []
@@ -367,13 +388,17 @@ export default function LiveInterviewAgent({
     }
     if (!submitTranscript.length) {
       const reason = endedReasonRef.current;
+      const eject = isDailyEjectError(reason);
       setCallError(
-        reason
-          ? t('live.endedNoConversationWithReason', { reason })
-          : t('live.endedNoConversation')
+        eject
+          ? t('live.micJoinFailed')
+          : reason
+            ? t('live.endedNoConversationWithReason', { reason })
+            : t('live.endedNoConversation')
       );
       setCallStatus(CallStatus.INACTIVE);
       finishedNotifiedRef.current = false;
+      recoverMicIfNeeded();
       return;
     }
 
@@ -398,6 +423,7 @@ export default function LiveInterviewAgent({
     isSubmitting,
     onFinished,
     sessionId,
+    recoverMicIfNeeded,
     t,
   ]);
 
@@ -406,7 +432,7 @@ export default function LiveInterviewAgent({
 
     try {
       if (callStatus === CallStatus.ACTIVE) {
-        getVapiClient().setMuted(!nextMicOn);
+        getVapiClient(getLiveAudioTrack(stream)).setMuted(!nextMicOn);
         setIsMicOn(nextMicOn);
         return;
       }
@@ -431,7 +457,7 @@ export default function LiveInterviewAgent({
     setIsCameraOn(nextCameraOn);
   };
 
-  const hasAudioStream = Boolean(stream?.getAudioTracks?.().length);
+  const hasAudioStream = Boolean(getLiveAudioTrack(stream));
   const canStartCall = hasAudioStream && (isVoiceOnly || videoReady);
 
   const handleCall = async () => {
@@ -454,12 +480,16 @@ export default function LiveInterviewAgent({
         throw new Error(t('live.missingAssistant'));
       }
 
-      const vapi = getVapiClient();
+      const audioTrack = getLiveAudioTrack(stream);
+      if (!audioTrack) {
+        throw new Error(t('live.waitingMic'));
+      }
 
-      // Server-created assistant only — system prompt never ships to the browser.
-      // Do NOT stop our mic track here. Vapi/Daily opens its own capture of the
-      // same device; killing the track leaves the call with no customer audio,
-      // which Vapi then ejects as "Meeting has ended".
+      const vapi = getVapiClient(audioTrack);
+
+      // Reuse the preview mic track (passed as Daily audioSource).
+      // A second getUserMedia on Windows steals the device and Daily ejects
+      // ("Meeting has ended"), so user speech never reaches the transcript.
       await vapi.start(assistantId);
 
       if (!isMicOn) {
@@ -468,18 +498,15 @@ export default function LiveInterviewAgent({
     } catch (error) {
       logVapiDiagnostic('start-threw', error);
       startInFlightRef.current = false;
-      setCallError(formatVapiError(error));
+      setCallError(formatCallError(error));
       setCallStatus(CallStatus.INACTIVE);
+      recoverMicIfNeeded();
     }
   };
 
   const handleDisconnect = () => {
     captureFinalMetrics();
-    try {
-      getVapiClient().stop();
-    } catch {
-      // ignore
-    }
+    stopVapiCall();
     clearLivePreview();
     setConnectedAtMs(null);
     setCallStatus(CallStatus.FINISHED);

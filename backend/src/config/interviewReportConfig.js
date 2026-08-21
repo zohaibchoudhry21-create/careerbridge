@@ -51,7 +51,7 @@ export const HIRING_BANDS = Object.freeze([
 
 export const ENTERPRISE_LIST_MAX = toNumber(process.env.INTERVIEW_REPORT_LIST_MAX, 12);
 export const LEGACY_LIST_MAX = 10;
-export const QUESTION_REVIEW_MAX = toNumber(process.env.INTERVIEW_REPORT_QUESTION_MAX, 10);
+export const QUESTION_REVIEW_MAX = toNumber(process.env.INTERVIEW_REPORT_QUESTION_MAX, 16);
 export const ROADMAP_MAX = toNumber(process.env.INTERVIEW_REPORT_ROADMAP_MAX, 6);
 export const CAREER_SUGGESTIONS_MAX = toNumber(process.env.INTERVIEW_REPORT_CAREER_MAX, 5);
 export const TIMELINE_EVENTS_MAX = toNumber(process.env.INTERVIEW_REPORT_TIMELINE_MAX, 60);

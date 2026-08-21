@@ -17,6 +17,7 @@ import InterviewPrepPage from './pages/InterviewPrep/InterviewPrepPage';
 import SkillAssessmentSetupPage from './pages/InterviewPrep/SkillAssessmentSetupPage';
 import MockInterviewLayout from './pages/InterviewPrep/MockInterviewLayout';
 import MockInterviewSetupPage from './pages/InterviewPrep/MockInterviewSetupPage';
+import MockInterviewHistoryPage from './pages/InterviewPrep/MockInterviewHistoryPage';
 import MockInterviewSessionPage from './pages/InterviewPrep/MockInterviewSessionPage';
 import SkillAssessmentQuizPage from './pages/InterviewPrep/SkillAssessmentQuizPage';
 import UploadResumePage from './pages/ResumeBuilder/UploadResumePage';
@@ -116,6 +117,7 @@ function App() {
         }
       >
         <Route index element={<MockInterviewSetupPage />} />
+        <Route path="history" element={<MockInterviewHistoryPage />} />
         <Route path=":sessionId" element={<MockInterviewSessionPage />} />
       </Route>
       <Route

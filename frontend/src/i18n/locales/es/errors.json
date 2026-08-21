@@ -134,6 +134,7 @@
   "INTERVIEW_PREP": {
     "SESSION_NOT_FOUND": "Sesión de entrevista no encontrada.",
     "REPORT_INCOMPLETE": "Completa la entrevista antes de generar un informe.",
+    "REPORT_UNAVAILABLE": "No hay un informe de entrevista guardado para esta sesión.",
     "ROLE_REQUIRED": "El rol es obligatorio.",
     "NOT_LIVE_SESSION": "Esta sesión no es una entrevista en vivo.",
     "TRANSCRIPT_REQUIRED": "La transcripción es obligatoria.",
@@ -165,7 +166,7 @@
     "ROLE_SUGGESTIONS_FAILED": "No se pudieron obtener sugerencias de rol. Inténtalo de nuevo.",
     "ROLE_LENGTH": "El rol debe tener entre {{min}} y {{max}} caracteres",
     "DIFFICULTY_INVALID": "La dificultad debe ser easy, medium o hard",
-    "DURATION_INVALID": "La duración debe ser una de: {{options}} minutos",
+    "DURATION_INVALID": "La duración debe estar entre {{min}} y {{max}} minutos",
     "ANSWER_TIME_LIMIT_INVALID": "El límite de tiempo de respuesta debe estar entre 30 y 600 segundos",
     "RESUME_TEXT_TOO_LONG": "El texto del currículum debe tener como máximo {{max}} caracteres",
     "JOB_DESCRIPTION_TOO_LONG": "La descripción del puesto debe tener como máximo {{max}} caracteres",

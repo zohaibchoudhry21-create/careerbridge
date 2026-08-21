@@ -232,6 +232,8 @@ export default function ResumeScannerAnalysisPage() {
   const handleAcceptAll = useCallback(async () => {
     const before = analysis;
     try {
+      // Do not flush stale drafts — cancel so they cannot overwrite accept-all scores.
+      editorRef.current?.cancelPendingSave?.();
       const response = await acceptAllMutation.mutateAsync();
       recordScoreDeltas(before, response?.analysis);
       toast.success(t('analysis.toasts.acceptAllSuccess'));

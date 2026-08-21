@@ -138,6 +138,7 @@ export const ERROR_CODES = {
   INTERVIEW_PREP: {
     SESSION_NOT_FOUND: 'INTERVIEW_PREP.SESSION_NOT_FOUND',
     REPORT_INCOMPLETE: 'INTERVIEW_PREP.REPORT_INCOMPLETE',
+    REPORT_UNAVAILABLE: 'INTERVIEW_PREP.REPORT_UNAVAILABLE',
     ROLE_REQUIRED: 'INTERVIEW_PREP.ROLE_REQUIRED',
     NOT_LIVE_SESSION: 'INTERVIEW_PREP.NOT_LIVE_SESSION',
     SESSION_ABANDONED: 'INTERVIEW_PREP.SESSION_ABANDONED',
@@ -406,6 +407,8 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.INTERVIEW_PREP.SESSION_NOT_FOUND]: 'Interview session not found.',
   [ERROR_CODES.INTERVIEW_PREP.REPORT_INCOMPLETE]:
     'Complete the interview before generating a report.',
+  [ERROR_CODES.INTERVIEW_PREP.REPORT_UNAVAILABLE]:
+    'No saved interview report is available for this session.',
   [ERROR_CODES.INTERVIEW_PREP.ROLE_REQUIRED]: 'Role is required.',
   [ERROR_CODES.INTERVIEW_PREP.NOT_LIVE_SESSION]: 'This session is not a live interview.',
   [ERROR_CODES.INTERVIEW_PREP.SESSION_ABANDONED]:
@@ -451,7 +454,7 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.INTERVIEW_PREP.ROLE_LENGTH]: 'Role must be between {{min}} and {{max}} characters',
   [ERROR_CODES.INTERVIEW_PREP.DIFFICULTY_INVALID]: 'Difficulty must be easy, medium, or hard',
   [ERROR_CODES.INTERVIEW_PREP.DURATION_INVALID]:
-    'Duration must be one of: {{options}} minutes',
+    'Duration must be between {{min}} and {{max}} minutes',
   [ERROR_CODES.INTERVIEW_PREP.ANSWER_TIME_LIMIT_INVALID]:
     'Answer time limit must be between 30 and 600 seconds',
   [ERROR_CODES.INTERVIEW_PREP.RESUME_TEXT_TOO_LONG]:

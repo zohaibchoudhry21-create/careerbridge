@@ -5,8 +5,9 @@
  *   import Button from './Button';
  *   <Button variant="primary">Save</Button>
  *
- *   import { buttonPrimaryClass } from './buttonTokens';
+ *   import { buttonPrimaryClass, buttonGradientCtaClass } from './buttonTokens';
  *   <Link className={buttonPrimaryClass}>Continue</Link>
+ *   <Link className={buttonGradientCtaClass}>Analyze Resume</Link>
  */
 
 /** Shared layout/transition base — color variants extend this. */
@@ -31,8 +32,19 @@ export const buttonSecondaryClass = [
   'rounded-xl border border-outline-variant bg-transparent text-on-surface hover:bg-surface-container disabled:opacity-60',
 ].join(' ');
 
+/** Gradient CTA — matches Resume Scanner Analyze Resume */
+export const buttonGradientCtaClass = [
+  'inline-flex items-center justify-center font-label-md transition-all disabled:cursor-not-allowed disabled:opacity-55',
+  'gap-2 px-lg py-3 rounded-2xl',
+  'bg-gradient-to-r from-indigo-600 to-blue-600 text-white',
+  'shadow-[0_4px_14px_rgba(79,70,229,0.32)]',
+  'hover:from-indigo-500 hover:to-blue-500',
+  'hover:-translate-y-0.5 active:translate-y-0 disabled:hover:translate-y-0',
+].join(' ');
+
 export const BUTTON_VARIANTS = {
   primary: buttonPrimaryClass,
   destructive: buttonDestructiveClass,
   secondary: buttonSecondaryClass,
+  gradient: buttonGradientCtaClass,
 };

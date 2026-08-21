@@ -36,6 +36,7 @@ import {
   ensureStructuredResume,
   expireStalePendingSuggestions,
   recomputeAndSave,
+  recomputeInMemory,
   refreshSkillState,
   syncAfterHistoryRestore,
   syncDerivedFromStructured,
@@ -73,6 +74,8 @@ export const updateSuggestionStatus = async ({
 
     pushHistoryEntry(analysis, `suggestion:${action}`);
 
+    let applied = false;
+
     if (action === 'accept') {
       const applyResult = applySuggestionToStructured(
         ensureStructuredResume(analysis),
@@ -82,21 +85,32 @@ export const updateSuggestionStatus = async ({
         syncDerivedFromStructured(analysis, applyResult.structured);
         suggestion.status = 'accepted';
         suggestion.applyError = '';
+        applied = true;
       } else {
+        // Do not recompute scores when text did not change — generateAtsText
+        // recompute was dropping Job Match even on failed applies.
         suggestion.status = 'unappliable';
         suggestion.applyError = applyResult.reason || 'original_not_found_in_field';
+        analysis.markModified('suggestions');
+        await analysis.save();
+        return { early: false, analysis, jobDescription };
       }
     } else {
+      // Reject only flips status — resume text and scores stay as-is.
       suggestion.status = 'rejected';
+      analysis.markModified('suggestions');
+      await analysis.save();
+      return { early: false, analysis, jobDescription };
     }
 
-    await recomputeAndSave(analysis, jobDescription);
-    if (action === 'accept' && jobMatchSnapshot) {
-      enforceAcceptJobMatchFloor(analysis, jobMatchSnapshot);
-      if (analysis.isModified()) {
-        await analysis.save();
+    if (applied) {
+      recomputeInMemory(analysis, jobDescription);
+      if (jobMatchSnapshot) {
+        enforceAcceptJobMatchFloor(analysis, jobMatchSnapshot);
       }
+      await analysis.save();
     }
+
     return { early: false, analysis, jobDescription };
   });
 };
@@ -116,23 +130,32 @@ export const acceptAllSuggestions = async ({ analysisId, userId }) => {
     pushHistoryEntry(analysis, 'accept-all');
 
     let structured = ensureStructuredResume(analysis);
+    let anyApplied = false;
     for (const suggestion of pendingSuggestions) {
       const applyResult = applySuggestionToStructured(structured, suggestion);
       if (applyResult.applied) {
         structured = applyResult.structured;
         suggestion.status = 'accepted';
         suggestion.applyError = '';
+        anyApplied = true;
       } else {
         suggestion.status = 'unappliable';
         suggestion.applyError = applyResult.reason || 'original_not_found_in_field';
       }
     }
-    syncDerivedFromStructured(analysis, structured);
-    await recomputeAndSave(analysis, jobDescription);
-    enforceAcceptJobMatchFloor(analysis, jobMatchSnapshot);
-    if (analysis.isModified()) {
+
+    analysis.markModified('suggestions');
+
+    if (!anyApplied) {
+      // Nothing landed in the resume — keep prior scores; only persist statuses.
       await analysis.save();
+      return { early: false, analysis, jobDescription };
     }
+
+    syncDerivedFromStructured(analysis, structured);
+    recomputeInMemory(analysis, jobDescription);
+    enforceAcceptJobMatchFloor(analysis, jobMatchSnapshot);
+    await analysis.save();
     return { early: false, analysis, jobDescription };
   });
 };

@@ -149,14 +149,32 @@ describe('structuredResume', () => {
     expect(second.structured.summary.match(/Pipefitting/g)?.length).toBe(1);
   });
 
-  it('rejects out-of-bounds array fieldPath without creating sparse slots', () => {
+  it('relocates reword when fieldPath is out of bounds but original exists elsewhere', () => {
     const structured = parseAtsTextToStructured(SAMPLE);
-    expect(setFieldByPath(structured, 'skills.99', 'Welding')).toBeNull();
+    expect(setFieldByPath(structured, 'workExperience.0.bullets.99', 'x')).toBeNull();
+
+    const originalBullet = structured.workExperience[0].bullets[0];
+    expect(originalBullet).toBeTruthy();
+
+    const { applied, structured: updated } = applySuggestionToStructured(structured, {
+      type: 'reword',
+      fieldPath: 'workExperience.0.bullets.99',
+      original: originalBullet,
+      suggested: 'Built GA4 dashboards for leadership',
+    });
+
+    expect(applied).toBe(true);
+    expect(updated.workExperience[0].bullets.length).toBe(structured.workExperience[0].bullets.length);
+    expect(updated.workExperience[0].bullets[0]).toContain('GA4');
+  });
+
+  it('rejects out-of-bounds fieldPath when original is not found anywhere', () => {
+    const structured = parseAtsTextToStructured(SAMPLE);
 
     const { applied, reason, structured: updated } = applySuggestionToStructured(structured, {
       type: 'reword',
       fieldPath: 'skills.99',
-      original: 'SEO',
+      original: 'Text that does not exist in this resume',
       suggested: 'Welding',
     });
 

@@ -134,6 +134,7 @@
   "INTERVIEW_PREP": {
     "SESSION_NOT_FOUND": "Interview session not found.",
     "REPORT_INCOMPLETE": "Complete the interview before generating a report.",
+    "REPORT_UNAVAILABLE": "No saved interview report is available for this session.",
     "ROLE_REQUIRED": "Role is required.",
     "NOT_LIVE_SESSION": "This session is not a live interview.",
     "TRANSCRIPT_REQUIRED": "Transcript is required.",
@@ -165,7 +166,7 @@
     "ROLE_SUGGESTIONS_FAILED": "Failed to fetch role suggestions. Please try again.",
     "ROLE_LENGTH": "Role must be between {{min}} and {{max}} characters",
     "DIFFICULTY_INVALID": "Difficulty must be easy, medium, or hard",
-    "DURATION_INVALID": "Duration must be one of: {{options}} minutes",
+    "DURATION_INVALID": "Duration must be between {{min}} and {{max}} minutes",
     "ANSWER_TIME_LIMIT_INVALID": "Answer time limit must be between 30 and 600 seconds",
     "RESUME_TEXT_TOO_LONG": "Resume text must be at most {{max}} characters",
     "JOB_DESCRIPTION_TOO_LONG": "Job description must be at most {{max}} characters",

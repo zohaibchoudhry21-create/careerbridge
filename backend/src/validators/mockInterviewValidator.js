@@ -4,7 +4,8 @@ import {
   INTERVIEW_SETUP_MODES_SELECTABLE,
   INTERVIEWER_PERSONAS,
   MOCK_INTERVIEW_DIFFICULTIES,
-  MOCK_INTERVIEW_DURATION_OPTIONS,
+  MIN_MOCK_INTERVIEW_DURATION_MINUTES,
+  MAX_MOCK_INTERVIEW_DURATION_MINUTES,
   MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
 } from '../constants/interviewPrepConstants.js';
 import { ERROR_CODES, formatValidationCode } from '../constants/apiErrorCodes.js';
@@ -24,12 +25,14 @@ export const startLiveInterviewValidation = [
     .withMessage(ERROR_CODES.INTERVIEW_PREP.DIFFICULTY_INVALID),
   body('durationMinutes')
     .optional()
-    .isIn(MOCK_INTERVIEW_DURATION_OPTIONS)
+    .isInt({ min: MIN_MOCK_INTERVIEW_DURATION_MINUTES, max: MAX_MOCK_INTERVIEW_DURATION_MINUTES })
     .withMessage(
       formatValidationCode(ERROR_CODES.INTERVIEW_PREP.DURATION_INVALID, {
-        options: MOCK_INTERVIEW_DURATION_OPTIONS.join(', '),
+        min: MIN_MOCK_INTERVIEW_DURATION_MINUTES,
+        max: MAX_MOCK_INTERVIEW_DURATION_MINUTES,
       })
-    ),
+    )
+    .toInt(),
   body('answerTimeLimitSeconds')
     .optional()
     .isInt({ min: 30, max: 600 })
@@ -142,7 +145,10 @@ export const submitLiveInterviewValidation = [
     .withMessage(ERROR_CODES.VALIDATION.GENERIC),
   body('durationMs')
     .optional()
-    .isInt({ min: 0, max: 3600000 })
+    .isInt({
+      min: 0,
+      max: MAX_MOCK_INTERVIEW_DURATION_MINUTES * 60 * 1000 + 5 * 60 * 1000,
+    })
     .withMessage(ERROR_CODES.INTERVIEW_PREP.CALL_DURATION_INVALID),
 ];
 

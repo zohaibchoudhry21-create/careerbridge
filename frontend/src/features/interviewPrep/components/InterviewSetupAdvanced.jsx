@@ -1,9 +1,15 @@
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   DEFAULT_INTERVIEW_SETUP_MODE,
   FOCUS_AREA_I18N_KEYS,
   INTERVIEW_FOCUS_AREAS,
   INTERVIEW_SETUP_MODE_OPTIONS,
+  MAX_MOCK_INTERVIEW_DURATION_MINUTES,
+  MIN_MOCK_INTERVIEW_DURATION_MINUTES,
+  MOCK_INTERVIEW_DURATION_OPTIONS,
+  clampDurationMinutes,
+  durationMinutesToQuestionCount,
 } from '../constants/interviewPrepConstants';
 import AppIcon from '../../../components/icons/AppIcon';
 import SectionHeading from '../../../components/ui/SectionHeading';
@@ -50,6 +56,123 @@ export function SectionHeader({ icon, iconClassName, title, description, optiona
       description={description}
       optional={optional}
     />
+  );
+}
+
+export function DurationSection({ durationMinutes, onDurationMinutesChange }) {
+  const { t } = useTranslation('interviewPrep');
+  const customInputRef = useRef(null);
+  const minutes = clampDurationMinutes(durationMinutes);
+  const questionCount = durationMinutesToQuestionCount(minutes);
+  const isCustom = !MOCK_INTERVIEW_DURATION_OPTIONS.includes(minutes);
+  const [draft, setDraft] = useState(isCustom ? String(minutes) : '');
+
+  const selectPreset = (preset) => {
+    onDurationMinutesChange(preset);
+    setDraft('');
+  };
+
+  const applyDraft = (raw) => {
+    setDraft(raw);
+    const parsed = Number.parseInt(String(raw).trim(), 10);
+    if (
+      Number.isInteger(parsed) &&
+      parsed >= MIN_MOCK_INTERVIEW_DURATION_MINUTES &&
+      parsed <= MAX_MOCK_INTERVIEW_DURATION_MINUTES
+    ) {
+      onDurationMinutesChange(parsed);
+    }
+  };
+
+  const commitDraft = () => {
+    const parsed = Number.parseInt(String(draft).trim(), 10);
+    if (!Number.isFinite(parsed)) {
+      setDraft(isCustom ? String(minutes) : '');
+      return;
+    }
+    const clamped = clampDurationMinutes(parsed);
+    onDurationMinutesChange(clamped);
+    setDraft(MOCK_INTERVIEW_DURATION_OPTIONS.includes(clamped) ? '' : String(clamped));
+  };
+
+  return (
+    <section className={cn(accentCardClass, 'h-full')}>
+      <SectionHeading
+        color="time"
+        icon="hourglass_top"
+        title={t('mockSetup.time.title')}
+        description={t('mockSetup.time.description', {
+          min: MIN_MOCK_INTERVIEW_DURATION_MINUTES,
+          max: MAX_MOCK_INTERVIEW_DURATION_MINUTES,
+        })}
+      />
+
+      <div className="space-y-2">
+        {MOCK_INTERVIEW_DURATION_OPTIONS.map((preset) => (
+          <button
+            key={preset}
+            type="button"
+            onClick={() => selectPreset(preset)}
+            className={cn(
+              'w-full rounded-xl border-2 px-4 py-2.5 text-left font-label-md transition-all duration-150',
+              !isCustom && minutes === preset ? selectedOptionClass : unselectedOptionClass
+            )}
+          >
+            {t('mockSetup.time.minutes', { count: preset })}
+          </button>
+        ))}
+
+        <div
+          className={cn(
+            'flex items-center gap-2 rounded-xl border-2 px-4 py-2 transition-all duration-150',
+            isCustom ? selectedOptionClass : unselectedOptionClass
+          )}
+        >
+          <button
+            type="button"
+            className={cn(
+              'shrink-0 font-label-md',
+              isCustom ? 'text-secondary' : 'text-on-surface-variant'
+            )}
+            onClick={() => customInputRef.current?.focus()}
+          >
+            {t('mockSetup.time.custom')}
+          </button>
+          <input
+            ref={customInputRef}
+            type="number"
+            inputMode="numeric"
+            min={MIN_MOCK_INTERVIEW_DURATION_MINUTES}
+            max={MAX_MOCK_INTERVIEW_DURATION_MINUTES}
+            value={draft}
+            placeholder={t('mockSetup.time.placeholder')}
+            aria-label={t('mockSetup.time.customAria')}
+            onChange={(event) => applyDraft(event.target.value)}
+            onBlur={commitDraft}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                event.currentTarget.blur();
+              }
+            }}
+            className={cn(
+              'min-w-0 flex-1 rounded-lg border border-[#E2E7EE] bg-white px-3 py-1',
+              'font-label-md tabular-nums text-on-surface outline-none',
+              'placeholder:text-on-surface-variant/50',
+              'focus:border-secondary focus:ring-2 focus:ring-secondary/15',
+              '[appearance:textfield]',
+              '[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
+            )}
+          />
+          <span className="shrink-0 font-label-sm text-on-surface-variant">
+            {t('mockSetup.time.minutesUnit')}
+          </span>
+        </div>
+        <p className="font-body-md text-sm app-muted">
+          {t('mockSetup.time.questionPreview', { count: questionCount })}
+        </p>
+      </div>
+    </section>
   );
 }
 

@@ -30,7 +30,17 @@ function collectErrorText(value, depth = 0) {
       .map((key) => collectErrorText(value[key], depth + 1))
       .filter(Boolean);
 
-    if (chunks.length) return chunks.join(' — ');
+    if (chunks.length) {
+      const unique = [];
+      for (const chunk of chunks) {
+        const normalized = chunk.toLowerCase();
+        if (unique.some((existing) => existing.toLowerCase() === normalized || existing.toLowerCase().includes(normalized))) {
+          continue;
+        }
+        unique.push(chunk);
+      }
+      return unique.join(' — ');
+    }
 
     try {
       return JSON.stringify(value);
@@ -46,9 +56,22 @@ function collectErrorText(value, depth = 0) {
  * Vapi web SDK may emit plain objects like { type, msg, details }.
  * Always coerce to a user-safe string before rendering in React.
  */
+export function isDailyEjectError(error) {
+  const text = `${typeof error === 'string' ? error : collectErrorText(error)}`.toLowerCase();
+  return text.includes('ejected') || text.includes('meeting has ended');
+}
+
 export function formatVapiError(error) {
   if (!error) return 'Voice call error.';
-  if (typeof error === 'string') return error;
+  if (typeof error === 'string') {
+    return isDailyEjectError(error)
+      ? 'The voice room closed because the microphone never joined. Close other apps using the mic, then start again.'
+      : error;
+  }
+
+  if (isDailyEjectError(error)) {
+    return 'The voice room closed because the microphone never joined. Close other apps using the mic, then start again.';
+  }
 
   const text = collectErrorText(error);
   if (text) return text;
@@ -74,6 +97,7 @@ export function toDisplayErrorMessage(error, fallback = 'Something went wrong.')
  */
 export function isNonFatalVapiError(error) {
   if (!error || typeof error !== 'object') return false;
+  if (isDailyEjectError(error)) return false;
 
   if (NON_FATAL_VAPI_ERROR_TYPES.has(error.type)) {
     return true;
@@ -91,15 +115,49 @@ export function isNonFatalVapiError(error) {
   );
 }
 
-export function getVapiClient() {
+let vapiTokenUsed = '';
+let vapiAudioTrackId = '';
+
+export function stopVapiCall() {
+  try {
+    vapiInstance?.stop?.();
+  } catch {
+    // ignore — no active call
+  }
+}
+
+/**
+ * Daily must reuse the preview microphone track.
+ * A second getUserMedia on Windows steals the device → Daily ejects
+ * ("Meeting has ended") and user speech never reaches Deepgram.
+ *
+ * @param {MediaStreamTrack} [audioTrack]
+ */
+export function getVapiClient(audioTrack) {
   const token = getPublicToken();
 
   if (!token) {
     throw new Error('VITE_VAPI_WEB_TOKEN is not configured.');
   }
 
-  if (!vapiInstance) {
-    vapiInstance = new Vapi(token);
+  const nextTrackId = audioTrack?.id ? String(audioTrack.id) : '';
+  const tokenChanged = vapiTokenUsed !== token;
+  const trackChanged = Boolean(nextTrackId) && nextTrackId !== vapiAudioTrackId;
+
+  if (!vapiInstance || tokenChanged || trackChanged) {
+    stopVapiCall();
+    vapiInstance = new Vapi(
+      token,
+      undefined,
+      { alwaysIncludeMicInPermissionPrompt: true },
+      {
+        audioSource: audioTrack ? audioTrack.clone() : true,
+        startAudioOff: false,
+        videoSource: false,
+      }
+    );
+    vapiTokenUsed = token;
+    vapiAudioTrackId = nextTrackId;
   }
 
   return vapiInstance;
