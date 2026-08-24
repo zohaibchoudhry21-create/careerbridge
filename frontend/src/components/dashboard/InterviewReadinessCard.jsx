@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Mic, Video } from 'lucide-react';
+import { Mic, Users } from 'lucide-react';
 
 function InterviewReadinessCard({ interviewReadiness }) {
   const { t } = useTranslation('dashboard');
@@ -31,15 +31,15 @@ function InterviewReadinessCard({ interviewReadiness }) {
           to="/interview-prep/mock"
           className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
         >
-          <Video className="h-4 w-4" aria-hidden />
-          {t('interviewReadiness.videoMode')}
+          <Mic className="h-4 w-4" aria-hidden />
+          {t('interviewReadiness.mockCta')}
         </Link>
         <Link
-          to="/interview-prep/mock"
+          to="/interview-prep/panel"
           className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
         >
-          <Mic className="h-4 w-4" aria-hidden />
-          {t('interviewReadiness.voiceAnalysis')}
+          <Users className="h-4 w-4" aria-hidden />
+          {t('interviewReadiness.panelCta')}
         </Link>
       </div>
     </div>

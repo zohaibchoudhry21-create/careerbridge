@@ -1,13 +1,30 @@
 import {
+  INTERVIEW_FORMATS,
   INTERVIEW_HISTORY_DEFAULT_LIMIT,
   INTERVIEW_HISTORY_DEFAULT_PAGE,
   INTERVIEW_HISTORY_MAX_LIMIT,
 } from '../constants/interviewPrepConstants.js';
 
 export const SESSION_HISTORY_SELECT =
-  'role roleLabel difficulty durationMinutes targetQuestionCount status createdAt callDurationMs reportId';
+  'role roleLabel difficulty durationMinutes targetQuestionCount status createdAt callDurationMs reportId interviewFormat';
 
-export const sessionHistoryOwnerFilter = (userId) => ({ userId });
+/**
+ * @param {unknown} userId
+ * @param {{ interviewFormat?: string }} [options]
+ */
+export const sessionHistoryOwnerFilter = (userId, options = {}) => {
+  const filter = { userId };
+  const format = String(options.interviewFormat || '').trim().toLowerCase();
+  if (format && INTERVIEW_FORMATS.includes(format)) {
+    if (format === 'standard') {
+      // Legacy sessions omit interviewFormat; treat them as standard mock.
+      filter.$or = [{ interviewFormat: 'standard' }, { interviewFormat: { $exists: false } }];
+    } else {
+      filter.interviewFormat = format;
+    }
+  }
+  return filter;
+};
 
 export const savedInterviewReportQuery = (userId, sessionId) => ({
   userId,
@@ -57,6 +74,7 @@ export const mapSessionHistoryItem = (session, report) => {
     durationMinutes: session.durationMinutes ?? null,
     questionCount: session.targetQuestionCount ?? null,
     status: session.status || 'setup',
+    interviewFormat: session.interviewFormat || 'standard',
     createdAt: session.createdAt,
     callDurationMs: Number.isFinite(Number(session.callDurationMs))
       ? Number(session.callDurationMs)

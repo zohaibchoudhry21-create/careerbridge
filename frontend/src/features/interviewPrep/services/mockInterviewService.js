@@ -8,14 +8,41 @@ export const fetchMockInterviewSession = (sessionId) =>
 export const fetchInterviewReportHistory = (limit = 12) =>
   api.get('/interview/reports/history', { params: { limit } }).then(unwrap);
 
-export const fetchInterviewSessionHistory = ({ page = 1, limit = 10 } = {}) =>
-  api.get('/interview/sessions/history', { params: { page, limit } }).then(unwrap);
+export const fetchInterviewSessionHistory = ({ page = 1, limit = 10, interviewFormat } = {}) =>
+  api
+    .get('/interview/sessions/history', {
+      params: {
+        page,
+        limit,
+        ...(interviewFormat ? { interviewFormat } : {}),
+      },
+    })
+    .then(unwrap);
+
+export const previewPanelSeats = (roleLabel, signal) =>
+  api
+    .get('/interview/panel/preview-seats', {
+      params: { roleLabel: roleLabel || '' },
+      signal,
+      timeout: 8000,
+    })
+    .then(unwrap);
+
+export const deleteInterviewSession = (sessionId) =>
+  api.delete(`/interview/session/${sessionId}`).then(unwrap);
+
+export const clearInterviewSessionHistory = (interviewFormat) =>
+  api
+    .delete('/interview/sessions/history', {
+      params: interviewFormat ? { interviewFormat } : undefined,
+    })
+    .then(unwrap);
 
 export const fetchSavedInterviewReport = (sessionId) =>
   api.get(`/interview/report/${sessionId}`).then(unwrap);
 
 export const generateMockInterviewReport = (sessionId) =>
-  api.post('/interview/report', { sessionId }, { timeout: 120000 }).then(unwrap);
+  api.post('/interview/report/regenerate', { sessionId }, { timeout: 120000 }).then(unwrap);
 
 export const startLiveInterview = (payload) =>
   api.post('/interview/live/start', payload, { timeout: 120000 }).then(unwrap);

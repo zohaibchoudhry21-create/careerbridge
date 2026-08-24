@@ -1,6 +1,7 @@
-import { body, param } from 'express-validator';
+import { body, param, query } from 'express-validator';
 import {
   INTERVIEW_FOCUS_AREAS,
+  INTERVIEW_FORMATS,
   INTERVIEW_SETUP_MODES_SELECTABLE,
   INTERVIEWER_PERSONAS,
   MOCK_INTERVIEW_DIFFICULTIES,
@@ -89,10 +90,25 @@ export const startLiveInterviewValidation = [
     .optional()
     .isIn(INTERVIEW_SETUP_MODES_SELECTABLE)
     .withMessage(ERROR_CODES.INTERVIEW_PREP.INTERVIEW_MODE_INVALID),
+  body('interviewFormat')
+    .optional()
+    .isIn(INTERVIEW_FORMATS)
+    .withMessage(ERROR_CODES.INTERVIEW_PREP.INTERVIEW_FORMAT_INVALID),
   body('interviewerPersona')
     .optional()
     .isIn(INTERVIEWER_PERSONAS)
     .withMessage(ERROR_CODES.INTERVIEW_PREP.INTERVIEWER_PERSONA_INVALID),
+];
+
+export const panelPreviewSeatsValidation = [
+  query('roleLabel')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 120 })
+    .withMessage(
+      formatValidationCode(ERROR_CODES.INTERVIEW_PREP.ROLE_LENGTH, { min: 0, max: 120 })
+    ),
 ];
 
 export const sessionIdBodyValidation = [

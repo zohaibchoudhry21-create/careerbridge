@@ -17,9 +17,170 @@
       "title": "AI Mock Interview",
       "description": "Live AI interview with real-time voice, camera feedback, and a combined report."
     },
+    "panelInterview": {
+      "title": "AI Panel Interview",
+      "description": "Face a role-matched panel of three AI interviewers in one live room."
+    },
     "skillAssessment": {
       "title": "Skill Assessment",
       "description": "Topic-based MCQ quiz with scoring and weak-area detection."
+    }
+  },
+  "panelSetup": {
+    "title": "Set up your panel room",
+    "description": "Three interviewers, one conversation — matched to the role you enter.",
+    "joinPanel": "Join the panel",
+    "joinPanelShort": "Join panel",
+    "joining": "Opening the room…",
+    "enterRole": "Enter the role you're interviewing for",
+    "joinFailed": "Couldn't open the panel room. Please try again.",
+    "joinErrorTitle": "Panel room didn't open",
+    "presets": {
+      "title": "Panel style",
+      "description": "Pick a starting point, then fine-tune anything below.",
+      "intro": {
+        "label": "Intro round",
+        "hint": "Soft, 10 min, voice only"
+      },
+      "standard": {
+        "label": "Full panel",
+        "hint": "Standard, 15 min, camera on"
+      },
+      "tough": {
+        "label": "Final round",
+        "hint": "Tough, 20 min, camera on"
+      }
+    },
+    "role": {
+      "title": "Who is the panel meeting?",
+      "description": "The role decides which three interviewers sit on your panel."
+    },
+    "roster": {
+      "title": "Your panel",
+      "description": "Three perspectives, assigned once you enter a role.",
+      "descriptionWithRole": "Panel matched to {{role}}.",
+      "loading": "Matching panel seats…",
+      "placeholderTitle": "Seat open",
+      "placeholderFocus": "Enter a role to fill this seat.",
+      "hint": "Seats follow your career field — no Technical Lead unless the role is technical."
+    },
+    "pressure": {
+      "title": "Panel pressure",
+      "description": "How hard the room pushes back on your answers.",
+      "soft": {
+        "label": "Supportive",
+        "hint": "Encouraging, room to think"
+      },
+      "standard": {
+        "label": "Balanced",
+        "hint": "Real hiring-panel pace"
+      },
+      "tough": {
+        "label": "Demanding",
+        "hint": "Sharp probes, little slack"
+      }
+    },
+    "length": {
+      "title": "Room time",
+      "description": "How long the panel stays with you.",
+      "custom": "Custom",
+      "placeholder": "e.g. 25",
+      "customAria": "Type custom panel length in minutes",
+      "roundsPreview": "About {{count}} questions across the panel"
+    },
+    "themes": {
+      "title": "What should the panel dig into?",
+      "description": "Optional. Leave empty and the panel decides from your role.",
+      "realScenarios": "Real scenarios",
+      "cultureTeamwork": "Culture & teamwork",
+      "communicationClarity": "Communication & clarity",
+      "ownershipImpact": "Ownership & impact",
+      "depthStructure": "Depth & structure",
+      "handsOnSkills": "Hands-on skills"
+    },
+    "join": {
+      "title": "How will you join?",
+      "description": "Camera on gives you body-language feedback as well.",
+      "videoVoice": "Camera + mic",
+      "videoVoiceHint": "Panel sees you — adds eye contact and presence feedback",
+      "voiceOnly": "Mic only",
+      "voiceOnlyHint": "Voice-only room — lighter on bandwidth",
+      "modeLabel": "Joining as"
+    },
+    "devices": {
+      "ready": "Camera and mic ready",
+      "notReady": "Check camera and mic before joining",
+      "readyToast": "You're ready to join the panel"
+    },
+    "aside": {
+      "eyebrow": "Panel room",
+      "title": "Before you join",
+      "meeting": "Interviewing for",
+      "roleMissing": "No role yet",
+      "seatPending": "Seat fills after role",
+      "seatCount": "{{count}} interviewers",
+      "pressure": "Pressure",
+      "length": "Room time",
+      "rounds": "Questions",
+      "roundsValue": "about {{count}}",
+      "joining": "Joining as",
+      "themes": "Themes"
+    }
+  },
+  "panelHistory": {
+    "title": "Panel interview history",
+    "description": "Review your previous AI panel interviews and reports.",
+    "startNew": "New panel interview",
+    "clearDescription": "All {{count}} panel interviews will be permanently removed, including saved reports. This cannot be undone."
+  },
+  "panelRoom": {
+    "lobby": {
+      "eyebrow": "Waiting room",
+      "title": "Your panel is assembling",
+      "description": "Three interviewers are taking their seats. Enter when you're ready.",
+      "conferenceRoom": "Conference room",
+      "panelAssembling": "Panel is assembling…",
+      "panelReady": "All three are here. Ready when you are.",
+      "seatJoining": "Joining…",
+      "seatReady": "Ready",
+      "seatPending": "Seat open",
+      "yourSeat": "You · {{name}}",
+      "you": "You",
+      "soundLabel": "Room sound",
+      "soundHint": "Soft chime when you enter (off by default)",
+      "devicesReady": "Camera and mic ready",
+      "devicesWaiting": "Waiting for camera or mic…",
+      "enter": "Enter the room",
+      "backToSetup": "Back to panel setup",
+      "sharedVoiceHint": "Three interviewers, one shared voice — watch names in the transcript and tiles above.",
+      "sharedVoiceHintDismiss": "Got it",
+      "seatPreview": "{{name}} will ask about {{focus}}"
+    },
+    "enter": {
+      "openingDoor": "Opening the door…",
+      "seatingPanel": "Seating the panel…",
+      "youreIn": "You're in"
+    },
+    "live": {
+      "conferenceRoom": "Conference room",
+      "roomTitleWithRole": "Conference Room — {{role}} Panel",
+      "speaking": "Speaking",
+      "listening": "Listening",
+      "nameSpeaking": "{{name}} is speaking",
+      "inSession": "Live Session",
+      "you": "You",
+      "candidateLabel": "{{name}} (You — Candidate)",
+      "transcriptNotes": "Live Transcript & Notes",
+      "transcriptFooter": "AI is transcribing and monitoring the conversation in real time.",
+      "speakerAsking": "{{name}} ({{title}}) is asking…",
+      "upNext": "Up next: {{name}} ({{title}})"
+    },
+    "leave": {
+      "cta": "Leave room",
+      "confirmTitle": "Leave the room?",
+      "confirmDescription": "This ends the panel session and prepares your report.",
+      "title": "You left the room",
+      "description": "Thanks for meeting the panel. Preparing your feedback…"
     }
   },
   "mockSetup": {
@@ -44,18 +205,80 @@
     },
     "focusAreas": {
       "title": "Focus areas",
-      "description": "Pick what the interview should emphasize."
+      "description": "Pick what the interview should emphasize. Suggested from your role — adjust anytime."
     },
     "mode": {
       "title": "Interview mode",
       "description": "Choose how you want to respond.",
       "videoVoice": "Video and voice",
       "voiceOnly": "Voice only",
+      "videoVoiceHint": "Camera on for eye-contact metrics plus voice.",
+      "voiceOnlyHint": "Mic only — faster setup, no camera metrics.",
       "textOnly": "Text only",
       "comingSoon": "Coming soon"
     },
+    "persona": {
+      "title": "Interviewer style",
+      "description": "Pick the tone of the person interviewing you.",
+      "friendly": {
+        "label": "Friendly",
+        "description": "Warm and encouraging, with natural pauses."
+      },
+      "neutral": {
+        "label": "Neutral",
+        "description": "Courteous hiring-manager pace."
+      },
+      "strict": {
+        "label": "Strict",
+        "description": "Formal probes — concise, high-signal answers."
+      },
+      "panel": {
+        "label": "Panel of 3",
+        "description": "Three interviewers with different perspectives — adapted to your role."
+      }
+    },
+    "presets": {
+      "title": "Quick start",
+      "description": "Jump in with a ready mix — tweak anything below.",
+      "quick": {
+        "label": "Quick 10 min",
+        "hint": "Easy · voice only · friendly"
+      },
+      "standard": {
+        "label": "Standard 15 min",
+        "hint": "Mid · video · neutral"
+      },
+      "senior": {
+        "label": "Senior 30 min",
+        "hint": "Hard · video · strict"
+      }
+    },
+    "summary": {
+      "eyebrow": "Ready to start",
+      "title": "Your interview",
+      "description": "Review the plan, check devices, then go live.",
+      "role": "Role",
+      "roleMissing": "Add a role to continue",
+      "difficulty": "Level",
+      "duration": "Duration",
+      "questions": "Guide size",
+      "questionCount": "~{{count}} questions",
+      "mode": "Mode",
+      "persona": "Style",
+      "focus": "Focus"
+    },
+    "devices": {
+      "ready": "Devices ready",
+      "notReady": "Devices not checked",
+      "micHint": "Microphone needed for the live call.",
+      "cameraHint": "Camera and mic needed for video mode.",
+      "check": "Check",
+      "checking": "Checking…",
+      "readyToast": "Camera and microphone are ready."
+    },
     "startErrorTitle": "Could not start interview",
     "startLive": "Start live interview",
+    "startLiveShort": "Start",
     "starting": "Starting…",
     "enterRole": "Please enter a role.",
     "vapiNotConfigured": "Live interview is not configured. Add VITE_VAPI_WEB_TOKEN to frontend .env",
@@ -69,6 +292,9 @@
     "roleRequired": "Please enter a role.",
     "experiencePlaceholder": "Experience (e.g. 2 years)",
     "companyPlaceholder": "Target company (optional)",
+    "resumeToggleTitle": "Add resume for better questions",
+    "resumeToggleHint": "Optional — upload PDF or DOCX to ground questions in your experience.",
+    "resumeAttached": "Resume context attached — expand to review or replace.",
     "analysisTitle": "Resume Analysis Result",
     "clear": "Clear",
     "projects": "Projects",
@@ -78,7 +304,7 @@
     "analyzing": "Analyzing…",
     "analyzeResume": "Analyze Resume",
     "remove": "Remove",
-    "uploadCta": "Click to upload resume (Optional)",
+    "uploadCta": "Click to upload resume",
     "uploadHint": "PDF or DOCX — we'll extract skills & projects",
     "analyzeFailed": "Could not analyze resume. Try again."
   },
@@ -108,12 +334,28 @@
     },
     "difficulty": {
       "title": "Difficulty",
-      "description": "Match the quiz to your experience level."
+      "description": "Match the quiz to your experience level.",
+      "easy": "Foundational concepts",
+      "medium": "Applied knowledge",
+      "hard": "Deep and edge cases"
     },
     "length": {
       "title": "Length",
       "description": "How many questions to include.",
-      "questions": "{{count}} questions"
+      "questions": "{{count}} questions",
+      "hint": {
+        "10": "Quick check",
+        "12": "Standard set",
+        "15": "Thorough review"
+      }
+    },
+    "summary": {
+      "eyebrow": "Ready to start",
+      "title": "Your quiz",
+      "topic": "Topic",
+      "topicMissing": "Add a topic to continue",
+      "difficulty": "Level",
+      "questions": "Questions"
     },
     "selectTopic": "Please enter a topic.",
     "startFailed": "Could not start quiz.",
@@ -123,6 +365,7 @@
     "reloadTopics": "Reload topics",
     "generating": "Generating quiz…",
     "generateStart": "Generate & start quiz",
+    "generateStartShort": "Start quiz",
     "retryGenerate": "Retry generate quiz"
   },
   "topics": {
@@ -179,6 +422,23 @@
     "previous": "Previous",
     "next": "Next",
     "pageOf": "Page {{current}} of {{total}}",
+    "delete": "Delete",
+    "deleteAria": "Delete interview for {{role}}",
+    "deleteTitle": "Delete this interview?",
+    "deleteDescription": "“{{role}}” will be removed from your history, including any saved report. This cannot be undone.",
+    "deleteCancel": "Cancel",
+    "deleteConfirm": "Delete",
+    "deleting": "Deleting…",
+    "deleteSuccess": "Interview removed from history.",
+    "deleteFailed": "Could not delete this interview. Please try again.",
+    "clearAll": "Clear history",
+    "clearTitle": "Clear all interview history?",
+    "clearDescription": "All {{count}} mock interviews will be permanently removed, including saved reports. This cannot be undone.",
+    "clearCancel": "Cancel",
+    "clearConfirm": "Clear history",
+    "clearing": "Clearing…",
+    "clearSuccess": "Interview history cleared.",
+    "clearFailed": "Could not clear history. Please try again.",
     "status": {
       "completed": "Completed",
       "abandoned": "Incomplete",
@@ -192,12 +452,44 @@
     "liveBadge": "Live",
     "timeLeft": "Time left",
     "timeUpWrapping": "Time's up — wrapping up shortly",
-    "subtitleVoice": "Speak with {{name}} in real time. Microphone stays on for feedback.",
-    "subtitleVideo": "Speak with {{name}} in real time. Camera and mic stay on for feedback.",
+    "subtitleVoice": "Real-time practice. Mic stays on for feedback.",
+    "subtitleVideo": "Real-time practice. Camera and mic stay on for feedback.",
+    "subtitlePanelVoice": "Panel practice. Mic stays on for feedback.",
+    "subtitlePanelVideo": "Panel practice. Camera and mic stay on for feedback.",
+    "idleSubtitleVoice": "Check your mic, then start when you’re ready.",
+    "idleSubtitleVideo": "Check camera and mic, then start when you’re ready.",
+    "trustLine": "Used only for your interview feedback — not shared publicly.",
+    "tips": {
+      "title": "Tips for a better interview",
+      "compact": "Speak clearly · Face the camera · Keep mic unmuted",
+      "compactVoice": "Speak clearly · Keep mic unmuted · Quiet room",
+      "mic": "Use a working microphone — close Zoom/Teams if the mic is busy.",
+      "camera": "Keep your camera on and look straight at it.",
+      "quiet": "Sit in a quiet place with stable internet.",
+      "speak": "Speak clearly and pause briefly after each answer.",
+      "show": "Show tips",
+      "showIdle": "Tips before you start",
+      "hide": "Hide tips"
+    },
     "aiName": "AI Interviewer",
+    "personaStyle": "Your interviewer",
+    "panelName": "Interview panel",
+    "panelBadge": "Panel",
+    "panelQuiet": "Quiet",
+    "nowAsking": "Now asking: {{title}} — {{focus}}",
+    "seatTag": "[{{tag}}]",
+    "startPanel": "Start panel interview",
     "minutesShort": "{{count}} min",
     "videoVoice": "Video and voice",
     "voiceOnly": "Voice only",
+    "deviceMicReady": "Mic ready",
+    "deviceMicWaiting": "Waiting for mic",
+    "deviceCameraReady": "Camera ready",
+    "deviceCameraWaiting": "Waiting for camera",
+    "connectingTitle": "Connecting…",
+    "connectingDescription": "Joining your interviewer — this usually takes a few seconds.",
+    "wrappingUpTitle": "Wrapping up",
+    "wrappingUpDescription": "Generating your feedback report…",
     "videoMetricsOn": "Video metrics on",
     "videoMetricsPaused": "Video metrics paused",
     "voiceMetricsOn": "Voice metrics on",
@@ -216,9 +508,18 @@
     "turnOffCamera": "Turn off camera",
     "turnOnCamera": "Turn on camera",
     "transcriptTitle": "Live transcript",
+    "transcriptEmpty": "Transcript will appear as you speak…",
+    "transcriptEmptyHint": "Your conversation will appear here once the interview starts.",
+    "transcriptConnecting": "Connecting to your interviewer…",
+    "jumpToLatest": "Jump to latest",
     "turn": "turn",
     "turns": "turns",
+    "message": "message",
+    "messages": "messages",
     "endInterview": "End interview",
+    "endConfirmTitle": "End this interview?",
+    "endConfirmDescription": "We'll stop the call and generate your feedback report.",
+    "endConfirmCancel": "Keep going",
     "startInterview": "Start interview",
     "missingAssistant": "Interview assistant is not ready. Please go back and start again.",
     "waitingMic": "Waiting for microphone…",
@@ -237,7 +538,37 @@
     "title": "Interview report",
     "description": "AI summary based on your answers, voice delivery, and on-camera presence.",
     "narrativeUnavailable": "Some AI-written feedback is unavailable — showing your scores.",
+    "retryGenerate": "Retry generating report",
+    "retryGenerateDescription": "Report generation didn't finish. Your interview data is saved — try again.",
+    "retryFailed": "Could not generate the report. Please try again in a moment.",
+    "retrying": "Generating report…",
     "overall": "Overall",
+    "deliveryOnly": "Delivery only — not answer content",
+    "vsPrevious": "Compared with your previous interview",
+    "scoreBand": {
+      "strong": "Strong",
+      "good": "Good",
+      "developing": "Developing",
+      "needsWork": "Needs work"
+    },
+    "metricHints": {
+      "pace": "Ideal 120–160 WPM",
+      "eyeContact": "Aim for 60%+",
+      "engagement": "Aim for 60%+",
+      "fillers": "Under 3 per 100 words"
+    },
+    "timeline": {
+      "showAll": "Show all {{count}} events",
+      "showLess": "Show fewer events"
+    },
+    "nextSteps": {
+      "title": "What to do next",
+      "description": "Turn this feedback into your next practice session.",
+      "weakestAreas": "Weakest areas this time",
+      "practiceWeakAreas": "Practice these areas",
+      "newInterview": "Start a fresh interview",
+      "prefilled": "Focus areas pre-filled for your next interview."
+    },
     "eyeContact": "Eye contact",
     "speakingPace": "Speaking pace",
     "fillerWords": "Filler words",
@@ -276,6 +607,8 @@
       "dimensionRadar": "Skill radar",
       "scoreBreakdown": "Score breakdown",
       "scores": "Scores",
+      "contentGatedNote": "Delivery bars are capped when answer content is weak",
+      "splitLegend": "Purple = content · Muted = delivery (capped influence)",
       "decision": {
         "hire": "Recommend hire",
         "leanHire": "Lean hire",

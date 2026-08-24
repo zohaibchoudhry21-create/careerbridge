@@ -11,11 +11,10 @@ export default function TemplatePicker({ selected, onChange }) {
             key={template.id}
             type="button"
             onClick={() => onChange(template.id)}
-            className={`relative text-left rounded-xl border-2 p-3 transition-all hover:shadow-md ${
-              isSelected
+            className={`relative text-left rounded-xl border-2 p-3 transition-all hover:shadow-md ${isSelected
                 ? 'border-secondary bg-surface-container ring-1 ring-secondary/30'
                 : 'border-outline-variant bg-surface-container-lowest hover:border-outline'
-            }`}
+              }`}
           >
             {isSelected && (
               <span className="absolute top-2 right-2 bg-secondary text-on-secondary rounded-full p-0.5">

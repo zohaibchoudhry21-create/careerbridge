@@ -178,6 +178,7 @@
     "FOCUS_AREA_INVALID": "Área de enfoque no válida",
     "INTERVIEW_MODE_INVALID": "Modo de entrevista no válido",
     "INTERVIEWER_PERSONA_INVALID": "Persona del entrevistador no válida",
+    "INTERVIEW_FORMAT_INVALID": "Formato de entrevista no válido",
     "QUERY_REQUIRED": "La consulta es obligatoria",
     "QUERY_LENGTH": "La consulta debe tener entre {{min}} y {{max}} caracteres",
     "TRANSCRIPT_ARRAY": "La transcripción debe ser un array no vacío",

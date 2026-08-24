@@ -203,6 +203,12 @@ const mockInterviewSessionSchema = new mongoose.Schema(
       ref: 'InterviewReport',
       default: null,
     },
+    /** Report generation state for live submits (pending | ready | failed). */
+    reportStatus: {
+      type: String,
+      enum: ['pending', 'ready', 'failed'],
+      default: undefined,
+    },
     resumeText: {
       type: String,
       trim: true,
@@ -249,6 +255,25 @@ const mockInterviewSessionSchema = new mongoose.Schema(
       enum: ['friendly', 'neutral', 'strict', 'panel'],
       default: 'neutral',
     },
+    /** `panel` = multi-seat AI panel; `standard` = single interviewer mock. */
+    interviewFormat: {
+      type: String,
+      enum: ['standard', 'panel'],
+      default: 'standard',
+    },
+    /** Role-matched panel seats (title/focus/cue); only set when interviewFormat is panel. */
+    panelSeats: {
+      type: [
+        {
+          displayName: { type: String, trim: true, maxlength: 40 },
+          title: { type: String, trim: true, maxlength: 80 },
+          focus: { type: String, trim: true, maxlength: 240 },
+          cue: { type: String, trim: true, maxlength: 120 },
+          _id: false,
+        },
+      ],
+      default: undefined,
+    },
     /** Server-created Vapi assistant — browser only receives this id. */
     vapiAssistantId: {
       type: String,
@@ -268,6 +293,7 @@ mockInterviewSessionSchema.index({ userId: 1, updatedAt: -1 });
 mockInterviewSessionSchema.index({ userId: 1, status: 1 });
 mockInterviewSessionSchema.index({ userId: 1, mode: 1, createdAt: -1 });
 mockInterviewSessionSchema.index({ userId: 1, createdAt: -1 });
+mockInterviewSessionSchema.index({ userId: 1, interviewFormat: 1, createdAt: -1 });
 mockInterviewSessionSchema.index({ reportId: 1 }, { sparse: true });
 
 const MockInterviewSession = mongoose.model('MockInterviewSession', mockInterviewSessionSchema);

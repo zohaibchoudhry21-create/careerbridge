@@ -19,7 +19,10 @@ import MockInterviewLayout from './pages/InterviewPrep/MockInterviewLayout';
 import MockInterviewSetupPage from './pages/InterviewPrep/MockInterviewSetupPage';
 import MockInterviewHistoryPage from './pages/InterviewPrep/MockInterviewHistoryPage';
 import MockInterviewSessionPage from './pages/InterviewPrep/MockInterviewSessionPage';
+import PanelInterviewSetupPage from './pages/InterviewPrep/PanelInterviewSetupPage';
+import PanelInterviewHistoryPage from './pages/InterviewPrep/PanelInterviewHistoryPage';
 import SkillAssessmentQuizPage from './pages/InterviewPrep/SkillAssessmentQuizPage';
+import { INTERVIEW_FORMATS } from './features/interviewPrep/constants/interviewPrepConstants';
 import UploadResumePage from './pages/ResumeBuilder/UploadResumePage';
 import ResumeEditorPage from './pages/ResumeBuilder/ResumeEditorPage';
 import ResumeHistoryPage from './pages/ResumeBuilder/ResumeHistoryPage';
@@ -112,12 +115,30 @@ function App() {
         path="/interview-prep/mock"
         element={
           <ProtectedRoute>
-            <MockInterviewLayout />
+            <MockInterviewLayout
+              interviewFormat={INTERVIEW_FORMATS.STANDARD}
+              basePath="/interview-prep/mock"
+            />
           </ProtectedRoute>
         }
       >
         <Route index element={<MockInterviewSetupPage />} />
         <Route path="history" element={<MockInterviewHistoryPage />} />
+        <Route path=":sessionId" element={<MockInterviewSessionPage />} />
+      </Route>
+      <Route
+        path="/interview-prep/panel"
+        element={
+          <ProtectedRoute>
+            <MockInterviewLayout
+              interviewFormat={INTERVIEW_FORMATS.PANEL}
+              basePath="/interview-prep/panel"
+            />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<PanelInterviewSetupPage />} />
+        <Route path="history" element={<PanelInterviewHistoryPage />} />
         <Route path=":sessionId" element={<MockInterviewSessionPage />} />
       </Route>
       <Route

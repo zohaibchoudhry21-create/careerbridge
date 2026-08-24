@@ -90,11 +90,11 @@ export default function UploadResumePage() {
           prev.map((item) =>
             item.id === id
               ? {
-                  ...item,
-                  status: 'completed',
-                  resumeId: response.resume.id,
-                  parsedData: response.resume.parsedData,
-                }
+                ...item,
+                status: 'completed',
+                resumeId: response.resume.id,
+                parsedData: response.resume.parsedData,
+              }
               : item
           )
         );
@@ -181,11 +181,10 @@ export default function UploadResumePage() {
           onDragLeave={() => setIsDragActive(false)}
           onDrop={onDrop}
           onClick={() => inputRef.current?.click()}
-          className={`cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-colors ${
-            isDragActive
+          className={`cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-colors ${isDragActive
               ? 'border-secondary bg-surface-container'
               : 'border-outline-variant bg-surface-container-lowest hover:border-secondary/60'
-          }`}
+            }`}
         >
           <input
             ref={inputRef}

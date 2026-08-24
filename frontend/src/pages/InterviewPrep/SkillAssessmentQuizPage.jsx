@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { DashboardLayout, PageContainer, BackLink } from '../../components/layout';
+import { DashboardLayout, PageContainer, PageHeader, BackLink } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
 import Skeleton from '../../components/Skeleton';
 import SkillQuizMcq, {
@@ -40,6 +40,16 @@ export default function SkillAssessmentQuizPage() {
     if (!total) return false;
     return questions.every((q) => answers[q.questionId] !== undefined);
   }, [answers, questions, total]);
+
+  const quizTitle = quiz?.topicLabel || quiz?.topic || t('skillSetup.title');
+  const quizDescription = quiz
+    ? [
+        t(`difficulty.${quiz.difficulty}`),
+        t('skillSetup.length.questions', { count: total || quiz.questionCount || 0 }),
+      ]
+        .filter(Boolean)
+        .join(' · ')
+    : t('skillSetup.description');
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -81,7 +91,7 @@ export default function SkillAssessmentQuizPage() {
   if (authLoading || !user) {
     return (
       <DashboardLayout user={user}>
-        <PageContainer width="narrow">
+        <PageContainer width="standard">
           <Skeleton type="card" count={1} withMedia={false} lines={2} label="Loading quiz" />
           <div className="mt-4">
             <Skeleton type="list" count={4} />
@@ -93,8 +103,9 @@ export default function SkillAssessmentQuizPage() {
 
   return (
     <DashboardLayout user={user}>
-      <PageContainer width="narrow">
+      <PageContainer width="standard">
         <BackLink to="/interview-prep/skills">{t('backLinks.newQuiz')}</BackLink>
+        <PageHeader title={quizTitle} description={quizDescription} />
 
         {isLoading ? (
           <div className="space-y-4 py-2">
@@ -116,7 +127,7 @@ export default function SkillAssessmentQuizPage() {
         {result ? <SkillQuizResults result={result} /> : null}
 
         {!isLoading && !isError && quiz && !result ? (
-          <>
+          <div className="min-w-0 space-y-4">
             <SkillQuizProgress current={currentIndex} total={total} />
             <SkillQuizMcq
               question={currentQuestion}
@@ -141,7 +152,7 @@ export default function SkillAssessmentQuizPage() {
               onRetry={handleSubmit}
               retryLabel={t('quiz.retrySubmit')}
             />
-          </>
+          </div>
         ) : null}
       </PageContainer>
     </DashboardLayout>

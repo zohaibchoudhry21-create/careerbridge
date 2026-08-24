@@ -15,7 +15,7 @@ export default function SkillQuizResults({ result }) {
 
   return (
     <div className="min-w-0 space-y-md">
-      <header className="dashboard-glass-card dashboard-card-padding rounded-2xl text-center">
+      <header className="app-surface-card rounded-2xl p-5 text-center">
         <p className="font-label-md app-muted">{t('quiz.yourScore')}</p>
         <p className="mt-1 font-headline-dashboard text-headline-dashboard text-secondary">
           {percentage}%

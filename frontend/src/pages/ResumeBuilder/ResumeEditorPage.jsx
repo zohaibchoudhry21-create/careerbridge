@@ -64,9 +64,8 @@ function Section({ id, title, icon: Icon, activeSection, onToggle, children }) {
         type="button"
         onClick={() => onToggle(isOpen ? null : id)}
         aria-expanded={isOpen}
-        className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors ${
-          isOpen ? 'bg-surface-container border-b border-outline-variant' : 'hover:bg-surface-container-low'
-        }`}
+        className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors ${isOpen ? 'bg-surface-container border-b border-outline-variant' : 'hover:bg-surface-container-low'
+          }`}
       >
         <span className={`flex items-center gap-2 text-sm font-medium ${isOpen ? 'text-secondary' : 'text-on-surface'}`}>
           <Icon className={`h-4 w-4 ${isOpen ? 'text-secondary' : 'text-outline'}`} />

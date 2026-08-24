@@ -44,6 +44,8 @@ const attachMonitoring = (session, base) => ({
   interviewContextBrief: session.interviewContextBrief || null,
   focusAreas: session.focusAreas || [],
   callDurationMs: session.callDurationMs,
+  interviewFormat: session.interviewFormat || 'standard',
+  panelSeats: Array.isArray(session.panelSeats) ? session.panelSeats : [],
 });
 
 const buildTranscriptBasedSnapshot = (session, mode) => {

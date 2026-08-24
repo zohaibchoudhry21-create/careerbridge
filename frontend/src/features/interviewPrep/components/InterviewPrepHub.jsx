@@ -14,6 +14,15 @@ const MODULE_META = [
     descriptionKey: 'hub.mockInterview.description',
   },
   {
+    id: 'panel-interview',
+    icon: 'groups',
+    color: 'interview',
+    to: '/interview-prep/panel',
+    comingSoon: false,
+    titleKey: 'hub.panelInterview.title',
+    descriptionKey: 'hub.panelInterview.description',
+  },
+  {
     id: 'skill-assessment',
     icon: 'school',
     color: 'skills',
@@ -34,7 +43,7 @@ export default function InterviewPrepHub() {
   const { t } = useTranslation('interviewPrep');
 
   return (
-    <div className="grid min-w-0 grid-cols-1 gap-sm md:grid-cols-2">
+    <div className="grid min-w-0 grid-cols-1 items-stretch gap-sm lg:grid-cols-3">
       {MODULE_META.map((module) => {
         const inner = (
           <>
@@ -53,7 +62,7 @@ export default function InterviewPrepHub() {
               {t(module.descriptionKey)}
             </p>
             {!module.comingSoon ? (
-              <span className="mt-4 inline-flex items-center gap-1 text-sm font-label-md text-secondary opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              <span className="mt-4 inline-flex items-center gap-1 text-sm font-label-md text-secondary">
                 {t('hub.start')}
                 <AppIcon name="chevron_right" size="button" className="rtl:rotate-180" />
               </span>

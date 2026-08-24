@@ -28,6 +28,8 @@
     "title": "Preparación para entrevistas",
     "weakAreas": "Áreas débiles",
     "strongArea": "Área fuerte",
+    "mockCta": "Entrevista simulada",
+    "panelCta": "Entrevista panel",
     "videoMode": "Modo video",
     "voiceAnalysis": "Análisis de voz"
   },
@@ -51,6 +53,8 @@
     "description": "Sigue puntuaciones de entrevistas, tendencias ATS y brechas de habilidades a lo largo del tiempo.",
     "actions": {
       "practice": "Practicar entrevista",
+      "mock": "Entrevista simulada",
+      "panel": "Entrevista panel",
       "scan": "Escanear currículum"
     },
     "stats": {
@@ -67,7 +71,7 @@
       "jobMatch": "Coincidencia laboral",
       "quizTrend": "Tendencia de evaluaciones",
       "quizScore": "Puntuación del quiz",
-      "needMoreInterviews": "Completa al menos 2 entrevistas simuladas para ver tu tendencia.",
+      "needMoreInterviews": "Completa al menos 2 entrevistas (simulada o panel) para ver tu tendencia.",
       "needMoreScans": "Realiza al menos 2 escaneos de currículum para ver la tendencia ATS."
     },
     "weakSkills": {
@@ -76,13 +80,17 @@
     },
     "timeline": {
       "title": "Actividad reciente",
-      "empty": "Aún no hay actividad profesional reciente."
+      "empty": "Aún no hay actividad profesional reciente.",
+      "mockBadge": "Simulada",
+      "panelBadge": "Panel"
     },
     "empty": {
       "title": "Empieza a construir tu progreso",
-      "description": "Escanea un currículum o practica entrevistas para desbloquear tendencias e insights.",
+      "description": "Escanea un currículum o practica entrevistas simuladas y de panel para desbloquear tendencias e insights.",
       "scanCta": "Escanear currículum",
-      "practiceCta": "Practicar entrevista"
+      "practiceCta": "Practicar entrevista",
+      "mockCta": "Entrevista simulada",
+      "panelCta": "Entrevista panel"
     }
   },
   "loading": {
@@ -103,7 +111,7 @@
     },
     "interviewPrep": {
       "title": "Preparación para entrevistas",
-      "description": "Practica entrevistas simuladas y evaluaciones de habilidades con retroalimentación de IA."
+      "description": "Practica entrevistas simuladas y de panel, además de evaluaciones de habilidades, con retroalimentación de IA."
     }
   },
   "resumeBuilder": {
@@ -125,8 +133,10 @@
   "interviewPrep": {
     "empty": {
       "title": "Sin sesiones de práctica",
-      "description": "Realiza una entrevista simulada para obtener tu puntuación de preparación y retroalimentación de IA.",
-      "cta": "Iniciar entrevista simulada"
+      "description": "Realiza una entrevista simulada o de panel para obtener tu puntuación de preparación y retroalimentación de IA.",
+      "cta": "Iniciar entrevista simulada",
+      "mockCta": "Entrevista simulada",
+      "panelCta": "Entrevista panel"
     }
   }
 }

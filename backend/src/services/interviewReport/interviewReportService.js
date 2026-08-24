@@ -82,35 +82,60 @@ export const persistMockInterviewReport = async (session, userId, options = {}) 
   const metricsFlagReasons = Array.isArray(options.metricsFlagReasons)
     ? options.metricsFlagReasons.filter(Boolean)
     : [];
+  const forceRegenerate = Boolean(options.forceRegenerate);
 
-  if (session.reportId) {
-    const existing = await InterviewReport.findOne({
-      _id: session.reportId,
-      userId,
-    });
-    if (existing) {
-      if (isCurrentScoreVersion(existing)) {
-        return { report: existing, cached: true };
+  if (!forceRegenerate) {
+    if (session.reportId) {
+      const existing = await InterviewReport.findOne({
+        _id: session.reportId,
+        userId,
+      });
+      if (existing) {
+        if (isCurrentScoreVersion(existing)) {
+          const nextStatus = existing.narrativeGenerated !== false ? 'ready' : 'failed';
+          if (session.reportStatus !== nextStatus) {
+            session.reportStatus = nextStatus;
+            await session.save();
+          }
+          return { report: existing, cached: true, narrativeGenerated: existing.narrativeGenerated !== false };
+        }
+        await discardStaleReport(existing, session);
       }
-      await discardStaleReport(existing, session);
+    }
+
+    const cachedBySource = await InterviewReport.findOne({
+      userId,
+      sourceType: 'mock_interview',
+      sourceId: session._id,
+    });
+
+    if (cachedBySource) {
+      if (isCurrentScoreVersion(cachedBySource)) {
+        session.reportId = cachedBySource._id;
+        session.status = 'completed';
+        session.reportStatus = cachedBySource.narrativeGenerated !== false ? 'ready' : 'failed';
+        await session.save();
+        return {
+          report: cachedBySource,
+          cached: true,
+          narrativeGenerated: cachedBySource.narrativeGenerated !== false,
+        };
+      }
+      await discardStaleReport(cachedBySource, session);
+    }
+  } else {
+    const staleReports = await InterviewReport.find({
+      userId,
+      sourceType: 'mock_interview',
+      sourceId: session._id,
+    });
+    for (const stale of staleReports) {
+      await discardStaleReport(stale, session);
     }
   }
 
-  const cachedBySource = await InterviewReport.findOne({
-    userId,
-    sourceType: 'mock_interview',
-    sourceId: session._id,
-  });
-
-  if (cachedBySource) {
-    if (isCurrentScoreVersion(cachedBySource)) {
-      session.reportId = cachedBySource._id;
-      session.status = 'completed';
-      await session.save();
-      return { report: cachedBySource, cached: true };
-    }
-    await discardStaleReport(cachedBySource, session);
-  }
+  session.reportStatus = 'pending';
+  await session.save();
 
   const snapshot = buildMockInterviewSnapshot(session);
   // Trim forensic snapshot stored on the report (keep full snapshot for scoring).
@@ -193,8 +218,13 @@ export const persistMockInterviewReport = async (session, userId, options = {}) 
         if (isCurrentScoreVersion(existing)) {
           session.reportId = existing._id;
           session.status = 'completed';
+          session.reportStatus = existing.narrativeGenerated !== false ? 'ready' : 'failed';
           await session.save();
-          return { report: existing, cached: true };
+          return {
+            report: existing,
+            cached: true,
+            narrativeGenerated: existing.narrativeGenerated !== false,
+          };
         }
         await discardStaleReport(existing, session);
         report = await InterviewReport.create(docPayload);
@@ -208,7 +238,8 @@ export const persistMockInterviewReport = async (session, userId, options = {}) 
 
   session.reportId = report._id;
   session.status = 'completed';
+  session.reportStatus = narrativeGenerated ? 'ready' : 'failed';
   await session.save();
 
-  return { report, cached: false };
+  return { report, cached: false, narrativeGenerated };
 };

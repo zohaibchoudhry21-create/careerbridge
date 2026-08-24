@@ -28,6 +28,22 @@ describe('sessionHistoryOwnerFilter', () => {
     const userId = '64aaaaaaaaaaaaaaaaaaaaaa';
     expect(sessionHistoryOwnerFilter(userId)).toEqual({ userId });
   });
+
+  it('filters panel format sessions', () => {
+    const userId = '64aaaaaaaaaaaaaaaaaaaaaa';
+    expect(sessionHistoryOwnerFilter(userId, { interviewFormat: 'panel' })).toEqual({
+      userId,
+      interviewFormat: 'panel',
+    });
+  });
+
+  it('treats missing format as standard for mock history', () => {
+    const userId = '64aaaaaaaaaaaaaaaaaaaaaa';
+    expect(sessionHistoryOwnerFilter(userId, { interviewFormat: 'standard' })).toEqual({
+      userId,
+      $or: [{ interviewFormat: 'standard' }, { interviewFormat: { $exists: false } }],
+    });
+  });
 });
 
 describe('savedInterviewReportQuery', () => {

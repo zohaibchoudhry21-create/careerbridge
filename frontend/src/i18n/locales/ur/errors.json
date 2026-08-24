@@ -178,6 +178,7 @@
     "FOCUS_AREA_INVALID": "غلط توجہ کا شعبہ",
     "INTERVIEW_MODE_INVALID": "غلط انٹرویو موڈ",
     "INTERVIEWER_PERSONA_INVALID": "غلط انٹرویو لینے والے کی شخصیت",
+    "INTERVIEW_FORMAT_INVALID": "غلط انٹرویو فارمیٹ",
     "QUERY_REQUIRED": "استفسار ضروری ہے",
     "QUERY_LENGTH": "استفسار {{min}} سے {{max}} حروف کے درمیان ہونا چاہیے",
     "TRANSCRIPT_ARRAY": "ٹرانسکرپٹ غیر خالی array ہونی چاہیے",

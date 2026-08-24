@@ -19,6 +19,9 @@ export const MOCK_INTERVIEW_STATUSES = [
   'abandoned',
 ];
 
+/** Live interview report generation lifecycle — keep in sync with backend. */
+export const MOCK_INTERVIEW_REPORT_STATUSES = ['pending', 'ready', 'failed'];
+
 export const SKILL_QUIZ_STATUSES = ['pending', 'in_progress', 'submitted'];
 
 export const INTERVIEW_REPORT_SOURCE_TYPES = ['mock_interview', 'skill_assessment'];
@@ -103,14 +106,44 @@ export const INTERVIEWER_PERSONA_OPTIONS = [
     label: 'Strict',
     description: 'Formal rigorous interviewer — concise answers, crisp probes',
   },
-  {
-    value: 'panel',
-    label: 'Panel of 3',
-    description: 'Technical lead + hiring manager + HR with natural hand-offs',
-  },
 ];
 
 export const DEFAULT_INTERVIEWER_PERSONA = 'neutral';
+
+/** Product format: 1:1 mock vs multi-seat panel. */
+export const INTERVIEW_FORMATS = {
+  STANDARD: 'standard',
+  PANEL: 'panel',
+};
+
+/**
+ * Panel setup uses its own vocabulary. Values still map to the shared live API
+ * (difficulty / focusAreas), only the labels and grouping are panel-specific.
+ */
+export const PANEL_PRESSURE_OPTIONS = [
+  { value: 'easy', i18nKey: 'soft' },
+  { value: 'medium', i18nKey: 'standard' },
+  { value: 'hard', i18nKey: 'tough' },
+];
+
+export const PANEL_LENGTH_OPTIONS = [10, 15, 20, 30];
+
+export const DEFAULT_PANEL_LENGTH_MINUTES = 15;
+
+export const PANEL_THEME_OPTIONS = [
+  { value: 'Case study', i18nKey: 'realScenarios' },
+  { value: 'Behavioral', i18nKey: 'cultureTeamwork' },
+  { value: 'Communication', i18nKey: 'communicationClarity' },
+  { value: 'Leadership', i18nKey: 'ownershipImpact' },
+  { value: 'System design', i18nKey: 'depthStructure' },
+  { value: 'Coding', i18nKey: 'handsOnSkills' },
+];
+
+export const PANEL_PRESETS = [
+  { id: 'intro', difficulty: 'easy', durationMinutes: 10, interviewMode: 'voice_only' },
+  { id: 'standard', difficulty: 'medium', durationMinutes: 15, interviewMode: 'video_voice' },
+  { id: 'tough', difficulty: 'hard', durationMinutes: 20, interviewMode: 'video_voice' },
+];
 
 export const DEFAULT_SKILL_QUIZ_QUESTION_COUNT = 12;
 

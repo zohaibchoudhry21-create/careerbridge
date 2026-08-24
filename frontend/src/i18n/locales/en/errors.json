@@ -178,6 +178,7 @@
     "FOCUS_AREA_INVALID": "Invalid focus area",
     "INTERVIEW_MODE_INVALID": "Invalid interview mode",
     "INTERVIEWER_PERSONA_INVALID": "Invalid interviewer persona",
+    "INTERVIEW_FORMAT_INVALID": "Invalid interview format",
     "QUERY_REQUIRED": "Query is required",
     "QUERY_LENGTH": "Query must be between {{min}} and {{max}} characters",
     "TRANSCRIPT_ARRAY": "Transcript must be a non-empty array",

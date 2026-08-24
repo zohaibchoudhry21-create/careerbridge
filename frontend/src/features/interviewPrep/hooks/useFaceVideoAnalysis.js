@@ -95,7 +95,7 @@ const pickPrimaryDetection = (detections) => {
  * Aggregates incrementally via aggregateVideoFrameSamples so submit can reuse metrics.
  */
 export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
-  const { showLiveIndicators = true, sampleIntervalMs } = options;
+  const { showLiveIndicators = true, sampleIntervalMs, videoEpoch = 0 } = options;
 
   const intervalMs =
     sampleIntervalMs ??
@@ -162,7 +162,7 @@ export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
   );
 
   useEffect(() => {
-    if (!enabled || !modelsReady || !videoRef?.current) {
+    if (!enabled || !modelsReady) {
       if (intervalRef.current) {
         window.clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -170,7 +170,6 @@ export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
       return undefined;
     }
 
-    const video = videoRef.current;
     const faceapi = faceApiRef.current;
     if (!faceapi) return undefined;
 
@@ -184,9 +183,14 @@ export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
     });
 
     const useRecognition = recognitionNetAvailable === true;
+    const DETECT_TIMEOUT_MS = Math.max(1500, intervalMs * 3);
 
     intervalRef.current = window.setInterval(async () => {
-      if (detectingRef.current || video.readyState < 2) return;
+      // Always read the live node — remounts leave a stale element if we close over it.
+      const video = videoRef?.current;
+      if (detectingRef.current || !video || video.readyState < 2 || video.videoWidth <= 0) {
+        return;
+      }
 
       detectingRef.current = true;
 
@@ -195,19 +199,23 @@ export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
         const videoWidth = video.videoWidth || 1;
         const videoHeight = video.videoHeight || 1;
 
-        let detections;
-        if (useRecognition) {
-          detections = await faceapi
-            .detectAllFaces(video, detectorOptions)
-            .withFaceLandmarks()
-            .withFaceExpressions()
-            .withFaceDescriptors();
-        } else {
-          detections = await faceapi
-            .detectAllFaces(video, detectorOptions)
-            .withFaceLandmarks()
-            .withFaceExpressions();
-        }
+        const detectPromise = useRecognition
+          ? faceapi
+              .detectAllFaces(video, detectorOptions)
+              .withFaceLandmarks()
+              .withFaceExpressions()
+              .withFaceDescriptors()
+          : faceapi
+              .detectAllFaces(video, detectorOptions)
+              .withFaceLandmarks()
+              .withFaceExpressions();
+
+        const detections = await Promise.race([
+          detectPromise,
+          new Promise((_, reject) => {
+            window.setTimeout(() => reject(new Error('face-detect-timeout')), DETECT_TIMEOUT_MS);
+          }),
+        ]);
 
         const faceCount = detections?.length || 0;
 
@@ -301,7 +309,7 @@ export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
           cameraFocusScore,
         });
       } catch {
-        // ignore intermittent detection errors
+        // ignore intermittent detection errors / timeouts
       } finally {
         detectingRef.current = false;
       }
@@ -312,8 +320,9 @@ export function useFaceVideoAnalysis(videoRef, enabled, options = {}) {
         window.clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+      detectingRef.current = false;
     };
-  }, [enabled, modelsReady, videoRef, intervalMs, pushSample]);
+  }, [enabled, modelsReady, videoRef, intervalMs, pushSample, videoEpoch]);
 
   return {
     modelsReady,

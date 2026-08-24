@@ -73,7 +73,14 @@ export const buildInterviewerSystemPrompt = (session = {}) => {
   const difficulty = session.difficulty || 'medium';
   const durationMinutes = session.durationMinutes || 15;
   const focusAreas = formatFocusAreas(session.focusAreas);
-  const persona = getInterviewerPersonaProfile(session.interviewerPersona);
+  const persona = getInterviewerPersonaProfile(session.interviewerPersona, {
+    roleLabel,
+    role: session.role,
+    difficulty,
+    focusAreas: session.focusAreas,
+    panelSeats: session.panelSeats,
+    questions: session.questions,
+  });
   const questions = formatQuestionGuide(session.questions);
   const closingGuidance = buildClosingGuidance(persona.id);
   const companyHint = session.targetCompany

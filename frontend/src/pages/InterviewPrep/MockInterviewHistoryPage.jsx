@@ -1,14 +1,20 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { DashboardLayout, PageContainer, PageHeader, BackLink } from '../../components/layout';
 import useAuth from '../../hooks/useAuth';
 import Skeleton from '../../components/Skeleton';
 import AppIcon from '../../components/icons/AppIcon';
 import InterviewHistoryList, {
+  HistoryClearDialog,
   HistorySearchBar,
 } from '../../features/interviewPrep/components/InterviewHistoryList';
-import { useInterviewSessionHistory } from '../../features/interviewPrep/hooks/useMockInterview';
+import {
+  useClearInterviewSessionHistory,
+  useDeleteInterviewSession,
+  useInterviewSessionHistory,
+} from '../../features/interviewPrep/hooks/useMockInterview';
 import {
   INTERVIEW_HISTORY_DEFAULT_LIMIT,
   INTERVIEW_HISTORY_DEFAULT_PAGE,
@@ -22,7 +28,50 @@ export default function MockInterviewHistoryPage() {
   const { user, loading } = useAuth();
   const [page, setPage] = useState(INTERVIEW_HISTORY_DEFAULT_PAGE);
   const [searchTerm, setSearchTerm] = useState('');
-  const historyQuery = useInterviewSessionHistory(page, INTERVIEW_HISTORY_DEFAULT_LIMIT);
+  const [clearDialogOpen, setClearDialogOpen] = useState(false);
+  const historyQuery = useInterviewSessionHistory(
+    page,
+    INTERVIEW_HISTORY_DEFAULT_LIMIT,
+    'standard'
+  );
+  const deleteSession = useDeleteInterviewSession();
+  const clearHistory = useClearInterviewSessionHistory();
+
+  const totalHistoryCount = historyQuery.data?.pagination?.total ?? 0;
+  const hasHistory = totalHistoryCount > 0;
+
+  const handleDelete = useCallback(
+    (item, onSettled) => {
+      if (!item?.sessionId) return;
+      const wasLastOnPage = (historyQuery.data?.items || []).length === 1 && page > 1;
+
+      deleteSession.mutate(item.sessionId, {
+        onSuccess: () => {
+          toast.success(t('history.deleteSuccess'));
+          if (wasLastOnPage) setPage(page - 1);
+          onSettled?.();
+        },
+        onError: (err) => {
+          toast.error(getApiErrorMessage(err, t('history.deleteFailed')));
+          onSettled?.();
+        },
+      });
+    },
+    [deleteSession, historyQuery.data?.items, page, t]
+  );
+
+  const handleClearHistory = useCallback(() => {
+    clearHistory.mutate('standard', {
+      onSuccess: () => {
+        toast.success(t('history.clearSuccess'));
+        setPage(INTERVIEW_HISTORY_DEFAULT_PAGE);
+        setClearDialogOpen(false);
+      },
+      onError: (err) => {
+        toast.error(getApiErrorMessage(err, t('history.clearFailed')));
+      },
+    });
+  }, [clearHistory, t]);
 
   if (loading || !user) {
     return (
@@ -77,6 +126,21 @@ export default function MockInterviewHistoryPage() {
           searchTerm={searchTerm}
           onRetry={() => historyQuery.refetch()}
           onPageChange={setPage}
+          onDelete={handleDelete}
+          isDeleting={deleteSession.isPending}
+          deletingSessionId={deleteSession.variables || ''}
+          totalCount={totalHistoryCount}
+          onClearAll={hasHistory ? () => setClearDialogOpen(true) : undefined}
+          isClearing={clearHistory.isPending}
+        />
+        <HistoryClearDialog
+          open={clearDialogOpen}
+          totalCount={totalHistoryCount}
+          loading={clearHistory.isPending}
+          onCancel={() => {
+            if (!clearHistory.isPending) setClearDialogOpen(false);
+          }}
+          onConfirm={handleClearHistory}
         />
       </PageContainer>
     </DashboardLayout>

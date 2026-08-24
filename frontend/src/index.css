@@ -137,6 +137,21 @@
     @apply px-4 pb-5 pt-14;
     @apply lg:px-6 lg:pt-6 lg:pb-6;
     @apply xl:px-8 xl:pt-8;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .dashboard-main::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 
   .dashboard-content-grid {

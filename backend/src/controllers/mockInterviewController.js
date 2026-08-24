@@ -2,7 +2,10 @@ import MockInterviewSession from '../models/MockInterviewSession.js';
 import InterviewReport from '../models/InterviewReport.js';
 import {
   DEFAULT_MOCK_INTERVIEW_DURATION_MINUTES,
+  DEFAULT_INTERVIEW_FORMAT,
+  INTERVIEW_FORMATS,
   INTERVIEWER_PERSONAS,
+  INTERVIEWER_PERSONAS_STANDARD,
   MAX_INTERVIEW_CONTEXT_TEXT_LENGTH,
   MOCK_INTERVIEW_ROLES,
   clampDurationMinutes,
@@ -45,6 +48,7 @@ import {
   abandonStaleActiveSessionsForUser,
 } from '../services/interviewIntelligence/index.js';
 import { ADAPTIVE_DEPTH_ENABLED } from '../config/interviewIntelligenceConfig.js';
+import { resolvePanelSeats } from '../utils/interviewerPersona.js';
 import {
   PERSIST_PAUSE_EVENTS_MAX,
   PERSIST_TIMELINE_EVENTS_MAX,
@@ -132,8 +136,22 @@ const parseOptionalCustomization = (body) => {
     customization.interviewMode = body.interviewMode;
   }
 
+  const formatRaw = String(body.interviewFormat || '').trim().toLowerCase();
+  const interviewFormat = INTERVIEW_FORMATS.includes(formatRaw)
+    ? formatRaw
+    : DEFAULT_INTERVIEW_FORMAT;
+  customization.interviewFormat = interviewFormat;
+
   const persona = String(body.interviewerPersona || '').trim();
-  if (persona && INTERVIEWER_PERSONAS.includes(persona)) {
+
+  if (interviewFormat === 'panel') {
+    customization.interviewerPersona = 'panel';
+  } else if (persona === 'panel') {
+    // Mock path cannot select panel persona — use neutral instead.
+    customization.interviewerPersona = 'neutral';
+  } else if (persona && INTERVIEWER_PERSONAS_STANDARD.includes(persona)) {
+    customization.interviewerPersona = persona;
+  } else if (persona && INTERVIEWER_PERSONAS.includes(persona)) {
     customization.interviewerPersona = persona;
   }
 
@@ -197,6 +215,40 @@ const estimateDurationSeconds = (transcript, durationMs, liveAudioHints) => {
   return Math.max(30, (userWords / 2.5) / speechFactor);
 };
 
+/** Lookup saved report for a live submit retry (reportId first, then sourceId). */
+const findSavedLiveSubmitReport = async (session, userId) => {
+  if (session.reportId) {
+    const byId = await InterviewReport.findOne({
+      _id: session.reportId,
+      userId,
+    });
+    if (byId) return byId;
+  }
+
+  return InterviewReport.findOne(savedInterviewReportQuery(userId, session._id));
+};
+
+/** Align session pointers when serving a cached submit response. */
+const syncSessionWithSavedReport = async (session, report) => {
+  if (!report?._id) return;
+
+  const reportIdStr = String(report._id);
+  const needsSave =
+    session.status !== 'completed' ||
+    String(session.reportId || '') !== reportIdStr ||
+    session.reportStatus !== 'ready';
+
+  if (!needsSave) return;
+
+  session.reportId = report._id;
+  session.status = 'completed';
+  session.reportStatus = report.narrativeGenerated !== false ? 'ready' : 'failed';
+  await session.save();
+};
+
+const isReportGenerationRetryable = (session) =>
+  session?.reportStatus === 'failed' || session?.reportStatus === 'pending';
+
 export const generateMockInterviewReport = async (req, res, next) => {
   try {
     const { sessionId } = req.body;
@@ -218,47 +270,57 @@ export const generateMockInterviewReport = async (req, res, next) => {
       throw new AppError(ERROR_CODES.INTERVIEW_PREP.REPORT_INCOMPLETE, 400);
     }
 
-    if (session.reportId) {
-      const existing = await InterviewReport.findOne({
-        _id: session.reportId,
+    const forceRegenerate = isReportGenerationRetryable(session);
+
+    if (!forceRegenerate) {
+      if (session.reportId) {
+        const existing = await InterviewReport.findOne({
+          _id: session.reportId,
+          userId: req.user._id,
+        });
+
+        // Only serve cache when scoring logic version matches; else regenerate.
+        if (existing && isCurrentScoreVersion(existing)) {
+          sendResponse(res, 200, true, 'Interview report fetched.', {
+            report: serializeInterviewReport(existing, session._id),
+            cached: true,
+            reportStatus: session.reportStatus || 'ready',
+          });
+          return;
+        }
+      }
+
+      const cachedBySource = await InterviewReport.findOne({
         userId: req.user._id,
+        sourceType: 'mock_interview',
+        sourceId: session._id,
       });
 
-      // Only serve cache when scoring logic version matches; else regenerate.
-      if (existing && isCurrentScoreVersion(existing)) {
+      if (cachedBySource && isCurrentScoreVersion(cachedBySource)) {
+        session.reportId = cachedBySource._id;
+        if (session.status !== 'completed') {
+          session.status = 'completed';
+        }
+        session.reportStatus = 'ready';
+        await session.save();
+
         sendResponse(res, 200, true, 'Interview report fetched.', {
-          report: serializeInterviewReport(existing, session._id),
+          report: serializeInterviewReport(cachedBySource, session._id),
           cached: true,
+          reportStatus: 'ready',
         });
         return;
       }
     }
 
-    const cachedBySource = await InterviewReport.findOne({
-      userId: req.user._id,
-      sourceType: 'mock_interview',
-      sourceId: session._id,
+    const { report, cached } = await persistMockInterviewReport(session, req.user._id, {
+      forceRegenerate,
     });
-
-    if (cachedBySource && isCurrentScoreVersion(cachedBySource)) {
-      session.reportId = cachedBySource._id;
-      if (session.status !== 'completed') {
-        session.status = 'completed';
-      }
-      await session.save();
-
-      sendResponse(res, 200, true, 'Interview report fetched.', {
-        report: serializeInterviewReport(cachedBySource, session._id),
-        cached: true,
-      });
-      return;
-    }
-
-    const { report, cached } = await persistMockInterviewReport(session, req.user._id);
 
     sendResponse(res, cached ? 200 : 201, true, 'Interview report generated.', {
       report: serializeInterviewReport(report, session._id),
       cached,
+      reportStatus: session.reportStatus || (report.narrativeGenerated !== false ? 'ready' : 'failed'),
     });
   } catch (error) {
     next(error);
@@ -292,6 +354,11 @@ export const startLiveInterview = async (req, res, next) => {
     const questions = intelligence.questions;
     const interviewContextBrief = intelligence.interviewContextBrief;
 
+    const panelSeats =
+      customization.interviewFormat === 'panel'
+        ? resolvePanelSeats(resolvedRole.roleLabel)
+        : undefined;
+
     const session = await MockInterviewSession.create({
       userId: req.user._id,
       role: resolvedRole.role,
@@ -305,11 +372,36 @@ export const startLiveInterview = async (req, res, next) => {
       currentQuestionIndex: 0,
       answers: [],
       ...customization,
+      ...(panelSeats ? { panelSeats } : {}),
       questions,
       interviewContextBrief,
     });
 
-    const vapiAssistantId = await createVapiAssistantForSession(session);
+    const sessionIdStr = String(session._id);
+    let vapiAssistantId;
+    try {
+      vapiAssistantId = await createVapiAssistantForSession(session);
+    } catch (vapiError) {
+      console.error(
+        '[vapi] startLiveInterview assistant create failed — deleting orphan session:',
+        sessionIdStr,
+        vapiError?.code || vapiError?.message || vapiError
+      );
+      logInterviewStage('start.vapi_failed', {
+        sessionId: sessionIdStr,
+        code: vapiError?.code,
+        message: vapiError?.message,
+      });
+      await session.deleteOne().catch((deleteError) => {
+        console.error(
+          '[vapi] Failed to delete orphan session after Vapi failure:',
+          sessionIdStr,
+          deleteError?.message || deleteError
+        );
+      });
+      throw vapiError;
+    }
+
     session.vapiAssistantId = vapiAssistantId;
     await session.save();
 
@@ -322,9 +414,21 @@ export const startLiveInterview = async (req, res, next) => {
       difficulty,
       interviewMode: session.interviewMode || 'video_voice',
       interviewerPersona: session.interviewerPersona || 'neutral',
+      interviewFormat: session.interviewFormat || DEFAULT_INTERVIEW_FORMAT,
+      panelSeats: session.panelSeats || [],
       focusAreas: session.focusAreas || [],
       adaptiveDepthEnabled: ADAPTIVE_DEPTH_ENABLED,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const previewPanelSeats = async (req, res, next) => {
+  try {
+    const roleLabel = String(req.query.roleLabel || req.query.role || '').trim();
+    const seats = resolvePanelSeats(roleLabel);
+    sendResponse(res, 200, true, 'Panel seats preview.', { seats, roleLabel });
   } catch (error) {
     next(error);
   }
@@ -345,22 +449,21 @@ export const submitLiveInterview = async (req, res, next) => {
       throw new AppError(ERROR_CODES.INTERVIEW_PREP.SESSION_ABANDONED, 400);
     }
 
-    // Idempotent submit: return cached report only when scoring version is current.
-    if (session.status === 'completed' && session.reportId) {
-      const existing = await InterviewReport.findOne({
-        _id: session.reportId,
-        userId: req.user._id,
+    // Idempotent submit: return any saved report for this session (retry-safe).
+    const existingReport = await findSavedLiveSubmitReport(session, req.user._id);
+    if (existingReport) {
+      await syncSessionWithSavedReport(session, existingReport);
+      logInterviewStage('submit.cached', { sessionId: String(session._id) });
+      sendResponse(res, 200, true, 'Live interview submitted.', {
+        report: serializeInterviewReport(existingReport, session._id),
+        sessionId: String(session._id),
+        cached: true,
       });
-      if (existing && isCurrentScoreVersion(existing)) {
-        logInterviewStage('submit.cached', { sessionId: String(session._id) });
-        sendResponse(res, 200, true, 'Live interview submitted.', {
-          report: serializeInterviewReport(existing, session._id),
-          sessionId: String(session._id),
-          cached: true,
-        });
-        return;
-      }
-      // Stale scoreVersion → fall through and regenerate.
+      return;
+    }
+
+    if (session.status === 'completed' && !isReportGenerationRetryable(session)) {
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.REPORT_UNAVAILABLE, 404);
     }
 
     if (!Array.isArray(transcript) || transcript.length === 0) {
@@ -532,14 +635,32 @@ export const submitLiveInterview = async (req, res, next) => {
       sessionId: sessionIdStr,
     });
 
-    const { report, cached } = await withInterviewStageTiming(
-      'submit.report',
-      () =>
-        persistMockInterviewReport(session, req.user._id, {
-          metricsFlagReasons,
-        }),
-      { sessionId: sessionIdStr }
-    );
+    let report;
+    let cached = false;
+    try {
+      ({ report, cached } = await withInterviewStageTiming(
+        'submit.report',
+        () =>
+          persistMockInterviewReport(session, req.user._id, {
+            metricsFlagReasons,
+            forceRegenerate: isReportGenerationRetryable(session),
+          }),
+        { sessionId: sessionIdStr }
+      ));
+    } catch (reportError) {
+      console.error(
+        `[interview-submit] report persist failed sessionId=${sessionIdStr}:`,
+        reportError?.message || reportError
+      );
+      logInterviewStage('submit.report_failed', {
+        sessionId: sessionIdStr,
+        error: reportError?.message,
+      });
+      session.status = 'completed';
+      session.reportStatus = 'failed';
+      await session.save();
+      throw new AppError(ERROR_CODES.INTERVIEW_PREP.REPORT_UNAVAILABLE, 503);
+    }
 
     logInterviewStage('submit.complete', {
       sessionId: sessionIdStr,
@@ -554,6 +675,7 @@ export const submitLiveInterview = async (req, res, next) => {
       report: serializeInterviewReport(report, session._id),
       sessionId: sessionIdStr,
       cached,
+      reportStatus: session.reportStatus || 'ready',
     });
   } catch (error) {
     next(error);
@@ -593,6 +715,7 @@ export const getMockInterviewSession = async (req, res, next) => {
         difficulty: session.difficulty,
         mode: session.mode || 'standard',
         status: session.status,
+        reportStatus: session.reportStatus,
         durationMinutes: session.durationMinutes,
         targetQuestionCount: session.targetQuestionCount,
         assistantId: session.vapiAssistantId || null,
@@ -608,6 +731,8 @@ export const getMockInterviewSession = async (req, res, next) => {
         focusAreas: session.focusAreas,
         interviewMode: session.interviewMode,
         interviewerPersona: session.interviewerPersona || 'neutral',
+        interviewFormat: session.interviewFormat || DEFAULT_INTERVIEW_FORMAT,
+        panelSeats: Array.isArray(session.panelSeats) ? session.panelSeats : [],
         answerTimeLimitSeconds: session.answerTimeLimitSeconds,
         currentQuestionIndex: session.currentQuestionIndex,
         questions: hideQuestions
@@ -703,11 +828,55 @@ export const applyLiveAdaptiveDepth = async (req, res, next) => {
   }
 };
 
+export const deleteMockInterviewSession = async (req, res, next) => {
+  try {
+    const session = await loadSessionForUser(req.params.sessionId, req.user._id);
+
+    await InterviewReport.deleteOne(savedInterviewReportQuery(req.user._id, session._id));
+    await session.deleteOne();
+
+    sendResponse(res, 200, true, 'Interview session deleted.', {
+      sessionId: String(session._id),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const clearInterviewSessionHistory = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const formatRaw = String(req.query.interviewFormat || '').trim().toLowerCase();
+    const interviewFormat = INTERVIEW_FORMATS.includes(formatRaw) ? formatRaw : undefined;
+    const filter = sessionHistoryOwnerFilter(userId, { interviewFormat });
+
+    const sessions = await MockInterviewSession.find(filter).select('_id').lean();
+    const sessionIds = sessions.map((session) => session._id);
+
+    if (sessionIds.length) {
+      await InterviewReport.deleteMany({
+        userId,
+        sourceType: 'mock_interview',
+        sourceId: { $in: sessionIds },
+      });
+      await MockInterviewSession.deleteMany({ _id: { $in: sessionIds }, userId });
+    }
+
+    sendResponse(res, 200, true, 'Interview history cleared.', {
+      deletedCount: sessionIds.length,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getInterviewSessionHistory = async (req, res, next) => {
   try {
     const userId = req.user._id;
     const { page, limit, skip } = parseHistoryPagination(req.query);
-    const filter = sessionHistoryOwnerFilter(userId);
+    const formatRaw = String(req.query.interviewFormat || '').trim().toLowerCase();
+    const interviewFormat = INTERVIEW_FORMATS.includes(formatRaw) ? formatRaw : undefined;
+    const filter = sessionHistoryOwnerFilter(userId, { interviewFormat });
 
     const [sessions, total] = await Promise.all([
       MockInterviewSession.find(filter)

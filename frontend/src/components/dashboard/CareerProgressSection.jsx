@@ -101,10 +101,16 @@ function CareerProgressSection({ careerProgress }) {
             {t('careerProgress.empty.scanCta')}
           </Link>
           <Link
-            to="/interview-prep"
+            to="/interview-prep/mock"
             className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
-            {t('careerProgress.empty.practiceCta')}
+            {t('careerProgress.empty.mockCta')}
+          </Link>
+          <Link
+            to="/interview-prep/panel"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            {t('careerProgress.empty.panelCta')}
           </Link>
         </div>
       </div>
@@ -118,10 +124,16 @@ function CareerProgressSection({ careerProgress }) {
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
         <Link
-          to="/interview-prep"
+          to="/interview-prep/mock"
           className="inline-flex min-h-[40px] items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
-          {t('careerProgress.actions.practice')}
+          {t('careerProgress.actions.mock')}
+        </Link>
+        <Link
+          to="/interview-prep/panel"
+          className="inline-flex min-h-[40px] items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          {t('careerProgress.actions.panel')}
         </Link>
         <Link
           to="/resume-scanner"

@@ -2,9 +2,11 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   DEFAULT_INTERVIEW_SETUP_MODE,
+  DEFAULT_INTERVIEWER_PERSONA,
   FOCUS_AREA_I18N_KEYS,
   INTERVIEW_FOCUS_AREAS,
   INTERVIEW_SETUP_MODE_OPTIONS,
+  INTERVIEWER_PERSONA_OPTIONS,
   MAX_MOCK_INTERVIEW_DURATION_MINUTES,
   MIN_MOCK_INTERVIEW_DURATION_MINUTES,
   MOCK_INTERVIEW_DURATION_OPTIONS,
@@ -34,6 +36,17 @@ const MODE_ICONS = {
 const MODE_LABEL_KEYS = {
   video_voice: 'mockSetup.mode.videoVoice',
   voice_only: 'mockSetup.mode.voiceOnly',
+};
+
+const MODE_HINT_KEYS = {
+  video_voice: 'mockSetup.mode.videoVoiceHint',
+  voice_only: 'mockSetup.mode.voiceOnlyHint',
+};
+
+const PERSONA_ICONS = {
+  friendly: 'person',
+  neutral: 'person',
+  strict: 'person',
 };
 
 /** @deprecated Use SectionHeading from components/ui instead. */
@@ -194,6 +207,7 @@ export function FocusAreasSection({ focusAreas, onFocusAreasChange }) {
         icon="target"
         title={t('mockSetup.focusAreas.title')}
         description={t('mockSetup.focusAreas.description')}
+        optional
       />
       <div className="flex flex-wrap gap-2">
         {INTERVIEW_FOCUS_AREAS.map((area) => {
@@ -218,6 +232,54 @@ export function FocusAreasSection({ focusAreas, onFocusAreasChange }) {
   );
 }
 
+export function InterviewerPersonaSection({ persona, onPersonaChange }) {
+  const { t } = useTranslation('interviewPrep');
+  const selectedPersona = persona || DEFAULT_INTERVIEWER_PERSONA;
+
+  return (
+    <section className={accentCardClass}>
+      <SectionHeading
+        color="interview"
+        icon="groups"
+        title={t('mockSetup.persona.title')}
+        description={t('mockSetup.persona.description')}
+      />
+      <div className="grid gap-2.5 sm:grid-cols-2">
+        {INTERVIEWER_PERSONA_OPTIONS.map((option) => {
+          const selected = selectedPersona === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onPersonaChange(option.value)}
+              className={cn(
+                'flex flex-col gap-1 rounded-xl border-2 px-4 py-3 text-left transition-all duration-150',
+                selected ? selectedOptionClass : unselectedOptionClass
+              )}
+            >
+              <span className="inline-flex items-center gap-2">
+                <AppIcon
+                  name={PERSONA_ICONS[option.value] || 'person'}
+                  size="sm"
+                  className={cn('shrink-0', selected ? 'text-secondary' : 'text-on-surface-variant')}
+                />
+                <span className={cn('font-label-md', selected ? 'text-secondary' : 'text-on-surface')}>
+                  {t(`mockSetup.persona.${option.value}.label`, { defaultValue: option.label })}
+                </span>
+              </span>
+              <span className="font-body-md text-sm app-muted pl-6">
+                {t(`mockSetup.persona.${option.value}.description`, {
+                  defaultValue: option.description,
+                })}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export function InterviewModeSection({ interviewMode, onInterviewModeChange }) {
   const { t } = useTranslation('interviewPrep');
 
@@ -233,6 +295,7 @@ export function InterviewModeSection({ interviewMode, onInterviewModeChange }) {
         {INTERVIEW_SETUP_MODE_OPTIONS.map((option) => {
           const selected = (interviewMode || DEFAULT_INTERVIEW_SETUP_MODE) === option.value;
           const labelKey = MODE_LABEL_KEYS[option.value];
+          const hintKey = MODE_HINT_KEYS[option.value];
 
           return (
             <button
@@ -240,20 +303,25 @@ export function InterviewModeSection({ interviewMode, onInterviewModeChange }) {
               type="button"
               onClick={() => onInterviewModeChange(option.value)}
               className={cn(
-                'flex items-center gap-2.5 rounded-xl border-2 px-4 py-3 text-left transition-all duration-150',
+                'flex flex-col gap-1 rounded-xl border-2 px-4 py-3 text-left transition-all duration-150',
                 selected ? selectedOptionClass : unselectedOptionClass
               )}
             >
-              <AppIcon
-                name={MODE_ICONS[option.value] || 'mic'}
-                size="sm"
-                className={cn('shrink-0', selected ? 'text-secondary' : 'text-on-surface-variant')}
-              />
-              <span
-                className={cn('font-label-md', selected ? 'text-secondary' : 'text-on-surface')}
-              >
-                {labelKey ? t(labelKey) : option.label}
+              <span className="inline-flex items-center gap-2.5">
+                <AppIcon
+                  name={MODE_ICONS[option.value] || 'mic'}
+                  size="sm"
+                  className={cn('shrink-0', selected ? 'text-secondary' : 'text-on-surface-variant')}
+                />
+                <span
+                  className={cn('font-label-md', selected ? 'text-secondary' : 'text-on-surface')}
+                >
+                  {labelKey ? t(labelKey) : option.label}
+                </span>
               </span>
+              {hintKey ? (
+                <span className="font-body-md text-sm app-muted pl-7">{t(hintKey)}</span>
+              ) : null}
             </button>
           );
         })}

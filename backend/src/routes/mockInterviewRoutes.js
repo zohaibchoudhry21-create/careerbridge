@@ -5,9 +5,12 @@ import {
   analyzeInterviewResume,
   getInterviewReportHistory,
   getInterviewSessionHistory,
+  clearInterviewSessionHistory,
+  deleteMockInterviewSession,
   getSavedInterviewReport,
   getMockInterviewSession,
   getRoleSuggestions,
+  previewPanelSeats,
   startLiveInterview,
   submitLiveInterview,
   applyLiveAdaptiveDepth,
@@ -26,6 +29,7 @@ import { validateRequest } from '../middleware/validateRequest.js';
 
 import {
   adaptiveDepthValidation,
+  panelPreviewSeatsValidation,
   roleSuggestionsValidation,
   sessionIdBodyValidation,
   sessionIdParamValidation,
@@ -42,6 +46,15 @@ router.post(
   startLiveInterviewValidation,
   validateRequest,
   startLiveInterview
+);
+
+router.get(
+  '/interview/panel/preview-seats',
+  protect,
+  interviewFlowLimiter,
+  panelPreviewSeatsValidation,
+  validateRequest,
+  previewPanelSeats
 );
 
 router.post(
@@ -86,6 +99,13 @@ router.get(
   getInterviewSessionHistory
 );
 
+router.delete(
+  '/interview/sessions/history',
+  protect,
+  interviewFlowLimiter,
+  clearInterviewSessionHistory
+);
+
 router.get(
   '/interview/session/:sessionId',
   protect,
@@ -93,6 +113,15 @@ router.get(
   sessionIdParamValidation,
   validateRequest,
   getMockInterviewSession
+);
+
+router.delete(
+  '/interview/session/:sessionId',
+  protect,
+  interviewFlowLimiter,
+  sessionIdParamValidation,
+  validateRequest,
+  deleteMockInterviewSession
 );
 
 router.get('/interview/reports/history', protect, interviewFlowLimiter, getInterviewReportHistory);
@@ -108,6 +137,15 @@ router.get(
 
 router.post(
   '/interview/report',
+  protect,
+  interviewHeavyLimiter,
+  sessionIdBodyValidation,
+  validateRequest,
+  generateMockInterviewReport
+);
+
+router.post(
+  '/interview/report/regenerate',
   protect,
   interviewHeavyLimiter,
   sessionIdBodyValidation,

@@ -48,6 +48,19 @@ const mapMissingSkills = (missingSkillIds = [], skillLookup, limit = 5) =>
     priority: index === 0,
   }));
 
+/** Normalize session format; legacy docs without the field are standard mock. */
+const resolveInterviewFormat = (session) =>
+  String(session?.interviewFormat || '').trim().toLowerCase() === 'panel' ? 'panel' : 'standard';
+
+const interviewFormatLabel = (format) =>
+  format === 'panel' ? 'Panel interview' : 'Mock interview';
+
+const interviewActivityLabel = (session) => {
+  const format = resolveInterviewFormat(session);
+  const role = session?.roleLabel || session?.role || 'practice';
+  return `${interviewFormatLabel(format)} (${role})`;
+};
+
 const getLatestCompletedAnalysis = async (userId) =>
   AtsAnalysis.findOne({ userId, status: 'completed' })
     .sort({ updatedAt: -1 })
@@ -62,7 +75,7 @@ const getRecentActivity = async (userId) => {
       .lean(),
     MockInterviewSession.findOne({ userId, status: 'completed' })
       .sort({ updatedAt: -1 })
-      .select('updatedAt role')
+      .select('updatedAt role roleLabel interviewFormat')
       .lean(),
     ParsedResume.findOne({ userId }).sort({ updatedAt: -1 }).select('updatedAt').lean(),
   ]);
@@ -74,7 +87,7 @@ const getRecentActivity = async (userId) => {
     latestInterview?.updatedAt
       ? {
           at: latestInterview.updatedAt,
-          label: `Mock interview (${latestInterview.role || 'practice'}) ${formatRelativeTime(latestInterview.updatedAt)}`,
+          label: `${interviewActivityLabel(latestInterview)} ${formatRelativeTime(latestInterview.updatedAt)}`,
         }
       : null,
     latestResume?.updatedAt
@@ -297,7 +310,7 @@ export const buildCareerProgress = async (userId) => {
   const sessionIds = interviewReportsDesc.map((report) => report.sourceId).filter(Boolean);
   const sessions = sessionIds.length
     ? await MockInterviewSession.find({ _id: { $in: sessionIds } })
-        .select('role roleLabel')
+        .select('role roleLabel interviewFormat')
         .lean()
     : [];
   const sessionById = new Map(sessions.map((session) => [String(session._id), session]));
@@ -306,13 +319,15 @@ export const buildCareerProgress = async (userId) => {
     .reverse()
     .map((report) => {
       const session = sessionById.get(String(report.sourceId));
-      const role = session?.roleLabel || session?.role || 'Mock interview';
+      const interviewFormat = resolveInterviewFormat(session);
+      const role = session?.roleLabel || session?.role || interviewFormatLabel(interviewFormat);
       return {
         id: String(report._id),
         date: report.createdAt,
         label: formatShortDate(report.createdAt),
         score: Math.round(Number(report.overallScore) || 0),
         role,
+        interviewFormat,
       };
     });
 
@@ -346,12 +361,13 @@ export const buildCareerProgress = async (userId) => {
   const timeline = [
     ...interviewReportsDesc.map((report) => {
       const session = sessionById.get(String(report.sourceId));
-      const role = session?.roleLabel || session?.role || 'practice';
+      const interviewFormat = resolveInterviewFormat(session);
       return {
         id: `interview-${report._id}`,
         type: 'interview',
+        interviewFormat,
         date: report.createdAt,
-        label: `Mock interview (${role})`,
+        label: interviewActivityLabel(session),
         score: Math.round(Number(report.overallScore) || 0),
       };
     }),

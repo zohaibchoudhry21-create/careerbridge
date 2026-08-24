@@ -20,7 +20,7 @@ export default function SkillQuizMcq({
   if (!question) return null;
 
   return (
-    <article className="dashboard-glass-card dashboard-card-padding rounded-2xl min-w-0 space-y-md">
+    <article className="app-surface-card min-w-0 space-y-md rounded-2xl p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="font-label-sm app-muted">
           {t('quiz.questionOf', { current: questionIndex + 1, total: totalQuestions })}
@@ -45,7 +45,7 @@ export default function SkillQuizMcq({
               disabled={disabled}
               onClick={() => onSelect(index)}
               className={cn(
-                'w-full min-h-[44px] rounded-xl border-2 p-4 text-left transition-all duration-150',
+                'w-full min-h-[44px] rounded-xl border-2 px-4 py-3 text-left transition-all duration-150',
                 selected ? selectedOptionClass : unselectedOptionClass,
                 disabled && 'opacity-60'
               )}

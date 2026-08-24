@@ -28,6 +28,8 @@
     "title": "Interview Readiness",
     "weakAreas": "Weak Areas",
     "strongArea": "Strong Area",
+    "mockCta": "Mock interview",
+    "panelCta": "Panel interview",
     "videoMode": "Video Mode",
     "voiceAnalysis": "Voice Analysis"
   },
@@ -51,6 +53,8 @@
     "description": "Track interview scores, ATS trends, and skill gaps over time.",
     "actions": {
       "practice": "Practice interview",
+      "mock": "Mock interview",
+      "panel": "Panel interview",
       "scan": "Scan resume"
     },
     "stats": {
@@ -67,7 +71,7 @@
       "jobMatch": "Job match",
       "quizTrend": "Skill quiz trend",
       "quizScore": "Quiz score",
-      "needMoreInterviews": "Complete at least 2 mock interviews to see your trend.",
+      "needMoreInterviews": "Complete at least 2 interviews (mock or panel) to see your trend.",
       "needMoreScans": "Run at least 2 resume scans to see your ATS trend."
     },
     "weakSkills": {
@@ -76,13 +80,17 @@
     },
     "timeline": {
       "title": "Recent activity",
-      "empty": "No recent career activity yet."
+      "empty": "No recent career activity yet.",
+      "mockBadge": "Mock",
+      "panelBadge": "Panel"
     },
     "empty": {
       "title": "Start building your progress",
-      "description": "Scan a resume or practice interviews to unlock trends and weak-skill insights.",
+      "description": "Scan a resume or practice mock and panel interviews to unlock trends and weak-skill insights.",
       "scanCta": "Scan resume",
-      "practiceCta": "Practice interview"
+      "practiceCta": "Practice interview",
+      "mockCta": "Mock interview",
+      "panelCta": "Panel interview"
     }
   },
   "loading": {
@@ -103,7 +111,7 @@
     },
     "interviewPrep": {
       "title": "Interview Prep",
-      "description": "Practice mock interviews and skill assessments with AI feedback."
+      "description": "Practice mock and panel interviews plus skill assessments with AI feedback."
     }
   },
   "resumeBuilder": {
@@ -125,8 +133,10 @@
   "interviewPrep": {
     "empty": {
       "title": "No practice sessions yet",
-      "description": "Take a mock interview to get your readiness score and AI feedback.",
-      "cta": "Start mock interview"
+      "description": "Take a mock or panel interview to get your readiness score and AI feedback.",
+      "cta": "Start mock interview",
+      "mockCta": "Mock interview",
+      "panelCta": "Panel interview"
     }
   }
 }

@@ -17,9 +17,170 @@
       "title": "Entrevista simulada con IA",
       "description": "Entrevista en vivo con voz en tiempo real, retroalimentación de cámara e informe combinado."
     },
+    "panelInterview": {
+      "title": "Entrevista de panel con IA",
+      "description": "Enfréntate a un panel de tres entrevistadores de IA adaptado a tu rol, en una sala en vivo."
+    },
     "skillAssessment": {
       "title": "Evaluación de habilidades",
       "description": "Cuestionario de opción múltiple por tema con puntuación y detección de áreas débiles."
+    }
+  },
+  "panelSetup": {
+    "title": "Prepara tu sala de panel",
+    "description": "Tres entrevistadores, una conversación — adaptados al rol que indiques.",
+    "joinPanel": "Entrar al panel",
+    "joinPanelShort": "Entrar",
+    "joining": "Abriendo la sala…",
+    "enterRole": "Indica el rol para el que te entrevistas",
+    "joinFailed": "No se pudo abrir la sala del panel. Inténtalo de nuevo.",
+    "joinErrorTitle": "La sala no se abrió",
+    "presets": {
+      "title": "Estilo de panel",
+      "description": "Elige un punto de partida y ajusta lo demás abajo.",
+      "intro": {
+        "label": "Ronda inicial",
+        "hint": "Suave, 10 min, solo voz"
+      },
+      "standard": {
+        "label": "Panel completo",
+        "hint": "Estándar, 15 min, con cámara"
+      },
+      "tough": {
+        "label": "Ronda final",
+        "hint": "Exigente, 20 min, con cámara"
+      }
+    },
+    "role": {
+      "title": "¿A quién entrevista el panel?",
+      "description": "El rol define qué tres entrevistadores se sientan en tu panel."
+    },
+    "roster": {
+      "title": "Tu panel",
+      "description": "Tres perspectivas, asignadas al indicar un rol.",
+      "descriptionWithRole": "Panel adaptado a {{role}}.",
+      "loading": "Emparejando asientos del panel…",
+      "placeholderTitle": "Asiento libre",
+      "placeholderFocus": "Indica un rol para ocupar este asiento.",
+      "hint": "Los asientos siguen tu campo — sin líder técnico salvo que el rol lo sea."
+    },
+    "pressure": {
+      "title": "Presión del panel",
+      "description": "Cuánto cuestiona la sala tus respuestas.",
+      "soft": {
+        "label": "Cercano",
+        "hint": "Alentador, con tiempo para pensar"
+      },
+      "standard": {
+        "label": "Equilibrado",
+        "hint": "Ritmo de un panel real"
+      },
+      "tough": {
+        "label": "Exigente",
+        "hint": "Preguntas afiladas, poco margen"
+      }
+    },
+    "length": {
+      "title": "Tiempo en sala",
+      "description": "Cuánto tiempo se queda el panel contigo.",
+      "custom": "Personalizado",
+      "placeholder": "p. ej. 25",
+      "customAria": "Escribe la duración del panel en minutos",
+      "roundsPreview": "Unas {{count}} preguntas entre todo el panel"
+    },
+    "themes": {
+      "title": "¿En qué debe profundizar el panel?",
+      "description": "Opcional. Si lo dejas vacío, el panel decide según tu rol.",
+      "realScenarios": "Casos reales",
+      "cultureTeamwork": "Cultura y equipo",
+      "communicationClarity": "Comunicación y claridad",
+      "ownershipImpact": "Responsabilidad e impacto",
+      "depthStructure": "Profundidad y estructura",
+      "handsOnSkills": "Habilidades prácticas"
+    },
+    "join": {
+      "title": "¿Cómo entrarás?",
+      "description": "Con cámara también recibes feedback de lenguaje corporal.",
+      "videoVoice": "Cámara + micro",
+      "videoVoiceHint": "El panel te ve — añade contacto visual y presencia",
+      "voiceOnly": "Solo micro",
+      "voiceOnlyHint": "Sala solo de voz — consume menos datos",
+      "modeLabel": "Entras como"
+    },
+    "devices": {
+      "ready": "Cámara y micro listos",
+      "notReady": "Revisa cámara y micro antes de entrar",
+      "readyToast": "Ya puedes entrar al panel"
+    },
+    "aside": {
+      "eyebrow": "Sala de panel",
+      "title": "Antes de entrar",
+      "meeting": "Entrevista para",
+      "roleMissing": "Sin rol todavía",
+      "seatPending": "Se asigna con el rol",
+      "seatCount": "{{count}} entrevistadores",
+      "pressure": "Presión",
+      "length": "Tiempo en sala",
+      "rounds": "Preguntas",
+      "roundsValue": "unas {{count}}",
+      "joining": "Entras como",
+      "themes": "Temas"
+    }
+  },
+  "panelHistory": {
+    "title": "Historial de entrevistas de panel",
+    "description": "Revisa tus entrevistas de panel anteriores e informes.",
+    "startNew": "Nueva entrevista de panel",
+    "clearDescription": "Se eliminarán permanentemente las {{count}} entrevistas de panel, incluidos los informes guardados. No se puede deshacer."
+  },
+  "panelRoom": {
+    "lobby": {
+      "eyebrow": "Sala de espera",
+      "title": "Tu panel se está reuniendo",
+      "description": "Tres entrevistadores toman asiento. Entra cuando estés listo.",
+      "conferenceRoom": "Sala de reuniones",
+      "panelAssembling": "El panel se está reuniendo…",
+      "panelReady": "Los tres ya están aquí. Cuando quieras.",
+      "seatJoining": "Entrando…",
+      "seatReady": "Listo",
+      "seatPending": "Asiento libre",
+      "yourSeat": "Tú · {{name}}",
+      "you": "Tú",
+      "soundLabel": "Sonido de sala",
+      "soundHint": "Campanilla suave al entrar (desactivada por defecto)",
+      "devicesReady": "Cámara y micro listos",
+      "devicesWaiting": "Esperando cámara o micro…",
+      "enter": "Entrar a la sala",
+      "backToSetup": "Volver a la configuración",
+      "sharedVoiceHint": "Tres entrevistadores, una sola voz — mira los nombres en la transcripción y en las tarjetas de arriba.",
+      "sharedVoiceHintDismiss": "Entendido",
+      "seatPreview": "{{name}} preguntará sobre {{focus}}"
+    },
+    "enter": {
+      "openingDoor": "Abriendo la puerta…",
+      "seatingPanel": "Sentando al panel…",
+      "youreIn": "Ya estás dentro"
+    },
+    "live": {
+      "conferenceRoom": "Sala de reuniones",
+      "roomTitleWithRole": "Sala de reuniones — Panel {{role}}",
+      "speaking": "Habla",
+      "listening": "Escucha",
+      "nameSpeaking": "{{name}} está hablando",
+      "inSession": "Sesión en vivo",
+      "you": "Tú",
+      "candidateLabel": "{{name}} (Tú — Candidato)",
+      "transcriptNotes": "Transcripción y notas en vivo",
+      "transcriptFooter": "La IA transcribe y supervisa la conversación en tiempo real.",
+      "speakerAsking": "{{name}} ({{title}}) pregunta…",
+      "upNext": "Siguiente: {{name}} ({{title}})"
+    },
+    "leave": {
+      "cta": "Salir de la sala",
+      "confirmTitle": "¿Salir de la sala?",
+      "confirmDescription": "Esto termina la sesión de panel y prepara tu informe.",
+      "title": "Has salido de la sala",
+      "description": "Gracias por reunirte con el panel. Preparando tu feedback…"
     }
   },
   "mockSetup": {
@@ -44,18 +205,80 @@
     },
     "focusAreas": {
       "title": "Áreas de enfoque",
-      "description": "Elige en qué debe centrarse la entrevista."
+      "description": "Elige en qué debe centrarse. Se sugieren según el puesto — ajústalas cuando quieras."
     },
     "mode": {
       "title": "Modo de entrevista",
       "description": "Elige cómo quieres responder.",
       "videoVoice": "Vídeo y voz",
       "voiceOnly": "Solo voz",
+      "videoVoiceHint": "Cámara para métricas de contacto visual y voz.",
+      "voiceOnlyHint": "Solo micrófono — configuración rápida, sin métricas de cámara.",
       "textOnly": "Solo texto",
       "comingSoon": "Próximamente"
     },
+    "persona": {
+      "title": "Estilo del entrevistador",
+      "description": "Elige el tono de quien te entrevista.",
+      "friendly": {
+        "label": "Amable",
+        "description": "Cálido y alentador, con pausas naturales."
+      },
+      "neutral": {
+        "label": "Neutral",
+        "description": "Ritmo cortés de hiring manager."
+      },
+      "strict": {
+        "label": "Estricto",
+        "description": "Sondas formales — respuestas concisas."
+      },
+      "panel": {
+        "label": "Panel de 3",
+        "description": "Tres entrevistadores con perspectivas distintas — adaptadas a tu puesto."
+      }
+    },
+    "presets": {
+      "title": "Inicio rápido",
+      "description": "Empieza con una mezcla lista — ajústalo abajo.",
+      "quick": {
+        "label": "Rápida 10 min",
+        "hint": "Fácil · solo voz · amable"
+      },
+      "standard": {
+        "label": "Estándar 15 min",
+        "hint": "Media · vídeo · neutral"
+      },
+      "senior": {
+        "label": "Senior 30 min",
+        "hint": "Difícil · vídeo · estricto"
+      }
+    },
+    "summary": {
+      "eyebrow": "Listo para empezar",
+      "title": "Tu entrevista",
+      "description": "Revisa el plan, comprueba dispositivos y empieza.",
+      "role": "Puesto",
+      "roleMissing": "Añade un puesto para continuar",
+      "difficulty": "Nivel",
+      "duration": "Duración",
+      "questions": "Guía",
+      "questionCount": "~{{count}} preguntas",
+      "mode": "Modo",
+      "persona": "Estilo",
+      "focus": "Enfoque"
+    },
+    "devices": {
+      "ready": "Dispositivos listos",
+      "notReady": "Dispositivos sin comprobar",
+      "micHint": "Se necesita micrófono para la llamada en vivo.",
+      "cameraHint": "Se necesitan cámara y micrófono para el modo vídeo.",
+      "check": "Comprobar",
+      "checking": "Comprobando…",
+      "readyToast": "Cámara y micrófono listos."
+    },
     "startErrorTitle": "No se pudo iniciar la entrevista",
     "startLive": "Iniciar entrevista en vivo",
+    "startLiveShort": "Iniciar",
     "starting": "Iniciando…",
     "enterRole": "Introduce un puesto.",
     "vapiNotConfigured": "La entrevista en vivo no está configurada. Añade VITE_VAPI_WEB_TOKEN al .env del frontend",
@@ -69,6 +292,9 @@
     "roleRequired": "Introduce un puesto.",
     "experiencePlaceholder": "Experiencia (p. ej. 2 años)",
     "companyPlaceholder": "Empresa objetivo (opcional)",
+    "resumeToggleTitle": "Añadir CV para mejores preguntas",
+    "resumeToggleHint": "Opcional — sube PDF o DOCX para anclar las preguntas a tu experiencia.",
+    "resumeAttached": "Contexto del CV añadido — amplía para revisar o cambiar.",
     "analysisTitle": "Resultado del análisis del CV",
     "clear": "Borrar",
     "projects": "Proyectos",
@@ -78,7 +304,7 @@
     "analyzing": "Analizando…",
     "analyzeResume": "Analizar CV",
     "remove": "Quitar",
-    "uploadCta": "Haz clic para subir CV (opcional)",
+    "uploadCta": "Haz clic para subir CV",
     "uploadHint": "PDF o DOCX — extraeremos habilidades y proyectos",
     "analyzeFailed": "No se pudo analizar el CV. Inténtalo de nuevo."
   },
@@ -108,12 +334,28 @@
     },
     "difficulty": {
       "title": "Dificultad",
-      "description": "Ajusta el cuestionario a tu nivel."
+      "description": "Ajusta el cuestionario a tu nivel.",
+      "easy": "Conceptos fundamentales",
+      "medium": "Conocimiento aplicado",
+      "hard": "Profundidad y casos límite"
     },
     "length": {
       "title": "Longitud",
       "description": "Cuántas preguntas incluir.",
-      "questions": "{{count}} preguntas"
+      "questions": "{{count}} preguntas",
+      "hint": {
+        "10": "Comprobación rápida",
+        "12": "Set estándar",
+        "15": "Repaso completo"
+      }
+    },
+    "summary": {
+      "eyebrow": "Listo para empezar",
+      "title": "Tu cuestionario",
+      "topic": "Tema",
+      "topicMissing": "Añade un tema para continuar",
+      "difficulty": "Nivel",
+      "questions": "Preguntas"
     },
     "selectTopic": "Introduce un tema.",
     "startFailed": "No se pudo iniciar el cuestionario.",
@@ -123,6 +365,7 @@
     "reloadTopics": "Recargar temas",
     "generating": "Generando cuestionario…",
     "generateStart": "Generar e iniciar cuestionario",
+    "generateStartShort": "Empezar",
     "retryGenerate": "Reintentar generación"
   },
   "topics": {
@@ -179,6 +422,23 @@
     "previous": "Anterior",
     "next": "Siguiente",
     "pageOf": "Página {{current}} de {{total}}",
+    "delete": "Eliminar",
+    "deleteAria": "Eliminar entrevista de {{role}}",
+    "deleteTitle": "¿Eliminar esta entrevista?",
+    "deleteDescription": "Se quitará “{{role}}” de tu historial, incluido cualquier informe guardado. Esta acción no se puede deshacer.",
+    "deleteCancel": "Cancelar",
+    "deleteConfirm": "Eliminar",
+    "deleting": "Eliminando…",
+    "deleteSuccess": "Entrevista eliminada del historial.",
+    "deleteFailed": "No se pudo eliminar esta entrevista. Inténtalo de nuevo.",
+    "clearAll": "Borrar historial",
+    "clearTitle": "¿Borrar todo el historial?",
+    "clearDescription": "Se eliminarán permanentemente las {{count}} entrevistas simuladas, incluidos los informes guardados. No se puede deshacer.",
+    "clearCancel": "Cancelar",
+    "clearConfirm": "Borrar historial",
+    "clearing": "Borrando…",
+    "clearSuccess": "Historial de entrevistas borrado.",
+    "clearFailed": "No se pudo borrar el historial. Inténtalo de nuevo.",
     "status": {
       "completed": "Completada",
       "abandoned": "Incompleta",
@@ -192,12 +452,44 @@
     "liveBadge": "En vivo",
     "timeLeft": "Tiempo",
     "timeUpWrapping": "Se acabó el tiempo — cerrando en breve",
-    "subtitleVoice": "Habla con {{name}} en tiempo real. El micrófono permanece activo para la retroalimentación.",
-    "subtitleVideo": "Habla con {{name}} en tiempo real. Cámara y micrófono activos para la retroalimentación.",
+    "subtitleVoice": "Práctica en tiempo real. El micrófono sigue activo para el feedback.",
+    "subtitleVideo": "Práctica en tiempo real. Cámara y micrófono activos para el feedback.",
+    "subtitlePanelVoice": "Práctica de panel. El micrófono sigue activo para el feedback.",
+    "subtitlePanelVideo": "Práctica de panel. Cámara y micrófono activos para el feedback.",
+    "idleSubtitleVoice": "Comprueba el micrófono y empieza cuando estés listo.",
+    "idleSubtitleVideo": "Comprueba cámara y micrófono, y empieza cuando estés listo.",
+    "trustLine": "Solo para tu feedback de entrevista — no se comparte públicamente.",
+    "tips": {
+      "title": "Consejos para una mejor entrevista",
+      "compact": "Habla claro · Mira a la cámara · Mantén el micrófono activo",
+      "compactVoice": "Habla claro · Mantén el micrófono activo · Lugar silencioso",
+      "mic": "Usa un micrófono que funcione — cierra Zoom/Teams si el micrófono está ocupado.",
+      "camera": "Mantén la cámara encendida y mira directamente a ella.",
+      "quiet": "Siéntate en un lugar silencioso con internet estable.",
+      "speak": "Habla con claridad y pausa un momento después de cada respuesta.",
+      "show": "Mostrar consejos",
+      "showIdle": "Consejos antes de empezar",
+      "hide": "Ocultar consejos"
+    },
     "aiName": "Entrevistador IA",
+    "personaStyle": "Tu entrevistador",
+    "panelName": "Panel de entrevista",
+    "panelBadge": "Panel",
+    "panelQuiet": "En silencio",
+    "nowAsking": "Pregunta ahora: {{title}} — {{focus}}",
+    "seatTag": "[{{tag}}]",
+    "startPanel": "Empezar entrevista de panel",
     "minutesShort": "{{count}} min",
     "videoVoice": "Vídeo y voz",
     "voiceOnly": "Solo voz",
+    "deviceMicReady": "Mic listo",
+    "deviceMicWaiting": "Esperando micrófono",
+    "deviceCameraReady": "Cámara lista",
+    "deviceCameraWaiting": "Esperando cámara",
+    "connectingTitle": "Conectando…",
+    "connectingDescription": "Uniéndote al entrevistador — suele tardar unos segundos.",
+    "wrappingUpTitle": "Cerrando",
+    "wrappingUpDescription": "Generando tu informe de feedback…",
     "videoMetricsOn": "Métricas de vídeo activas",
     "videoMetricsPaused": "Métricas de vídeo en pausa",
     "voiceMetricsOn": "Métricas de voz activas",
@@ -216,9 +508,18 @@
     "turnOffCamera": "Apagar cámara",
     "turnOnCamera": "Encender cámara",
     "transcriptTitle": "Transcripción en vivo",
+    "transcriptEmpty": "La transcripción aparecerá mientras hablas…",
+    "transcriptEmptyHint": "La conversación aparecerá aquí cuando empiece la entrevista.",
+    "transcriptConnecting": "Conectando con tu entrevistador…",
+    "jumpToLatest": "Ir al último",
     "turn": "turno",
     "turns": "turnos",
+    "message": "mensaje",
+    "messages": "mensajes",
     "endInterview": "Finalizar entrevista",
+    "endConfirmTitle": "¿Finalizar esta entrevista?",
+    "endConfirmDescription": "Terminaremos la llamada y generaremos tu informe de feedback.",
+    "endConfirmCancel": "Seguir",
     "startInterview": "Iniciar entrevista",
     "missingAssistant": "El asistente de entrevista no está listo. Vuelve e inicia de nuevo.",
     "waitingMic": "Esperando micrófono…",
@@ -238,6 +539,32 @@
     "description": "Resumen de IA basado en tus respuestas, voz y presencia en cámara.",
     "narrativeUnavailable": "Parte del feedback escrito por IA no está disponible — mostrando tus puntuaciones.",
     "overall": "General",
+    "deliveryOnly": "Solo presentación — no el contenido de las respuestas",
+    "vsPrevious": "Comparado con tu entrevista anterior",
+    "scoreBand": {
+      "strong": "Sólido",
+      "good": "Bien",
+      "developing": "En desarrollo",
+      "needsWork": "Necesita mejorar"
+    },
+    "metricHints": {
+      "pace": "Ideal 120–160 PPM",
+      "eyeContact": "Apunta a 60%+",
+      "engagement": "Apunta a 60%+",
+      "fillers": "Menos de 3 por 100 palabras"
+    },
+    "timeline": {
+      "showAll": "Ver los {{count}} eventos",
+      "showLess": "Ver menos eventos"
+    },
+    "nextSteps": {
+      "title": "Qué hacer ahora",
+      "description": "Convierte este feedback en tu próxima práctica.",
+      "weakestAreas": "Áreas más débiles esta vez",
+      "practiceWeakAreas": "Practicar estas áreas",
+      "newInterview": "Empezar una entrevista nueva",
+      "prefilled": "Áreas de enfoque preparadas para tu próxima entrevista."
+    },
     "eyeContact": "Contacto visual",
     "speakingPace": "Ritmo al hablar",
     "fillerWords": "Muletillas",
@@ -276,6 +603,8 @@
       "dimensionRadar": "Radar de habilidades",
       "scoreBreakdown": "Desglose de puntuación",
       "scores": "Puntuaciones",
+      "contentGatedNote": "Las barras de presentación se limitan cuando el contenido de las respuestas es débil",
+      "splitLegend": "Morado = contenido · Atenuado = presentación (influencia limitada)",
       "decision": {
         "hire": "Recomendar contratar",
         "leanHire": "Inclinar a contratar",

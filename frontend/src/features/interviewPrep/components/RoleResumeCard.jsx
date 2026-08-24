@@ -82,6 +82,10 @@ export default function RoleResumeCard({
   resumeProjects,
   onAnalysisComplete,
   onAnalysisClear,
+  resumeOpen: resumeOpenControlled,
+  onResumeOpenChange,
+  title,
+  description,
 }) {
   const { t } = useTranslation('interviewPrep');
   const fileInputRef = useRef(null);
@@ -90,12 +94,23 @@ export default function RoleResumeCard({
   const [analyzed, setAnalyzed] = useState(false);
   const [error, setError] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [resumeOpenInternal, setResumeOpenInternal] = useState(false);
+
+  const resumeOpen =
+    typeof resumeOpenControlled === 'boolean' ? resumeOpenControlled : resumeOpenInternal;
+  const setResumeOpen = onResumeOpenChange || setResumeOpenInternal;
+
+  const hasResumeContext =
+    analyzed ||
+    (Array.isArray(resumeSkills) && resumeSkills.length > 0) ||
+    (Array.isArray(resumeProjects) && resumeProjects.length > 0);
 
   const handleFileSelected = (selected) => {
     if (!selected) return;
     setFile(selected);
     setAnalyzed(false);
     setError(null);
+    setResumeOpen(true);
   };
 
   const handleAnalyze = async () => {
@@ -131,8 +146,8 @@ export default function RoleResumeCard({
       <SectionHeading
         color="role"
         icon="person"
-        title={t('roleResume.title')}
-        description={t('roleResume.description')}
+        title={title || t('roleResume.title')}
+        description={description || t('roleResume.description')}
       />
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -170,104 +185,148 @@ export default function RoleResumeCard({
         />
       </div>
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={ACCEPT}
-        className="hidden"
-        onChange={(event) => {
-          handleFileSelected(event.target.files?.[0]);
-          event.target.value = '';
-        }}
-      />
-
-      {analyzed ? (
-        <ResumeAnalysisResult
-          projects={resumeProjects}
-          skills={resumeSkills}
-          onClear={handleClear}
-        />
-      ) : (
-        <div
-          onDragOver={(event) => {
-            event.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={(event) => {
-            event.preventDefault();
-            setIsDragging(false);
-            handleFileSelected(event.dataTransfer.files?.[0]);
-          }}
+      <div className="border-t border-outline-variant/50 pt-3">
+        <button
+          type="button"
+          onClick={() => setResumeOpen(!resumeOpen)}
           className={cn(
-            'rounded-xl border-2 border-dashed px-4 py-8 text-center transition-all duration-150',
-            isDragging
-              ? 'border-secondary bg-secondary/[0.06]'
-              : file
-                ? 'border-secondary/50 bg-secondary/[0.04]'
-                : 'border-[#DCE2EA] bg-[#FAFBFC] hover:border-[#B9C2CE] hover:bg-[#F5F7FA]'
+            'flex w-full items-center justify-between gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all duration-150',
+            resumeOpen || hasResumeContext ? SELECTED_OPTION_CLASS : UNSELECTED_OPTION_CLASS
           )}
+          aria-expanded={resumeOpen}
         >
-          <span
-            className={cn(
-              'mx-auto mb-2.5 inline-flex h-11 w-11 items-center justify-center rounded-xl',
-              file ? 'bg-secondary/15' : 'bg-secondary/10'
-            )}
-          >
-            <AppIcon name={file ? 'description' : 'upload_file'} size="md" className="text-secondary" />
+          <span className="min-w-0">
+            <span className="flex items-center gap-2 font-label-md text-on-surface">
+              <AppIcon name="upload_file" size="sm" className="text-secondary shrink-0" />
+              {t('roleResume.resumeToggleTitle')}
+            </span>
+            <span className="mt-0.5 block font-body-md text-sm app-muted pl-6">
+              {hasResumeContext
+                ? t('roleResume.resumeAttached')
+                : t('roleResume.resumeToggleHint')}
+            </span>
           </span>
+          <AppIcon
+            name={resumeOpen ? 'expand_less' : 'expand_more'}
+            size="button"
+            className="shrink-0 text-on-surface-variant"
+          />
+        </button>
 
-          {file ? (
-            <>
-              <span className="font-label-md text-on-surface block truncate px-2">{file.name}</span>
-              <span className="font-body-md text-on-surface-variant text-sm mt-0.5 block">
-                {t('roleResume.readyToAnalyze')}
-              </span>
-              <div className="mt-3 flex items-center justify-center gap-2">
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={handleAnalyze}
-                  disabled={analyzing}
-                  className="gap-2 rounded-lg px-4 py-2"
-                >
-                  {analyzing ? (
-                    <>
-                      <AppIcon name="progress_activity" size="sm" spin className="text-on-secondary" />
-                      {t('roleResume.analyzing')}
-                    </>
-                  ) : (
-                    t('roleResume.analyzeResume')
+        {resumeOpen ? (
+          <div className="mt-3 space-y-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={ACCEPT}
+              className="hidden"
+              onChange={(event) => {
+                handleFileSelected(event.target.files?.[0]);
+                event.target.value = '';
+              }}
+            />
+
+            {analyzed ? (
+              <ResumeAnalysisResult
+                projects={resumeProjects}
+                skills={resumeSkills}
+                onClear={handleClear}
+              />
+            ) : (
+              <div
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  setIsDragging(false);
+                  handleFileSelected(event.dataTransfer.files?.[0]);
+                }}
+                className={cn(
+                  'rounded-xl border-2 border-dashed px-4 py-8 text-center transition-all duration-150',
+                  isDragging
+                    ? 'border-secondary bg-secondary/[0.06]'
+                    : file
+                      ? 'border-secondary/50 bg-secondary/[0.04]'
+                      : 'border-[#DCE2EA] bg-[#FAFBFC] hover:border-[#B9C2CE] hover:bg-[#F5F7FA]'
+                )}
+              >
+                <span
+                  className={cn(
+                    'mx-auto mb-2.5 inline-flex h-11 w-11 items-center justify-center rounded-xl',
+                    file ? 'bg-secondary/15' : 'bg-secondary/10'
                   )}
-                </Button>
-                <button
-                  type="button"
-                  onClick={handleClear}
-                  disabled={analyzing}
-                  className="font-label-sm text-on-surface-variant hover:text-secondary transition-colors disabled:opacity-60"
                 >
-                  {t('roleResume.remove')}
-                </button>
-              </div>
-            </>
-          ) : (
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full"
-            >
-              <span className="font-label-md text-secondary block">
-                {t('roleResume.uploadCta')}
-              </span>
-              <span className="font-body-md text-on-surface-variant text-sm mt-0.5 block">
-                {t('roleResume.uploadHint')}
-              </span>
-            </button>
-          )}
-        </div>
-      )}
+                  <AppIcon
+                    name={file ? 'description' : 'upload_file'}
+                    size="md"
+                    className="text-secondary"
+                  />
+                </span>
 
-      {error ? <p className="font-label-sm text-error">{error}</p> : null}
+                {file ? (
+                  <>
+                    <span className="font-label-md text-on-surface block truncate px-2">
+                      {file.name}
+                    </span>
+                    <span className="font-body-md text-on-surface-variant text-sm mt-0.5 block">
+                      {t('roleResume.readyToAnalyze')}
+                    </span>
+                    <div className="mt-3 flex items-center justify-center gap-2">
+                      <Button
+                        type="button"
+                        variant="primary"
+                        onClick={handleAnalyze}
+                        disabled={analyzing}
+                        className="gap-2 rounded-lg px-4 py-2"
+                      >
+                        {analyzing ? (
+                          <>
+                            <AppIcon
+                              name="progress_activity"
+                              size="sm"
+                              spin
+                              className="text-on-secondary"
+                            />
+                            {t('roleResume.analyzing')}
+                          </>
+                        ) : (
+                          t('roleResume.analyzeResume')
+                        )}
+                      </Button>
+                      <button
+                        type="button"
+                        onClick={handleClear}
+                        disabled={analyzing}
+                        className="font-label-sm text-on-surface-variant hover:text-secondary transition-colors disabled:opacity-60"
+                      >
+                        {t('roleResume.remove')}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full"
+                  >
+                    <span className="font-label-md text-secondary block">
+                      {t('roleResume.uploadCta')}
+                    </span>
+                    <span className="font-body-md text-on-surface-variant text-sm mt-0.5 block">
+                      {t('roleResume.uploadHint')}
+                    </span>
+                  </button>
+                )}
+              </div>
+            )}
+
+            {error ? <p className="font-label-sm text-error">{error}</p> : null}
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }

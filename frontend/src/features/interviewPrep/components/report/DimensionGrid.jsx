@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { getDelta } from '../../utils/reportInsights';
 import { ReportSectionCard } from './ReportShared';
 
 const ORDER = [
@@ -11,7 +12,7 @@ const ORDER = [
   'criticalThinking',
 ];
 
-export default function DimensionGrid({ dimensions = {} }) {
+export default function DimensionGrid({ dimensions = {}, previousDimensions = null }) {
   const { t } = useTranslation('interviewPrep');
   const entries = ORDER.map((key) => [key, dimensions[key]]).filter(([, dim]) => dim);
 
@@ -28,6 +29,8 @@ export default function DimensionGrid({ dimensions = {} }) {
             score={dim.score}
             color="skills"
             icon="analytics"
+            delta={getDelta(dim.score, previousDimensions?.[key])}
+            deltaLabel={t('report.vsPrevious')}
           >
             <p className="font-body-md text-sm text-on-surface-variant">{why}</p>
             {dim.scoreNote ? (

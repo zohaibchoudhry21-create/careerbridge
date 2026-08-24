@@ -11,6 +11,11 @@ export const MOCK_INTERVIEW_STATUSES = [
   'abandoned',
 ];
 
+/** Live interview report generation lifecycle (session-level). */
+export const MOCK_INTERVIEW_REPORT_STATUSES = ['pending', 'ready', 'failed'];
+
+export const DEFAULT_MOCK_INTERVIEW_REPORT_STATUS = 'ready';
+
 export const SKILL_QUIZ_STATUSES = ['pending', 'in_progress', 'submitted'];
 
 export const INTERVIEW_REPORT_SOURCE_TYPES = ['mock_interview', 'skill_assessment'];
@@ -69,7 +74,13 @@ export const DEFAULT_INTERVIEW_SETUP_MODE = 'video_voice';
 
 /** Interviewer tone for live Vapi sessions. */
 export const INTERVIEWER_PERSONAS = ['friendly', 'neutral', 'strict', 'panel'];
+/** Personas selectable on standard (1:1) mock interviews — panel is format-only. */
+export const INTERVIEWER_PERSONAS_STANDARD = ['friendly', 'neutral', 'strict'];
 export const DEFAULT_INTERVIEWER_PERSONA = 'neutral';
+
+/** Product format: 1:1 mock vs multi-seat panel (same live engine). */
+export const INTERVIEW_FORMATS = ['standard', 'panel'];
+export const DEFAULT_INTERVIEW_FORMAT = 'standard';
 
 export const MAX_INTERVIEW_CONTEXT_TEXT_LENGTH = 15000;
 

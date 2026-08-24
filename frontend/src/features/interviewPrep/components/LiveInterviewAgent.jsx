@@ -14,12 +14,14 @@ import { useLiveAudioMonitor } from '../hooks/useLiveAudioMonitor';
 import { useFaceVideoAnalysis } from '../hooks/useFaceVideoAnalysis';
 import { useLiveInterview } from '../hooks/useLiveInterview';
 import LiveInterview from './LiveInterview';
+import PanelRoomSession from './panelRoom/PanelRoomSession';
 import LiveVideoIndicator from './LiveVideoIndicator';
 import { DEFAULT_INTERVIEW_SETUP_MODE } from '../constants/interviewPrepConstants';
 import { prepareLiveAudioHintsForSubmit } from '../utils/prepareLiveAudioHintsForSubmit';
 import { applyLiveAdaptiveDepth } from '../services/mockInterviewService';
 import { useInterviewCountdown } from '../hooks/useInterviewCountdown';
 import { useInterviewMedia } from '../context/InterviewMediaContext';
+import { agentDbgLog } from '../utils/agentDbgLog';
 
 const CallStatus = {
   INACTIVE: 'INACTIVE',
@@ -50,6 +52,9 @@ export default function LiveInterviewAgent({
   difficulty,
   durationMinutes,
   interviewMode = DEFAULT_INTERVIEW_SETUP_MODE,
+  interviewFormat = 'standard',
+  interviewerPersona = 'neutral',
+  panelSeats = [],
   adaptiveDepthEnabled = false,
   stream,
   onFinished,
@@ -57,19 +62,25 @@ export default function LiveInterviewAgent({
   isSubmitting,
 }) {
   const { t } = useTranslation('interviewPrep');
-  const { requestAccess } = useInterviewMedia();
+  const { requestAccess, stopStream } = useInterviewMedia();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [callStatus, setCallStatus] = useState(CallStatus.INACTIVE);
   const [callError, setCallError] = useState(null);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [videoReady, setVideoReady] = useState(false);
+  const [videoEpoch, setVideoEpoch] = useState(0);
   /** Wall-clock ms when Vapi `call-start` fired — source of truth for the countdown. */
   const [connectedAtMs, setConnectedAtMs] = useState(null);
 
   const finishedNotifiedRef = useRef(false);
   const callStartedAtRef = useRef(null);
   const candidateVideoRef = useRef(null);
+  const streamRef = useRef(stream);
+  const isVoiceOnly = interviewMode === 'voice_only';
+  const isVoiceOnlyRef = useRef(isVoiceOnly);
+  streamRef.current = stream;
+  isVoiceOnlyRef.current = isVoiceOnly;
   const finalMetricsRef = useRef(null);
   const getAudioSnapshotRef = useRef(() => ({}));
   const getVideoMetricsRef = useRef(() => null);
@@ -96,8 +107,18 @@ export default function LiveInterviewAgent({
 
   const recoverMicIfNeeded = useCallback(() => {
     if (getLiveAudioTrack(stream)) return;
-    requestAccess().catch(() => {});
+    requestAccess().catch(() => { });
   }, [requestAccess, stream]);
+
+  const releaseMedia = useCallback(() => {
+    stopStream();
+    setIsCameraOn(false);
+    setIsMicOn(false);
+    setVideoReady(false);
+    if (candidateVideoRef.current) {
+      candidateVideoRef.current.srcObject = null;
+    }
+  }, [stopStream]);
 
   const countdown = useInterviewCountdown({
     connectedAtMs,
@@ -105,10 +126,104 @@ export default function LiveInterviewAgent({
     active: callStatus === CallStatus.ACTIVE,
   });
 
-  const isVoiceOnly = interviewMode === 'voice_only';
   const metricsActive = callStatus === CallStatus.ACTIVE;
   const faceSamplingEnabled =
-    !isVoiceOnly && metricsActive && isCameraOn && videoReady;
+    !isVoiceOnly && metricsActive && isCameraOn && (videoReady || Boolean(stream));
+
+  /** Bind preview stream whenever the <video> (re)mounts — idle→live remounts the node. */
+  const attachPreviewStream = useCallback((video) => {
+    if (!video || isVoiceOnlyRef.current) return;
+    const media = streamRef.current;
+    if (!media) {
+      video.srcObject = null;
+      return;
+    }
+    // Only rebind when needed — reassigning the same stream resets readyState and breaks face-api.
+    if (video.srcObject !== media) {
+      video.srcObject = media;
+    }
+    const playPromise = video.play?.();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => { });
+    }
+  }, []);
+
+  const recoverCameraPreview = useCallback(async () => {
+    if (isVoiceOnlyRef.current) return;
+    const current = streamRef.current;
+    if (!current) return;
+
+    const el = candidateVideoRef.current;
+    if (el) {
+      el.muted = true;
+      el.playsInline = true;
+      el.autoplay = true;
+    }
+    attachPreviewStream(el);
+
+    await new Promise((resolve) => {
+      window.setTimeout(resolve, 250);
+    });
+
+    const existing = current.getVideoTracks?.()[0];
+    const liveEl = candidateVideoRef.current;
+    if (
+      liveEl &&
+      liveEl.videoWidth > 0 &&
+      liveEl.readyState >= 2 &&
+      existing &&
+      existing.readyState === 'live' &&
+      !existing.muted
+    ) {
+      setVideoReady(true);
+      return;
+    }
+
+    const needsRecover =
+      !existing ||
+      existing.readyState === 'ended' ||
+      existing.muted === true ||
+      !liveEl ||
+      liveEl.videoWidth === 0;
+
+    if (!needsRecover) return;
+
+    try {
+      const fresh = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      const nextTrack = fresh.getVideoTracks?.()[0];
+      if (!nextTrack) {
+        fresh.getTracks().forEach((track) => track.stop());
+        return;
+      }
+      if (existing) {
+        current.removeTrack(existing);
+        existing.stop();
+      }
+      current.addTrack(nextTrack);
+      setIsCameraOn(nextTrack.enabled !== false);
+      attachPreviewStream(candidateVideoRef.current);
+      setVideoReady(true);
+      setVideoEpoch((epoch) => epoch + 1);
+    } catch {
+      // Keep existing UI; user can retry via camera toggle / restart.
+    }
+  }, [attachPreviewStream]);
+
+  const setCandidateVideoNode = useCallback(
+    (node) => {
+      candidateVideoRef.current = node;
+      if (!node) return;
+      node.muted = true;
+      node.playsInline = true;
+      node.autoplay = true;
+      attachPreviewStream(node);
+      if (node.readyState >= 2 && node.videoWidth > 0) {
+        setVideoReady(true);
+      }
+      setVideoEpoch((epoch) => epoch + 1);
+    },
+    [attachPreviewStream]
+  );
 
   const { getSnapshot: getAudioSnapshot } = useLiveAudioMonitor(
     stream,
@@ -123,6 +238,7 @@ export default function LiveInterviewAgent({
     getAggregatedMetrics: getVideoMetrics,
   } = useFaceVideoAnalysis(candidateVideoRef, faceSamplingEnabled, {
     showLiveIndicators: true,
+    videoEpoch,
   });
 
   getAudioSnapshotRef.current = getAudioSnapshot;
@@ -146,12 +262,12 @@ export default function LiveInterviewAgent({
 
   useEffect(() => {
     const video = candidateVideoRef.current;
-    if (!video || !stream || isVoiceOnly) return undefined;
+    if (!video || isVoiceOnly) return undefined;
 
-    video.srcObject = stream;
+    attachPreviewStream(video);
 
     const markReady = () => {
-      if (video.readyState >= 2) {
+      if (video.readyState >= 2 && video.videoWidth > 0) {
         setVideoReady(true);
       }
     };
@@ -164,7 +280,55 @@ export default function LiveInterviewAgent({
       video.removeEventListener('loadedmetadata', markReady);
       video.removeEventListener('canplay', markReady);
     };
-  }, [stream, isVoiceOnly]);
+  }, [stream, isVoiceOnly, attachPreviewStream]);
+
+  // After Vapi connects, Windows sometimes leaves the camera track muted/black — recover only if broken.
+  useEffect(() => {
+    if (isVoiceOnly) return undefined;
+    if (callStatus !== CallStatus.CONNECTING && callStatus !== CallStatus.ACTIVE) {
+      return undefined;
+    }
+
+    const el = candidateVideoRef.current;
+    if (el && (!el.srcObject || el.videoWidth === 0)) {
+      attachPreviewStream(el);
+    }
+
+    if (callStatus === CallStatus.ACTIVE) {
+      setVideoEpoch((epoch) => epoch + 1);
+    }
+
+    const videoTrack = stream?.getVideoTracks?.()[0];
+    const onMute = () => {
+      recoverCameraPreview();
+    };
+    const onUnmute = () => {
+      attachPreviewStream(candidateVideoRef.current);
+    };
+    const onEnded = () => {
+      recoverCameraPreview();
+    };
+
+    videoTrack?.addEventListener?.('mute', onMute);
+    videoTrack?.addEventListener?.('unmute', onUnmute);
+    videoTrack?.addEventListener?.('ended', onEnded);
+
+    const timer = window.setTimeout(() => {
+      const node = candidateVideoRef.current;
+      const track = streamRef.current?.getVideoTracks?.()[0];
+      if (!node) return;
+      if (node.videoWidth === 0 || track?.muted || track?.readyState === 'ended') {
+        recoverCameraPreview();
+      }
+    }, 800);
+
+    return () => {
+      window.clearTimeout(timer);
+      videoTrack?.removeEventListener?.('mute', onMute);
+      videoTrack?.removeEventListener?.('unmute', onUnmute);
+      videoTrack?.removeEventListener?.('ended', onEnded);
+    };
+  }, [callStatus, isVoiceOnly, stream, attachPreviewStream, recoverCameraPreview]);
 
   useEffect(() => {
     if (isVoiceOnly && stream?.getAudioTracks?.().length) {
@@ -196,16 +360,44 @@ export default function LiveInterviewAgent({
       windDownSentRef.current = false;
       hardStopTriggeredRef.current = false;
       setCallStatus(CallStatus.ACTIVE);
+      // #region agent log
+      agentDbgLog({
+        hypothesisId: 'A',
+        location: 'LiveInterviewAgent.jsx:onCallStart',
+        message: 'call started',
+        data: { startedAt, durationMinutes: Number(durationMinutes) || null },
+      });
+      // #endregion
     };
 
     const onCallEnd = (payload) => {
       logVapiDiagnostic('call-end', payload);
       endedReasonRef.current = getCallEndedReason(payload);
+      const endedAt = Date.now();
+      const startedAt = callStartedAtRef.current;
+      const elapsedSec = startedAt ? Math.round((endedAt - startedAt) / 1000) : null;
+      const plannedSec = Math.round((Number(durationMinutes) || 15) * 60);
+      // #region agent log
+      agentDbgLog({
+        hypothesisId: 'A',
+        location: 'LiveInterviewAgent.jsx:onCallEnd',
+        message: 'vapi call-end',
+        data: {
+          reason: endedReasonRef.current,
+          elapsedSec,
+          plannedSec,
+          remainingSec: plannedSec && elapsedSec != null ? plannedSec - elapsedSec : null,
+          payloadType: typeof payload,
+          payloadKeys: payload && typeof payload === 'object' ? Object.keys(payload).slice(0, 12) : null,
+        },
+      });
+      // #endregion
       startInFlightRef.current = false;
       captureFinalMetrics();
       // Drop any in-flight partial preview — submit uses committed finals only.
       clearLivePreview();
       setConnectedAtMs(null);
+      releaseMedia();
       setCallStatus(CallStatus.FINISHED);
     };
 
@@ -285,6 +477,20 @@ export default function LiveInterviewAgent({
     const onSpeechEnd = () => setIsSpeaking(false);
     const onError = (error) => {
       logVapiDiagnostic('error', error);
+      // #region agent log
+      agentDbgLog({
+        hypothesisId: 'D',
+        location: 'LiveInterviewAgent.jsx:onError',
+        message: 'vapi error',
+        data: {
+          nonFatal: isNonFatalVapiError(error),
+          errorType: error?.type || null,
+          errorMsg:
+            typeof error === 'string' ? error : error?.message || error?.msg || null,
+          callStatus: callStatusRef.current,
+        },
+      });
+      // #endregion
 
       if (isNonFatalVapiError(error)) {
         console.warn('Vapi non-fatal audio processor error (ignored):', error);
@@ -310,6 +516,14 @@ export default function LiveInterviewAgent({
     vapi.on('call-start-failed', onCallStartFailed);
 
     return () => {
+      // #region agent log
+      agentDbgLog({
+        hypothesisId: 'C',
+        location: 'LiveInterviewAgent.jsx:vapiEffectCleanup',
+        message: 'vapi listeners cleanup (stream/deps change)',
+        data: { callStatus: callStatusRef.current, hasStream: Boolean(stream) },
+      });
+      // #endregion
       vapi.off('call-start', onCallStart);
       vapi.off('call-end', onCallEnd);
       vapi.off('message', onMessage);
@@ -319,7 +533,7 @@ export default function LiveInterviewAgent({
       vapi.off('call-start-progress', onCallStartProgress);
       vapi.off('call-start-failed', onCallStartFailed);
     };
-  }, [clearLivePreview, formatCallError, getSubmitTranscript, ingestVapiMessage, captureFinalMetrics, recoverMicIfNeeded, resetFaceSamples, resetTranscript, sessionId, stream]);
+  }, [clearLivePreview, formatCallError, getSubmitTranscript, ingestVapiMessage, captureFinalMetrics, recoverMicIfNeeded, releaseMedia, resetFaceSamples, resetTranscript, sessionId, stream, durationMinutes]);
 
   // Planned duration hit → ask interviewer to close naturally (do not hard-cut).
   useEffect(() => {
@@ -349,13 +563,28 @@ export default function LiveInterviewAgent({
     ) {
       return;
     }
+    // #region agent log
+    agentDbgLog({
+      hypothesisId: 'B',
+      location: 'LiveInterviewAgent.jsx:hardStop',
+      message: 'client hard-stop triggered',
+      data: {
+        elapsedMs: countdown.elapsedMs,
+        durationMs: countdown.durationMs,
+        hardLimitMs: countdown.hardLimitMs,
+        remainingMs: countdown.remainingMs,
+        durationMinutes: Number(durationMinutes) || null,
+      },
+    });
+    // #endregion
     hardStopTriggeredRef.current = true;
     captureFinalMetrics();
     stopVapiCall();
     clearLivePreview();
     setConnectedAtMs(null);
+    releaseMedia();
     setCallStatus(CallStatus.FINISHED);
-  }, [callStatus, countdown.isPastHardLimit, captureFinalMetrics, clearLivePreview]);
+  }, [callStatus, countdown.isPastHardLimit, countdown.elapsedMs, countdown.durationMs, countdown.hardLimitMs, countdown.remainingMs, captureFinalMetrics, clearLivePreview, releaseMedia, durationMinutes]);
 
   // A call left running after unmount keeps billing and holds the mic.
   useEffect(
@@ -364,6 +593,14 @@ export default function LiveInterviewAgent({
         callStatusRef.current === CallStatus.ACTIVE ||
         callStatusRef.current === CallStatus.CONNECTING
       ) {
+        // #region agent log
+        agentDbgLog({
+          hypothesisId: 'E',
+          location: 'LiveInterviewAgent.jsx:unmountCleanup',
+          message: 'unmount stopVapiCall while live',
+          data: { callStatus: callStatusRef.current },
+        });
+        // #endregion
         stopVapiCall();
       }
     },
@@ -505,10 +742,23 @@ export default function LiveInterviewAgent({
   };
 
   const handleDisconnect = () => {
+    // #region agent log
+    agentDbgLog({
+      hypothesisId: 'E',
+      location: 'LiveInterviewAgent.jsx:handleDisconnect',
+      message: 'user/UI end interview',
+      data: {
+        elapsedMs: countdown.elapsedMs,
+        remainingMs: countdown.remainingMs,
+        durationMinutes: Number(durationMinutes) || null,
+      },
+    });
+    // #endregion
     captureFinalMetrics();
     stopVapiCall();
     clearLivePreview();
     setConnectedAtMs(null);
+    releaseMedia();
     setCallStatus(CallStatus.FINISHED);
   };
 
@@ -521,9 +771,11 @@ export default function LiveInterviewAgent({
   if (isSpeaking) activeSpeaker = 'ai';
   else if (callStatus === CallStatus.ACTIVE) activeSpeaker = 'user';
 
-  let startLabel = t('live.startInterview');
-  if (callStatus === CallStatus.CONNECTING) startLabel = t('live.statusConnecting');
-  else if (!hasAudioStream) startLabel = isVoiceOnly ? t('live.waitingMic') : t('live.waitingCamera');
+  let startLabel = interviewFormat === 'panel' ? t('panelRoom.lobby.enter') : t('live.startInterview');
+  if (callStatus === CallStatus.CONNECTING) {
+    startLabel =
+      interviewFormat === 'panel' ? t('panelRoom.enter.openingDoor') : t('live.statusConnecting');
+  } else if (!hasAudioStream) startLabel = isVoiceOnly ? t('live.waitingMic') : t('live.waitingCamera');
   else if (!isVoiceOnly && !videoReady) startLabel = t('live.waitingCamera');
 
   const notice =
@@ -536,48 +788,66 @@ export default function LiveInterviewAgent({
         {t('live.loadingFaceModels')}
       </p>
     ) : !isVoiceOnly && faceModelsError ? (
-      <p className="font-label-sm text-error text-center">{t('live.faceModelsFailed')}</p>
+      <p
+        role="alert"
+        className="rounded-xl border border-error/30 bg-error-container/80 px-4 py-2.5 text-center font-label-sm text-on-error-container"
+      >
+        {t('live.faceModelsFailed')}
+      </p>
     ) : null;
 
   const videoOverlay =
-    !isVoiceOnly && metricsActive && isCameraOn && liveAggregated ? (
+    !isVoiceOnly && metricsActive && isCameraOn ? (
       <LiveVideoIndicator
         isRecording={faceSamplingEnabled}
         modelsReady={faceModelsReady}
+        hasSample={Boolean(liveAggregated)}
         metrics={{ eyeContactPercent: liveAggregated?.eyeContactPercent ?? 0 }}
         compact
       />
     ) : null;
 
+  const sharedLiveProps = {
+    userName,
+    status: UI_STATUS_BY_CALL_STATUS[callStatus] || 'idle',
+    activeSpeaker,
+    transcript,
+    livePreview,
+    interviewMode,
+    interviewerPersona,
+    panelSeats,
+    roleLabel,
+    difficulty,
+    durationMinutes,
+    countdownDisplay: callStatus === CallStatus.ACTIVE ? countdown.display : null,
+    countdownUrgency: callStatus === CallStatus.ACTIVE ? countdown.urgency : 'idle',
+    videoMetricsOn,
+    voiceMetricsOn,
+    cameraOn: isCameraOn,
+    micOn: isMicOn,
+    hasStream: Boolean(stream),
+    notice,
+    errorMessage: callError || submitError,
+    startDisabled: callStatus === CallStatus.CONNECTING || isSubmitting || !canStartCall,
+    startLabel,
+    onStart: handleCall,
+    onEnd: handleDisconnect,
+    onToggleMic: toggleMic,
+    onToggleCamera: toggleCamera,
+    videoRef: setCandidateVideoNode,
+    videoOverlay,
+    isSubmitting: Boolean(isSubmitting),
+  };
+
+  if (interviewFormat === 'panel') {
+    return <PanelRoomSession {...sharedLiveProps} />;
+  }
+
   return (
     <LiveInterview
-      userName={userName}
+      {...sharedLiveProps}
       aiName={aiName || t('live.aiName')}
-      status={UI_STATUS_BY_CALL_STATUS[callStatus] || 'idle'}
-      activeSpeaker={activeSpeaker}
-      transcript={transcript}
-      livePreview={livePreview}
-      interviewMode={interviewMode}
-      roleLabel={roleLabel}
-      difficulty={difficulty}
-      durationMinutes={durationMinutes}
-      countdownDisplay={callStatus === CallStatus.ACTIVE ? countdown.display : null}
-      countdownUrgency={callStatus === CallStatus.ACTIVE ? countdown.urgency : 'idle'}
-      videoMetricsOn={videoMetricsOn}
-      voiceMetricsOn={voiceMetricsOn}
-      cameraOn={isCameraOn}
-      micOn={isMicOn}
-      hasStream={Boolean(stream)}
-      notice={notice}
-      errorMessage={callError || submitError}
-      startDisabled={callStatus === CallStatus.CONNECTING || isSubmitting || !canStartCall}
-      startLabel={startLabel}
-      onStart={handleCall}
-      onEnd={handleDisconnect}
-      onToggleMic={toggleMic}
-      onToggleCamera={toggleCamera}
-      videoRef={candidateVideoRef}
-      videoOverlay={videoOverlay}
+      interviewFormat={interviewFormat}
     />
   );
 }

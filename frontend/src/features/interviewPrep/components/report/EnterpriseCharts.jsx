@@ -112,11 +112,11 @@ export default function EnterpriseCharts({ charts = {} }) {
           />
           {charts.contentGated ? (
             <p className="mb-2 font-label-sm app-muted">
-              Delivery bars are capped when answer content is weak
+              {t('report.enterprise.contentGatedNote')}
             </p>
           ) : useSplit ? (
             <p className="mb-2 font-label-sm app-muted">
-              Purple = content · Muted = delivery (capped influence)
+              {t('report.enterprise.splitLegend')}
             </p>
           ) : null}
           <div className="h-56">

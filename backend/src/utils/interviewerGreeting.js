@@ -3,7 +3,11 @@
  * Templates vary by persona and role — never a single hardcoded chatbot line.
  */
 
-import { getInterviewerPersonaProfile } from './interviewerPersona.js';
+import {
+  formatPanelSeatIntroList,
+  getInterviewerPersonaProfile,
+  resolvePanelSeats,
+} from './interviewerPersona.js';
 
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
 
@@ -23,10 +27,11 @@ const GREETING_TEMPLATES = Object.freeze({
     "Hello. Appreciate you joining. We'll assess fit for {role}. Start with a brief, focused intro of your most relevant experience.",
     "Thank you for joining. We're here to evaluate your qualifications for {role}. Please introduce yourself concisely.",
   ],
+  /** `{panel}` replaced with named seat intro list. Structured intro: greet → names → role → group intro ask. */
   panel: [
-    "Hi — thanks for joining our panel today. We'll bounce between a few perspectives as we talk about {role}. To start, please introduce yourself to the group.",
-    "Welcome. You're with a small interview panel for the {role} position. Please begin with a brief intro of your background.",
-    "Hello, and thanks for meeting with us. This'll be a panel-style chat for {role}. When you're ready, introduce yourself.",
+    "Hi — thanks for joining us today. You're meeting {panel} for the {role} role. We'll take turns asking questions — when you're ready, please introduce yourself to the group.",
+    "Welcome to your panel interview for {role}. Today you're with {panel}. Go ahead and introduce yourself to everyone when you're ready.",
+    "Hello, and thanks for coming in. This is a panel session for {role} with {panel}. Please start with a brief introduction to the group.",
   ],
 });
 
@@ -34,19 +39,32 @@ const CLOSING_GUIDANCE = Object.freeze({
   friendly: `Close warmly and naturally: thank them sincerely, say you enjoyed the conversation, mention next steps lightly ("our team will follow up"), and wish them well. 2–3 short spoken sentences — no scripted corporate goodbye.`,
   neutral: `Close professionally but human: thank them for their time, note the company will follow up with next steps, end on a polite positive note. About 2 short sentences.`,
   strict: `Close formally and briefly: thank them for their time, say the team will be in touch on next steps, end cleanly without excess warmth.`,
-  panel: `Close as the panel: one voice thanks them on behalf of the group, notes the team will follow up, ends courteously. Keep it short and natural.`,
+  panel: `Close as one voice for the panel: thank them on behalf of the group (mention "the panel" or first names lightly), note the team will follow up, end courteously. Keep it short and natural — 2 short sentences.`,
 });
 
 /**
  * Build a spoken first message personalized by persona + role.
- * @param {{ interviewerPersona?: string, roleLabel?: string, role?: string, difficulty?: string }} session
+ * @param {{ interviewerPersona?: string, roleLabel?: string, role?: string, difficulty?: string, panelSeats?: Array }} session
  */
 export const buildDynamicGreeting = (session = {}) => {
-  const persona = getInterviewerPersonaProfile(session.interviewerPersona);
+  const persona = getInterviewerPersonaProfile(session.interviewerPersona, {
+    roleLabel: session.roleLabel || session.role,
+  });
   const roleLabel = String(session.roleLabel || session.role || 'this role').trim() || 'this role';
   const templates = GREETING_TEMPLATES[persona.id] || GREETING_TEMPLATES.neutral;
   const template = pick(templates);
-  return template.replace(/\{role\}/g, roleLabel);
+
+  let message = template.replace(/\{role\}/g, roleLabel);
+
+  if (persona.id === 'panel') {
+    const seats =
+      Array.isArray(session.panelSeats) && session.panelSeats.length > 0
+        ? session.panelSeats
+        : resolvePanelSeats(roleLabel);
+    message = message.replace(/\{panel\}/g, formatPanelSeatIntroList(seats));
+  }
+
+  return message;
 };
 
 /**

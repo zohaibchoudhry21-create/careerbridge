@@ -4,6 +4,31 @@ let vapiInstance = null;
 
 const getPublicToken = () => import.meta.env.VITE_VAPI_WEB_TOKEN?.trim() || '';
 
+function agentDbgLogLite(data) {
+  const payload = {
+    sessionId: 'cf8614',
+    runId: 'early-end',
+    hypothesisId: 'C',
+    location: 'vapi.sdk.js:getVapiClient',
+    message: 'vapi client recreate (stops call)',
+    data,
+    timestamp: Date.now(),
+  };
+  const body = JSON.stringify(payload);
+  // #region agent log
+  fetch('http://127.0.0.1:7480/ingest/650784c0-9e07-4bcc-8ec8-e34fb6f89e23', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'cf8614' },
+    body,
+  }).catch(() => {});
+  fetch('/__dbg/cf8614', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body,
+  }).catch(() => {});
+  // #endregion
+}
+
 const NON_FATAL_VAPI_ERROR_TYPES = new Set([
   'audio-processing-setup-error',
   'audio-observer-setup-error',
@@ -145,6 +170,15 @@ export function getVapiClient(audioTrack) {
   const trackChanged = Boolean(nextTrackId) && nextTrackId !== vapiAudioTrackId;
 
   if (!vapiInstance || tokenChanged || trackChanged) {
+    // #region agent log
+    agentDbgLogLite({
+      hadInstance: Boolean(vapiInstance),
+      tokenChanged,
+      trackChanged,
+      prevTrackId: vapiAudioTrackId || null,
+      nextTrackId: nextTrackId || null,
+    });
+    // #endregion
     stopVapiCall();
     vapiInstance = new Vapi(
       token,

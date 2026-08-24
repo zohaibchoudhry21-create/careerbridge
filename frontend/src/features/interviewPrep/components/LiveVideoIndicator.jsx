@@ -1,11 +1,17 @@
 import { useTranslation } from 'react-i18next';
 
-export default function LiveVideoIndicator({ metrics, isRecording, modelsReady, compact = false }) {
+export default function LiveVideoIndicator({
+  metrics,
+  isRecording,
+  modelsReady,
+  compact = false,
+  hasSample = false,
+}) {
   const { t } = useTranslation('interviewPrep');
 
   if (!isRecording) return null;
 
-  if (!modelsReady) {
+  if (!modelsReady || !hasSample) {
     return <p className="font-label-sm text-white/90 drop-shadow-sm">{t('live.analyzingCamera')}</p>;
   }
 
