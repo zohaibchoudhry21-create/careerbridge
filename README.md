@@ -28,35 +28,39 @@
 
 ## Screenshots
 
-### Landing page
+Live UI captures from the running app (landing + core features):
 
-Hero and product story from the marketing home experience:
+### Landing & auth
 
-![Landing hero](docs/screenshots/01-landing-hero.png)
+![Landing page](docs/screenshots/01-landing-page.png)
 
-![AI Career OS / solution section](docs/screenshots/02-landing-solution.png)
+![Landing features section](docs/screenshots/02-landing-features.png)
+
+![Login](docs/screenshots/03-login.png)
+
+### Dashboard
+
+![Dashboard](docs/screenshots/04-dashboard.png)
 
 ### Resume Builder
 
-Structured resume editing and ATS-oriented templates:
+![Resume Builder upload](docs/screenshots/05-resume-builder.png)
 
-![Resume Builder / Career OS resume](docs/screenshots/03-feature-resume-builder.png)
+### Resume Scanner
 
-![ATS-friendly resume sample](docs/screenshots/04-feature-ats-resume.png)
+![Resume Scanner](docs/screenshots/06-resume-scanner.png)
 
-| Classic Clear | Atlantic Blue |
-|---------------|---------------|
-| ![Classic Clear template](docs/screenshots/05-feature-resume-template-classic.png) | ![Atlantic Blue template](docs/screenshots/06-feature-resume-template-atlantic.png) |
+### Interview Prep
 
-### Auth
+![Interview Prep hub](docs/screenshots/07-interview-prep.png)
 
-![Login experience](docs/screenshots/07-auth-login.png)
+![Mock interview setup](docs/screenshots/08-mock-interview.png)
 
-### Interview Prep — Panel room
+![Panel interview setup](docs/screenshots/09-panel-interview.png)
 
-![Panel interview boardroom](docs/screenshots/08-feature-panel-interview-room.png)
+![Skill assessment](docs/screenshots/10-skill-assessment.png)
 
-> Screenshots are product visuals shipped with the app (landing, templates, interview room). Live dashboard / scanner UI depends on your local run with API keys configured.
+> Re-capture locally with the app running: `node frontend/scripts/capture-feature-screenshots.mjs` (demo login: `demo@aicareerbridge.com` / `Demo@123456`).
 
 ---
 
