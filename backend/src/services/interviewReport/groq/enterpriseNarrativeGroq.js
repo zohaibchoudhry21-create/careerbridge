@@ -3,7 +3,6 @@
  * Returns empty narrative object on failure — never invents scores silently.
  */
 
-import Groq from 'groq-sdk';
 import {
   ENTERPRISE_NARRATIVE_GROQ_ENABLED,
   TRANSCRIPT_PROMPT_MAX_CHARS,
@@ -12,7 +11,7 @@ import { getGroqConfig, isGroqConfigured } from '../../../config/groqConfig.js';
 import { ERROR_CODES } from '../../../constants/apiErrorCodes.js';
 import { AppError } from '../../../utils/sendResponse.js';
 import { extractJsonFromText } from '../../../utils/resumeAiPrompts.js';
-import { withGroqRetry } from '../../../utils/withGroqRetry.js';
+import { withGroqApiKeys } from '../../../utils/withGroqApiKeys.js';
 import { generateMockInterviewReportWithGroq } from '../../../utils/mockInterviewReportGroqService.js';
 import { selectAnswersNeedingAiScore } from '../builders/questionReviewBuilder.js';
 
@@ -81,8 +80,7 @@ export const generateEnterpriseNarrativeWithGroq = async (snapshot, measuredFact
     return buildDeterministicFallbackNarrative();
   }
 
-  const { model, apiKey } = getGroqConfig();
-  const client = new Groq({ apiKey });
+  const { model } = getGroqConfig();
 
   // Phase 1: only ask Groq to score on_topic answers; gated answers get fixed scores locally.
   const aiScoreTargets = selectAnswersNeedingAiScore(snapshot);
@@ -174,8 +172,8 @@ ${aiScoreTargets.length === 0
     }`;
 
   try {
-    const completion = await withGroqRetry(
-      () =>
+    const completion = await withGroqApiKeys(
+      (client) =>
         client.chat.completions.create({
           model,
           messages: [{ role: 'user', content: prompt }],

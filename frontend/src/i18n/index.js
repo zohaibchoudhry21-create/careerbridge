@@ -72,7 +72,17 @@ i18n.use(initReactI18next).init({
   lng: DEFAULT_I18N_LANGUAGE,
   fallbackLng: DEFAULT_I18N_LANGUAGE,
   supportedLngs: I18N_LANGUAGE_CODES,
-  ns: ['common', 'settings', 'dashboard', 'auth', 'errors', 'marketing', 'interviewPrep', 'resumeBuilder', 'resumeScanner'],
+  ns: [
+    'common',
+    'settings',
+    'dashboard',
+    'auth',
+    'errors',
+    'marketing',
+    'interviewPrep',
+    'resumeBuilder',
+    'resumeScanner',
+  ],
   defaultNS: 'common',
   interpolation: {
     escapeValue: false,

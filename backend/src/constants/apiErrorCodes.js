@@ -516,7 +516,7 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.RESUME_BUILDER.UNSUPPORTED_FILE_TYPE]: 'Unsupported file type. Use .pdf or .docx.',
   [ERROR_CODES.RESUME_BUILDER.FILE_TOO_LARGE]: 'Resume file must be 10MB or smaller.',
   [ERROR_CODES.RESUME_BUILDER.AI_NOT_CONFIGURED]:
-    'AI service is not configured. Set GROQ_API_KEY or ANTHROPIC_API_KEY in environment.',
+    'AI service is not configured. Set GROQ_API_KEY or GEMINI_API_KEY in environment.',
   [ERROR_CODES.RESUME_BUILDER.AI_EMPTY_RESPONSE]: 'AI returned an empty response.',
   [ERROR_CODES.RESUME_BUILDER.CONTENT_REQUIRED]: 'Content is required for this AI action.',
 
@@ -533,9 +533,10 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.RESUME_SCANNER.UNSUPPORTED_FILE_TYPE]: 'Unsupported file type. Use .pdf or .docx.',
   [ERROR_CODES.RESUME_SCANNER.EXTRACTION_FAILED]: 'Could not extract text from the resume file.',
   [ERROR_CODES.RESUME_SCANNER.AI_NOT_CONFIGURED]:
-    'AI service is not configured. Set GROQ_API_KEY or ANTHROPIC_API_KEY in environment.',
+    'AI service is not configured. Set GROQ_API_KEY or GEMINI_API_KEY in environment.',
   [ERROR_CODES.RESUME_SCANNER.AI_EMPTY_RESPONSE]: 'AI returned an empty analysis response.',
-  [ERROR_CODES.RESUME_SCANNER.AI_INVALID_RESPONSE]: 'AI returned an invalid analysis response.',
+  [ERROR_CODES.RESUME_SCANNER.AI_INVALID_RESPONSE]:
+    'Analysis failed — please try again in a moment.',
   [ERROR_CODES.RESUME_SCANNER.SUGGESTION_NOT_FOUND]: 'Suggestion not found.',
   [ERROR_CODES.RESUME_SCANNER.ANALYSIS_NOT_READY]: 'Analysis is not ready yet.',
   [ERROR_CODES.RESUME_SCANNER.ANALYSIS_IN_PROGRESS]: 'Analysis is still in progress.',

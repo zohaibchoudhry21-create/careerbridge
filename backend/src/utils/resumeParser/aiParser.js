@@ -1,3 +1,5 @@
+import { isGeminiConfigured } from '../../config/geminiConfig.js';
+import { isGroqConfigured } from '../../config/groqConfig.js';
 import { generateWithGemini } from './geminiProvider.js';
 import { generateWithGroq } from './groqProvider.js';
 
@@ -64,23 +66,45 @@ const retryOptions = () => ({
   retryDelayMs: RETRY_DELAY_MS,
 });
 
-const generateWithAI = async (prompt) => {
-  const provider = getActiveProvider();
+const providerOrder = () => {
+  const primary = getActiveProvider();
+  const order = [primary];
+  if (primary === 'groq' && isGeminiConfigured()) order.push('gemini');
+  if (primary === 'gemini' && isGroqConfigured()) order.push('groq');
+  return order;
+};
 
+const generateWithProvider = async (provider, prompt) => {
   if (provider === 'groq') {
     return generateWithGroq(prompt, retryOptions());
   }
-
   return generateWithGemini(prompt, retryOptions());
 };
 
+const generateWithAI = async (prompt) => {
+  const order = providerOrder();
+  let lastError;
+
+  for (const provider of order) {
+    try {
+      const result = await generateWithProvider(provider, prompt);
+      return { ...result, provider };
+    } catch (error) {
+      lastError = error;
+      console.warn(`[resume-parser] ${provider} failed:`, error.message);
+    }
+  }
+
+  throw lastError || new Error('No AI provider available for resume parsing');
+};
+
 export const extractResumeData = async (resumeText) => {
-  const provider = getActiveProvider();
+  const preferred = getActiveProvider();
 
   try {
     const trimmedText = truncateResumeText(resumeText);
     const prompt = buildPrompt(trimmedText);
-    const { content, modelName } = await generateWithAI(prompt);
+    const { content, modelName, provider } = await generateWithAI(prompt);
 
     const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
@@ -98,11 +122,11 @@ export const extractResumeData = async (resumeText) => {
       data: parsedData,
       rawResponse: cleaned,
       modelUsed: modelName,
-      provider,
+      provider: provider || preferred,
     };
   } catch (error) {
     const message = error.response?.data?.error?.message || error.message;
-    console.error(`${provider} API Error:`, message);
+    console.error(`Resume parser AI Error:`, message);
 
     if (isRetryableError(error)) {
       throw new Error(

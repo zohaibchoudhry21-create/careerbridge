@@ -33,11 +33,37 @@ export const resolveGroqModelId = (modelId, fallback) => {
   return mapped;
 };
 
-export const getGroqConfig = () => ({
-  apiKey: process.env.GROQ_API_KEY || '',
-  model: resolveGroqModelId(process.env.GROQ_MODEL, DEFAULT_GROQ_MODEL),
-  fastModel: resolveGroqModelId(process.env.GROQ_FAST_MODEL, DEFAULT_GROQ_FAST_MODEL),
-  whisperModel: process.env.GROQ_WHISPER_MODEL?.trim() || DEFAULT_GROQ_WHISPER_MODEL,
-});
+/** Primary + optional fallback API keys (deduped, order preserved). */
+export const getGroqApiKeys = () => {
+  const keys = [];
+  for (const raw of [process.env.GROQ_API_KEY, process.env.GROQ_API_KEY_FALLBACK]) {
+    const key = String(raw || '').trim();
+    if (key && !keys.includes(key)) keys.push(key);
+  }
+  return keys;
+};
 
-export const isGroqConfigured = () => Boolean(process.env.GROQ_API_KEY?.trim());
+export const getGroqConfig = () => {
+  const apiKeys = getGroqApiKeys();
+  return {
+    apiKey: apiKeys[0] || '',
+    apiKeys,
+    model: resolveGroqModelId(process.env.GROQ_MODEL, DEFAULT_GROQ_MODEL),
+    fastModel: resolveGroqModelId(process.env.GROQ_FAST_MODEL, DEFAULT_GROQ_FAST_MODEL),
+    whisperModel: process.env.GROQ_WHISPER_MODEL?.trim() || DEFAULT_GROQ_WHISPER_MODEL,
+  };
+};
+
+export const isGroqConfigured = () => getGroqApiKeys().length > 0;
+
+/** True when another Groq org/key may still have quota (429 / TPD / TPM). */
+export const isGroqRateLimitError = (error) => {
+  const status = Number(error?.status || error?.statusCode || 0);
+  const code = String(error?.error?.code || error?.code || '');
+  const message = String(error?.message || '');
+  return (
+    status === 429 ||
+    code === 'rate_limit_exceeded' ||
+    /rate limit|tokens per day|TPD|tokens per minute|TPM/i.test(message)
+  );
+};

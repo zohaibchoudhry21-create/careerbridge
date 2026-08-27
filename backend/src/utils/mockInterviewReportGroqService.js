@@ -1,20 +1,9 @@
-import Groq from 'groq-sdk';
 import { getGroqConfig, isGroqConfigured } from '../config/groqConfig.js';
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { AppError } from './sendResponse.js';
 import { extractJsonFromText } from './resumeAiPrompts.js';
 import { sanitizeAiReportPayload } from './interviewScoreUtils.js';
-import { withGroqRetry } from './withGroqRetry.js';
-
-const getClient = () => {
-  const { apiKey } = getGroqConfig();
-
-  if (!apiKey) {
-    throw new AppError(ERROR_CODES.INTERVIEW_PREP.GROQ_NOT_CONFIGURED, 503);
-  }
-
-  return new Groq({ apiKey });
-};
+import { withGroqApiKeys } from './withGroqApiKeys.js';
 
 const truncateJson = (value, maxChars) => {
   const raw = JSON.stringify(value);
@@ -28,7 +17,6 @@ export const generateMockInterviewReportWithGroq = async (snapshot) => {
   }
 
   const { model } = getGroqConfig();
-  const client = getClient();
 
   const interviewStyle =
     snapshot.mode === 'voiceCall' || snapshot.mode === 'live'
@@ -92,8 +80,8 @@ If the candidate's answer is empty, gibberish, off-topic, or does not substantiv
 
   let completion;
   try {
-    completion = await withGroqRetry(
-      () =>
+    completion = await withGroqApiKeys(
+      (client) =>
         client.chat.completions.create({
           model,
           messages: [{ role: 'user', content: prompt }],

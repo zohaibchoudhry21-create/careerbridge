@@ -1,7 +1,9 @@
 import { isAnthropicConfigured } from '../config/anthropicConfig.js';
+import { isGeminiConfigured } from '../config/geminiConfig.js';
 import { isGroqConfigured } from '../config/groqConfig.js';
 import { ERROR_CODES } from '../constants/apiErrorCodes.js';
 import { analyzeResumeWithClaude } from './resumeScannerClaudeService.js';
+import { analyzeResumeWithGemini } from './resumeScannerGeminiService.js';
 import { analyzeResumeWithGroq } from './resumeScannerGroqService.js';
 import {
   anchorSuggestionsToResume,
@@ -41,35 +43,56 @@ export const analyzeResumeAgainstJob = async ({
       ? cloneStructuredResume(structuredResume)
       : parseAtsTextToStructured(cleanResume);
 
+  const payload = {
+    resumeText: cleanResume.slice(0, 14000),
+    jobDescriptionText: cleanJobDescription.slice(0, 12000),
+    jobTitle: jobTitle.trim(),
+  };
+
   let aiResult;
   let provider = 'none';
+  let lastError;
 
   if (isGroqConfigured()) {
     try {
-      aiResult = await analyzeResumeWithGroq({
-        resumeText: cleanResume.slice(0, 14000),
-        jobDescriptionText: cleanJobDescription.slice(0, 12000),
-        jobTitle: jobTitle.trim(),
-      });
+      console.info('[resume-scanner] Cascade: starting Groq (primary → fallback keys)...');
+      aiResult = await analyzeResumeWithGroq(payload);
       provider = 'groq';
     } catch (error) {
-      console.warn('[resume-scanner] Groq analysis failed:', error.message);
-      if (!isAnthropicConfigured()) {
-        throw error;
-      }
+      lastError = error;
+      console.warn(
+        '[resume-scanner] Cascade: all Groq keys failed:',
+        error?.message || error
+      );
+    }
+  }
+
+  if (!aiResult && isGeminiConfigured()) {
+    try {
+      console.info('[resume-scanner] Cascade: Trying Gemini...');
+      aiResult = await analyzeResumeWithGemini(payload);
+      provider = 'gemini';
+      console.info('[resume-scanner] Cascade: Gemini succeeded');
+    } catch (error) {
+      lastError = error;
+      console.warn('[resume-scanner] Cascade: Gemini failed:', error?.message || error);
     }
   }
 
   if (!aiResult && isAnthropicConfigured()) {
-    aiResult = await analyzeResumeWithClaude({
-      resumeText: cleanResume.slice(0, 14000),
-      jobDescriptionText: cleanJobDescription.slice(0, 12000),
-      jobTitle: jobTitle.trim(),
-    });
-    provider = 'claude';
+    try {
+      console.info('[resume-scanner] Cascade: Trying Claude...');
+      aiResult = await analyzeResumeWithClaude(payload);
+      provider = 'claude';
+      console.info('[resume-scanner] Cascade: Claude succeeded');
+    } catch (error) {
+      lastError = error;
+      console.warn('[resume-scanner] Cascade: Claude failed:', error?.message || error);
+    }
   }
 
   if (!aiResult) {
+    if (lastError) throw lastError;
     throw new AppError(ERROR_CODES.RESUME_SCANNER.AI_NOT_CONFIGURED, 503);
   }
 

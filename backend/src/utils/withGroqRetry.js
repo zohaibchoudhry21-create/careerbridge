@@ -1,6 +1,7 @@
 /**
  * Retry wrapper for transient Groq / network failures.
- * Does not retry typical 4xx client errors (except 429).
+ * Does not retry typical 4xx client errors (except short-lived 429 TPM).
+ * Daily token quota (TPD) is not retried — callers should switch API keys.
  */
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -10,14 +11,17 @@ const getStatus = (err) =>
 
 export const isRetryableGroqError = (err) => {
   if (!err) return false;
+  const message = String(err.message || '');
+  // Same-key daily quota won't clear in milliseconds.
+  if (/tokens per day|TPD/i.test(message)) return false;
   const status = getStatus(err);
   if (status === 429 || status >= 500) return true;
   const code = String(err.code || err.cause?.code || '');
   if (['ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'ENOTFOUND', 'UND_ERR_CONNECT_TIMEOUT'].includes(code)) {
     return true;
   }
-  const message = String(err.message || '').toLowerCase();
-  return message.includes('timeout') || message.includes('rate limit') || message.includes('temporarily');
+  const lower = message.toLowerCase();
+  return lower.includes('timeout') || lower.includes('rate limit') || lower.includes('temporarily');
 };
 
 /**

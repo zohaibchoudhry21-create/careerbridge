@@ -300,10 +300,9 @@ export const anchorSuggestionsToResume = (resumeText, suggestions = [], structur
         charEnd = offsets.charEnd;
       }
 
-      if (charStart < 0 && suggestion.type !== 'missing_keyword' && !fieldPath) {
-        return null;
-      }
-
+      // Keep unanchored suggestions (charStart < 0) so the UI can still show
+      // Accept/Reject against the JD — dropping them made Optimize look empty
+      // when AI quotes differed slightly from extracted resumeText.
       return {
         ...suggestion,
         id: suggestion.id || createSuggestionId(index),
@@ -313,8 +312,7 @@ export const anchorSuggestionsToResume = (resumeText, suggestions = [], structur
         charEnd,
         targetSkillId: suggestion.targetSkillId || null,
       };
-    })
-    .filter(Boolean);
+    });
 
 export const countSuggestionStats = (suggestions = []) => {
   const pending = suggestions.filter((item) => item.status === 'pending');

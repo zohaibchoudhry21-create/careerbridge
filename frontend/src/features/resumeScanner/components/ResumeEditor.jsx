@@ -17,11 +17,16 @@ import {
   updateField,
 } from '../utils/structuredResumeUtils';
 import { partitionSuggestions } from '../utils/resumeEditorUtils';
+import { DEFAULT_TEMPLATE } from '../../resumeBuilder/components/templatesConfig';
 import { cn } from '../../../lib/utils';
 
-const HEADING_CLASS = 'ats-section-heading resume-section-heading mt-7';
-const LINE_CLASS = 'ats-section-line outline-none';
-const BULLET_CLASS = 'ats-section-line ats-bullet-line pl-5 outline-none';
+// TODO: Map templateId to per-template Edit chrome (modern sidebar, professional header, etc.).
+// For now all templateIds use Classic-style chrome so diffs stay readable on a white serif page.
+const HEADING_CLASS =
+  'text-xs font-bold tracking-widest text-on-surface uppercase border-b border-outline-variant pb-1 mb-3 mt-7';
+const LINE_CLASS = 'ats-section-line outline-none text-xs leading-relaxed text-on-surface';
+const BULLET_CLASS =
+  'ats-section-line ats-bullet-line pl-5 outline-none text-xs leading-relaxed text-on-surface';
 
 const EditableLine = ({
   path,
@@ -29,6 +34,7 @@ const EditableLine = ({
   suggestions = [],
   suggestionsEnabled,
   bullet = false,
+  className,
   onFieldChange,
   onSuggestionClick,
 }) => {
@@ -67,7 +73,7 @@ const EditableLine = ({
       suppressContentEditableWarning
       role="textbox"
       data-field-path={path}
-      className={cn(bullet ? BULLET_CLASS : LINE_CLASS)}
+      className={cn(bullet ? BULLET_CLASS : LINE_CLASS, className)}
       onInput={emit}
       onBlur={emit}
       onClick={onSuggestionClick}
@@ -86,6 +92,7 @@ const ResumeEditor = forwardRef(function ResumeEditor(
   {
     structuredResume = null,
     suggestions = [],
+    templateId = DEFAULT_TEMPLATE,
     onStructuredChange,
     onStructuredPreview,
     onSuggestionAction,
@@ -220,57 +227,62 @@ const ResumeEditor = forwardRef(function ResumeEditor(
         ) : null}
 
         <div
+          // TODO: Map templateId to per-template Edit chrome (modern sidebar, etc.). Classic chrome for all ids for now.
+          data-template-id={templateId}
+          data-edit-chrome="classic"
           className={cn(
-            'resume-paper resume-document w-full bg-white p-8 lg:p-12',
-            'min-h-[1000px] whitespace-pre-wrap outline-none shadow-[0_4px_20px_rgba(0,0,0,0.05)]',
+            'resume-paper resume-document w-full bg-white shadow-lg p-8 lg:p-10',
+            'min-h-[1000px] whitespace-pre-wrap outline-none text-sm leading-relaxed font-serif text-on-surface',
             'focus-within:ring-4 focus-within:ring-blue-100 transition-shadow'
           )}
           aria-label={t('analysis.editor.ariaLabel')}
         >
-          <EditableLine
-            path="name"
-            value={local.name}
-            suggestions={suggestions}
-            suggestionsEnabled={suggestionsEnabled}
-            onFieldChange={handleFieldChange}
-            onSuggestionClick={handleSuggestionClick}
-          />
+          <div className="text-center border-b border-outline-variant pb-4 mb-5">
+            <EditableLine
+              path="name"
+              value={local.name}
+              suggestions={suggestions}
+              suggestionsEnabled={suggestionsEnabled}
+              className="text-2xl font-bold tracking-wide uppercase text-on-surface text-center"
+              onFieldChange={handleFieldChange}
+              onSuggestionClick={handleSuggestionClick}
+            />
 
-          <EditableLine
-            path="contact.email"
-            value={contactLine}
-            suggestions={suggestions}
-            suggestionsEnabled={suggestionsEnabled}
-            onFieldChange={(_path, value) => {
-              // Keep contact as a single visual line; store into email for simplicity when free-edited
-              // Prefer structured fields when pipe-separated
-              const parts = String(value || '')
-                .split('|')
-                .map((p) => p.trim())
-                .filter(Boolean);
-              let next = local;
-              if (parts.length >= 1) next = updateField(next, 'contact.email', parts[0] || '');
-              if (parts.length >= 2) next = updateField(next, 'contact.phone', parts[1] || '');
-              if (parts.length >= 3) next = updateField(next, 'contact.address', parts.slice(2).join(' | '));
-              if (parts.length === 0) {
-                next = updateField(next, 'contact.email', '');
-                next = updateField(next, 'contact.phone', '');
-                next = updateField(next, 'contact.address', '');
-              }
-              setLocal(next);
-              pendingRef.current = next;
-              if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-              saveTimerRef.current = setTimeout(() => {
-                saveTimerRef.current = null;
-                const payload = pendingRef.current;
-                pendingRef.current = null;
-                if (payload) onStructuredChange?.(payload);
-              }, 700);
-            }}
-            onSuggestionClick={handleSuggestionClick}
-          />
-
-          <div className="h-2" aria-hidden="true" />
+            <EditableLine
+              path="contact.email"
+              value={contactLine}
+              suggestions={suggestions}
+              suggestionsEnabled={suggestionsEnabled}
+              className="mt-1 text-xs text-on-surface-variant text-center"
+              onFieldChange={(_path, value) => {
+                  // Keep contact as a single visual line; store into email for simplicity when free-edited
+                  // Prefer structured fields when pipe-separated
+                  const parts = String(value || '')
+                    .split('|')
+                    .map((p) => p.trim())
+                    .filter(Boolean);
+                  let next = local;
+                  if (parts.length >= 1) next = updateField(next, 'contact.email', parts[0] || '');
+                  if (parts.length >= 2) next = updateField(next, 'contact.phone', parts[1] || '');
+                  if (parts.length >= 3) next = updateField(next, 'contact.address', parts.slice(2).join(' | '));
+                  if (parts.length === 0) {
+                    next = updateField(next, 'contact.email', '');
+                    next = updateField(next, 'contact.phone', '');
+                    next = updateField(next, 'contact.address', '');
+                  }
+                  setLocal(next);
+                  pendingRef.current = next;
+                  if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+                  saveTimerRef.current = setTimeout(() => {
+                    saveTimerRef.current = null;
+                    const payload = pendingRef.current;
+                    pendingRef.current = null;
+                    if (payload) onStructuredChange?.(payload);
+                  }, 700);
+                }}
+              onSuggestionClick={handleSuggestionClick}
+            />
+          </div>
 
           <div className={HEADING_CLASS} contentEditable={false}>
             PROFESSIONAL SUMMARY

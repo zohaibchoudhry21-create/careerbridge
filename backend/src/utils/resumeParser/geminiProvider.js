@@ -1,10 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiConfig, getGeminiModelCandidates, isGeminiConfigured } from '../../config/geminiConfig.js';
 
 let genAI = null;
 
 const getGenAI = () => {
   if (!genAI) {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const { apiKey } = getGeminiConfig();
     if (!apiKey) {
       throw new Error('Gemini API key is not configured');
     }
@@ -13,22 +14,25 @@ const getGenAI = () => {
   return genAI;
 };
 
-const getGeminiModels = () => {
-  const primary = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-  return [primary, 'gemini-2.5-flash', 'gemini-2.0-flash-lite', 'gemini-2.0-flash'].filter(
-    (model, index, list) => list.indexOf(model) === index
-  );
-};
-
 const callGemini = async (modelName, prompt) => {
-  const model = getGenAI().getGenerativeModel({ model: modelName });
+  const model = getGenAI().getGenerativeModel({
+    model: modelName,
+    generationConfig: {
+      temperature: 0.1,
+      responseMimeType: 'application/json',
+    },
+  });
   const result = await model.generateContent(prompt);
   return result.response.text().trim();
 };
 
 export const generateWithGemini = async (prompt, { sleep, isRetryableError, maxRetries, retryDelayMs }) => {
+  if (!isGeminiConfigured()) {
+    throw new Error('Gemini API key is not configured');
+  }
+
   let lastError = null;
-  const models = getGeminiModels();
+  const models = getGeminiModelCandidates();
 
   for (const modelName of models) {
     for (let attempt = 1; attempt <= maxRetries; attempt += 1) {

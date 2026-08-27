@@ -384,7 +384,9 @@ export const runAnalysisPipeline = async (analysisId, userId, { file } = {}) => 
       status: 'failed',
       progress: 100,
       statusMessage: 'Analysis failed',
-      errorMessage: error.message || 'Analysis failed',
+      errorMessage:
+        error?.message ||
+        'Analysis failed — please try again in a moment.',
     });
   } finally {
     runningJobs.delete(String(analysisId));

@@ -7,11 +7,28 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 
+const keyTail = (value) => {
+  const key = String(value || '').trim();
+  if (!key) return '(not set)';
+  return key.length <= 4 ? key : `…${key.slice(-4)}`;
+};
+
+console.log(
+  '[resume AI keys]',
+  `GROQ_API_KEY=${keyTail(process.env.GROQ_API_KEY)}`,
+  `| GROQ_API_KEY_FALLBACK=${keyTail(process.env.GROQ_API_KEY_FALLBACK)}`,
+  `| GEMINI_API_KEY=${keyTail(process.env.GEMINI_API_KEY)}`
+);
+
 console.log(
   '[resume AI]',
-  process.env.GROQ_API_KEY?.trim()
-    ? 'Groq configured'
+  process.env.GROQ_API_KEY?.trim() || process.env.GROQ_API_KEY_FALLBACK?.trim()
+    ? process.env.GROQ_API_KEY_FALLBACK?.trim()
+      ? 'Groq configured (primary + fallback key)'
+      : 'Groq configured'
     : 'Groq not set',
+  '|',
+  process.env.GEMINI_API_KEY?.trim() ? 'Gemini configured' : 'Gemini not set',
   '|',
   process.env.ANTHROPIC_API_KEY?.trim()
     ? 'Claude configured'

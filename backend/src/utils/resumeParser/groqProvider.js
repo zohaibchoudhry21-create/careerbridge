@@ -1,4 +1,4 @@
-import { getGroqConfig } from '../../config/groqConfig.js';
+import { getGroqConfig, getGroqApiKeys, isGroqRateLimitError } from '../../config/groqConfig.js';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
@@ -7,8 +7,7 @@ const getGroqModels = () => {
   return [model, fastModel].filter((name, index, list) => name && list.indexOf(name) === index);
 };
 
-const callGroq = async (modelName, prompt) => {
-  const apiKey = process.env.GROQ_API_KEY;
+const callGroq = async (modelName, prompt, apiKey) => {
   if (!apiKey) {
     throw new Error('Groq API key is not configured');
   }
@@ -51,29 +50,47 @@ const callGroq = async (modelName, prompt) => {
 export const generateWithGroq = async (prompt, { sleep, isRetryableError, maxRetries, retryDelayMs }) => {
   let lastError = null;
   const models = getGroqModels();
+  const apiKeys = getGroqApiKeys();
 
-  for (const modelName of models) {
-    for (let attempt = 1; attempt <= maxRetries; attempt += 1) {
-      try {
-        console.log(`Groq: trying ${modelName} (attempt ${attempt}/${maxRetries})`);
-        const content = await callGroq(modelName, prompt);
-        return { content, modelName: `groq/${modelName}` };
-      } catch (error) {
-        lastError = error;
-        const message = error.response?.data?.error?.message || error.message;
-        console.error(`Groq ${modelName} attempt ${attempt} failed:`, message);
+  if (!apiKeys.length) {
+    throw new Error('Groq API key is not configured');
+  }
 
-        const retryable =
-          isRetryableError(error) ||
-          error.response?.status === 429 ||
-          error.response?.status === 503;
+  for (let keyIndex = 0; keyIndex < apiKeys.length; keyIndex += 1) {
+    const apiKey = apiKeys[keyIndex];
+    const keyLabel = keyIndex === 0 ? 'primary' : `fallback#${keyIndex}`;
 
-        if (retryable && attempt < maxRetries) {
-          await sleep(retryDelayMs * attempt);
-          continue;
+    for (const modelName of models) {
+      let switchKey = false;
+      for (let attempt = 1; attempt <= maxRetries; attempt += 1) {
+        try {
+          console.log(`Groq: trying ${modelName} (${keyLabel}, attempt ${attempt}/${maxRetries})`);
+          const content = await callGroq(modelName, prompt, apiKey);
+          return { content, modelName: `groq/${modelName}` };
+        } catch (error) {
+          lastError = error;
+          const message = error.response?.data?.error?.message || error.message;
+          console.error(`Groq ${modelName} ${keyLabel} attempt ${attempt} failed:`, message);
+
+          if (isGroqRateLimitError(error) && keyIndex < apiKeys.length - 1) {
+            console.warn(`[resume-parser] Rate/quota on ${keyLabel}; switching Groq API key`);
+            switchKey = true;
+            break;
+          }
+
+          const retryable =
+            isRetryableError(error) ||
+            error.response?.status === 429 ||
+            error.response?.status === 503;
+
+          if (retryable && attempt < maxRetries && !/tokens per day|TPD/i.test(String(message))) {
+            await sleep(retryDelayMs * attempt);
+            continue;
+          }
+          break;
         }
-        break;
       }
+      if (switchKey) break;
     }
   }
 

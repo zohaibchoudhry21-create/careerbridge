@@ -38,7 +38,10 @@ Core rules:
     - experience-match insight → scoreBreakdown.keywordCoverage.notes and/or recruiterTips
     - final hiring recommendation → last recruiterTips entry prefixed with "Recommendation: "
     - ATS structure/readability issues → searchabilityIssues
-19. Return JSON only. No markdown. No text outside JSON.`;
+19. Always include suggestions, searchabilityIssues, and recruiterTips as arrays (use [] when empty). Do not omit these keys — they are required and must appear before the JSON ends.
+20. Keep the payload compact so generation completes under token limits: at most 10 skills (must-have JD skills first), at most 8 suggestions, and keep every notes/matchEvidence/reason field to one short sentence.
+21. Always finish scoreBreakdown with all four components (including quantifiedAchievements), then suggestions, then searchabilityIssues, then recruiterTips.
+22. Return JSON only. No markdown. No text outside JSON.`;
 
 export const buildResumeScannerPrompt = ({
   resumeText,
@@ -60,6 +63,7 @@ ${resumeText}
 """
 
 Analyze the resume against the job title (if provided) and job description.
+Keep skills ≤10 and suggestions ≤8. Keep notes short. Always include the trailing arrays.
 Return JSON only in exactly this shape:
 {
   "jobTitle": "string — inferred or confirmed role title from the job description",

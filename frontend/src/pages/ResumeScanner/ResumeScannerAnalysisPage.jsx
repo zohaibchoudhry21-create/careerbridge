@@ -11,12 +11,13 @@ import useAuth from '../../hooks/useAuth';
 import { DashboardLayout } from '../../components/layout';
 import ResumeEditor from '../../features/resumeScanner/components/ResumeEditor';
 import ScannerSectionEditor from '../../features/resumeScanner/components/ScannerSectionEditor';
-import StructuredResumeView from '../../features/resumeScanner/components/StructuredResumeView';
 import SkillsSidebar from '../../features/resumeScanner/components/SkillsSidebar';
 import SuggestionToolbar from '../../features/resumeScanner/components/SuggestionToolbar';
 import RewriteComparisonPanel from '../../features/resumeScanner/components/RewriteComparisonPanel';
 import WorkflowPhaseRail from '../../features/resumeScanner/components/WorkflowPhaseRail';
 import DonePanel from '../../features/resumeScanner/components/DonePanel';
+import ResumePreview from '../../features/resumeBuilder/components/ResumePreview';
+import { DEFAULT_TEMPLATE } from '../../features/resumeBuilder/components/templatesConfig';
 import {
   useAcceptAllSuggestions,
   useDownloadResumeScannerPdf,
@@ -32,9 +33,10 @@ import { resolveApiError } from '../../utils/apiError';
 import { cn } from '../../lib/utils';
 import Skeleton from '../../components/Skeleton';
 import {
-  hasStructuredResumeData,
-  structuredResumeToSections,
-} from '../../features/resumeScanner/utils/structuredResumeUtils';
+  hasParsedData,
+  normalizeParsedData,
+  structuredResumeToParsedData,
+} from '../../features/resumeScanner/utils/structuredResumeBuilderUtils';
 import {
   WORKFLOW_PHASES,
   canShowDownloadPdf,
@@ -223,11 +225,13 @@ export default function ResumeScannerAnalysisPage() {
     setWorkflowPhase(WORKFLOW_PHASES.FINALIZE);
   }, []);
 
-  const previewSections = analysis
-    ? hasStructuredResumeData(analysis.structuredResume)
-      ? structuredResumeToSections(analysis.structuredResume)
-      : analysis.structuredSections
+  const previewParsedData = analysis
+    ? hasParsedData(analysis.parsedData)
+      ? normalizeParsedData(analysis.parsedData)
+      : structuredResumeToParsedData(analysis.structuredResume, analysis.parsedData)
     : null;
+
+  const previewTemplateId = analysis?.templateId || DEFAULT_TEMPLATE;
 
   const handleAcceptAll = useCallback(async () => {
     const before = analysis;
@@ -460,11 +464,8 @@ export default function ResumeScannerAnalysisPage() {
 
                     {viewMode === 'preview' ? (
                       <div className="flex-1 overflow-y-auto p-6 lg:p-12 flex justify-center bg-slate-50 min-h-0">
-                        <div className="w-full max-w-[800px]">
-                          <StructuredResumeView
-                            structuredSections={previewSections}
-                            fallbackText={analysis.resumeText}
-                          />
+                        <div className="w-full max-w-[800px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+                          <ResumePreview data={previewParsedData} templateId={previewTemplateId} />
                         </div>
                       </div>
                     ) : (
@@ -472,6 +473,7 @@ export default function ResumeScannerAnalysisPage() {
                         ref={editorRef}
                         structuredResume={analysis.structuredResume}
                         suggestions={analysis.suggestions}
+                        templateId={analysis.templateId || DEFAULT_TEMPLATE}
                         onStructuredChange={handleStructuredChange}
                         onSuggestionAction={handleSuggestionAction}
                         isSaving={isSaving}
